@@ -1,0 +1,27 @@
+Goal:
+
+To be able to do simple sequencing and dimming of low-current (1 amp-ish) loads with a cheap and simple board.
+
+* ESP32 based, to get up to 16 outputs (all can be PWMed)
+* Board to plug an ESP dev board in and hold the MOSFETS
+* Small Mosfets
+* 8 outputs by default, chain a second board (stack?) to support a full 16 outputs.
+* Board only switches input to ground, so 8 separate outputs rather than +/- on each output.
+* Software based on existing controller? 
+* 5V or 12V? (can onboard regulator work okay for 12V?)
+* Are driver transistors needed to switch fast enough?
+* Can outputs be paralled to get more current? 
+
+Investigation:
+
+* Select mosfets and test with target load and different dimming levels.
+* Start board design. 
+
+MOSFET
+
+Infineon BSR202N
+
+33 milliOhm @ 2.5V drive
+3.8 amps
+
+PG-SC-59 package 
