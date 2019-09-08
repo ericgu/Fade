@@ -166,46 +166,17 @@ Wire Wire Line
 Wire Wire Line
 	6500 2450 6500 2750
 Connection ~ 6850 2750
-$Comp
-L Connector:Conn_01x09_Male Output1
-U 1 1 5D37D6CF
-P 10100 3150
-F 0 "Output1" H 10073 3080 50  0000 R CNN
-F 1 "Conn_01x09_Male" H 10073 3171 50  0000 R CNN
-F 2 "Pin_Headers:Pin_Header_Straight_1x09_Pitch2.54mm" H 10100 3150 50  0001 C CNN
-F 3 "~" H 10100 3150 50  0001 C CNN
-	1    10100 3150
-	-1   0    0    1   
-$EndComp
 Wire Wire Line
-	8950 4550 9900 4550
-Wire Wire Line
-	9900 4550 9900 3550
+	8950 4550 9600 4550
 Connection ~ 8950 4550
 Wire Wire Line
-	8950 4150 9800 4150
+	8950 4150 9400 4150
 Wire Wire Line
-	9800 4150 9800 3450
+	8600 3850 9250 3850
 Wire Wire Line
-	9800 3450 9900 3450
+	8250 3550 9100 3550
 Wire Wire Line
-	8600 3850 9700 3850
-Wire Wire Line
-	9700 3850 9700 3350
-Wire Wire Line
-	9700 3350 9900 3350
-Wire Wire Line
-	8250 3550 9600 3550
-Wire Wire Line
-	9600 3550 9600 3250
-Wire Wire Line
-	9600 3250 9900 3250
-Wire Wire Line
-	7900 3250 9500 3250
-Wire Wire Line
-	9500 3250 9500 3150
-Wire Wire Line
-	9500 3150 9900 3150
+	7900 3250 9050 3250
 Wire Wire Line
 	6500 2050 9800 2050
 Wire Wire Line
@@ -222,8 +193,6 @@ Wire Wire Line
 	7200 2650 9600 2650
 Wire Wire Line
 	9600 2650 9600 2950
-Wire Wire Line
-	9600 2950 9900 2950
 Wire Wire Line
 	7550 2950 9500 2950
 Wire Wire Line
@@ -357,35 +326,63 @@ Wire Wire Line
 Connection ~ 8600 4550
 Connection ~ 5900 3850
 Wire Wire Line
-	5900 4550 3600 4550
-Wire Wire Line
 	3050 4550 3050 3850
 Connection ~ 5900 4550
 Connection ~ 3050 3850
+Text Label 9600 4550 0    50   ~ 0
+GND
 $Comp
-L Connector:Conn_01x02_Male J1
-U 1 1 5D4A19B1
-P 3400 4150
-F 0 "J1" H 3506 4328 50  0000 C CNN
-F 1 "Conn_01x02_Male" H 3506 4237 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Straight_1x02_Pitch2.54mm" H 3400 4150 50  0001 C CNN
-F 3 "~" H 3400 4150 50  0001 C CNN
-	1    3400 4150
-	1    0    0    -1  
+L Connector:Conn_01x11_Male J1
+U 1 1 5D6D343D
+P 10100 2950
+F 0 "J1" H 10073 2973 50  0000 R CNN
+F 1 "Conn_01x11_Male" H 10073 2882 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x11_Pitch2.54mm" H 10100 2950 50  0001 C CNN
+F 3 "~" H 10100 2950 50  0001 C CNN
+	1    10100 2950
+	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	3900 3950 3900 4150
+	9600 2950 9900 2950
 Wire Wire Line
-	3900 4150 3600 4150
+	9050 3150 9050 3250
 Wire Wire Line
-	3600 4250 3600 4550
-Connection ~ 3600 4550
+	9050 3150 9900 3150
 Wire Wire Line
-	3600 4550 3050 4550
-Text Label 9900 4550 0    50   ~ 0
-GND
-Text Label 10100 2750 0    50   ~ 0
-OUT1
-Text Label 10100 3450 0    50   ~ 0
-OUT8
+	9100 3250 9100 3550
+Wire Wire Line
+	9100 3250 9900 3250
+Wire Wire Line
+	9250 3350 9250 3850
+Wire Wire Line
+	9250 3350 9900 3350
+Wire Wire Line
+	9400 3450 9400 4150
+Wire Wire Line
+	9400 3450 9900 3450
+Wire Wire Line
+	9600 3650 9600 4550
+Wire Wire Line
+	3900 4800 9800 4800
+Wire Wire Line
+	9800 4800 9800 3750
+Wire Wire Line
+	3050 4550 5900 4550
+Wire Wire Line
+	3900 3950 3900 4800
+Wire Wire Line
+	10350 3650 10350 2650
+Wire Wire Line
+	9600 3650 10350 3650
+Wire Wire Line
+	9900 2650 9900 2550
+Connection ~ 9900 2650
+Wire Wire Line
+	10600 3750 10600 2450
+Wire Wire Line
+	10600 2450 9900 2450
+Wire Wire Line
+	9800 3750 10600 3750
+Wire Wire Line
+	9900 2650 10350 2650
 $EndSCHEMATC
