@@ -154,9 +154,11 @@
     <ClInclude Include="CommandSourceSimulator.h" />
     <ClInclude Include="CommandSourceSimulatorTest.h" />
     <ClInclude Include="CommandSourceTest.h" />
+    <ClInclude Include="CommandTest.h" />
     <ClInclude Include="ExecutionFlowTest.h" />
     <ClInclude Include="IntegrationTest.h" />
     <ClInclude Include="LedManagerTest.h" />
+    <ClInclude Include="ListParserTest.h" />
     <ClInclude Include="LoopTest.h" />
     <ClInclude Include="Serial.h" />
     <ClInclude Include="StackTest.h" />

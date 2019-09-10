@@ -21,7 +21,7 @@ class Timebase
 				LedCommand ledCommand = _executionFlow.GetNextLedCommand();
 
 				_currentCount = ledCommand._cycleCount;
-				_pLedManager->SetDelta(ledCommand._brightnessTarget, 1);
+				_pLedManager->SetDelta(ledCommand._commandResult, ledCommand._cycleCount);
 	        }
 
 			_pLedManager->Tick();

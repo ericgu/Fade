@@ -48,14 +48,12 @@ class LedManagerTest
 	static void Test()
 	{
 		LedPwmSimulator ledPwm(100);
-
 		LedManager ledManager(&ledPwm, 1);
 
+		CommandResult commandResult;
+		commandResult.AddTarget(LedState(0, 1.0));
 
-		BrightnessTarget brightnessTarget;
-		brightnessTarget.AddTarget(LedState(0, 1.0));
-
-		ledManager.SetDelta(brightnessTarget, 1);
+		ledManager.SetDelta(commandResult, 1);
 		ledManager.Tick();
 
 		Assert::AreEqual(1, ledPwm.GetUpdateCount());
@@ -68,11 +66,11 @@ class LedManagerTest
 
 		LedManager ledManager(&ledPwm, 2);
 
-		BrightnessTarget brightnessTarget;
-		brightnessTarget.AddTarget(LedState(0, 1.0));
-		brightnessTarget.AddTarget(LedState(1, 2.0));
+		CommandResult commandResult;
+		commandResult.AddTarget(LedState(0, 1.0));
+		commandResult.AddTarget(LedState(1, 2.0));
 
-		ledManager.SetDelta(brightnessTarget, 1);
+		ledManager.SetDelta(commandResult, 1);
 
 		ledManager.Tick();
 
@@ -95,10 +93,10 @@ class LedManagerTest
 
 		LedManager ledManager(&ledPwm, 1);
 
-		BrightnessTarget brightnessTarget;
-		brightnessTarget.AddTarget(LedState(0, 20.0));
+		CommandResult commandResult;
+		commandResult.AddTarget(LedState(0, 20.0));
 
-		ledManager.SetDelta(brightnessTarget, 10);
+		ledManager.SetDelta(commandResult, 10);
 
 		for (int i = 1; i < 6; i++)
 		{

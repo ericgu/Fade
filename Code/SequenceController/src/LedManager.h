@@ -2,7 +2,7 @@
 class ILedManager
 {
 public:
-	virtual void SetDelta(BrightnessTarget brightnessTarget, int steps) = 0;
+	virtual void SetDelta(CommandResult commandResult, int steps) = 0;
 
 	virtual void Tick() = 0;
 };
@@ -31,15 +31,22 @@ class LedManager: public ILedManager
             }
         }
 
-		void SetDelta(BrightnessTarget brightnessTarget, int steps)
+		void SetDelta(CommandResult commandResult, int steps)
 		{
-			for (int item = 0; item < brightnessTarget.GetCount(); item++)
+			for (int channel = 0; channel < _channelCount; channel++)
 			{
-				LedState ledState = brightnessTarget.GetTarget(item);
+				_deltas[channel] = LedState(channel, 0);
+			}
+
+			for (int item = 0; item < commandResult.GetCount(); item++)
+			{
+				LedState ledState = commandResult.GetTarget(item);
 
 				// TODO: save target so that we get to the exact endpoint?
 
-				_deltas[ledState.GetChannel()] = LedState(ledState.GetChannel(), ledState.GetBrightness() / steps);
+				float delta = ledState.GetBrightness() - _states[ledState.GetChannel()].GetBrightness();
+
+				_deltas[ledState.GetChannel()] = LedState(ledState.GetChannel(), delta / steps);
 			}
 		}
 
@@ -49,6 +56,10 @@ class LedManager: public ILedManager
             {
                 _states[i].Update(_deltas[i]);
                 _pLedPwm->UpdateLed(_states[i]);
+                //_states[i].GetBrightness();
+                //Serial.print(_states[i].GetBrightness());
+                //Serial.print(" ");
             }
+            //Serial.println();
         }
 };

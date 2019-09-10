@@ -6,7 +6,7 @@ class VariableTest
 {
 	static void TestParseInt()
 	{
-		Variable variable = Variable::ParseInt("15");
+		Variable variable = Variable::ParseFloat("15");
 		Assert::AreEqual(15, variable.GetValueInt());
 		Assert::AreEqual(15.0F, variable.GetValueFloat());
 	}
@@ -19,8 +19,8 @@ class VariableTest
 
 	static void TestIncrement()
 	{
-		Variable variable = Variable::ParseInt("15");
-		variable.Increment();
+		Variable variable = Variable::ParseFloat("15");
+		variable.Increment(1.0F);
 		Assert::AreEqual(16, variable.GetValueInt());
 		Assert::AreEqual(16.0F, variable.GetValueFloat());
 	}
@@ -48,6 +48,20 @@ class VariableTest
 		variable.SetActiveFlag(true);
 	}
 
+	static void TestParseFloatOrVariable()
+	{
+		VariableCollection variableCollection;
+
+		variableCollection.Get(2).SetActiveFlag(true);
+		variableCollection.Get(2).SetValue(55.0F);
+
+		Variable parsed = variableCollection.ParseFloatOrVariable("88.0");
+		Assert::AreEqual(88.0F, parsed.GetValueFloat());
+
+		parsed = variableCollection.ParseFloatOrVariable("%C");
+		Assert::AreEqual(55.0F, parsed.GetValueFloat());
+	}
+
 public:
 
 	static int Run()
@@ -59,6 +73,8 @@ public:
 		TestConstructorFloat();
 
 		TestCollectionWorks();
+
+		TestParseFloatOrVariable();
 
 		return 0;
 	}

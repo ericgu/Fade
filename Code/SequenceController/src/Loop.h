@@ -1,17 +1,28 @@
 class Loop
 {
 	int _variableNumber;
-	int _variableMin;
-	int _variableMax;
+	float _variableStart;
+	float _variableEnd;
+	float _variableInc;
 	int _match;
 	int _errorOffset;
+
+	static const char* FindColonOrEnd(const char *pCommand)
+	{
+		while (*pCommand != ':' && *pCommand != '\0')
+		{
+			pCommand++;
+		}
+		return pCommand;
+	}
 
     public:
 		Loop()
 		{
 			_variableNumber = 0;
-			_variableMin = 0;
-			_variableMax = 0;
+			_variableStart = 0;
+			_variableEnd = 0;
+			_variableInc = 1;
 			_match = 0;
 			_errorOffset = 0;
 		}
@@ -47,12 +58,10 @@ class Loop
 
 		pCommand += 2; // skip to number...
 
-		loop._variableMin = atoi(pCommand);
+		loop._variableStart = (float) atof(pCommand);
 
-		while (*pCommand != ':' && *pCommand != '\0')
-		{
-			pCommand++;
-		}
+
+		pCommand = FindColonOrEnd(pCommand);
 
 		if (*pCommand == '\0')
 		{
@@ -62,7 +71,14 @@ class Loop
 
 		pCommand++;
 
-		loop._variableMax = atoi(pCommand);
+		loop._variableEnd = (float) atof(pCommand);
+
+		pCommand = FindColonOrEnd(pCommand);
+		if (*pCommand != '\0')	// has optional increment
+		{
+			pCommand++;
+			loop._variableInc = (float)atof(pCommand);
+		}
 
 		loop._match = 1;
 
@@ -74,14 +90,19 @@ class Loop
 		return _variableNumber;
     }
 
-    int GetVariableMin()
+	float GetVariableStart()
     {
-		return _variableMin;
+		return _variableStart;
     }
 
-	int GetVariableMax()
+	float GetVariableEnd()
 	{
-		return _variableMax;
+		return _variableEnd;
+	}
+
+	float GetVariableInc()
+	{
+		return _variableInc;
 	}
 
 	int GetMatch()
@@ -92,5 +113,13 @@ class Loop
 	int GetErrorOffset()
 	{
 		return _errorOffset;
+	}
+
+	int GetIsInRange(float value)
+	{
+		float min = _variableStart < _variableEnd ? _variableStart : _variableEnd;
+		float max = _variableStart < _variableEnd ? _variableEnd : _variableStart;
+
+		return value >= min && value <= max;
 	}
 };

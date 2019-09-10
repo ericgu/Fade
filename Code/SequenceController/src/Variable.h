@@ -1,53 +1,39 @@
 class Variable
 {
 	int _active;
-	int _valueInt;
-	float _valueFloat;
+	float _value;
 
 public:
 	Variable()
 	{
 		_active = 0;
-		_valueInt = 0;
-		_valueFloat = 0.0;
+		_value = 0.0;
 	}
 
 	Variable(int value)
 	{
 		_active = true;
-		_valueInt = value;
-		_valueFloat = (float) value;
+		_value = (float) value;
 	}
 
 	Variable(float value)
 	{
 		_active = true;
-		_valueInt = -1;
-		_valueFloat = value;
-	}
-
-	static Variable ParseInt(const char* pCommand)
-	{
-		Variable variable; 
-
-		variable._valueInt = atoi(pCommand);
-		variable._valueFloat = (float) variable._valueInt;
-
-		return variable;
+		_value = value;
 	}
 
 	static Variable ParseFloat(const char* pCommand)
 	{
 		Variable variable;
-		variable._valueFloat = (float) atof(pCommand);
+		variable._value = (float) atof(pCommand);
 
 		return variable;
 	}
 
-	void Increment()
+	void Increment(float increment)
 	{
-		_valueInt++;
-		_valueFloat++;
+		_value += increment;
+        //Serial.println(_value);
 	}
 
 	void SetActiveFlag(int active)
@@ -57,11 +43,10 @@ public:
 
 	int GetActiveFlag() { return _active; }
 
-	int GetValueInt() { return _valueInt; }
-	void SetValueInt(int value) { _valueInt = value; }
+	int GetValueInt() { return (int) _value; }
 
-	float GetValueFloat() { return _valueFloat; }
-	void SetValueFloat(float value) { _valueFloat = value; }
+	float GetValueFloat() { return _value; }
+	void SetValue(float value) { _value = value; }
 };
 
 class VariableCollection
@@ -79,6 +64,22 @@ public:
 		}
 
 		return _variables[index];
+	}
+
+	Variable ParseFloatOrVariable(const char* pCommand)
+	{
+		if (*pCommand == '%')
+		{
+			pCommand++;
+
+			int variableNumber = *pCommand - 'A';
+
+			return _variables[variableNumber];
+		}
+		else
+		{
+			return Variable::ParseFloat(pCommand);
+		}
 	}
 
 };

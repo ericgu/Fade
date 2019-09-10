@@ -5,7 +5,7 @@
 
 class CommandDecoderTest
 {
-	static void AreEqual(CommandResult expected, CommandResult actual)
+	static void AreEqual(CommandResultStatus expected, CommandResultStatus actual)
 	{
 		if (expected != actual)
 		{
@@ -24,12 +24,12 @@ class CommandDecoderTest
 	static void TestSingle()
 	{
 		ExecutionContext executionContext;
-		CommandDecoder::Decode(executionContext, Command(0, "D0,1.0", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("0", "D0,1.0", 15));
 
-		Assert::AreEqual(1, executionContext._brightnessTarget.GetCount());
+		Assert::AreEqual(1, commandResult.GetCount());
 
-		AssertLedState(executionContext._brightnessTarget.GetTarget(0), 0, 1.0);
-		AreEqual(CommandResult::CommandExecute, executionContext._commandResult);
+		AssertLedState(commandResult.GetTarget(0), 0, 1.0);
+		AreEqual(CommandResultStatus::CommandExecute, commandResult.GetStatus());
 	}
 
 	static void TestSingleWithVariables()
@@ -38,35 +38,35 @@ class CommandDecoderTest
 		executionContext._variables.Get(0) = Variable(3);
 		executionContext._variables.Get(1) = Variable(1.0F);
 
-		CommandDecoder::Decode(executionContext, Command(0, "D%A,%B", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("0", "D%A,%B", 15));
 
-		Assert::AreEqual(1, executionContext._brightnessTarget.GetCount());
+		Assert::AreEqual(1, commandResult.GetCount());
 
-		AssertLedState(executionContext._brightnessTarget.GetTarget(0), 3, 1.0);
-		AreEqual(CommandResult::CommandExecute, executionContext._commandResult);
+		AssertLedState(commandResult.GetTarget(0), 3, 1.0);
+		AreEqual(CommandResultStatus::CommandExecute, commandResult.GetStatus());
 	}
 
 	static void TestDouble()
 	{
 		ExecutionContext executionContext;
-		CommandDecoder::Decode(executionContext, Command(0, "D2,2.0,10,8.0", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("0", "D2,2.0,10,8.0", 15));
 
-		Assert::AreEqual(2, executionContext._brightnessTarget.GetCount());
+		Assert::AreEqual(2, commandResult.GetCount());
 
-		AssertLedState(executionContext._brightnessTarget.GetTarget(0), 2, 2.0);
-		AssertLedState(executionContext._brightnessTarget.GetTarget(1), 10, 8.0);
-		AreEqual(CommandResult::CommandExecute, executionContext._commandResult);
+		AssertLedState(commandResult.GetTarget(0), 2, 2.0);
+		AssertLedState(commandResult.GetTarget(1), 10, 8.0);
+		AreEqual(CommandResultStatus::CommandExecute, commandResult.GetStatus());
 	}
 
 	static void TestSequential()
 	{
 		ExecutionContext executionContext;
-		CommandDecoder::Decode(executionContext, Command(0, "S1.0", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("0", "S1.0", 15));
 
-		Assert::AreEqual(1, executionContext._brightnessTarget.GetCount());
+		Assert::AreEqual(1, commandResult.GetCount());
 
-		AssertLedState(executionContext._brightnessTarget.GetTarget(0), 0, 1.0);
-		AreEqual(CommandResult::CommandExecute, executionContext._commandResult);
+		AssertLedState(commandResult.GetTarget(0), 0, 1.0);
+		AreEqual(CommandResultStatus::CommandExecute, commandResult.GetStatus());
 	}
 
 	static void TestSequentialWithVariables()
@@ -75,26 +75,26 @@ class CommandDecoderTest
 		executionContext._variables.Get(0) = Variable(3);
 		executionContext._variables.Get(1) = Variable(13.33F);
 
-		CommandDecoder::Decode(executionContext, Command(0, "S%B", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("0", "S%B", 15));
 
-		Assert::AreEqual(1, executionContext._brightnessTarget.GetCount());
+		Assert::AreEqual(1, commandResult.GetCount());
 
-		AssertLedState(executionContext._brightnessTarget.GetTarget(0), 0, 13.33F);
-		AreEqual(CommandResult::CommandExecute, executionContext._commandResult);
+		AssertLedState(commandResult.GetTarget(0), 0, 13.33F);
+		AreEqual(CommandResultStatus::CommandExecute, commandResult.GetStatus());
 	}
 
 	static void TestSequentialSeries()
 	{
 		ExecutionContext executionContext;
-		CommandDecoder::Decode(executionContext, Command(0, "S1.0,2.0,3.0,4.0,5.0,6.0", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("0", "S1.0,2.0,3.0,4.0,5.0,6.0", 15));
 
-		Assert::AreEqual(6, executionContext._brightnessTarget.GetCount());
+		Assert::AreEqual(6, commandResult.GetCount());
 
 		for (int i = 0; i < 6; i++)
 		{
-			AssertLedState(executionContext._brightnessTarget.GetTarget(i), i, (i + 1) * 1.0F);
+			AssertLedState(commandResult.GetTarget(i), i, (i + 1) * 1.0F);
 		}
-		AreEqual(CommandResult::CommandExecute, executionContext._commandResult);
+		AreEqual(CommandResultStatus::CommandExecute, commandResult.GetStatus());
 	}
 
 	static void ValidateVariable(ExecutionContext executionContext, int variableNumber, int active, int value)
@@ -107,11 +107,11 @@ class CommandDecoderTest
 	static void TestLoopStart()
 	{
 		ExecutionContext executionContext;
-		CommandDecoder::Decode(executionContext, Command(0, "LOOP %A 2:7", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("0", "LOOP %A 2:7", 15));
 
 		ValidateVariable(executionContext, 0, 1, 2);
 
-		AreEqual(CommandResult::CommandSkipToNext, executionContext._commandResult);
+		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 
 		Assert::AreEqual(1, executionContext._stack.GetFrameCount());
 		Assert::AreEqual(15, executionContext._stack.GetTopFrame().SerialNumberStart);
@@ -120,47 +120,47 @@ class CommandDecoderTest
 	static void TestLoopEnd()
 	{
 		ExecutionContext executionContext;
-		CommandDecoder::Decode(executionContext, Command(0, "ENDLOOP", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("0", "ENDLOOP", 15));
 
-		AreEqual(CommandResult::CommandEndOfLoop, executionContext._commandResult);
+		AreEqual(CommandResultStatus::CommandEndOfLoop, commandResult.GetStatus());
 	}
 
 	static void TestLoopStep()
 	{
 		ExecutionContext executionContext;
-		CommandDecoder::Decode(executionContext, Command(0, "LOOP %A 2:7", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("0", "LOOP %A 2:7", 15));
 
 		ValidateVariable(executionContext, 0, 1, 2);
 		
-		AreEqual(CommandResult::CommandSkipToNext, executionContext._commandResult);
+		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 
 		Assert::AreEqual(1, executionContext._stack.GetFrameCount());
 		Assert::AreEqual(15, executionContext._stack.GetTopFrame().SerialNumberStart);
 
-		CommandDecoder::Decode(executionContext, Command(0, "LOOP %A 2:7", 15));
+		commandResult = CommandDecoder::Decode(executionContext, Command("0", "LOOP %A 2:7", 15));
 
 		ValidateVariable(executionContext, 0, 1, 3);
 
-		AreEqual(CommandResult::CommandSkipToNext, executionContext._commandResult);
+		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 	}
 
 	static void TestLoopEndDetection()
 	{
 		ExecutionContext executionContext;
-		CommandDecoder::Decode(executionContext, Command(0, "LOOP %A 2:2", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("0", "LOOP %A 2:2", 15));
 
 		ValidateVariable(executionContext, 0, 1, 2);
 
-		AreEqual(CommandResult::CommandSkipToNext, executionContext._commandResult);
+		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 
 		Assert::AreEqual(1, executionContext._stack.GetFrameCount());
 		Assert::AreEqual(15, executionContext._stack.GetTopFrame().SerialNumberStart);
 
-		CommandDecoder::Decode(executionContext, Command(0, "LOOP %A 2:2", 15));
+		commandResult = CommandDecoder::Decode(executionContext, Command("0", "LOOP %A 2:2", 15));
 
 		ValidateVariable(executionContext, 0, 0, 3);
 
-		AreEqual(CommandResult::CommandExitLoopBody, executionContext._commandResult);
+		AreEqual(CommandResultStatus::CommandExitLoopBody, commandResult.GetStatus());
 	}
 
 public:

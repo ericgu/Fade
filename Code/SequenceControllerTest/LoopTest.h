@@ -2,14 +2,15 @@
 
 class LoopTest
 {
-	static void TestFirst()
+	static void TestSimple()
 	{
 		Loop loop = Loop::Parse("LOOP %B 2:7");
 
 		Assert::AreEqual(1, loop.GetMatch());
 		Assert::AreEqual(1, loop.GetVariableNumber());
-		Assert::AreEqual(2, loop.GetVariableMin());
-		Assert::AreEqual(7, loop.GetVariableMax());
+		Assert::AreEqual(2.0F, loop.GetVariableStart());
+		Assert::AreEqual(7.0F, loop.GetVariableEnd());
+		Assert::AreEqual(1.0F, loop.GetVariableInc());
 	}
 
 	static void TestNoMatch()
@@ -44,15 +45,40 @@ class LoopTest
 		Assert::AreEqual(9, loop.GetErrorOffset());
 	}
 
+	static void TestWithIncrement()
+	{
+		Loop loop = Loop::Parse("LOOP %B 2:3:0.5");
+
+		Assert::AreEqual(1, loop.GetMatch());
+		Assert::AreEqual(1, loop.GetVariableNumber());
+		Assert::AreEqual(2.0F, loop.GetVariableStart());
+		Assert::AreEqual(3.0F, loop.GetVariableEnd());
+		Assert::AreEqual(0.5F, loop.GetVariableInc());
+	}
+
+	static void TestInRangeCheck()
+	{
+		Loop loop = Loop::Parse("LOOP %B 2:3:0.5");
+
+		Assert::AreEqual(0, loop.GetIsInRange(0.99F));
+		Assert::AreEqual(1, loop.GetIsInRange(2.0F));
+		Assert::AreEqual(1, loop.GetIsInRange(2.5F));
+		Assert::AreEqual(1, loop.GetIsInRange(3.0F));
+		Assert::AreEqual(0, loop.GetIsInRange(3.01F));
+	}
+
 public:
 
 	static int Run()
 	{
-		TestFirst();
+		TestSimple();
 		TestNoMatch();
 		TestMissingPercent();
 		TestInvalidVariable();
 		TestMissingColon();
+		TestWithIncrement();
+
+		TestInRangeCheck();
 
 		return 0;
 	}

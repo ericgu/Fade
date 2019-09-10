@@ -1,12 +1,12 @@
 class LedCommand
 {
     public:
-    LedCommand(BrightnessTarget brightnessTarget, int cycleCount)
+    LedCommand(CommandResult commandResult, int cycleCount)
     {
-        _brightnessTarget = brightnessTarget;
+        _commandResult = commandResult;
         _cycleCount = cycleCount;
     }
 
-    BrightnessTarget _brightnessTarget;
+	CommandResult _commandResult;
     int _cycleCount;
 };

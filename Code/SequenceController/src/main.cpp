@@ -6,15 +6,18 @@
 #define strncpy_s strncpy
 #define strncmp_s strncmp
 
+#include "Command.h"
 #include "CommandSource.h"
 #include "LedState.h"
-#include "BrightnessTarget.h"
+#include "CommandResult.h"
 #include "LedCommand.h"
 #include "LedPwm.h"
 #include "LedPwmEsp32.h"
 #include "LedManager.h"
 #include "Variable.h"
+#include "Stack.h"
 #include "ExecutionContext.h"
+#include "ListParser.h"
 #include "CommandDecoder.h"
 #include "ExecutionFlow.h"
 #include "Timebase.h"
@@ -38,7 +41,9 @@ void setup() {
 
   Serial.println(LED_BUILTIN);
 
-  commandSource.SetCommand("$100$0,1.0,1,0.0$100$0,0.0,1,1.0");
+  //commandSource.SetCommand("$100$0,1.0,1,0.0$100$0,0.0,1,1.0");
+  //commandSource.SetCommand("$1$LOOP %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDLOOP");
+  commandSource.SetCommand("$1$LOOP %B 100:10:-10$1$LOOP %A 0:7$%B$D%A,1.0$%B$D%A,0.0$1$ENDLOOP$1$ENDLOOP");
 }
 
 void loop() {

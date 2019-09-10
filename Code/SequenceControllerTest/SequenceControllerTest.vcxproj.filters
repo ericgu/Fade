@@ -60,6 +60,12 @@
     <ClInclude Include="StackTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ListParserTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

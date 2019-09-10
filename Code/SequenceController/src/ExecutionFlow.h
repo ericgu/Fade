@@ -3,6 +3,30 @@ class ExecutionFlow
 	ICommandSource* _pCommandSource;
 	ExecutionContext _executionContext;
 
+	LedCommand CommandExecute(CommandResult commandResult, Command command)
+	{
+		Variable count = _executionContext._variables.ParseFloatOrVariable(command.GetCount());
+
+		return LedCommand(commandResult, count.GetValueInt());
+	}
+
+	void CommandEndOfLoop(Command command)
+	{
+		int serialNumber = _executionContext._stack.GetTopFrame().SerialNumberStart;
+		_executionContext._stack.GetTopFrame().SerialNumberEnd = command.GetSerialNumber();
+
+		_pCommandSource->SetCommandToSerialNumber(serialNumber);
+	}
+
+	void CommandExitLoopBody()
+	{
+		int serialNumber = _executionContext._stack.GetTopFrame().SerialNumberEnd;
+
+		_pCommandSource->SetCommandToSerialNumber(serialNumber); // point to endloop
+		_executionContext._stack.DestroyFrame();
+		_pCommandSource->GetNextCommand(); // skip to next statement...
+	}
+
 public:
 	ExecutionFlow(ICommandSource* pCommandSource)
 	{
@@ -11,33 +35,29 @@ public:
 
 	LedCommand GetNextLedCommand()
 	{
-		_executionContext._brightnessTarget.Clear();
-
 		while (true)
 		{
 			Command command = _pCommandSource->GetNextCommand();
-			//Serial.println(command.GetString());
 
-			CommandDecoder::Decode(_executionContext, command);
+			CommandResult commandResult = CommandDecoder::Decode(_executionContext, command);
 
-			if (_executionContext._commandResult == CommandResult::CommandExecute)
+			switch (commandResult.GetStatus())
 			{
-				return LedCommand(_executionContext._brightnessTarget, command.GetCount());
-			}
-			else if (_executionContext._commandResult == CommandResult::CommandEndOfLoop)
-			{
-				int serialNumber = _executionContext._stack.GetTopFrame().SerialNumberStart;
-				_executionContext._stack.GetTopFrame().SerialNumberEnd = command.GetSerialNumber();
+				case CommandResultStatus::CommandExecute:
+					return CommandExecute(commandResult, command);
 
-				_pCommandSource->SetCommandToSerialNumber(serialNumber);
-			}
-			else if (_executionContext._commandResult == CommandResult::CommandExitLoopBody)
-			{
-				int serialNumber = _executionContext._stack.GetTopFrame().SerialNumberEnd;
+				case CommandResultStatus::CommandEndOfLoop:
+					CommandEndOfLoop(command);
+					break;
 
-				_pCommandSource->SetCommandToSerialNumber(serialNumber); // point to endloop
-				_executionContext._stack.DestroyFrame();
-				_pCommandSource->GetNextCommand(); // skip to next statement...
+				case CommandResultStatus::CommandExitLoopBody:
+					CommandExitLoopBody();
+					break;
+
+				case CommandResultStatus::CommandLoopMatched:
+				case CommandResultStatus::CommandNone:
+				case CommandResultStatus::CommandSkipToNext:
+					break;
 			}
 		}
 	}

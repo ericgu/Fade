@@ -1,7 +1,7 @@
 class Command
 {
     private:
-		int _count;
+		char _countString[32];
 		char _commandString[128];
 		int _serialNumber;
 
@@ -9,7 +9,7 @@ class Command
 
 		Command(const Command &source)
 		{
-			_count = source._count;
+			strcpy_s(_countString, source._countString);
 			strcpy_s(_commandString, source._commandString);
 			_serialNumber = source._serialNumber;
 		}
@@ -20,16 +20,18 @@ class Command
 			_serialNumber = -1;
 		}
 
-		Command(int count, const char* pCommand, int CommandLength, int serialNumber)
+		Command(const char* pCountString, int countLength, const char* pCommand, int commandLength, int serialNumber)
 		{
-			_count = count;
-			strncpy_s(_commandString, pCommand, CommandLength);
+			strncpy_s(_countString, pCountString, countLength);
+			*(_countString + countLength) = '\0';
+			strncpy_s(_commandString, pCommand, commandLength);
+			*(_commandString + commandLength) = '\0';
 			_serialNumber = serialNumber;
 		}
 
-		Command(int count, const char* pCommand, int serialNumber)
+		Command(const char* pCountString, const char* pCommand, int serialNumber)
 		{
-			_count = count;
+			strcpy_s(_countString, pCountString);
 			strcpy_s(_commandString, pCommand);
 			_serialNumber = serialNumber;
 		}
@@ -39,13 +41,18 @@ class Command
             return _commandString;
         }
 
-		int GetCount()
+		char* GetCount()
 		{
-			return _count;
+			return _countString;
 		}
 
 		int GetSerialNumber()
 		{
 			return _serialNumber;
+		}
+
+		int StartsWith(const char* pPrefix)
+		{
+			return (strncmp(_commandString, pPrefix, strlen(pPrefix)) == 0);
 		}
 };

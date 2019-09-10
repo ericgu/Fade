@@ -1,5 +1,3 @@
-#include "Command.h"
-
 class ICommandSource
 {
     public:
@@ -25,17 +23,16 @@ class CommandSource: public ICommandSource
         {
 			const char* _pNext = _pCurrent;
 
-			int count;
-
 			// Points to '$' at the start of a command...
 			_pNext++;
-
-			count = atoi(_pNext);
+			const char *pCountStart = _pNext;
 
 			while (*_pNext != '$')
 			{
 				_pNext++;
 			}
+
+			int countLength = _pNext - pCountStart;
 
 			// points to second '$' in command
 			_pNext++;
@@ -55,7 +52,7 @@ class CommandSource: public ICommandSource
 				_pNext++;
 			}
 
-			Command command = Command(count, pCommandStart, commandLength, _serialNumber);
+			Command command = Command(pCountStart, countLength, pCommandStart, commandLength, _serialNumber);
 			_serialNumber++;
 
 			// reset if we have no more commands...
