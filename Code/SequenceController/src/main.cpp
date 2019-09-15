@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <Preferences.h>
+#include <WiFi.h>
+
 #define strcpy_s strcpy
 #define strncpy_s strncpy
 #define strncmp_s strncmp
@@ -39,20 +42,10 @@ void setup() {
   //pinMode (LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
 
-  Serial.println(LED_BUILTIN);
-
-  //commandSource.SetCommand("$100$0,1.0,1,0.0$100$0,0.0,1,1.0");
-  //commandSource.SetCommand("$1$LOOP %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDLOOP");
-  commandSource.SetCommand("$1$LOOP %B 100:10:-10$1$LOOP %A 0:7$%B$D%A,1.0$%B$D%A,0.0$1$ENDLOOP$1$ENDLOOP");
+  commandSource.SetCommand("$LOOP %B 100:10:-10$LOOP %A 0:7$D %B %A,1.0$D %B %A,0.0$ENDLOOP$ENDLOOP");
 }
 
 void loop() {
-
   timebase.DoTick();
   delay(10);
-
-  //digitalWrite(LED_BUILTIN, HIGH);
-  //delay(1000);
-  //digitalWrite(LED_BUILTIN, LOW);
-  //delay(1000);
 }

@@ -1,7 +1,7 @@
 class ICommandSource
 {
     public:
-        virtual Command GetNextCommand() = 0;
+        virtual Command GetNextCommand(int autoReset = 0) = 0;
 		virtual void SetCommandToSerialNumber(int serialNumber) = 0;
 };
 
@@ -19,22 +19,11 @@ class CommandSource: public ICommandSource
 			_serialNumber = 0;
 		}
 
-		Command GetNextCommand()
-        {
+		Command GetNextCommand(int autoReset = 1)
+		{
 			const char* _pNext = _pCurrent;
 
 			// Points to '$' at the start of a command...
-			_pNext++;
-			const char *pCountStart = _pNext;
-
-			while (*_pNext != '$')
-			{
-				_pNext++;
-			}
-
-			int countLength = _pNext - pCountStart;
-
-			// points to second '$' in command
 			_pNext++;
 			const char *pCommandStart = _pNext;
 
@@ -52,19 +41,26 @@ class CommandSource: public ICommandSource
 				_pNext++;
 			}
 
-			Command command = Command(pCountStart, countLength, pCommandStart, commandLength, _serialNumber);
+			Command command = Command(pCommandStart, commandLength, _serialNumber);
 			_serialNumber++;
 
 			// reset if we have no more commands...
 			_pCurrent = _pNext;
 			if (*_pCurrent == '\0')
 			{
-				_pCurrent = _pCommandString;
-				_serialNumber = 0;
+				if (autoReset == 1)
+				{
+					_pCurrent = _pCommandString;
+					_serialNumber = 0;
+				}
+				else
+				{
+					return Command(pCommandStart, commandLength, -1);
+				}
 			}
 
 			return command;
-        }
+		}
 
 		void SetCommandToSerialNumber(int serialNumber)
 		{

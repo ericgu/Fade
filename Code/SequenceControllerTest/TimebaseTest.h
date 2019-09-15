@@ -5,14 +5,12 @@
 class LedManagerSimulator : public ILedManager
 {
 	CommandResult _commandResult;
-	int _steps;
 	int _tickCount = 0;
 
 public:
-	void SetDelta(CommandResult commandResult, int steps)
+	void SetDelta(CommandResult commandResult)
 	{
 		_commandResult = commandResult;
-		_steps = steps;
 	}
 
 	void Tick()
@@ -29,11 +27,6 @@ public:
 	{
 		return _tickCount;
 	}
-
-	int GetSteps()
-	{
-		return _steps;
-	}
 };
 
 class TimebaseTest
@@ -43,7 +36,7 @@ class TimebaseTest
 		CommandSourceSimulator commandSource;
 		LedManagerSimulator ledManager;
 
-		commandSource.AddCommand(Command("10", "D0,10.0", 0));
+		commandSource.AddCommand(Command("D 10 0,10.0", 0));
 
 		Timebase timebase(&commandSource, &ledManager);
 
@@ -52,7 +45,7 @@ class TimebaseTest
 			timebase.DoTick();
 		}
 
-		Assert::AreEqual(10, ledManager.GetSteps());
+		Assert::AreEqual(10, ledManager.GetCommandResult().GetCycleCount());
 
 		CommandResult commandResult = ledManager.GetCommandResult();
 		Assert::AreEqual(1, commandResult.GetCount());
@@ -62,7 +55,7 @@ class TimebaseTest
 
 		Assert::AreEqual(10, ledManager.GetTickCount());
 
-		commandSource.AddCommand(Command("2", "Test", 1));
+		commandSource.AddCommand(Command("Test", 1));
 
 		timebase.DoTick();
 	}
@@ -72,9 +65,9 @@ class TimebaseTest
 		CommandSourceSimulator commandSource;
 		LedManagerSimulator ledManager;
 
-		commandSource.AddCommand(Command("1", "LOOP %B 0:7", 0));
-		commandSource.AddCommand(Command("1", "D%B,10.0", 1));
-		commandSource.AddCommand(Command("1", "ENDLOOP", 2));
+		commandSource.AddCommand(Command("LOOP %B 0:7", 0));
+		commandSource.AddCommand(Command("D 1 %B,10.0", 1));
+		commandSource.AddCommand(Command("ENDLOOP", 2));
 
 		Timebase timebase(&commandSource, &ledManager);
 
@@ -95,7 +88,7 @@ class TimebaseTest
 		Assert::AreEqual(10.0F, ledState.GetBrightness());
 
 		Assert::AreEqual(10, ledManager.GetTickCount());
-	}
+	} 
 
 	static void TestLoop2()
 	{
@@ -103,10 +96,10 @@ class TimebaseTest
 		LedManagerSimulator ledManager;
 
 		//"$1$LOOP %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDLOOP"
-		commandSource.AddCommand(Command("1", "LOOP %A 0:7", 0));
-		commandSource.AddCommand(Command("100", "D%A,1.0", 1));
-		commandSource.AddCommand(Command("100", "D%A,0.0", 2));
-		commandSource.AddCommand(Command("1", "ENDLOOP", 3));
+		commandSource.AddCommand(Command("LOOP %A 0:7", 0));
+		commandSource.AddCommand(Command("D 100 %A,1.0", 1));
+		commandSource.AddCommand(Command("D 100 %A,0.0", 2));
+		commandSource.AddCommand(Command("ENDLOOP", 3));
 
 		Timebase timebase(&commandSource, &ledManager);
 

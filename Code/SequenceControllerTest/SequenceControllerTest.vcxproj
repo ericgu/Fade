@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="Assert.h" />
     <ClInclude Include="CommandDecoderTest.h" />
+    <ClInclude Include="CommandFormatterTest.h" />
     <ClInclude Include="CommandSourceSimulator.h" />
     <ClInclude Include="CommandSourceSimulatorTest.h" />
     <ClInclude Include="CommandSourceTest.h" />

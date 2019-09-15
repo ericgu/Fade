@@ -52,8 +52,9 @@ class LedManagerTest
 
 		CommandResult commandResult;
 		commandResult.AddTarget(LedState(0, 1.0));
+		commandResult.SetCycleCount(1);
 
-		ledManager.SetDelta(commandResult, 1);
+		ledManager.SetDelta(commandResult);
 		ledManager.Tick();
 
 		Assert::AreEqual(1, ledPwm.GetUpdateCount());
@@ -69,8 +70,9 @@ class LedManagerTest
 		CommandResult commandResult;
 		commandResult.AddTarget(LedState(0, 1.0));
 		commandResult.AddTarget(LedState(1, 2.0));
+		commandResult.SetCycleCount(1);
 
-		ledManager.SetDelta(commandResult, 1);
+		ledManager.SetDelta(commandResult);
 
 		ledManager.Tick();
 
@@ -95,8 +97,9 @@ class LedManagerTest
 
 		CommandResult commandResult;
 		commandResult.AddTarget(LedState(0, 20.0));
+		commandResult.SetCycleCount(10);
 
-		ledManager.SetDelta(commandResult, 10);
+		ledManager.SetDelta(commandResult);
 
 		for (int i = 1; i < 6; i++)
 		{

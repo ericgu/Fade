@@ -20,8 +20,8 @@ class Timebase
             {
 				LedCommand ledCommand = _executionFlow.GetNextLedCommand();
 
-				_currentCount = ledCommand._cycleCount;
-				_pLedManager->SetDelta(ledCommand._commandResult, ledCommand._cycleCount);
+				_currentCount = ledCommand._commandResult.GetCycleCount();
+				_pLedManager->SetDelta(ledCommand._commandResult);
 	        }
 
 			_pLedManager->Tick();

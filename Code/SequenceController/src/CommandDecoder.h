@@ -2,13 +2,30 @@
 
 class CommandDecoder
 {
+	static char* ParseOutCycleCount(ExecutionContext& executionContext, CommandResult& commandResult, Command& command)
+	{
+		char* pCommand = command.GetString() + 2; // move to count
+
+		Variable cycleCount = executionContext._variables.ParseFloatOrVariable(pCommand);
+		commandResult.SetCycleCount(cycleCount.GetValueInt());
+
+		while (*pCommand != ' ')
+		{
+			pCommand++;
+		}
+
+		return pCommand + 1;
+	}
+
 	static CommandResult DecodeDirect(ExecutionContext& executionContext, Command command)
 	{
 		CommandResult commandResult;
 
 		if (!command.StartsWith("D")) { return commandResult; }
 
-		ListParser listParser(',', command.GetString() + 1);
+		char* pRemaining = ParseOutCycleCount(executionContext, commandResult, command);
+
+		ListParser listParser(',', pRemaining);
 
 		for (int i = 0; i < listParser.GetCount(); i += 2)
 		{
@@ -28,7 +45,9 @@ class CommandDecoder
 
 		if (!command.StartsWith("S")) { return commandResult; }
 
-		ListParser listParser(',', command.GetString() + 1);
+		char* pRemaining = ParseOutCycleCount(executionContext, commandResult, command);
+
+		ListParser listParser(',', pRemaining);
 
 		for (int channel = 0; channel < listParser.GetCount(); channel++)
 		{
@@ -114,4 +133,5 @@ class CommandDecoder
 
 		return commandResult;
 	}
+
 };

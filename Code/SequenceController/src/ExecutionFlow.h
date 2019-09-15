@@ -3,11 +3,9 @@ class ExecutionFlow
 	ICommandSource* _pCommandSource;
 	ExecutionContext _executionContext;
 
-	LedCommand CommandExecute(CommandResult commandResult, Command command)
+	LedCommand CommandExecute(CommandResult commandResult)
 	{
-		Variable count = _executionContext._variables.ParseFloatOrVariable(command.GetCount());
-
-		return LedCommand(commandResult, count.GetValueInt());
+		return LedCommand(commandResult);
 	}
 
 	void CommandEndOfLoop(Command command)
@@ -44,7 +42,7 @@ public:
 			switch (commandResult.GetStatus())
 			{
 				case CommandResultStatus::CommandExecute:
-					return CommandExecute(commandResult, command);
+					return CommandExecute(commandResult);
 
 				case CommandResultStatus::CommandEndOfLoop:
 					CommandEndOfLoop(command);

@@ -1,12 +1,10 @@
 class LedCommand
 {
     public:
-    LedCommand(CommandResult commandResult, int cycleCount)
+    LedCommand(CommandResult commandResult)
     {
         _commandResult = commandResult;
-        _cycleCount = cycleCount;
     }
 
 	CommandResult _commandResult;
-    int _cycleCount;
 };

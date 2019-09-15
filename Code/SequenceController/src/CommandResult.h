@@ -13,6 +13,7 @@ class CommandResult
     LedState _targets[16];
     int _targetCount = 0;
 	CommandResultStatus _status;
+	int _cycleCount = 0;
 
     public:
 		CommandResult()
@@ -37,4 +38,7 @@ class CommandResult
 		void SetStatus(CommandResultStatus status) { _status = status; }
 
 		int HasStatus() { return _status != CommandResultStatus::CommandNone; }
+
+		int GetCycleCount() { return _cycleCount; }
+		void SetCycleCount(int cycleCount) { _cycleCount = cycleCount; }
 };

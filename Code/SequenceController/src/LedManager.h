@@ -2,7 +2,7 @@
 class ILedManager
 {
 public:
-	virtual void SetDelta(CommandResult commandResult, int steps) = 0;
+	virtual void SetDelta(CommandResult commandResult) = 0;
 
 	virtual void Tick() = 0;
 };
@@ -31,7 +31,7 @@ class LedManager: public ILedManager
             }
         }
 
-		void SetDelta(CommandResult commandResult, int steps)
+		void SetDelta(CommandResult commandResult)
 		{
 			for (int channel = 0; channel < _channelCount; channel++)
 			{
@@ -46,7 +46,7 @@ class LedManager: public ILedManager
 
 				float delta = ledState.GetBrightness() - _states[ledState.GetChannel()].GetBrightness();
 
-				_deltas[ledState.GetChannel()] = LedState(ledState.GetChannel(), delta / steps);
+				_deltas[ledState.GetChannel()] = LedState(ledState.GetChannel(), delta / commandResult.GetCycleCount());
 			}
 		}
 
