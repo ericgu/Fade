@@ -1,7 +1,7 @@
 class ListParser
 {
-	char _buffer[128];
-	char* _pItems[32];
+	char* _pBuffer;
+	char* _pItems[64];
 	int _itemCount;
 
 	static const char* SkipToCharOrNull(const char* pCommand, char c)
@@ -14,35 +14,70 @@ class ListParser
 		return pCommand;
 	}
 
-public:
-	ListParser(char delimiter, const char* pString)
+	bool IsDelimiter(const char* pDelimiters, const char* pCurrent)
 	{
-		strcpy_s(_buffer, pString);
-
-		char* pCurrent = _buffer;
-		if (*pCurrent == '\0')
+		bool delimiterCharacter = false;
+		const char* pDelimiter = pDelimiters;
+		while (*pDelimiter != '\0')
 		{
-			_itemCount = 0;
-			return;
+			if (*pCurrent == *pDelimiter)
+			{
+				delimiterCharacter = true;
+			}
+			pDelimiter++;
 		}
 
-		_pItems[0] = pCurrent;
-		_itemCount = 1;
+		return delimiterCharacter;
+	}
+
+public:
+	ListParser(const char* pDelimiters, const char* pString)
+	{
+		_itemCount = 0;
+
+		int length = strlen(pString) + 1;
+		_pBuffer = new char[length];
+
+		//strcpy_s(_pBuffer, length, pString);
+		strcpy(_pBuffer, pString);
+
+		char* pCurrent = _pBuffer;
+
+		bool inDelimiter = true;
 
 		while (*pCurrent != '\0')
 		{
-			if (*pCurrent == delimiter)
+			bool isDelimiter = IsDelimiter(pDelimiters, pCurrent);
+
+			if (inDelimiter)
 			{
-				*pCurrent = '\0';
-				pCurrent++;
-				_pItems[_itemCount] = pCurrent;
-				_itemCount++;
+				if (!isDelimiter)
+				{
+					_pItems[_itemCount] = pCurrent;
+					_itemCount++;
+					inDelimiter = false;
+				}
 			}
 			else
 			{
-				pCurrent++;
+				if (isDelimiter)
+				{
+					inDelimiter = true;
+				}
 			}
+
+			if (isDelimiter)
+			{
+				*pCurrent = '\0';
+			}
+
+			pCurrent++;
 		}
+	}
+
+	~ListParser()
+	{
+		delete _pBuffer;
 	}
 
 	int GetCount() { return _itemCount; }

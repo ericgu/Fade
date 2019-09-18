@@ -2,7 +2,7 @@
 
 class Assert
 {
-	static char _buffer[128];
+	static char _buffer[16636];
 
 public:
 	static void Failed(char* tag)
@@ -59,4 +59,4 @@ public:
 
 };
 
-char Assert::_buffer[128];
+char Assert::_buffer[16636];

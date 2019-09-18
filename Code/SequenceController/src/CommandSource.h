@@ -7,29 +7,31 @@ class ICommandSource
 
 class CommandSource: public ICommandSource
 {
-    const char* _pCommandString;
-	const char* _pCurrent;
 	int _serialNumber;
+
+	ListParser* _pListParser;
 
     public:
 		void SetCommand(const char* pCommandString)
 		{
-			_pCommandString = pCommandString;
-			_pCurrent = _pCommandString;
 			_serialNumber = 0;
+			_pListParser = new ListParser("\n\r", pCommandString);
 		}
 
 		Command GetNextCommand(int autoReset = 1)
 		{
-			const char* _pNext = _pCurrent;
+			const char *pCommandStart = _pListParser->GetItem(_serialNumber);
 
-			// Points to '$' at the start of a command...
-			_pNext++;
-			const char *pCommandStart = _pNext;
+			while (*pCommandStart == ' ')
+			{
+				pCommandStart++;
+			}
+
+			const char* _pNext = pCommandStart;
 
 			// end of this command is $, null, or newline
 
-			while (*_pNext != '$' && *_pNext != '\0' && *_pNext != '\n')
+			while (*_pNext != '\0' && *_pNext != '\n')
 			{
 				_pNext++;
 			}
@@ -44,14 +46,12 @@ class CommandSource: public ICommandSource
 			Command command = Command(pCommandStart, commandLength, _serialNumber);
 			_serialNumber++;
 
-			// reset if we have no more commands...
-			_pCurrent = _pNext;
-			if (*_pCurrent == '\0')
+			if (_serialNumber == _pListParser->GetCount())
 			{
 				if (autoReset == 1)
 				{
-					_pCurrent = _pCommandString;
 					_serialNumber = 0;
+					//Serial.println((char*) "Autoreset");
 				}
 				else
 				{
@@ -59,18 +59,13 @@ class CommandSource: public ICommandSource
 				}
 			}
 
+			//Serial.println(command.GetString());
+
 			return command;
 		}
 
 		void SetCommandToSerialNumber(int serialNumber)
 		{
-			_pCurrent = _pCommandString;
-			_serialNumber = 0;
-
-			while (_serialNumber != serialNumber)
-			{
-				GetNextCommand();
-			}
+			_serialNumber = serialNumber;
 		}
-
 };

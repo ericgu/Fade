@@ -7,6 +7,7 @@ public:
 	{
 		puts(pString);
 	}
+	void flush() {}
 };
 
 SerialOutput Serial;

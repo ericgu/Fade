@@ -25,7 +25,7 @@ class CommandDecoder
 
 		char* pRemaining = ParseOutCycleCount(executionContext, commandResult, command);
 
-		ListParser listParser(',', pRemaining);
+		ListParser listParser(",", pRemaining);
 
 		for (int i = 0; i < listParser.GetCount(); i += 2)
 		{
@@ -47,7 +47,7 @@ class CommandDecoder
 
 		char* pRemaining = ParseOutCycleCount(executionContext, commandResult, command);
 
-		ListParser listParser(',', pRemaining);
+		ListParser listParser(",", pRemaining);
 
 		for (int channel = 0; channel < listParser.GetCount(); channel++)
 		{

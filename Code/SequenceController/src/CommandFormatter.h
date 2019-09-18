@@ -24,6 +24,22 @@ public:
 		return 0;
 	}
 
+	static void MyCat(char *pBuffer, const char* pAdd)
+	{
+		//Serial.println((char*) "MyCat: ");
+		//Serial.println(pBuffer); Serial.flush();
+
+		pBuffer += strlen(pBuffer);
+
+		while (*pAdd != '\0')
+		{
+			*pBuffer = *pAdd;
+			pBuffer++;
+			pAdd++;
+		}
+		*pBuffer = '\0';
+	}
+
 	static void PrettyFormat(const char* pCommand, char* pOutput, int bufferSize)
 	{
 		CommandSource commandSource;
@@ -40,17 +56,20 @@ public:
 
 			if (!first)
 			{
-				strcat_s(pOutput, bufferSize, "\n");
+				MyCat(pOutput, "\n");
 			}
 			first = false;
 
 			indent += GetIndentPre(command);
 			for (int i = 0; i < indent * 2; i++)
 			{
-				strcat_s(pOutput, bufferSize, " ");
+				MyCat(pOutput, " ");
 			}
-			strcat_s(pOutput, bufferSize, "$");
-			strcat_s(pOutput, bufferSize, command.GetString());
+			char* pString = command.GetString();
+			if (strlen(pString) != 0)
+			{
+				MyCat(pOutput, pString);
+			}
 
 			indent += GetIndentPost(command);
 

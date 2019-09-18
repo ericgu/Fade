@@ -12,7 +12,7 @@ class CommandSourceTest
 	static void TestSingle()
 	{
 		CommandSource commandSource;
-		commandSource.SetCommand("$D 500 1,2,3,4,5,6,7,8");
+		commandSource.SetCommand("D 500 1,2,3,4,5,6,7,8");
 
 		Command command = commandSource.GetNextCommand();
 
@@ -22,7 +22,7 @@ class CommandSourceTest
 	static void TestSingleTwice()
 	{
 		CommandSource commandSource;
-		commandSource.SetCommand("$D 500 1,2,3,4,5,6,7,8");
+		commandSource.SetCommand("D 500 1,2,3,4,5,6,7,8");
 
 		Command command = commandSource.GetNextCommand();
 
@@ -36,7 +36,7 @@ class CommandSourceTest
 	static void TestMultiple()
 	{
 		CommandSource commandSource;
-		commandSource.SetCommand("$D 500 1,2,3,4,5,6,7,8$xxx");
+		commandSource.SetCommand("D 500 1,2,3,4,5,6,7,8\nxxx");
 
 		Command command = commandSource.GetNextCommand();
 
@@ -49,13 +49,36 @@ class CommandSourceTest
 		command = commandSource.GetNextCommand();
 
 		AssertCommand(command, "D 500 1,2,3,4,5,6,7,8", 0);
+
+		command = commandSource.GetNextCommand();
+
+		AssertCommand(command, "xxx", 1);
 	}
 
 	static void TestMultipleWithNewline()
 	{
 		CommandSource commandSource;
 
-		commandSource.SetCommand("$D1,2,3,4,5,6,7,8\n$xxx");
+		commandSource.SetCommand("D1,2,3,4,5,6,7,8\nxxx");
+
+		Command command = commandSource.GetNextCommand();
+
+		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
+
+		command = commandSource.GetNextCommand();
+
+		AssertCommand(command, "xxx", 1);
+
+		command = commandSource.GetNextCommand();
+
+		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
+	}
+
+	static void TestMultipleWithNewlineAndCarriageReturn()
+	{
+		CommandSource commandSource;
+
+		commandSource.SetCommand("D1,2,3,4,5,6,7,8\r\nxxx");
 
 		Command command = commandSource.GetNextCommand();
 
@@ -74,7 +97,7 @@ class CommandSourceTest
 	{
 		CommandSource commandSource;
 
-		commandSource.SetCommand("$D1,2,3,4,5,6,7,8\n$xxx\n$zzz");
+		commandSource.SetCommand("D1,2,3,4,5,6,7,8\nxxx\nzzz");
 
 		Command command = commandSource.GetNextCommand();
 		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
@@ -90,6 +113,26 @@ class CommandSourceTest
 		AssertCommand(command, "xxx", 1);
 	}
 
+	static void TestMultipleWithSpaces()
+	{
+		CommandSource commandSource;
+
+		commandSource.SetCommand("  D1,2,3,4,5,6,7,8\n   xxx");
+
+		Command command = commandSource.GetNextCommand();
+
+		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
+
+		command = commandSource.GetNextCommand();
+
+		AssertCommand(command, "xxx", 1);
+
+		command = commandSource.GetNextCommand();
+
+		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
+	}
+
+
 
 public:
 
@@ -99,6 +142,8 @@ public:
 		TestMultiple();
 		TestMultipleWithNewline();
 		TestSetCommandToSerialNumber();
+		TestMultipleWithSpaces();
+		TestMultipleWithNewlineAndCarriageReturn();
 		
 		return 0;
 	}
