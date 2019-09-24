@@ -35,10 +35,10 @@ class CommandDecoderTest
 	static void TestSingleWithVariables()
 	{
 		ExecutionContext executionContext;
-		executionContext._variables.Get(0) = Variable(3);
-		executionContext._variables.Get(1) = Variable(1.0F);
+		executionContext._variables.AddAndSet("A", 3);
+		executionContext._variables.AddAndSet("B", 1.0F);
 
-		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("D 1 %A,%B", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("D 1 A,B", 15));
 
 		Assert::AreEqual(1, commandResult.GetCount());
 
@@ -72,10 +72,10 @@ class CommandDecoderTest
 	static void TestSequentialWithVariables()
 	{
 		ExecutionContext executionContext;
-		executionContext._variables.Get(0) = Variable(3);
-		executionContext._variables.Get(1) = Variable(13.33F);
+		executionContext._variables.AddAndSet("A", 3);
+		executionContext._variables.AddAndSet("B", 13.33F);
 
-		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("S 1 %B", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("S 1 B", 15));
 
 		Assert::AreEqual(1, commandResult.GetCount());
 
@@ -97,9 +97,9 @@ class CommandDecoderTest
 		AreEqual(CommandResultStatus::CommandExecute, commandResult.GetStatus());
 	}
 
-	static void ValidateVariable(ExecutionContext executionContext, int variableNumber, int active, int value)
+	static void ValidateVariable(ExecutionContext executionContext, const char *pVariableName, int active, int value)
 	{
-		Variable variable = executionContext._variables.Get(variableNumber);
+		Variable variable = executionContext._variables.Get(pVariableName);
 		Assert::AreEqual(active, variable.GetActiveFlag());
 		Assert::AreEqual(value, variable.GetValueInt());
 	}
@@ -107,9 +107,9 @@ class CommandDecoderTest
 	static void TestLoopStart()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("LOOP %A 2:7", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("LOOP A 2:7", 15));
 
-		ValidateVariable(executionContext, 0, 1, 2);
+		ValidateVariable(executionContext, "A", 1, 2);
 
 		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 
@@ -128,18 +128,18 @@ class CommandDecoderTest
 	static void TestLoopStep()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("LOOP %A 2:7", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("LOOP A 2:7", 15));
 
-		ValidateVariable(executionContext, 0, 1, 2);
+		ValidateVariable(executionContext, "A", 1, 2);
 		
 		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 
 		Assert::AreEqual(1, executionContext._stack.GetFrameCount());
 		Assert::AreEqual(15, executionContext._stack.GetTopFrame().SerialNumberStart);
 
-		commandResult = CommandDecoder::Decode(executionContext, Command("LOOP %A 2:7", 15));
+		commandResult = CommandDecoder::Decode(executionContext, Command("LOOP A 2:7", 15));
 
-		ValidateVariable(executionContext, 0, 1, 3);
+		ValidateVariable(executionContext, "A", 1, 3);
 
 		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 	}
@@ -147,18 +147,18 @@ class CommandDecoderTest
 	static void TestLoopEndDetection()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("LOOP %A 2:2", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("LOOP A 2:2", 15));
 
-		ValidateVariable(executionContext, 0, 1, 2);
+		ValidateVariable(executionContext, "A", 1, 2);
 
 		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 
 		Assert::AreEqual(1, executionContext._stack.GetFrameCount());
 		Assert::AreEqual(15, executionContext._stack.GetTopFrame().SerialNumberStart);
 
-		commandResult = CommandDecoder::Decode(executionContext, Command("LOOP %A 2:2", 15));
+		commandResult = CommandDecoder::Decode(executionContext, Command("LOOP A 2:2", 15));
 
-		ValidateVariable(executionContext, 0, 0, 3);
+		ValidateVariable(executionContext, "A", 0, 3);
 
 		AreEqual(CommandResultStatus::CommandExitLoopBody, commandResult.GetStatus());
 	}

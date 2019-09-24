@@ -1,6 +1,6 @@
 class Loop
 {
-	int _variableNumber;
+	char _variableName[64];
 	float _variableStart;
 	float _variableEnd;
 	float _variableInc;
@@ -19,7 +19,7 @@ class Loop
     public:
 		Loop()
 		{
-			_variableNumber = 0;
+			_variableName[0] = 0;
 			_variableStart = 0;
 			_variableEnd = 0;
 			_variableInc = 1;
@@ -41,22 +41,7 @@ class Loop
 
 		pCommand += 5;	// skip 'LOOP '
 
-		if (*pCommand != '%')
-		{
-			loop._errorOffset = pCommand - pCommandStart;
-			return loop;
-		}
-		pCommand++;
-
-		char varName = *pCommand;
-		loop._variableNumber = varName - 'A';
-		if (loop._variableNumber < 0 || loop._variableNumber > 9)
-		{
-			loop._errorOffset = pCommand - pCommandStart;
-			return loop;
-		}
-
-		pCommand += 2; // skip to number...
+		pCommand = VariableCollection::GetVariableName(pCommand, loop._variableName);
 
 		loop._variableStart = (float) atof(pCommand);
 
@@ -85,9 +70,9 @@ class Loop
 		return loop;
     }
 
-    int GetVariableNumber()
+    char* GetVariableName()
     {
-		return _variableNumber;
+		return _variableName;
     }
 
 	float GetVariableStart()

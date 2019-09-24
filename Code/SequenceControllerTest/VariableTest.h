@@ -52,13 +52,22 @@ class VariableTest
 	{
 		VariableCollection variableCollection;
 
-		variableCollection.Get(2).SetActiveFlag(true);
-		variableCollection.Get(2).SetValue(55.0F);
+		variableCollection.AddAndSet("C", 55.0F);
 
 		Variable parsed = variableCollection.ParseFloatOrVariable("88.0");
 		Assert::AreEqual(88.0F, parsed.GetValueFloat());
 
-		parsed = variableCollection.ParseFloatOrVariable("%C");
+		parsed = variableCollection.ParseFloatOrVariable("C");
+		Assert::AreEqual(55.0F, parsed.GetValueFloat());
+	}
+
+	static void TestParseFloatOrVariableNamed()
+	{
+		VariableCollection variableCollection;
+
+		variableCollection.AddAndSet("Fred", 55.0F);
+
+		Variable parsed = variableCollection.ParseFloatOrVariable("Fred");
 		Assert::AreEqual(55.0F, parsed.GetValueFloat());
 	}
 
@@ -75,6 +84,7 @@ public:
 		TestCollectionWorks();
 
 		TestParseFloatOrVariable();
+		TestParseFloatOrVariableNamed();
 
 		return 0;
 	}

@@ -85,9 +85,9 @@ class IntegrationTest
 		LedManager ledManager(&ledPwm, 16);
 
 		//"$1$LOOP %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDLOOP"
-		commandSource.AddCommand(Command("LOOP %A 0:7", 0));
-		commandSource.AddCommand(Command("D 2 %A,1.0", 1));
-		commandSource.AddCommand(Command("D 2 %A,0.0", 2));
+		commandSource.AddCommand(Command("LOOP A 0:7", 0));
+		commandSource.AddCommand(Command("D 2 A,1.0", 1));
+		commandSource.AddCommand(Command("D 2 A,0.0", 2));
 		commandSource.AddCommand(Command("ENDLOOP", 3));
 
 		Timebase timebase(&commandSource, &ledManager);

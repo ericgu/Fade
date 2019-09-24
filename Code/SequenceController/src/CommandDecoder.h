@@ -74,11 +74,11 @@ class CommandDecoder
 		if (executionContext._stack.GetFrameCount() != 0 && 
 			executionContext._stack.GetTopFrame().SerialNumberStart == command.GetSerialNumber())
 		{
-			executionContext._variables.Get(loop.GetVariableNumber()).Increment(loop.GetVariableInc());
+			executionContext._variables.Get(loop.GetVariableName()).Increment(loop.GetVariableInc());
 
-			if (!loop.GetIsInRange(executionContext._variables.Get(loop.GetVariableNumber()).GetValueFloat()))
+			if (!loop.GetIsInRange(executionContext._variables.Get(loop.GetVariableName()).GetValueFloat()))
 			{
-				executionContext._variables.Get(loop.GetVariableNumber()).SetActiveFlag(false);
+				executionContext._variables.Get(loop.GetVariableName()).SetActiveFlag(false);
 				commandResult.SetStatus(CommandResultStatus::CommandExitLoopBody);
 				return commandResult;
 			}
@@ -87,8 +87,7 @@ class CommandDecoder
 		}
 		else // first time
 		{
-			executionContext._variables.Get(loop.GetVariableNumber()).SetActiveFlag(true);
-			executionContext._variables.Get(loop.GetVariableNumber()).SetValue(loop.GetVariableStart());
+			executionContext._variables.AddAndSet(loop.GetVariableName(), loop.GetVariableStart());
 
 			executionContext._stack.CreateFrame();
 			executionContext._stack.GetTopFrame().SerialNumberStart = command.GetSerialNumber();

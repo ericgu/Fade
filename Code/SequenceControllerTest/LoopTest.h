@@ -4,10 +4,10 @@ class LoopTest
 {
 	static void TestSimple()
 	{
-		Loop loop = Loop::Parse("LOOP %B 2:7");
+		Loop loop = Loop::Parse("LOOP B11 2:7");
 
 		Assert::AreEqual(1, loop.GetMatch());
-		Assert::AreEqual(1, loop.GetVariableNumber());
+		Assert::AreEqual("B11", loop.GetVariableName());
 		Assert::AreEqual(2.0F, loop.GetVariableStart());
 		Assert::AreEqual(7.0F, loop.GetVariableEnd());
 		Assert::AreEqual(1.0F, loop.GetVariableInc());
@@ -21,36 +21,20 @@ class LoopTest
 		Assert::AreEqual(0, loop.GetErrorOffset());
 	}
 
-	static void TestMissingPercent()
-	{
-		Loop loop = Loop::Parse("LOOP FFF");
-
-		Assert::AreEqual(0, loop.GetMatch());
-		Assert::AreEqual(5, loop.GetErrorOffset());
-	}
-
-	static void TestInvalidVariable()
-	{
-		Loop loop = Loop::Parse("LOOP %X");
-
-		Assert::AreEqual(0, loop.GetMatch());
-		Assert::AreEqual(6, loop.GetErrorOffset());
-	}
-
 	static void TestMissingColon()
 	{
-		Loop loop = Loop::Parse("LOOP %A 1");
+		Loop loop = Loop::Parse("LOOP A 1");
 
 		Assert::AreEqual(0, loop.GetMatch());
-		Assert::AreEqual(9, loop.GetErrorOffset());
+		Assert::AreEqual(8, loop.GetErrorOffset());
 	}
 
 	static void TestWithIncrement()
 	{
-		Loop loop = Loop::Parse("LOOP %B 2:3:0.5");
+		Loop loop = Loop::Parse("LOOP Variable 2:3:0.5");
 
 		Assert::AreEqual(1, loop.GetMatch());
-		Assert::AreEqual(1, loop.GetVariableNumber());
+		Assert::AreEqual("Variable", loop.GetVariableName());
 		Assert::AreEqual(2.0F, loop.GetVariableStart());
 		Assert::AreEqual(3.0F, loop.GetVariableEnd());
 		Assert::AreEqual(0.5F, loop.GetVariableInc());
@@ -58,7 +42,7 @@ class LoopTest
 
 	static void TestInRangeCheck()
 	{
-		Loop loop = Loop::Parse("LOOP %B 2:3:0.5");
+		Loop loop = Loop::Parse("LOOP B 2:3:0.5");
 
 		Assert::AreEqual(0, loop.GetIsInRange(0.99F));
 		Assert::AreEqual(1, loop.GetIsInRange(2.0F));
@@ -73,8 +57,6 @@ public:
 	{
 		TestSimple();
 		TestNoMatch();
-		TestMissingPercent();
-		TestInvalidVariable();
 		TestMissingColon();
 		TestWithIncrement();
 
