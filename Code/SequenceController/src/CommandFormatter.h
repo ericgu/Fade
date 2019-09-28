@@ -17,7 +17,7 @@ public:
 	{
 		switch (*command.GetString())
 		{
-		case 'L':
+		case 'F':
 			return 1;
 		}
 

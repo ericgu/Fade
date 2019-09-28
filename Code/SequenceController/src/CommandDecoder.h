@@ -101,7 +101,7 @@ class CommandDecoder
 	{
 		CommandResult commandResult;
 
-		if (command.StartsWith("ENDLOOP"))
+		if (command.StartsWith("ENDFOR"))
 		{
 			commandResult.SetStatus(CommandResultStatus::CommandEndOfLoop);
 		}

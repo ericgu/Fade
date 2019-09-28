@@ -20,9 +20,9 @@ class CommandTest
 
 	static void TestStartsWithMatch2()
 	{
-		Command command("LOOP %D", 0);
+		Command command("FOR %D", 0);
 
-		Assert::AreEqual(1, command.StartsWith("LOOP"));
+		Assert::AreEqual(1, command.StartsWith("FOR"));
 	}
 
 public:

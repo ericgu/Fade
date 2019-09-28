@@ -33,13 +33,13 @@ class Loop
 
 		Loop loop;
 
-		if (strncmp(pCommand, "LOOP", 4) != 0)
+		if (strncmp(pCommand, "FOR", 3) != 0)
 		{
 			loop._errorOffset = pCommand - pCommandStart;
 			return loop;
 		}
 
-		pCommand += 5;	// skip 'LOOP '
+		pCommand += 4;	// skip 'FOR '
 
 		pCommand = VariableCollection::GetVariableName(pCommand, loop._variableName);
 

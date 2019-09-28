@@ -4,7 +4,7 @@ class LoopTest
 {
 	static void TestSimple()
 	{
-		Loop loop = Loop::Parse("LOOP B11 2:7");
+		Loop loop = Loop::Parse("FOR B11 2:7");
 
 		Assert::AreEqual(1, loop.GetMatch());
 		Assert::AreEqual("B11", loop.GetVariableName());
@@ -23,15 +23,15 @@ class LoopTest
 
 	static void TestMissingColon()
 	{
-		Loop loop = Loop::Parse("LOOP A 1");
+		Loop loop = Loop::Parse("FOR A 1");
 
 		Assert::AreEqual(0, loop.GetMatch());
-		Assert::AreEqual(8, loop.GetErrorOffset());
+		Assert::AreEqual(7, loop.GetErrorOffset());
 	}
 
 	static void TestWithIncrement()
 	{
-		Loop loop = Loop::Parse("LOOP Variable 2:3:0.5");
+		Loop loop = Loop::Parse("FOR Variable 2:3:0.5");
 
 		Assert::AreEqual(1, loop.GetMatch());
 		Assert::AreEqual("Variable", loop.GetVariableName());
@@ -42,7 +42,7 @@ class LoopTest
 
 	static void TestInRangeCheck()
 	{
-		Loop loop = Loop::Parse("LOOP B 2:3:0.5");
+		Loop loop = Loop::Parse("FOR B 2:3:0.5");
 
 		Assert::AreEqual(0, loop.GetIsInRange(0.99F));
 		Assert::AreEqual(1, loop.GetIsInRange(2.0F));

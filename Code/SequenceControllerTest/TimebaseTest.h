@@ -65,9 +65,9 @@ class TimebaseTest
 		CommandSourceSimulator commandSource;
 		LedManagerSimulator ledManager;
 
-		commandSource.AddCommand(Command("LOOP %B 0:7", 0));
+		commandSource.AddCommand(Command("FOR %B 0:7", 0));
 		commandSource.AddCommand(Command("D 1 %B,10.0", 1));
-		commandSource.AddCommand(Command("ENDLOOP", 2));
+		commandSource.AddCommand(Command("ENDFOR", 2));
 
 		Timebase timebase(&commandSource, &ledManager);
 
@@ -95,11 +95,11 @@ class TimebaseTest
 		CommandSourceSimulator commandSource;
 		LedManagerSimulator ledManager;
 
-		//"$1$LOOP %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDLOOP"
-		commandSource.AddCommand(Command("LOOP %A 0:7", 0));
+		//"$1$FOR %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDFOR"
+		commandSource.AddCommand(Command("FOR %A 0:7", 0));
 		commandSource.AddCommand(Command("D 100 %A,1.0", 1));
 		commandSource.AddCommand(Command("D 100 %A,0.0", 2));
-		commandSource.AddCommand(Command("ENDLOOP", 3));
+		commandSource.AddCommand(Command("ENDFOR", 3));
 
 		Timebase timebase(&commandSource, &ledManager);
 

@@ -107,7 +107,7 @@ class CommandDecoderTest
 	static void TestLoopStart()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("LOOP A 2:7", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("FOR A 2:7", 15));
 
 		ValidateVariable(executionContext, "A", 1, 2);
 
@@ -120,7 +120,7 @@ class CommandDecoderTest
 	static void TestLoopEnd()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("ENDLOOP", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("ENDFOR", 15));
 
 		AreEqual(CommandResultStatus::CommandEndOfLoop, commandResult.GetStatus());
 	}
@@ -128,7 +128,7 @@ class CommandDecoderTest
 	static void TestLoopStep()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("LOOP A 2:7", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("FOR A 2:7", 15));
 
 		ValidateVariable(executionContext, "A", 1, 2);
 		
@@ -137,7 +137,7 @@ class CommandDecoderTest
 		Assert::AreEqual(1, executionContext._stack.GetFrameCount());
 		Assert::AreEqual(15, executionContext._stack.GetTopFrame().SerialNumberStart);
 
-		commandResult = CommandDecoder::Decode(executionContext, Command("LOOP A 2:7", 15));
+		commandResult = CommandDecoder::Decode(executionContext, Command("FOR A 2:7", 15));
 
 		ValidateVariable(executionContext, "A", 1, 3);
 
@@ -147,7 +147,7 @@ class CommandDecoderTest
 	static void TestLoopEndDetection()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("LOOP A 2:2", 15));
+		CommandResult commandResult = CommandDecoder::Decode(executionContext, Command("FOR A 2:2", 15));
 
 		ValidateVariable(executionContext, "A", 1, 2);
 
@@ -156,7 +156,7 @@ class CommandDecoderTest
 		Assert::AreEqual(1, executionContext._stack.GetFrameCount());
 		Assert::AreEqual(15, executionContext._stack.GetTopFrame().SerialNumberStart);
 
-		commandResult = CommandDecoder::Decode(executionContext, Command("LOOP A 2:2", 15));
+		commandResult = CommandDecoder::Decode(executionContext, Command("FOR A 2:2", 15));
 
 		ValidateVariable(executionContext, "A", 0, 3);
 
