@@ -5,15 +5,19 @@ enum class CommandResultStatus
 	CommandSkipToNext = 2,
 	CommandEndOfLoop = 3,
 	CommandExitLoopBody = 4,
-	CommandLoopMatched = 5
+	CommandLoopMatched = 5,
+	CommandTargetCountExceeded = 6
 };
+
+#define TargetMax 16
 
 class CommandResult
 {
-    LedState _targets[16];
+    LedState _targets[TargetMax];
     int _targetCount = 0;
 	CommandResultStatus _status;
 	int _cycleCount = 0;
+	bool _targetCountExceeded = false;
 
     public:
 		CommandResult()
@@ -23,7 +27,13 @@ class CommandResult
  
         void AddTarget(LedState ledState)
         {
-            _targets[_targetCount] = ledState;
+			if (_targetCount == TargetMax)
+			{
+				_targetCountExceeded = true;
+				return;
+			}
+				
+			_targets[_targetCount] = ledState;
             _targetCount++;
         }
 
@@ -41,4 +51,6 @@ class CommandResult
 
 		int GetCycleCount() { return _cycleCount; }
 		void SetCycleCount(int cycleCount) { _cycleCount = cycleCount; }
+
+		bool GetTargetCountExceeded() { return _targetCountExceeded; }
 };

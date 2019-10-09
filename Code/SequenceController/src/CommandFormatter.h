@@ -50,9 +50,15 @@ public:
 		bool first = true;
 
 		int indent = 0;
+		int lastSerialNumber = -1;
 		while (true)
 		{
-			Command command = commandSource.GetNextCommand(0);
+			Command command = commandSource.GetNextCommand();
+			if (lastSerialNumber >= command.GetSerialNumber())
+			{
+				break;
+			}
+			lastSerialNumber = command.GetSerialNumber();
 
 			if (!first)
 			{
@@ -72,11 +78,6 @@ public:
 			}
 
 			indent += GetIndentPost(command);
-
-			if (command.GetSerialNumber() == -1)
-			{
-				break;
-			}
 		}
 	}
 };

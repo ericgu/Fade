@@ -26,17 +26,17 @@ class LedManager: public ILedManager
 
             for (int i = 0; i < _channelCount; i++)
             {
-                _states[i] = LedState(i, 0);
-                _deltas[i] = LedState(i, 0);
+                _states[i] = LedState(i, 0, 0);
+                _deltas[i] = LedState(i, 0, 0);
             }
         }
 
 		void SetDelta(CommandResult commandResult)
 		{
-			for (int channel = 0; channel < _channelCount; channel++)
-			{
-				_deltas[channel] = LedState(channel, 0);
-			}
+			//for (int channel = 0; channel < _channelCount; channel++)
+			//{
+			//	_deltas[channel] = LedState(channel, 0, 0);
+			//}
 
 			for (int item = 0; item < commandResult.GetCount(); item++)
 			{
@@ -46,7 +46,7 @@ class LedManager: public ILedManager
 
 				float delta = ledState.GetBrightness() - _states[ledState.GetChannel()].GetBrightness();
 
-				_deltas[ledState.GetChannel()] = LedState(ledState.GetChannel(), delta / commandResult.GetCycleCount());
+				_deltas[ledState.GetChannel()] = LedState(ledState.GetChannel(), delta / ledState.GetCycleCount(), ledState.GetCycleCount());
 			}
 		}
 
@@ -54,7 +54,11 @@ class LedManager: public ILedManager
         {
             for (int i = 0; i < _channelCount; i++)
             {
-                _states[i].Update(_deltas[i]);
+				if (_deltas[i].GetCycleCount() > 0)
+				{
+					_states[i].Update(_deltas[i]);
+					_deltas[i].DecrementCycleCount();
+				}
                 _pLedPwm->UpdateLed(_states[i]);
                 //_states[i].GetBrightness();
                 //Serial.print(_states[i].GetBrightness());

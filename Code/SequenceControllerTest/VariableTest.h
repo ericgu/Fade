@@ -71,6 +71,38 @@ class VariableTest
 		Assert::AreEqual(55.0F, parsed.GetValueFloat());
 	}
 
+	static void TestAddVariableTwice()
+	{
+		VariableCollection variableCollection;
+
+		variableCollection.AddAndSet("Fred", 55.0F);
+		variableCollection.AddAndSet("Fred", 55.0F);
+
+		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
+		Variable parsed = variableCollection.ParseFloatOrVariable("Fred");
+		Assert::AreEqual(55.0F, parsed.GetValueFloat());
+	}
+
+	static void TestRandom()
+	{
+		VariableCollection variableCollection;
+
+		MyRandom::SetFirstValue(1);
+		Variable parsed = variableCollection.ParseFloatOrVariable("R(0:10)");
+		Assert::AreEqual(1.0F, parsed.GetValueFloat());
+	}
+
+	static void TestGetVariableName()
+	{
+		const char* pCommand = "Test=15";
+
+		char variableName[64];
+		const char *pRemaining = VariableCollection::GetVariableName(pCommand, variableName);
+
+		Assert::AreEqual("Test", variableName);
+		Assert::AreEqual("=15", pRemaining);
+	}
+
 public:
 
 	static int Run()
@@ -85,6 +117,12 @@ public:
 
 		TestParseFloatOrVariable();
 		TestParseFloatOrVariableNamed();
+
+		TestAddVariableTwice();
+
+		TestRandom();
+
+		TestGetVariableName();
 
 		return 0;
 	}

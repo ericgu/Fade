@@ -32,6 +32,11 @@ public:
 
 	static void AreEqual(const char* expected, char* actual)
 	{
+		if (actual == 0)
+		{
+			actual = (char*) "<null value>";
+		}
+
 		if (strcmp(expected, actual) != 0)
 		{
 			sprintf_s(_buffer, "Expected %s got %s", expected, actual);

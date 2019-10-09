@@ -2,72 +2,109 @@
 
 class CommandDecoder
 {
-	static char* ParseOutCycleCount(ExecutionContext& executionContext, CommandResult& commandResult, Command& command)
+	static bool DecodeDirect(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
 	{
-		char* pCommand = command.GetString() + 2; // move to count
+		if (!command.StartsWith("D")) { return false; }
+
+		char* pCommand = command.GetString() + 1;
+		
+		bool immediateMode;
+		if (*pCommand == 'I')
+		{
+			pCommand++;
+			commandResult.SetStatus(CommandResultStatus::CommandExecute);
+			immediateMode = true;
+		}
+		else
+		{
+			commandResult.SetStatus(CommandResultStatus::CommandNone);
+			immediateMode = false;
+		}
+		pCommand++;		// skip (
+
+		ListParser listParser(",", pCommand);
+
+		Variable cycleCount = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(0));
+
+		if (immediateMode)
+		{
+			commandResult.SetCycleCount(cycleCount.GetValueInt());
+		}
+		
+		for (int i = 1; i < listParser.GetCount(); i += 2)
+		{
+			Variable channel = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(i));
+			if (channel.GetValueInt() < 0 || channel.GetValueInt() > 15)
+			{
+				int k = 12;
+			}
+			Variable brightness = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(i + 1));
+
+			commandResult.AddTarget(LedState(channel.GetValueInt(), brightness.GetValueFloat(), cycleCount.GetValueInt()));
+		}
+
+		return true;
+	}
+
+	static bool DecodeSequential(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	{
+		if (!command.StartsWith("S")) { return false; }
+
+		char* pCommand = command.GetString() + 1;
+		bool immediateMode;
+
+		if (*pCommand == 'I')
+		{
+			commandResult.SetStatus(CommandResultStatus::CommandExecute);
+			pCommand++;
+			immediateMode = true;
+		}
+		else
+		{
+			commandResult.SetStatus(CommandResultStatus::CommandNone);
+			immediateMode = false;
+		}
+		pCommand++;		// skip (
+		
+		ListParser listParser(",", pCommand);
+
+		Variable cycleCount = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(0));
+		if (immediateMode)
+		{
+			commandResult.SetCycleCount(cycleCount.GetValueInt());
+		}
+
+		for (int channel = 1; channel < listParser.GetCount(); channel++)
+		{
+			Variable brightness = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(channel));
+			commandResult.AddTarget(LedState(channel - 1, brightness.GetValueFloat(), cycleCount.GetValueInt()));
+		}
+
+
+		return true;
+	}
+
+	static bool DecodeAnimate(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	{
+		if (!command.StartsWith("A")) { return false; }
+
+		char* pCommand = command.GetString();
+		pCommand += 2;	// skip "A("
 
 		Variable cycleCount = executionContext._variables.ParseFloatOrVariable(pCommand);
 		commandResult.SetCycleCount(cycleCount.GetValueInt());
-
-		while (*pCommand != ' ')
-		{
-			pCommand++;
-		}
-
-		return pCommand + 1;
-	}
-
-	static CommandResult DecodeDirect(ExecutionContext& executionContext, Command command)
-	{
-		CommandResult commandResult;
-
-		if (!command.StartsWith("D")) { return commandResult; }
-
-		char* pRemaining = ParseOutCycleCount(executionContext, commandResult, command);
-
-		ListParser listParser(",", pRemaining);
-
-		for (int i = 0; i < listParser.GetCount(); i += 2)
-		{
-			Variable channel = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(i));
-			Variable brightness = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(i + 1));
-
-			commandResult.AddTarget(LedState(channel.GetValueInt(), brightness.GetValueFloat()));
-		}
 		commandResult.SetStatus(CommandResultStatus::CommandExecute);
 
-		return commandResult;
+		return true;
 	}
-
-	static CommandResult DecodeSequential(ExecutionContext& executionContext, Command command)
+	
+	static bool DecodeLoopStart(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
 	{
-		CommandResult commandResult;
-
-		if (!command.StartsWith("S")) { return commandResult; }
-
-		char* pRemaining = ParseOutCycleCount(executionContext, commandResult, command);
-
-		ListParser listParser(",", pRemaining);
-
-		for (int channel = 0; channel < listParser.GetCount(); channel++)
-		{
-			Variable brightness = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(channel));
-			commandResult.AddTarget(LedState(channel, brightness.GetValueFloat()));
-		}
-		commandResult.SetStatus(CommandResultStatus::CommandExecute);
-
-		return commandResult;
-	}
-
-	static CommandResult DecodeLoopStart(ExecutionContext& executionContext, Command command)
-	{
-		CommandResult commandResult;
-
 		Loop loop = Loop::Parse(command.GetString());
 
 		if (!loop.GetMatch())
 		{
-			return commandResult;
+			return false;
 		}
 
 		// check top of stack to see if we're in process for this loop
@@ -80,7 +117,7 @@ class CommandDecoder
 			{
 				executionContext._variables.Get(loop.GetVariableName()).SetActiveFlag(false);
 				commandResult.SetStatus(CommandResultStatus::CommandExitLoopBody);
-				return commandResult;
+				return true;
 			}
 
 			commandResult.SetStatus(CommandResultStatus::CommandSkipToNext);
@@ -94,43 +131,127 @@ class CommandDecoder
 
 			commandResult.SetStatus(CommandResultStatus::CommandSkipToNext);
 		}
-		return commandResult;
+
+		return true;
 	}
 
-	static CommandResult DecodeLoopEnd(ExecutionContext& executionContext, Command command)
+	static bool DecodeLoopEnd(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
 	{
-		CommandResult commandResult;
-
 		if (command.StartsWith("ENDFOR"))
 		{
 			commandResult.SetStatus(CommandResultStatus::CommandEndOfLoop);
+			return true;
 		}
 		else
 		{
 			commandResult.SetStatus(CommandResultStatus::CommandNone);
+			return false;
+		}
+	}
+
+	static bool DecodeAssignment(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	{
+		if (strchr(command.GetString(), '=') != 0)
+		{
+			char variableName[64];
+
+			const char* pCommand = command.GetString();
+			//Serial.print("In Assignment1: "); Serial.println(pCommand);
+
+			pCommand = VariableCollection::GetVariableName(pCommand, variableName);
+			//Serial.print("In Assignment2: "); Serial.println(pCommand);
+
+			while ((*pCommand == '=' || *pCommand == ' ') && *pCommand != '\0')
+			{
+				pCommand++;
+			}
+
+			//Serial.print("In Assignment3: "); Serial.println(pCommand);
+			Variable variable = executionContext._variables.ParseFloatOrVariable(pCommand);
+
+			executionContext._variables.AddAndSet(variableName, variable.GetValueFloat());
+
+			commandResult.SetStatus(CommandResultStatus::CommandNone);
+			return true;
 		}
 
-		return commandResult;
+		return false;
+	}
+
+	// P("text")
+	// P(<var-name>)
+	static bool DecodePrint(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	{
+		if (strchr(command.GetString(), 'P') != 0)
+		{
+			char outputString[64];
+			outputString[0] = '\0';
+
+			const char* pCommand = command.GetString();
+
+			pCommand++;
+			bool newLine = false;
+
+			if (*pCommand == 'L')
+			{
+				newLine = true;
+				pCommand++;
+			}
+
+			pCommand++; // move to parameter
+
+			if (*pCommand == '"')
+			{
+				pCommand++;
+
+				char* pEnd = strchr((char*) pCommand, '"');
+
+				if (pEnd != 0)
+				{
+					int length = pEnd - pCommand;
+					strncpy(outputString, pCommand, length);
+					outputString[length] = '\0';
+				}
+			}
+			else
+			{
+				char variableName[64];
+				pCommand = VariableCollection::GetVariableName(pCommand, variableName);
+
+				Variable variable = executionContext._variables.ParseFloatOrVariable(variableName);
+
+				snprintf(outputString, sizeof(outputString), "%f", variable.GetValueFloat());
+			}
+
+			if (newLine)
+			{
+				strcat(outputString, "\n");
+			}
+			Serial.print(outputString);
+
+			return true;
+		}
+
+		return false;
 	}
 
     public:
-    static CommandResult Decode(ExecutionContext& executionContext, Command command)
+    static void Decode(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
     {
-		CommandResult commandResult;
+		//Serial.println(command.GetString());
 
-		commandResult = DecodeDirect(executionContext, command);
-		if (commandResult.HasStatus()) { return commandResult; }
+		if (DecodeLoopStart(executionContext, command, commandResult)) { return; }
 
-		commandResult = DecodeSequential(executionContext, command);
-		if (commandResult.HasStatus()) { return commandResult; }
+		if (DecodeLoopEnd(executionContext, command, commandResult)) { return; }
 
-		commandResult = DecodeLoopStart(executionContext, command);
-		if (commandResult.HasStatus()) { return commandResult; }
+		if (DecodePrint(executionContext, command, commandResult)) { return; }
 
-		commandResult = DecodeLoopEnd(executionContext, command);
-		if (commandResult.HasStatus()) { return commandResult; }
+		if (DecodeAssignment(executionContext, command, commandResult)) { return; }
 
-		return commandResult;
+		if (DecodeAnimate(executionContext, command, commandResult)) { return; }
+
+		if (DecodeDirect(executionContext, command, commandResult)) { return; }
+
+		if (DecodeSequential(executionContext, command, commandResult)) { return; }
 	}
-
 };

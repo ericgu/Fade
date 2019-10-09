@@ -9,6 +9,7 @@
 #define strncpy_s strncpy
 #define strncmp_s strncmp
 
+#include "MyRandom.h"
 #include "Command.h"
 #include "ListParser.h"
 #include "CommandSource.h"
@@ -37,13 +38,7 @@
 
 #include <ArduinoNvs.h>
 #include <Settings.h>
-
-//int LED_BUILTIN = 2;
-
-const int ledPins[16] = { 2,  4,  5, 18, 19, 21, 22, 23,   // main row
-                          14, 27, 26, 25, 33, 32, 12, 13};  // extension row
-
-const int PwmFrequency = 500;
+#include <Watchdog.h>
 
 CommandSource commandSource;
 LedPwmEsp32 ledPwm;
@@ -56,26 +51,36 @@ MyWebServer* pMyWebServer;
 char* pCurrentCommand;
 
 Settings *pSettings;
+Watchdog watchdog;
 
 void ProgramUpdatedImplementation(const char* pProgram)
 {
+  Serial.println("Program Updated");
+
   strcpy(pCurrentCommand, pProgram);
   commandSource.SetCommand(pCurrentCommand);
-  pMyWebServer->SetCurrentProgram(pCurrentCommand);
   pSettings->SetString("Program", pProgram);
+  watchdog.ProgramUpdated();
 
-  Serial.print("Program: ");
+  Serial.println("New Program: ");
   Serial.println(pCurrentCommand);
 }
 
-void setup() {
-  Serial.println("Setup"); Serial.flush();
+const char* GetCurrentProgram()
+{
+  return pCurrentCommand;
+}
 
+bool GetExecutingProgramState()
+{
+  return watchdog.ShouldExecuteCode();
+}
+
+void setup() {
   pCurrentCommand = new char[16636];
 
   //pinMode (LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
-  Serial.println("Setup"); Serial.flush();
 
   WiFiManager wifiManager;
 
@@ -84,13 +89,14 @@ void setup() {
   Serial.println("after autoconnect");
   Serial.println(WiFi.localIP());
 
-  pMyWebServer = new MyWebServer(ProgramUpdatedImplementation);
-  Serial.println("Setup"); Serial.flush();
+  pMyWebServer = new MyWebServer(ProgramUpdatedImplementation, GetCurrentProgram, GetExecutingProgramState);
 
-  strcpy(pCurrentCommand, "LOOP %B 100:10:-10\nLOOP %A 0:7\nD %B %A,1.0\nD %B %A,0.0\nENDLOOP\nENDLOOP");
-  strcpy(pCurrentCommand, "LOOP %B 20:10:-10\nLOOP %A 0:7\nD %B %A,1.0\nD %B %A,0.0\nENDLOOP\nENDLOOP");
+  strcpy(pCurrentCommand, "FOR B 100:10:-10\nFOR A 0:7\nDI(B,A,1.0)\nDI(B,A,0.0)\nENDFOR\nENDFOR");
+  strcpy(pCurrentCommand, "FOR B 20:10:-10\nFOR A 0:7\nDI(B,A,1.0)\nDI(B,A,0.0)\nENDFOR\nENDFOR");
 
   pSettings = new Settings();
+  watchdog.Initialize(pSettings);
+
   String savedProgram = pSettings->GetString("Program");
   if (savedProgram.length() != 0)
   {
@@ -99,26 +105,47 @@ void setup() {
     Serial.println(pCurrentCommand);
   }
 
-  commandSource.SetCommand(pCurrentCommand);
-  pMyWebServer->SetCurrentProgram(pCurrentCommand);
+  Serial.print("Start Program: ");
+  Serial.println(watchdog.ShouldExecuteCode());
 
-  Serial.println("Setup"); Serial.flush();
+  if (watchdog.ShouldExecuteCode())
+  {
+    commandSource.SetCommand(pCurrentCommand);
+    Serial.println("Program will be run...");
+  }
+  else
+  {
+    Serial.println("Program execution delayed...");
+  }
 
-  Serial.println("Setup 2"); Serial.flush();
+  Serial.println("Setup completed");
 }
 
-int iterations = 0;
+ int iterations = 0;
+
+ void TrackMemory()
+ {
+    if (iterations % 100 == 0)
+    {
+      Serial.print(iterations);
+      Serial.print(" = ");
+      Serial.println(ESP.getFreeHeap());
+    }
+    iterations++;
+ }
 
 void loop() {
   pMyWebServer->HandleClient();
-  timebase.DoTick();
-  //UdpLogger.print("Heartbeat");
-  if (iterations % 100 == 0)
+
+  if (watchdog.ShouldExecuteCode())
   {
-    Serial.print(iterations);
-    Serial.print(" = ");
-    Serial.println(ESP.getFreeHeap());
+    watchdog.ExecutionTick();
+
+    timebase.DoTick();
+    //UdpLogger.print("Heartbeat");
+
+    //TrackMemory();
+    
+    delay(10);
   }
-  iterations++;
-  delay(10);
 }

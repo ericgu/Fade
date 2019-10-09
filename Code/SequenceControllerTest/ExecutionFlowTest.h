@@ -8,7 +8,8 @@ class ExecutionFlowTest
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("D 10 0,10.0", 0));
+		commandSource.AddCommand(Command("D(10,0,10.0)", 0));
+		commandSource.AddCommand(Command("A(10)", 0));
 
 		ExecutionFlow executionFlow(&commandSource);
 
@@ -28,9 +29,11 @@ class ExecutionFlowTest
 		CommandSourceSimulator commandSource;
 
 		commandSource.AddCommand(Command("FOR B 0:7", 0));
-		commandSource.AddCommand(Command("D 7 B,10.0", 1));
+		commandSource.AddCommand(Command("D(7,B,10.0)", 1));
+		commandSource.AddCommand(Command("A(7)", 0));
 		commandSource.AddCommand(Command("ENDFOR", 2));
-		commandSource.AddCommand(Command("D 15 15,15.0", 3));
+		commandSource.AddCommand(Command("D(15,15,15.0)", 3));
+		commandSource.AddCommand(Command("A(15)", 0));
 
 		ExecutionFlow executionFlow(&commandSource);
 
@@ -53,10 +56,12 @@ class ExecutionFlowTest
 
 		commandSource.AddCommand(Command("FOR B 0:1", 0));
 		commandSource.AddCommand(Command("FOR D 3:4", 1));
-		commandSource.AddCommand(Command("D 7 B,D", 2));
+		commandSource.AddCommand(Command("D(7,B,D)", 2));
+		commandSource.AddCommand(Command("A(7)", 0));
 		commandSource.AddCommand(Command("ENDFOR", 3));
 		commandSource.AddCommand(Command("ENDFOR", 4));
-		commandSource.AddCommand(Command("D 15 15,15.0", 5));
+		commandSource.AddCommand(Command("D(15,15,15.0)", 5));
+		commandSource.AddCommand(Command("A(15)", 0));
 
 		ExecutionFlow executionFlow(&commandSource);
 
@@ -77,9 +82,11 @@ class ExecutionFlowTest
 		CommandSourceSimulator commandSource;
 
 		commandSource.AddCommand(Command("FOR D 0:1:0.5", 0));
-		commandSource.AddCommand(Command("D 7 1,D", 2));
+		commandSource.AddCommand(Command("D(7,1,D)", 2));
+		commandSource.AddCommand(Command("A(7)", 0));
 		commandSource.AddCommand(Command("ENDFOR", 3));
-		commandSource.AddCommand(Command("D 15 15,15.0", 4));
+		commandSource.AddCommand(Command("D(15,15,15.0)", 4));
+		commandSource.AddCommand(Command("A(15)", 0));
 
 		ExecutionFlow executionFlow(&commandSource);
 
@@ -98,9 +105,11 @@ class ExecutionFlowTest
 		CommandSourceSimulator commandSource;
 
 		commandSource.AddCommand(Command("FOR B 10:20:10", 0));
-		commandSource.AddCommand(Command("D B 0,10.0", 1));
+		commandSource.AddCommand(Command("D(B,0,10.0)", 1));
+		commandSource.AddCommand(Command("A(B)", 0));
 		commandSource.AddCommand(Command("ENDFOR", 2));
-		commandSource.AddCommand(Command("D 15 15,15.0", 3));
+		commandSource.AddCommand(Command("D(15,15,15.0)", 3));
+		commandSource.AddCommand(Command("A(15)", 0));
 
 		ExecutionFlow executionFlow(&commandSource);
 
@@ -116,9 +125,29 @@ class ExecutionFlowTest
 		CommandSourceSimulator commandSource;
 
 		commandSource.AddCommand(Command("FOR B 6:0:-3", 0));
-		commandSource.AddCommand(Command("D 7 B,10.0", 1));
+		commandSource.AddCommand(Command("D(7,B,10.0)", 1));
+		commandSource.AddCommand(Command("A(7)", 2));
+		commandSource.AddCommand(Command("ENDFOR", 3));
+		commandSource.AddCommand(Command("D(15,15,15.0)", 4));
+		commandSource.AddCommand(Command("A(15)", 2));
+
+		ExecutionFlow executionFlow(&commandSource);
+
+		AssertResult(executionFlow.GetNextLedCommand(), 7, 6, 10.0F);
+		AssertResult(executionFlow.GetNextLedCommand(), 7, 3, 10.0F);
+		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 10.0F);
+
+		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
+	}
+
+	static void TestLoopImmediate()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand(Command("FOR B 6:0:-3", 0));
+		commandSource.AddCommand(Command("DI(7,B,10.0)", 1));
 		commandSource.AddCommand(Command("ENDFOR", 2));
-		commandSource.AddCommand(Command("D 15 15,15.0", 3));
+		commandSource.AddCommand(Command("DI(15,15,15.0)", 3));
 
 		ExecutionFlow executionFlow(&commandSource);
 
@@ -135,10 +164,12 @@ class ExecutionFlowTest
 
 		commandSource.AddCommand(Command("FOR Bravo 0:1", 0));
 		commandSource.AddCommand(Command("FOR Delta 3:4", 1));
-		commandSource.AddCommand(Command("D 7 Bravo,Delta", 2));
+		commandSource.AddCommand(Command("D(7,Bravo,Delta)", 2));
+		commandSource.AddCommand(Command("A(7)", 2));
 		commandSource.AddCommand(Command("ENDFOR", 3));
 		commandSource.AddCommand(Command("ENDFOR", 4));
-		commandSource.AddCommand(Command("D 15 15,15.0", 5));
+		commandSource.AddCommand(Command("D(15,15,15.0)", 5));
+		commandSource.AddCommand(Command("A(15)", 2));
 
 		ExecutionFlow executionFlow(&commandSource);
 
@@ -154,6 +185,45 @@ class ExecutionFlowTest
 		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
 	}
 
+	static void TestOverlappingAnimation()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand(Command("D(10,1,1.0)", 0));
+		commandSource.AddCommand(Command("A(5)", 1));
+		commandSource.AddCommand(Command("D(5,2,1.0)", 2));
+		commandSource.AddCommand(Command("A(5)", 3));
+
+		ExecutionFlow executionFlow(&commandSource);
+
+		LedCommand ledCommand = executionFlow.GetNextLedCommand();
+
+		Assert::AreEqual(1, ledCommand._commandResult.GetCount());
+		LedState ledState = ledCommand._commandResult.GetTarget(0);
+		Assert::AreEqual(1.0, ledState.GetBrightness());
+		Assert::AreEqual(1, ledState.GetChannel());
+		Assert::AreEqual(10, ledState.GetCycleCount());
+
+		ledCommand = executionFlow.GetNextLedCommand();
+
+		Assert::AreEqual(1, ledCommand._commandResult.GetCount());
+		ledState = ledCommand._commandResult.GetTarget(0);
+		Assert::AreEqual(1.0, ledState.GetBrightness());
+		Assert::AreEqual(2, ledState.GetChannel());
+		Assert::AreEqual(5, ledState.GetCycleCount());
+	}
+
+	static void TestMissingAnimation()
+	{
+		CommandSourceSimulator commandSource;
+		commandSource.AddCommand(Command("D(10,1,1.0)", 0));
+
+		ExecutionFlow executionFlow(&commandSource);
+
+		LedCommand ledCommand = executionFlow.GetNextLedCommand();
+
+		Assert::AreEqual((int) CommandResultStatus::CommandTargetCountExceeded, (int) ledCommand._commandResult.GetStatus());
+	}
 
 public:
 
@@ -167,6 +237,10 @@ public:
 		TestLoopWithIncrement();
 		TestLoopWithVariableCount();
 		TestNestedLoopWithLongNames();
+		TestOverlappingAnimation();
+		TestMissingAnimation();
+
+		TestLoopImmediate();
 
 		return 0;
 	}

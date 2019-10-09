@@ -19,7 +19,7 @@ public:
 		_commandCount++;
 	}
 
-	Command GetNextCommand(int autoReset = 1)
+	Command GetNextCommand()
 	{
 		Command command = _commands[_currentCommand];
 		_currentCommand = (_currentCommand + 1) % _commandCount;

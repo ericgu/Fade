@@ -9,18 +9,21 @@ public:
 	{
 		_active = 0;
 		_value = 0.0;
+		_variableName[0] = '\0';
 	}
 
 	Variable(int value)
 	{
 		_active = true;
 		_value = (float) value;
+		_variableName[0] = '\0';
 	}
 
 	Variable(float value)
 	{
 		_active = true;
 		_value = value;
+		_variableName[0] = '\0';
 	}
 
 	static Variable ParseFloat(const char* pCommand)
@@ -60,13 +63,36 @@ class VariableCollection
 	Variable _variables[VariableCount];
 
 public:
-	void Add(const char* variableName)
+	int GetActiveVariableCount()
 	{
+		int count = 0;
+
+		for (int i = 0; i < VariableCount; i++)
+		{
+			if (_variables[i].GetActiveFlag() == 1)
+			{
+				count++;
+			}
+		}
+
+		return count;
+	}
+
+	void Add(const char* pVariableName)
+	{
+		for (int i = 0; i < VariableCount; i++)
+		{
+			if (strcmp(_variables[i].GetVariableName(), pVariableName) == 0)
+			{
+				return;
+			}
+		}
+
 		for (int i = 0; i < VariableCount; i++)
 		{
 			if (_variables[i].GetActiveFlag() == 0)
 			{
-				_variables[i].SetVariableName(variableName);
+				_variables[i].SetVariableName(pVariableName);
 				_variables[i].SetActiveFlag(1);
 				return;
 			}
@@ -117,13 +143,18 @@ public:
 		int length = pCommand - pStart;
 		strncpy(pVariableName, pStart, length);
 		*(pVariableName + length) = '\0';
-
-		return pCommand + 1;
+		 
+		return pCommand;
 	}
 
 	Variable ParseFloatOrVariable(const char* pCommand)
 	{
 		char variableName[64];
+
+		while (*pCommand == ' ')
+		{
+			pCommand++;
+		}
 
 		if (*pCommand >= '0' && *pCommand <= '9')
 		{
@@ -131,7 +162,29 @@ public:
 		}
 		else
 		{
-			pCommand = GetVariableName(pCommand, variableName);
+			//Serial.print("Variable or function call: "); Serial.println(pCommand);
+
+			if (strchr(pCommand, '(') != 0)
+			{
+				//Serial.print("  found function call: "); Serial.println(pCommand);
+				if (strncmp(pCommand, "R(", 2) == 0)
+				{
+					//Serial.println("    found random: ");
+					ListParser listParser(":", pCommand + 2);
+
+					Variable minValue = Variable::ParseFloat(listParser.GetItem(0));
+					Variable maxValue = Variable::ParseFloat(listParser.GetItem(1));
+
+					Variable value = MyRandom::GetValue(minValue.GetValueInt(), maxValue.GetValueInt());
+
+					return value;
+				}
+			}
+			else
+			{
+				//Serial.print("  Variable name: "); Serial.println(pCommand);
+				pCommand = GetVariableName(pCommand, variableName);
+			}
 
 			return Get(variableName);
 		}

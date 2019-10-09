@@ -1,4 +1,6 @@
 typedef void (*ProgramUpdated)(const char* pProgram);
+typedef const char* (*CurrentProgramFetcher)();
+typedef bool (*CurrentExecutionStateFetcher)();
 
 class MyWebServer
 {
@@ -6,11 +8,12 @@ class MyWebServer
 
     WebServer* _pWebServer;
 
-    char* _pCurrentProgram;
     char* _pProgramBuffer;
     char* _pPageBuffer;
 
     ProgramUpdated _onProgramUpdated;
+    CurrentProgramFetcher _currentProgramFetcher;
+    CurrentExecutionStateFetcher _currentExecutionStateFetcher;
 
     static void handleRoot()
     {
@@ -19,7 +22,7 @@ class MyWebServer
 
     public:
 
-      MyWebServer(ProgramUpdated onProgramUpdated)
+      MyWebServer(ProgramUpdated onProgramUpdated, CurrentProgramFetcher currentProgramFetcher, CurrentExecutionStateFetcher currentExecutionStateFetcher)
       {
         _pWebServer = new WebServer(80);
 
@@ -27,16 +30,13 @@ class MyWebServer
         _pPageBuffer = new char[16636];
 
         _onProgramUpdated = onProgramUpdated;
+        _currentProgramFetcher = currentProgramFetcher;
+        _currentExecutionStateFetcher = currentExecutionStateFetcher;
 
         _pWebServer->on ( "/", handleRoot );
         _pWebServer->begin();
 
         pMyWebServerInstance = this; 
-      }
-
-      void SetCurrentProgram(char* pCurrentProgram)
-      {
-        _pCurrentProgram = pCurrentProgram;
       }
 
       void DumpArgs()
@@ -55,15 +55,15 @@ class MyWebServer
 
 void handleRootInstance() 
 {
-     DumpArgs();
+     //DumpArgs();
 
   String Program;
   Program = _pWebServer->arg("Program");
   //Serial.println("1"); Serial.flush();
   if (Program.length() != 0)
   {
-    Serial.print("Received program: "); 
-    Serial.println(Program.c_str());
+    //Serial.println("Received program: "); 
+    //Serial.println(Program.c_str());
     const char* pProgram = Program.c_str();
 
     while (*pProgram != '\0')
@@ -72,7 +72,7 @@ void handleRootInstance()
       pProgram++;
     }
 
-    Serial.println("Saving"); Serial.flush();
+    //Serial.println("Saving"); Serial.flush();
     _onProgramUpdated(Program.c_str());
 
     _pWebServer->sendHeader("Location", String("/"), true);
@@ -80,7 +80,9 @@ void handleRootInstance()
     Serial.println("Save done - redirecting"); Serial.flush();
   }
 
-  CommandFormatter::PrettyFormat(_pCurrentProgram, _pProgramBuffer, 16636);
+  CommandFormatter::PrettyFormat(_currentProgramFetcher(), _pProgramBuffer, 16636);
+
+  const char* pRunning = _currentExecutionStateFetcher() ? "Program executing" : "<b>Program execution pending</b>";
 
 	snprintf ( _pPageBuffer, 16636,
 
@@ -93,13 +95,13 @@ void handleRootInstance()
   </head>\
   <body>\
     <h1>EagleDecorations Sequence Controller</h1>\
+    <p>%s</p>\
     <FORM action=\"/\" method=\"post\">\
     <textarea rows = \"15\" cols = \"80\" name=\"Program\">%s</textarea><br>\
     <INPUT type=\"submit\" value=\"Send\">\
     </FORM>\
   </body>\
-</html>", _pProgramBuffer	);
-
+</html>", pRunning, _pProgramBuffer	);
 
 	_pWebServer->send ( 200, "text/html", _pPageBuffer );
 }

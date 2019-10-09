@@ -80,7 +80,11 @@ bool ArduinoNvs::commit()
 {
   esp_err_t err = nvs_commit(_nvs_handle);
   if (err != ESP_OK)
+  {
+    Serial.print("Commit error: ");
+    Serial.println(err);
     return false;
+  }
   return true;
 }
 

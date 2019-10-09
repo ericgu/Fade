@@ -11,9 +11,23 @@ public:
         return NVS.getString(key);
     }
 
-    void SetString(const char* key, const char* value)
+    bool SetString(const char* key, const char* value)
     {
-        NVS.setString(key, value);
+        return NVS.setString(key, value, true);
     }
 
+    int GetInt(const char* key)
+    {
+        return NVS.getInt(key);
+    }
+
+    bool SetInt(const char* key, int value)
+    {
+        return NVS.setInt(key, value, true);
+    }
+
+    void EraseAll()
+    {
+        NVS.eraseAll();
+    }
 };

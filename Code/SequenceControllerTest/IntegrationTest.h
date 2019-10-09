@@ -16,7 +16,8 @@ class IntegrationTest
 
 		LedManager ledManager(&ledPwm, 16);
 
-		commandSource.AddCommand(Command("D 10 0,10.0", 0));
+		commandSource.AddCommand(Command("D(10,0,10.0)", 0));
+		commandSource.AddCommand(Command("A(10)", 1));
 
 		Timebase timebase(&commandSource, &ledManager);
 
@@ -44,8 +45,10 @@ class IntegrationTest
 
 		LedManager ledManager(&ledPwm, 16);
 
-		commandSource.AddCommand(Command("D 10 0,10.0", 0));
-		commandSource.AddCommand(Command("D 10 0,0.0", 1));
+		commandSource.AddCommand(Command("D(10,0,10.0)", 0));
+		commandSource.AddCommand(Command("A(10)", 1));
+		commandSource.AddCommand(Command("D(10,0,0.0)", 2));
+		commandSource.AddCommand(Command("A(10)", 3));
 
 		Timebase timebase(&commandSource, &ledManager);
 
@@ -86,9 +89,11 @@ class IntegrationTest
 
 		//"$1$FOR %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDFOR"
 		commandSource.AddCommand(Command("FOR A 0:7", 0));
-		commandSource.AddCommand(Command("D 2 A,1.0", 1));
-		commandSource.AddCommand(Command("D 2 A,0.0", 2));
-		commandSource.AddCommand(Command("ENDFOR", 3));
+		commandSource.AddCommand(Command("D(2,A,1.0)", 1));
+		commandSource.AddCommand(Command("A(2)", 2));
+		commandSource.AddCommand(Command("D(2,A,0.0)", 3));
+		commandSource.AddCommand(Command("A(2)", 4));
+		commandSource.AddCommand(Command("ENDFOR", 5));
 
 		Timebase timebase(&commandSource, &ledManager);
 
@@ -110,6 +115,44 @@ class IntegrationTest
 		Assert::AreEqual(1.0, ledPwm.GetUpdatedState(81).GetBrightness());
 	}
 
+	static void Test4()
+	{
+		CommandSourceSimulator commandSource;
+		LedPwmSimulator ledPwm(16000);
+
+		LedManager ledManager(&ledPwm, 16);
+
+		// FOR A 0:7
+		// 	PL(A)
+		// 	DI(5, A, 1.0)
+		// 	D(100, A, 0.0)
+		// 	A(25);
+		// ENDFOR
+
+		commandSource.AddCommand(Command("FOR A 0:7			  ", 0));
+		commandSource.AddCommand(Command("DI(5, A, 1.0)	  ", 1));
+		commandSource.AddCommand(Command("D(20, A, 0.0)	  ", 2));
+		commandSource.AddCommand(Command("A(5);			  ", 3));
+		commandSource.AddCommand(Command("ENDFOR			  ", 4));
+
+		Timebase timebase(&commandSource, &ledManager);
+
+		for (int i = 0; i < 100; i++)
+		{
+			timebase.DoTick();
+		}
+
+		for (int i = 0; i < ledPwm.GetUpdateCount(); i += 16)
+		{
+			for (int channel = 0; channel < 16; channel++)
+			{
+				LedState ledState = ledPwm.GetUpdatedState(i + channel);
+				//printf("%0.2f ", ledState.GetBrightness());
+			}
+			//puts("");
+		}
+	}
+
 public:
 
 	static int Run()
@@ -117,6 +160,7 @@ public:
 		Test();
 		Test2();
 		Test3();
+		Test4();
 
 		return 0;
 	}

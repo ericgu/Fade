@@ -16,9 +16,14 @@ class Timebase
 
         void DoTick()
         {
+			//Serial.println("Tick");
             if (_currentCount == 0)
             {
 				LedCommand ledCommand = _executionFlow.GetNextLedCommand();
+				if (ledCommand._commandResult.GetStatus() == CommandResultStatus::CommandTargetCountExceeded)
+				{
+					Serial.println((char*) "Target count exceeded: Did you forget an animate command?");
+				}
 
 				_currentCount = ledCommand._commandResult.GetCycleCount();
 				_pLedManager->SetDelta(ledCommand._commandResult);

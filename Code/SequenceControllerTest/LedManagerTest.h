@@ -51,7 +51,7 @@ class LedManagerTest
 		LedManager ledManager(&ledPwm, 1);
 
 		CommandResult commandResult;
-		commandResult.AddTarget(LedState(0, 1.0));
+		commandResult.AddTarget(LedState(0, 1.0, 1));
 		commandResult.SetCycleCount(1);
 
 		ledManager.SetDelta(commandResult);
@@ -68,8 +68,8 @@ class LedManagerTest
 		LedManager ledManager(&ledPwm, 2);
 
 		CommandResult commandResult;
-		commandResult.AddTarget(LedState(0, 1.0));
-		commandResult.AddTarget(LedState(1, 2.0));
+		commandResult.AddTarget(LedState(0, 1.0, 1));
+		commandResult.AddTarget(LedState(1, 2.0, 1));
 		commandResult.SetCycleCount(1);
 
 		ledManager.SetDelta(commandResult);
@@ -85,8 +85,8 @@ class LedManagerTest
 		Assert::AreEqual(4, ledPwm.GetUpdateCount());
 		AssertLedState(ledPwm.GetUpdatedState(0), 0, 1.0);
 		AssertLedState(ledPwm.GetUpdatedState(1), 1, 2.0);
-		AssertLedState(ledPwm.GetUpdatedState(2), 0, 2.0);
-		AssertLedState(ledPwm.GetUpdatedState(3), 1, 4.0);
+		AssertLedState(ledPwm.GetUpdatedState(2), 0, 1.0);
+		AssertLedState(ledPwm.GetUpdatedState(3), 1, 2.0);
 	}
 
 	static void TestMultipleSteps()
@@ -96,7 +96,7 @@ class LedManagerTest
 		LedManager ledManager(&ledPwm, 1);
 
 		CommandResult commandResult;
-		commandResult.AddTarget(LedState(0, 20.0));
+		commandResult.AddTarget(LedState(0, 20.0, 10));
 		commandResult.SetCycleCount(10);
 
 		ledManager.SetDelta(commandResult);
@@ -109,10 +109,39 @@ class LedManagerTest
 		}
 	}
 
+	static void TestTwoChannelsDifferentUpdateRates()
+	{
+		LedPwmSimulator ledPwm(100);
+
+		LedManager ledManager(&ledPwm, 2);
+
+		CommandResult commandResult;
+		commandResult.AddTarget(LedState(0, 10.0, 5));
+		commandResult.AddTarget(LedState(1, 20.0, 20));
+		commandResult.SetCycleCount(5);
+
+		ledManager.SetDelta(commandResult);
+
+		ledManager.Tick();
+
+		Assert::AreEqual(2, ledPwm.GetUpdateCount());
+		AssertLedState(ledPwm.GetUpdatedState(0), 0, 2.0);
+		AssertLedState(ledPwm.GetUpdatedState(1), 1, 1.0);
+
+		ledManager.Tick();
+
+		Assert::AreEqual(4, ledPwm.GetUpdateCount());
+		AssertLedState(ledPwm.GetUpdatedState(0), 0, 2.0);
+		AssertLedState(ledPwm.GetUpdatedState(1), 1, 1.0);
+		AssertLedState(ledPwm.GetUpdatedState(2), 0, 4.0);
+		AssertLedState(ledPwm.GetUpdatedState(3), 1, 2.0);
+	}
+
 public:
 
 	static int Run()
 	{
+		TestTwoChannelsDifferentUpdateRates();
 		TestMultipleSteps();
 		TestTwoChannelsTwoUpdates();
 		Test();

@@ -1,7 +1,7 @@
 class ICommandSource
 {
     public:
-        virtual Command GetNextCommand(int autoReset = 0) = 0;
+        virtual Command GetNextCommand() = 0;
 		virtual void SetCommandToSerialNumber(int serialNumber) = 0;
 };
 
@@ -11,52 +11,62 @@ class CommandSource: public ICommandSource
 
 	ListParser* _pListParser;
 
+
     public:
-		void SetCommand(const char* pCommandString)
+		CommandSource()
 		{
-			_serialNumber = 0;
-			_pListParser = new ListParser("\n\r", pCommandString);
+			_pListParser = 0;
 		}
 
-		Command GetNextCommand(int autoReset = 1)
+		void SetCommand(const char* pCommandString)
 		{
+			if (_pListParser != 0)
+			{
+				delete _pListParser;
+			}
+
+			_serialNumber = 0;
+			_pListParser = new ListParser("\n\r", pCommandString);
+			//Serial.println(">CommandSource.SetCommand");
+			//Serial.print("This: "); Serial.println((int) this);
+			//Serial.println(pCommandString);
+			//Serial.println(_pListParser->GetCount());
+			//for (int i = 0; i < _pListParser->GetCount(); i++)
+			//{
+			//	Serial.println(_pListParser->GetItem(i));
+			//}
+			//Serial.println("<CommandSource.SetCommand");
+		}
+
+		Command GetNextCommand()
+		{
+			//Serial.println(">GetNextCommand");
+			//Serial.println(_pListParser->GetCount());
+			//for (int i = 0; i < _pListParser->GetCount(); i++)
+			{
+				//if (i == _serialNumber)
+				{
+					//Serial.print("+");
+				}
+				//Serial.println(_pListParser->GetItem(i));
+			}
+			//Serial.println("<GetNextCommand");
+
 			const char *pCommandStart = _pListParser->GetItem(_serialNumber);
+			//Serial.print(_serialNumber); Serial.print(": "); Serial.println(pCommandStart);
 
 			while (*pCommandStart == ' ')
 			{
 				pCommandStart++;
 			}
 
-			const char* _pNext = pCommandStart;
-
-			// end of this command is $, null, or newline
-
-			while (*_pNext != '\0' && *_pNext != '\n')
-			{
-				_pNext++;
-			}
-
-			int commandLength = _pNext - pCommandStart;
-
-			if (*_pNext == '\n')
-			{
-				_pNext++;
-			}
-
-			Command command = Command(pCommandStart, commandLength, _serialNumber);
+			Command command = Command(pCommandStart, _serialNumber);
 			_serialNumber++;
 
 			if (_serialNumber == _pListParser->GetCount())
 			{
-				if (autoReset == 1)
-				{
-					_serialNumber = 0;
-					//Serial.println((char*) "Autoreset");
-				}
-				else
-				{
-					return Command(pCommandStart, commandLength, -1);
-				}
+				//Serial.println("End of list");
+				_serialNumber = 0;
 			}
 
 			//Serial.println(command.GetString());

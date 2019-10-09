@@ -33,11 +33,15 @@ public:
 
 	LedCommand GetNextLedCommand()
 	{
+		CommandResult commandResult;
+
 		while (true)
 		{
 			Command command = _pCommandSource->GetNextCommand();
 
-			CommandResult commandResult = CommandDecoder::Decode(_executionContext, command);
+			CommandDecoder::Decode(_executionContext, command, commandResult);
+			//Serial.print("Status: ");
+			//Serial.println((int) commandResult.GetStatus());
 
 			switch (commandResult.GetStatus())
 			{
@@ -55,7 +59,14 @@ public:
 				case CommandResultStatus::CommandLoopMatched:
 				case CommandResultStatus::CommandNone:
 				case CommandResultStatus::CommandSkipToNext:
+				case CommandResultStatus::CommandTargetCountExceeded:
 					break;
+			}
+
+			if (commandResult.GetTargetCountExceeded())
+			{
+				commandResult.SetStatus(CommandResultStatus::CommandTargetCountExceeded);
+				return CommandExecute(commandResult);
 			}
 		}
 	}

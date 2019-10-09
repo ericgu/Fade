@@ -38,16 +38,16 @@ extern "C" {
 #define ARDUINONVS_SILENT 0
 #endif
 
-#if ARDUINONVS_SILENT
-  #define DEBUG_PRINT(...) { }
-  #define DEBUG_PRINTLN(...) { }
-  #define DEBUG_PRINTF(fmt, args...) { }
-#else
+//#if ARDUINONVS_SILENT
+//  #define DEBUG_PRINT(...) { }
+//  #define DEBUG_PRINTLN(...) { }
+//  #define DEBUG_PRINTF(fmt, args...) { }
+//#else
   #define DEBUG_PRINTER Serial
   #define DEBUG_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
   #define DEBUG_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
   #define DEBUG_PRINTF(fmt, args...) { DEBUG_PRINTER.printf(fmt,## args); }
-#endif
+//#endif
 
 class ArduinoNvs {
 public:

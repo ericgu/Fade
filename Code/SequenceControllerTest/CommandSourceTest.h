@@ -132,8 +132,6 @@ class CommandSourceTest
 		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
 	}
 
-
-
 public:
 
 	static int Run()
