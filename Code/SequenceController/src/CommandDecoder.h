@@ -15,30 +15,48 @@ class CommandDecoder
 			commandResult.SetStatus(CommandResultStatus::CommandExecute);
 			immediateMode = true;
 		}
-		else
+		else if (*pCommand == '(')
 		{
 			commandResult.SetStatus(CommandResultStatus::CommandNone);
 			immediateMode = false;
+		}
+		else
+		{
+			executionContext._parseErrors.AddError("Invalid D command: ", "expected I or (", command.GetSerialNumber());
+			return true;
 		}
 		pCommand++;		// skip (
 
 		ListParser listParser(",", pCommand);
 
-		Variable cycleCount = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(0));
+		if (listParser.GetCount() == 0)
+		{
+			executionContext._parseErrors.AddError("Invalid D command: ", "expected cycle count after (", command.GetSerialNumber());
+			return true;
+		}
+
+		Variable cycleCount = *executionContext.ParseFloatOrVariable(listParser.GetItem(0));
 
 		if (immediateMode)
 		{
 			commandResult.SetCycleCount(cycleCount.GetValueInt());
 		}
 		
+		// even number of arguments is a problem...
+		if (listParser.GetCount() %2 == 0)
+		{
+			executionContext._parseErrors.AddError("Invalid D command: ", "missing brightness target", command.GetSerialNumber());
+			return true;
+		}
+
 		for (int i = 1; i < listParser.GetCount(); i += 2)
 		{
-			Variable channel = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(i));
+			Variable channel = *executionContext.ParseFloatOrVariable(listParser.GetItem(i));
 			if (channel.GetValueInt() < 0 || channel.GetValueInt() > 15)
 			{
 				int k = 12;
 			}
-			Variable brightness = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(i + 1));
+			Variable brightness = *executionContext.ParseFloatOrVariable(listParser.GetItem(i + 1));
 
 			commandResult.AddTarget(LedState(channel.GetValueInt(), brightness.GetValueFloat(), cycleCount.GetValueInt()));
 		}
@@ -51,7 +69,7 @@ class CommandDecoder
 		if (!command.StartsWith("S")) { return false; }
 
 		char* pCommand = command.GetString() + 1;
-		bool immediateMode;
+		bool immediateMode = false;
 
 		if (*pCommand == 'I')
 		{
@@ -59,16 +77,23 @@ class CommandDecoder
 			pCommand++;
 			immediateMode = true;
 		}
-		else
+
+		if (*pCommand != '(')
 		{
-			commandResult.SetStatus(CommandResultStatus::CommandNone);
-			immediateMode = false;
+			executionContext._parseErrors.AddError("Invalid S command: ", "expected I or (", command.GetSerialNumber());
+			return true;
 		}
+
 		pCommand++;		// skip (
 		
 		ListParser listParser(",", pCommand);
+		if (listParser.GetCount() == 0)
+		{
+			executionContext._parseErrors.AddError("Invalid S command: ", "expected cycle count after (", command.GetSerialNumber());
+			return true;
+		}
 
-		Variable cycleCount = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(0));
+		Variable cycleCount = *executionContext.ParseFloatOrVariable(listParser.GetItem(0));
 		if (immediateMode)
 		{
 			commandResult.SetCycleCount(cycleCount.GetValueInt());
@@ -76,10 +101,9 @@ class CommandDecoder
 
 		for (int channel = 1; channel < listParser.GetCount(); channel++)
 		{
-			Variable brightness = executionContext._variables.ParseFloatOrVariable(listParser.GetItem(channel));
+			Variable brightness = *executionContext.ParseFloatOrVariable(listParser.GetItem(channel));
 			commandResult.AddTarget(LedState(channel - 1, brightness.GetValueFloat(), cycleCount.GetValueInt()));
 		}
-
 
 		return true;
 	}
@@ -89,9 +113,22 @@ class CommandDecoder
 		if (!command.StartsWith("A")) { return false; }
 
 		char* pCommand = command.GetString();
-		pCommand += 2;	// skip "A("
+		pCommand++;
 
-		Variable cycleCount = executionContext._variables.ParseFloatOrVariable(pCommand);
+		if (*pCommand != '(')
+		{
+			executionContext._parseErrors.AddError("Invalid A command: ", "expected (", command.GetSerialNumber());
+			return true;
+		}
+		*pCommand++;
+
+		if (*pCommand == '\0')
+		{
+			executionContext._parseErrors.AddError("Invalid A command: ", "expected cycle count", command.GetSerialNumber());
+			return true;
+		}
+
+		Variable cycleCount = *executionContext.ParseFloatOrVariable(pCommand);
 		commandResult.SetCycleCount(cycleCount.GetValueInt());
 		commandResult.SetStatus(CommandResultStatus::CommandExecute);
 
@@ -100,7 +137,7 @@ class CommandDecoder
 	
 	static bool DecodeLoopStart(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
 	{
-		Loop loop = Loop::Parse(command.GetString());
+		Loop loop = Loop::Parse(command.GetString(), executionContext, command.GetSerialNumber());
 
 		if (!loop.GetMatch())
 		{
@@ -111,11 +148,11 @@ class CommandDecoder
 		if (executionContext._stack.GetFrameCount() != 0 && 
 			executionContext._stack.GetTopFrame().SerialNumberStart == command.GetSerialNumber())
 		{
-			executionContext._variables.Get(loop.GetVariableName()).Increment(loop.GetVariableInc());
+			executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors)->Increment(loop.GetVariableInc());
 
-			if (!loop.GetIsInRange(executionContext._variables.Get(loop.GetVariableName()).GetValueFloat()))
+			if (!loop.GetIsInRange(executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors)->GetValueFloat()))
 			{
-				executionContext._variables.Get(loop.GetVariableName()).SetActiveFlag(false);
+				executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors)->SetActiveFlag(false);
 				commandResult.SetStatus(CommandResultStatus::CommandExitLoopBody);
 				return true;
 			}
@@ -124,7 +161,7 @@ class CommandDecoder
 		}
 		else // first time
 		{
-			executionContext._variables.AddAndSet(loop.GetVariableName(), loop.GetVariableStart());
+			executionContext._variables.AddAndSet(loop.GetVariableName(), loop.GetVariableStart().GetValueFloat());
 
 			executionContext._stack.CreateFrame();
 			executionContext._stack.GetTopFrame().SerialNumberStart = command.GetSerialNumber();
@@ -167,7 +204,7 @@ class CommandDecoder
 			}
 
 			//Serial.print("In Assignment3: "); Serial.println(pCommand);
-			Variable variable = executionContext._variables.ParseFloatOrVariable(pCommand);
+			Variable variable = *executionContext.ParseFloatOrVariable(pCommand);
 
 			executionContext._variables.AddAndSet(variableName, variable.GetValueFloat());
 
@@ -218,7 +255,7 @@ class CommandDecoder
 				char variableName[64];
 				pCommand = VariableCollection::GetVariableName(pCommand, variableName);
 
-				Variable variable = executionContext._variables.ParseFloatOrVariable(variableName);
+				Variable variable = *executionContext.ParseFloatOrVariable(variableName);
 
 				snprintf(outputString, sizeof(outputString), "%f", variable.GetValueFloat());
 			}
@@ -233,6 +270,34 @@ class CommandDecoder
 		}
 
 		return false;
+	}
+
+	static bool DecodeWhitespaceOrCommentCommand(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	{
+		char* pCommand = command.GetString();
+
+		if (command.StartsWith("//"))
+		{
+			return true;
+		}
+
+		while (*pCommand != '\0')
+		{
+			if (*pCommand != ' ' && *pCommand != '\t')
+			{
+				return false;
+			}
+
+			pCommand++;
+		}
+
+		return true;
+	}
+
+	static bool DecodeUnrecognizedCommand(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	{
+		executionContext._parseErrors.AddError("Unrecognized command: ", command.GetString(), command.GetSerialNumber());
+		return true;
 	}
 
     public:
@@ -253,5 +318,9 @@ class CommandDecoder
 		if (DecodeDirect(executionContext, command, commandResult)) { return; }
 
 		if (DecodeSequential(executionContext, command, commandResult)) { return; }
+
+		if (DecodeWhitespaceOrCommentCommand(executionContext, command, commandResult)) { return; }
+
+		if (DecodeUnrecognizedCommand(executionContext, command, commandResult)) { return; }
 	}
 };

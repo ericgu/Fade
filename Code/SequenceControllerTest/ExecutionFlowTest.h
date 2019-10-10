@@ -16,6 +16,18 @@ class ExecutionFlowTest
 		AssertResult(executionFlow.GetNextLedCommand(), 10, 0, 10.0F);
 	}
 
+	static void TestAutoRestart()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand(Command("DI(10,0,10.0)", 0));
+
+		ExecutionFlow executionFlow(&commandSource);
+
+		AssertResult(executionFlow.GetNextLedCommand(), 10, 0, 10.0F);
+		AssertResult(executionFlow.GetNextLedCommand(), 10, 0, 10.0F);
+	}
+
 	static void AssertResult(LedCommand ledCommand, int cycleCount, int channel, float brightness)
 	{
 		Assert::AreEqual(cycleCount, ledCommand._commandResult.GetCycleCount());
@@ -140,6 +152,29 @@ class ExecutionFlowTest
 		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
 	}
 
+	static void TestLoopDownWithVariables()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand(Command("Start=6", 0));
+		commandSource.AddCommand(Command("End=0", 1));
+		commandSource.AddCommand(Command("Inc=-3", 2));
+		commandSource.AddCommand(Command("FOR B Start:End:Inc", 3));
+		commandSource.AddCommand(Command("D(7,B,10.0)", 4));
+		commandSource.AddCommand(Command("A(7)", 5));
+		commandSource.AddCommand(Command("ENDFOR", 6));
+		commandSource.AddCommand(Command("D(15,15,15.0)", 7));
+		commandSource.AddCommand(Command("A(15)", 8));
+
+		ExecutionFlow executionFlow(&commandSource);
+
+		AssertResult(executionFlow.GetNextLedCommand(), 7, 6, 10.0F);
+		AssertResult(executionFlow.GetNextLedCommand(), 7, 3, 10.0F);
+		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 10.0F);
+
+		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
+	}
+
 	static void TestLoopImmediate()
 	{
 		CommandSourceSimulator commandSource;
@@ -225,11 +260,26 @@ class ExecutionFlowTest
 		Assert::AreEqual((int) CommandResultStatus::CommandTargetCountExceeded, (int) ledCommand._commandResult.GetStatus());
 	}
 
+	static void TestMissingEndFor()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand(Command("FOR B 0:7", 0));
+
+		ExecutionFlow executionFlow(&commandSource);
+
+		executionFlow.GetNextLedCommand();
+
+		Assert::AreEqual(1, executionFlow.GetParseErrors()->GetErrorCount());
+		ParseError parseError = executionFlow.GetParseErrors()->GetError(0);
+	}
+
 public:
 
 	static int Run()
 	{
 		TestLoopDown();
+		TestLoopDownWithVariables();
 
 		Test();
 		TestLoop();
@@ -241,6 +291,9 @@ public:
 		TestMissingAnimation();
 
 		TestLoopImmediate();
+
+		TestAutoRestart();
+		TestMissingEndFor();
 
 		return 0;
 	}

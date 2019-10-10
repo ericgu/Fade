@@ -138,9 +138,9 @@ class CommandDecoderTest
 
 	static void ValidateVariable(ExecutionContext executionContext, const char *pVariableName, int active, int value)
 	{
-		Variable variable = executionContext._variables.Get(pVariableName);
-		Assert::AreEqual(active, variable.GetActiveFlag());
-		Assert::AreEqual(value, variable.GetValueInt());
+		Variable* pVariable = executionContext._variables.Get(pVariableName, &executionContext._parseErrors);
+		Assert::AreEqual(active, pVariable->GetActiveFlag());
+		Assert::AreEqual(value, pVariable->GetValueInt());
 	}
 
 	static void TestLoopStart()
@@ -354,6 +354,7 @@ class CommandDecoderTest
 		CommandResult commandResult;
 
 		CommandDecoder::Decode(executionContext, Command("", 0), commandResult);
+		Assert::AreEqual(0, executionContext._parseErrors.GetErrorCount());
 	}
 
 	static void TestWhitespaceOnly()
@@ -362,6 +363,7 @@ class CommandDecoderTest
 		CommandResult commandResult;
 
 		CommandDecoder::Decode(executionContext, Command("      ", 0), commandResult);
+		Assert::AreEqual(0, executionContext._parseErrors.GetErrorCount());
 	}
 
 	static void TestComment()
@@ -370,6 +372,78 @@ class CommandDecoderTest
 		CommandResult commandResult;
 
 		CommandDecoder::Decode(executionContext, Command("// comment", 0), commandResult);
+		Assert::AreEqual(0, executionContext._parseErrors.GetErrorCount());
+	}
+
+	static void ValidateError(ExecutionContext& executionContext, int errorCount, const char* pExpectedString, int lineNumber)
+	{
+		Assert::AreEqual(errorCount, executionContext._parseErrors.GetErrorCount());
+		if (errorCount != executionContext._parseErrors.GetErrorCount())
+		{
+			return;
+		}
+		Assert::AreEqual(pExpectedString, executionContext._parseErrors.GetError(errorCount - 1)._errorText);
+		Assert::AreEqual(lineNumber, executionContext._parseErrors.GetError(errorCount - 1)._lineNumber);
+	}
+
+	static void TestErrorDirect()
+	{
+		ExecutionContext executionContext;
+		CommandResult commandResult;
+
+		CommandDecoder::Decode(executionContext, Command("DX(", 0), commandResult);
+		ValidateError(executionContext, 1, "Invalid D command: expected I or (", 0);
+
+		CommandDecoder::Decode(executionContext, Command("D(", 1), commandResult);
+		ValidateError(executionContext, 2, "Invalid D command: expected cycle count after (", 1);
+
+		CommandDecoder::Decode(executionContext, Command("D(55, 1)", 2), commandResult);
+		ValidateError(executionContext, 3, "Invalid D command: missing brightness target", 2);
+
+		CommandDecoder::Decode(executionContext, Command("D(MissingVar, 5, 1.0)", 3), commandResult);
+		ValidateError(executionContext, 4, "Undeclared variable: MissingVar", -1);
+
+		CommandDecoder::Decode(executionContext, Command("D33", 4), commandResult);
+		ValidateError(executionContext, 5, "Invalid D command: expected I or (", 4);
+	}
+
+	static void TestErrorSequential()
+	{
+		ExecutionContext executionContext;
+		CommandResult commandResult;
+
+		CommandDecoder::Decode(executionContext, Command("SX(", 0), commandResult);
+		ValidateError(executionContext, 1, "Invalid S command: expected I or (", 0);
+
+		CommandDecoder::Decode(executionContext, Command("S(", 1), commandResult);
+		ValidateError(executionContext, 2, "Invalid S command: expected cycle count after (", 1);
+
+		CommandDecoder::Decode(executionContext, Command("S(MissingVar, 5, 1.0)", 3), commandResult);
+		ValidateError(executionContext, 3, "Undeclared variable: MissingVar", -1);
+
+		CommandDecoder::Decode(executionContext, Command("S", 4), commandResult);
+		ValidateError(executionContext, 4, "Invalid S command: expected I or (", 4);
+	}
+
+	static void TestErrorAnimate()
+	{
+		ExecutionContext executionContext;
+		CommandResult commandResult;
+
+		CommandDecoder::Decode(executionContext, Command("Axx(", 0), commandResult);
+		ValidateError(executionContext, 1, "Invalid A command: expected (", 0);
+
+		CommandDecoder::Decode(executionContext, Command("A(", 1), commandResult);
+		ValidateError(executionContext, 2, "Invalid A command: expected cycle count", 1);
+	}
+
+	static void TestUnrecognizedCommand()
+	{
+		ExecutionContext executionContext;
+		CommandResult commandResult;
+
+		CommandDecoder::Decode(executionContext, Command("FASDF", 0), commandResult);
+		ValidateError(executionContext, 1, "Unrecognized command: FASDF", 0);
 	}
 
 public:
@@ -411,6 +485,11 @@ public:
 		TestBlankLine();
 		TestWhitespaceOnly();
 		TestComment();
+
+		TestErrorDirect();
+		TestErrorSequential();
+		TestErrorAnimate();
+		TestUnrecognizedCommand();
 
 		return 0;
 	}

@@ -34,9 +34,9 @@ public:
 		return variable;
 	}
 
-	void Increment(float increment)
+	void Increment(Variable increment)
 	{
-		_value += increment;
+		_value += increment.GetValueFloat();
         //Serial.println(_value);
 	}
 
@@ -59,7 +59,9 @@ public:
 class VariableCollection
 {
 	static const int VariableCount = 10;
-
+	
+	Variable _undefined;
+	Variable _constant;
 	Variable _variables[VariableCount];
 
 public:
@@ -99,27 +101,29 @@ public:
 		}
 	}
 
-	Variable& Get(int index)
+	Variable* Get(int index)
 	{
 		if (index < 0 || index > VariableCount)
 		{
-			return _variables[0];
+			return &_undefined;
 		}
 
-		return _variables[index];
+		return &_variables[index];
 	}
 
-	Variable& Get(const char* pVariableName)
+	Variable* Get(const char* pVariableName, ParseErrors* pParseErrors)
 	{
 		for (int i = 0; i < VariableCount; i++)
 		{
 			if (strcmp(pVariableName, _variables[i].GetVariableName()) == 0)
 			{
-				return _variables[i];
+				return &_variables[i];
 			}
 		}
 
-		return _variables[0];
+		pParseErrors->AddError("Undeclared variable: ", pVariableName, -1);
+
+		return &_undefined;
 	}
 
 	static bool IsAlphaOrNum(char c)
@@ -147,7 +151,7 @@ public:
 		return pCommand;
 	}
 
-	Variable ParseFloatOrVariable(const char* pCommand)
+	Variable* ParseFloatOrVariable(const char* pCommand, ParseErrors* pParseErrors)
 	{
 		char variableName[64];
 
@@ -156,9 +160,10 @@ public:
 			pCommand++;
 		}
 
-		if (*pCommand >= '0' && *pCommand <= '9')
+		if ((*pCommand >= '0' && *pCommand <= '9') || *pCommand == '-')
 		{
-			return Variable::ParseFloat(pCommand);
+			_constant = Variable::ParseFloat(pCommand);
+			return &_constant;
 		}
 		else
 		{
@@ -175,9 +180,9 @@ public:
 					Variable minValue = Variable::ParseFloat(listParser.GetItem(0));
 					Variable maxValue = Variable::ParseFloat(listParser.GetItem(1));
 
-					Variable value = MyRandom::GetValue(minValue.GetValueInt(), maxValue.GetValueInt());
+					_constant = MyRandom::GetValue(minValue.GetValueInt(), maxValue.GetValueInt());
 
-					return value;
+					return &_constant;
 				}
 			}
 			else
@@ -186,14 +191,14 @@ public:
 				pCommand = GetVariableName(pCommand, variableName);
 			}
 
-			return Get(variableName);
+			return Get(variableName, pParseErrors);
 		}
 	}
 
 	void AddAndSet(const char* variableName, float value)
 	{
 		Add(variableName);
-		Get(variableName).SetValue(value);
+		Get(variableName, 0)->SetValue(value);
 	}
 
 };

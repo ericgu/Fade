@@ -162,6 +162,7 @@
     <ClInclude Include="ListParserTest.h" />
     <ClInclude Include="LoopTest.h" />
     <ClInclude Include="MyRandom.h" />
+    <ClInclude Include="ParseErrorsTest.h" />
     <ClInclude Include="Serial.h" />
     <ClInclude Include="StackTest.h" />
     <ClInclude Include="stdafx.h" />

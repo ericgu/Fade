@@ -21,10 +21,20 @@ public:
 
 	Command GetNextCommand()
 	{
+		if (_currentCommand == _commandCount)
+		{
+			return Command(0, -1);
+		}
+
 		Command command = _commands[_currentCommand];
-		_currentCommand = (_currentCommand + 1) % _commandCount;
+		_currentCommand++;
 
 		return command;
+	}
+
+	void Reset()
+	{
+		_currentCommand = 0;
 	}
 
 	void SetCommandToSerialNumber(int serialNumber)

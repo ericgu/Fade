@@ -1,11 +1,10 @@
 class Loop
 {
 	char _variableName[64];
-	float _variableStart;
-	float _variableEnd;
-	float _variableInc;
+	Variable _variableStart;
+	Variable _variableEnd;
+	Variable _variableInc;
 	int _match;
-	int _errorOffset;
 
 	static const char* FindColonOrEnd(const char *pCommand)
 	{
@@ -20,22 +19,18 @@ class Loop
 		Loop()
 		{
 			_variableName[0] = 0;
-			_variableStart = 0;
-			_variableEnd = 0;
-			_variableInc = 1;
+			_variableInc = Variable(1.0F);
 			_match = 0;
-			_errorOffset = 0;
 		}
 
-    static Loop Parse(const char* pCommand)
+    static Loop Parse(const char* pCommand, ExecutionContext& executionContent, int lineNumber)
     {
 		const char *pCommandStart = pCommand;
 
 		Loop loop;
 
-		if (strncmp(pCommand, "FOR", 3) != 0)
+		if (strncmp(pCommand, "FOR ", 4) != 0)
 		{
-			loop._errorOffset = pCommand - pCommandStart;
 			return loop;
 		}
 
@@ -43,26 +38,26 @@ class Loop
 
 		pCommand = VariableCollection::GetVariableName(pCommand, loop._variableName);
 
-		loop._variableStart = (float) atof(pCommand);
-
-
-		pCommand = FindColonOrEnd(pCommand);
-
-		if (*pCommand == '\0')
+		if (strlen(loop._variableName) == 0)
 		{
-			loop._errorOffset = pCommand - pCommandStart;
+			executionContent._parseErrors.AddError("Error in FOR: ", "missing variable name", lineNumber);
 			return loop;
 		}
 
-		pCommand++;
+		ListParser listParser(":", pCommand);
 
-		loop._variableEnd = (float) atof(pCommand);
-
-		pCommand = FindColonOrEnd(pCommand);
-		if (*pCommand != '\0')	// has optional increment
+		if (listParser.GetCount() < 2)
 		{
-			pCommand++;
-			loop._variableInc = (float)atof(pCommand);
+			executionContent._parseErrors.AddError("Error in FOR: ", "missing range value(s)", lineNumber);
+			return loop;
+		}
+
+		loop._variableStart = *executionContent.ParseFloatOrVariable(listParser.GetItem(0));
+		loop._variableEnd = *executionContent.ParseFloatOrVariable(listParser.GetItem(1));
+
+		if (listParser.GetCount() > 2)
+		{
+			loop._variableInc = *executionContent.ParseFloatOrVariable(listParser.GetItem(2));
 		}
 
 		loop._match = 1;
@@ -75,17 +70,17 @@ class Loop
 		return _variableName;
     }
 
-	float GetVariableStart()
+	Variable GetVariableStart()
     {
 		return _variableStart;
     }
 
-	float GetVariableEnd()
+	Variable GetVariableEnd()
 	{
 		return _variableEnd;
 	}
 
-	float GetVariableInc()
+	Variable GetVariableInc()
 	{
 		return _variableInc;
 	}
@@ -95,15 +90,13 @@ class Loop
 		return _match;
 	}
 
-	int GetErrorOffset()
-	{
-		return _errorOffset;
-	}
-
 	int GetIsInRange(float value)
 	{
-		float min = _variableStart < _variableEnd ? _variableStart : _variableEnd;
-		float max = _variableStart < _variableEnd ? _variableEnd : _variableStart;
+		float variableStart = _variableStart.GetValueFloat();
+		float variableEnd = _variableEnd.GetValueFloat();
+
+		float min = variableStart < variableEnd ? variableStart : variableEnd;
+		float max = variableStart < variableEnd ? variableEnd : variableStart;
 
 		return value >= min && value <= max;
 	}

@@ -27,7 +27,14 @@ class Command
 
 		Command(const char* pCommand, int serialNumber)
 		{
-			strcpy_s(_commandString, pCommand);
+			if (pCommand)
+			{
+				strcpy_s(_commandString, pCommand);
+			}
+			else
+			{
+				_commandString[0] = '\0';
+			}
 			_serialNumber = serialNumber;
 		}
 

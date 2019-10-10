@@ -17,6 +17,12 @@ class VariableTest
 		Assert::AreEqual(15.88F, variable.GetValueFloat());
 	}
 
+	static void TestParseNegative()
+	{
+		Variable variable = Variable::ParseFloat("-2.0");
+		Assert::AreEqual(-2.0F, variable.GetValueFloat());
+	}
+
 	static void TestIncrement()
 	{
 		Variable variable = Variable::ParseFloat("15");
@@ -44,52 +50,56 @@ class VariableTest
 	{
 		VariableCollection variableCollection;
 
-		Variable variable = variableCollection.Get(2);
-		variable.SetActiveFlag(true);
+		Variable* pVariable = variableCollection.Get(2);
+		pVariable->SetActiveFlag(true);
 	}
 
 	static void TestParseFloatOrVariable()
 	{
 		VariableCollection variableCollection;
+		ParseErrors parseErrors;
 
 		variableCollection.AddAndSet("C", 55.0F);
 
-		Variable parsed = variableCollection.ParseFloatOrVariable("88.0");
-		Assert::AreEqual(88.0F, parsed.GetValueFloat());
+		Variable* pParsed = variableCollection.ParseFloatOrVariable("88.0", &parseErrors);
+		Assert::AreEqual(88.0F, pParsed->GetValueFloat());
 
-		parsed = variableCollection.ParseFloatOrVariable("C");
-		Assert::AreEqual(55.0F, parsed.GetValueFloat());
+		pParsed = variableCollection.ParseFloatOrVariable("C", &parseErrors);
+		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
 	}
 
 	static void TestParseFloatOrVariableNamed()
 	{
 		VariableCollection variableCollection;
+		ParseErrors parseErrors;
 
 		variableCollection.AddAndSet("Fred", 55.0F);
 
-		Variable parsed = variableCollection.ParseFloatOrVariable("Fred");
-		Assert::AreEqual(55.0F, parsed.GetValueFloat());
+		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors);
+		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
 	}
 
 	static void TestAddVariableTwice()
 	{
 		VariableCollection variableCollection;
+		ParseErrors parseErrors;
 
 		variableCollection.AddAndSet("Fred", 55.0F);
 		variableCollection.AddAndSet("Fred", 55.0F);
 
 		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
-		Variable parsed = variableCollection.ParseFloatOrVariable("Fred");
-		Assert::AreEqual(55.0F, parsed.GetValueFloat());
+		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors);
+		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
 	}
 
 	static void TestRandom()
 	{
 		VariableCollection variableCollection;
+		ParseErrors parseErrors;
 
 		MyRandom::SetFirstValue(1);
-		Variable parsed = variableCollection.ParseFloatOrVariable("R(0:10)");
-		Assert::AreEqual(1.0F, parsed.GetValueFloat());
+		Variable* pParsed = variableCollection.ParseFloatOrVariable("R(0:10)", &parseErrors);
+		Assert::AreEqual(1.0F, pParsed->GetValueFloat());
 	}
 
 	static void TestGetVariableName()
@@ -103,12 +113,24 @@ class VariableTest
 		Assert::AreEqual("=15", pRemaining);
 	}
 
+	static void TestMissingVariable()
+	{
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+
+		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors);
+		Assert::AreEqual(1, parseErrors.GetErrorCount());
+		Assert::AreEqual("Undeclared variable: Fred", parseErrors.GetError(0)._errorText);
+		Assert::AreEqual(-1, parseErrors.GetError(0)._lineNumber);
+	}
+
 public:
 
 	static int Run()
 	{
 		TestParseInt();
 		TestParseFloat();
+		TestParseNegative();
 		TestIncrement();
 		TestConstructorInt();
 		TestConstructorFloat();
@@ -123,6 +145,8 @@ public:
 		TestRandom();
 
 		TestGetVariableName();
+
+		TestMissingVariable();
 
 		return 0;
 	}

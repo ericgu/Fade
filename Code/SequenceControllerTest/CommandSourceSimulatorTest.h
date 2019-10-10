@@ -30,8 +30,7 @@ class CommandSourceSimulatorTest
 		Assert::AreEqual(1, command.GetSerialNumber());
 
 		command = commandSource.GetNextCommand();
-		Assert::AreEqual("D 15 11,1.0", command.GetString());
-		Assert::AreEqual(0, command.GetSerialNumber());
+		Assert::AreEqual(-1, command.GetSerialNumber());
 	}
 
 	static void TestReset()

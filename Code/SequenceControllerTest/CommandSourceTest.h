@@ -47,6 +47,10 @@ class CommandSourceTest
 		AssertCommand(command, "xxx", 1);
 
 		command = commandSource.GetNextCommand();
+		Assert::AreEqual(-1, command.GetSerialNumber());
+
+		commandSource.Reset();
+		command = commandSource.GetNextCommand();
 
 		AssertCommand(command, "D 500 1,2,3,4,5,6,7,8", 0);
 
@@ -69,6 +73,7 @@ class CommandSourceTest
 
 		AssertCommand(command, "xxx", 1);
 
+		commandSource.Reset();
 		command = commandSource.GetNextCommand();
 
 		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
@@ -88,6 +93,7 @@ class CommandSourceTest
 
 		AssertCommand(command, "xxx", 1);
 
+		commandSource.Reset();
 		command = commandSource.GetNextCommand();
 
 		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
@@ -127,6 +133,7 @@ class CommandSourceTest
 
 		AssertCommand(command, "xxx", 1);
 
+		commandSource.Reset();
 		command = commandSource.GetNextCommand();
 
 		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);

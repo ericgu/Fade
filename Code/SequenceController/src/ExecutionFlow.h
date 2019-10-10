@@ -31,6 +31,11 @@ public:
 		_pCommandSource = pCommandSource;
 	}
 
+	ParseErrors* GetParseErrors()
+	{
+		return &_executionContext._parseErrors;
+	}
+
 	LedCommand GetNextLedCommand()
 	{
 		CommandResult commandResult;
@@ -38,6 +43,18 @@ public:
 		while (true)
 		{
 			Command command = _pCommandSource->GetNextCommand();
+
+			if (command.GetSerialNumber() == -1)
+			{
+				if (_executionContext._stack.GetFrameCount() != 0)
+				{
+					_executionContext._parseErrors.AddError("Missing loop end", "", -1);
+					return LedCommand(commandResult);
+				}
+
+				_pCommandSource->Reset();
+				command = _pCommandSource->GetNextCommand();
+			}
 
 			CommandDecoder::Decode(_executionContext, command, commandResult);
 			//Serial.print("Status: ");

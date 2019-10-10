@@ -3,6 +3,7 @@ class ICommandSource
     public:
         virtual Command GetNextCommand() = 0;
 		virtual void SetCommandToSerialNumber(int serialNumber) = 0;
+		virtual void Reset() = 0;
 };
 
 class CommandSource: public ICommandSource
@@ -38,8 +39,19 @@ class CommandSource: public ICommandSource
 			//Serial.println("<CommandSource.SetCommand");
 		}
 
+		void Reset()
+		{
+			_serialNumber = 0;
+		}
+
 		Command GetNextCommand()
 		{
+			if (_serialNumber == _pListParser->GetCount())
+			{
+				return Command(0, -1);
+			}
+
+
 			//Serial.println(">GetNextCommand");
 			//Serial.println(_pListParser->GetCount());
 			//for (int i = 0; i < _pListParser->GetCount(); i++)
@@ -62,12 +74,6 @@ class CommandSource: public ICommandSource
 
 			Command command = Command(pCommandStart, _serialNumber);
 			_serialNumber++;
-
-			if (_serialNumber == _pListParser->GetCount())
-			{
-				//Serial.println("End of list");
-				_serialNumber = 0;
-			}
 
 			//Serial.println(command.GetString());
 
