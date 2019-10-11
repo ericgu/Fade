@@ -22,7 +22,12 @@ class Timebase
 				LedCommand ledCommand = _executionFlow.GetNextLedCommand();
 				if (ledCommand._commandResult.GetStatus() == CommandResultStatus::CommandTargetCountExceeded)
 				{
-					Serial.println((char*) "Target count exceeded: Did you forget an animate command?");
+					_executionFlow.GetParseErrors()->AddError(">> Target count exceeded: Did you forget an animate command? <<", "", 0);
+				}
+
+				if (_executionFlow.GetParseErrors()->GetErrorCount() != 0)
+				{
+					return;
 				}
 
 				_currentCount = ledCommand._commandResult.GetCycleCount();
@@ -33,5 +38,8 @@ class Timebase
 			_currentCount--;
         }
 
-
+		ParseErrors* GetParseErrors()
+		{
+			return _executionFlow.GetParseErrors();
+		}
 };

@@ -61,10 +61,10 @@ class VariableTest
 
 		variableCollection.AddAndSet("C", 55.0F);
 
-		Variable* pParsed = variableCollection.ParseFloatOrVariable("88.0", &parseErrors);
+		Variable* pParsed = variableCollection.ParseFloatOrVariable("88.0", &parseErrors, 1);
 		Assert::AreEqual(88.0F, pParsed->GetValueFloat());
 
-		pParsed = variableCollection.ParseFloatOrVariable("C", &parseErrors);
+		pParsed = variableCollection.ParseFloatOrVariable("C", &parseErrors, 1);
 		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
 	}
 
@@ -75,7 +75,7 @@ class VariableTest
 
 		variableCollection.AddAndSet("Fred", 55.0F);
 
-		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors);
+		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors, 1);
 		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
 	}
 
@@ -88,7 +88,7 @@ class VariableTest
 		variableCollection.AddAndSet("Fred", 55.0F);
 
 		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
-		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors);
+		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors, 1);
 		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
 	}
 
@@ -98,7 +98,7 @@ class VariableTest
 		ParseErrors parseErrors;
 
 		MyRandom::SetFirstValue(1);
-		Variable* pParsed = variableCollection.ParseFloatOrVariable("R(0:10)", &parseErrors);
+		Variable* pParsed = variableCollection.ParseFloatOrVariable("R(0:10)", &parseErrors, 1);
 		Assert::AreEqual(1.0F, pParsed->GetValueFloat());
 	}
 
@@ -118,10 +118,10 @@ class VariableTest
 		VariableCollection variableCollection;
 		ParseErrors parseErrors;
 
-		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors);
+		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors, 15);
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		Assert::AreEqual("Undeclared variable: Fred", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(-1, parseErrors.GetError(0)._lineNumber);
+		Assert::AreEqual(15, parseErrors.GetError(0)._lineNumber);
 	}
 
 public:

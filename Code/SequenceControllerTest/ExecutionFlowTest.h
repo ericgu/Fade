@@ -274,6 +274,20 @@ class ExecutionFlowTest
 		ParseError parseError = executionFlow.GetParseErrors()->GetError(0);
 	}
 
+	static void TestInvalidStatement()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand(Command("guar", 0));
+
+		ExecutionFlow executionFlow(&commandSource);
+
+		executionFlow.GetNextLedCommand();
+
+		Assert::AreEqual(1, executionFlow.GetParseErrors()->GetErrorCount());
+		ParseError parseError = executionFlow.GetParseErrors()->GetError(0);
+		Assert::AreEqual("Unrecognized command: guar", parseError._errorText);
+	}
 public:
 
 	static int Run()
@@ -294,6 +308,7 @@ public:
 
 		TestAutoRestart();
 		TestMissingEndFor();
+		TestInvalidStatement();
 
 		return 0;
 	}

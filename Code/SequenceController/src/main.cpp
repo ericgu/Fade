@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <arduinonvs.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -20,6 +21,7 @@
 #include "LedPwm.h"
 #include "LedPwmEsp32.h"
 #include "LedManager.h"
+#include "ParseErrors.h"
 #include "Variable.h"
 #include "Stack.h"
 #include "ExecutionContext.h"
@@ -57,8 +59,10 @@ void ProgramUpdatedImplementation(const char* pProgram)
 {
   Serial.println("Program Updated");
 
+  timebase.GetParseErrors()->Clear();
   strcpy(pCurrentCommand, pProgram);
   commandSource.SetCommand(pCurrentCommand);
+
   pSettings->SetString("Program", pProgram);
   watchdog.ProgramUpdated();
 
@@ -76,6 +80,11 @@ bool GetExecutingProgramState()
   return watchdog.ShouldExecuteCode();
 }
 
+const char* GetCurrentErrors()
+{
+  return timebase.GetParseErrors()->FormatErrors();
+}
+
 void setup() {
   pCurrentCommand = new char[16636];
 
@@ -89,7 +98,7 @@ void setup() {
   Serial.println("after autoconnect");
   Serial.println(WiFi.localIP());
 
-  pMyWebServer = new MyWebServer(ProgramUpdatedImplementation, GetCurrentProgram, GetExecutingProgramState);
+  pMyWebServer = new MyWebServer(ProgramUpdatedImplementation, GetCurrentProgram, GetExecutingProgramState, GetCurrentErrors);
 
   strcpy(pCurrentCommand, "FOR B 100:10:-10\nFOR A 0:7\nDI(B,A,1.0)\nDI(B,A,0.0)\nENDFOR\nENDFOR");
   strcpy(pCurrentCommand, "FOR B 20:10:-10\nFOR A 0:7\nDI(B,A,1.0)\nDI(B,A,0.0)\nENDFOR\nENDFOR");
@@ -142,6 +151,12 @@ void loop() {
     watchdog.ExecutionTick();
 
     timebase.DoTick();
+    if (timebase.GetParseErrors()->GetErrorCount() != 0)
+    {
+      watchdog.StopExecution();
+      Serial.println("loop: errors found");
+      Serial.println(timebase.GetParseErrors()->FormatErrors());
+    }
     //UdpLogger.print("Heartbeat");
 
     //TrackMemory();

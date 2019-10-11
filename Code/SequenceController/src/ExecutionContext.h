@@ -7,8 +7,8 @@ public:
 
 	ParseErrors _parseErrors;
 
-	Variable* ParseFloatOrVariable(const char* pCommand)
+	Variable* ParseFloatOrVariable(const char* pCommand, int lineNumber)
 	{
-		return _variables.ParseFloatOrVariable(pCommand, &_parseErrors);
+		return _variables.ParseFloatOrVariable(pCommand, &_parseErrors, lineNumber);
 	}
 };

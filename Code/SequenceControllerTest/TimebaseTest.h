@@ -118,7 +118,6 @@ class TimebaseTest
 		}
 	}
 
-
 public:
 
 	static int Run()

@@ -44,6 +44,11 @@ public:
 		{
 			Command command = _pCommandSource->GetNextCommand();
 
+			if (_executionContext._parseErrors.GetErrorCount() != 0)
+			{
+				return LedCommand(commandResult);
+			}
+
 			if (command.GetSerialNumber() == -1)
 			{
 				if (_executionContext._stack.GetFrameCount() != 0)

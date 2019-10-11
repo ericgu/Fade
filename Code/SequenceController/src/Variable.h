@@ -111,7 +111,7 @@ public:
 		return &_variables[index];
 	}
 
-	Variable* Get(const char* pVariableName, ParseErrors* pParseErrors)
+	Variable* Get(const char* pVariableName, ParseErrors* pParseErrors, int lineNumber)
 	{
 		for (int i = 0; i < VariableCount; i++)
 		{
@@ -121,7 +121,7 @@ public:
 			}
 		}
 
-		pParseErrors->AddError("Undeclared variable: ", pVariableName, -1);
+		pParseErrors->AddError("Undeclared variable: ", pVariableName, lineNumber);
 
 		return &_undefined;
 	}
@@ -151,7 +151,7 @@ public:
 		return pCommand;
 	}
 
-	Variable* ParseFloatOrVariable(const char* pCommand, ParseErrors* pParseErrors)
+	Variable* ParseFloatOrVariable(const char* pCommand, ParseErrors* pParseErrors, int lineNumber)
 	{
 		char variableName[64];
 
@@ -191,14 +191,14 @@ public:
 				pCommand = GetVariableName(pCommand, variableName);
 			}
 
-			return Get(variableName, pParseErrors);
+			return Get(variableName, pParseErrors, lineNumber);
 		}
 	}
 
 	void AddAndSet(const char* variableName, float value)
 	{
 		Add(variableName);
-		Get(variableName, 0)->SetValue(value);
+		Get(variableName, 0, -1)->SetValue(value);
 	}
 
 };

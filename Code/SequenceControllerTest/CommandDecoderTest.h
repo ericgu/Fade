@@ -138,7 +138,7 @@ class CommandDecoderTest
 
 	static void ValidateVariable(ExecutionContext executionContext, const char *pVariableName, int active, int value)
 	{
-		Variable* pVariable = executionContext._variables.Get(pVariableName, &executionContext._parseErrors);
+		Variable* pVariable = executionContext._variables.Get(pVariableName, &executionContext._parseErrors, -1);
 		Assert::AreEqual(active, pVariable->GetActiveFlag());
 		Assert::AreEqual(value, pVariable->GetValueInt());
 	}
@@ -401,7 +401,7 @@ class CommandDecoderTest
 		ValidateError(executionContext, 3, "Invalid D command: missing brightness target", 2);
 
 		CommandDecoder::Decode(executionContext, Command("D(MissingVar, 5, 1.0)", 3), commandResult);
-		ValidateError(executionContext, 4, "Undeclared variable: MissingVar", -1);
+		ValidateError(executionContext, 4, "Undeclared variable: MissingVar", 3);
 
 		CommandDecoder::Decode(executionContext, Command("D33", 4), commandResult);
 		ValidateError(executionContext, 5, "Invalid D command: expected I or (", 4);
@@ -419,7 +419,7 @@ class CommandDecoderTest
 		ValidateError(executionContext, 2, "Invalid S command: expected cycle count after (", 1);
 
 		CommandDecoder::Decode(executionContext, Command("S(MissingVar, 5, 1.0)", 3), commandResult);
-		ValidateError(executionContext, 3, "Undeclared variable: MissingVar", -1);
+		ValidateError(executionContext, 3, "Undeclared variable: MissingVar", 3);
 
 		CommandDecoder::Decode(executionContext, Command("S", 4), commandResult);
 		ValidateError(executionContext, 4, "Invalid S command: expected I or (", 4);
@@ -443,6 +443,15 @@ class CommandDecoderTest
 		CommandResult commandResult;
 
 		CommandDecoder::Decode(executionContext, Command("FASDF", 0), commandResult);
+		ValidateError(executionContext, 1, "Unrecognized command: FASDF", 0);
+	}
+
+	static void TestUnrecognizedCommand2()
+	{
+		ExecutionContext executionContext;
+		CommandResult commandResult;
+
+		CommandDecoder::Decode(executionContext, Command("qqP(\"UP \")", 0), commandResult);
 		ValidateError(executionContext, 1, "Unrecognized command: FASDF", 0);
 	}
 
@@ -490,6 +499,7 @@ public:
 		TestErrorSequential();
 		TestErrorAnimate();
 		TestUnrecognizedCommand();
+		//TestUnrecognizedCommand2();
 
 		return 0;
 	}

@@ -51,7 +51,6 @@ class CommandSource: public ICommandSource
 				return Command(0, -1);
 			}
 
-
 			//Serial.println(">GetNextCommand");
 			//Serial.println(_pListParser->GetCount());
 			//for (int i = 0; i < _pListParser->GetCount(); i++)

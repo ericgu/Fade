@@ -53,4 +53,9 @@ public:
             Serial.print("Status = "); Serial.println(saved);
         }
     }
+
+    void StopExecution()
+    {
+        _shouldExecuteCode = false;
+    }
 };

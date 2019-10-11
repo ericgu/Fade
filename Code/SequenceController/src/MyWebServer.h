@@ -1,6 +1,7 @@
 typedef void (*ProgramUpdated)(const char* pProgram);
 typedef const char* (*CurrentProgramFetcher)();
 typedef bool (*CurrentExecutionStateFetcher)();
+typedef const char* (*CurrentErrorsFetcher)();
 
 class MyWebServer
 {
@@ -14,6 +15,7 @@ class MyWebServer
     ProgramUpdated _onProgramUpdated;
     CurrentProgramFetcher _currentProgramFetcher;
     CurrentExecutionStateFetcher _currentExecutionStateFetcher;
+    CurrentErrorsFetcher _currentErrorsFetcher;
 
     static void handleRoot()
     {
@@ -22,7 +24,10 @@ class MyWebServer
 
     public:
 
-      MyWebServer(ProgramUpdated onProgramUpdated, CurrentProgramFetcher currentProgramFetcher, CurrentExecutionStateFetcher currentExecutionStateFetcher)
+      MyWebServer(ProgramUpdated onProgramUpdated, 
+                  CurrentProgramFetcher currentProgramFetcher, 
+                  CurrentExecutionStateFetcher currentExecutionStateFetcher,
+                  CurrentErrorsFetcher currentErrorsFetcher)
       {
         _pWebServer = new WebServer(80);
 
@@ -32,6 +37,7 @@ class MyWebServer
         _onProgramUpdated = onProgramUpdated;
         _currentProgramFetcher = currentProgramFetcher;
         _currentExecutionStateFetcher = currentExecutionStateFetcher;
+        _currentErrorsFetcher = currentErrorsFetcher;
 
         _pWebServer->on ( "/", handleRoot );
         _pWebServer->begin();
@@ -96,12 +102,29 @@ void handleRootInstance()
   <body>\
     <h1>EagleDecorations Sequence Controller</h1>\
     <p>%s</p>\
+    <table>\
+    <tr>\
+    <td style=\"vertical-align: top;\">\
+    Code:\
     <FORM action=\"/\" method=\"post\">\
-    <textarea rows = \"15\" cols = \"80\" name=\"Program\">%s</textarea><br>\
+    <textarea rows = \"50\" cols = \"50\" name=\"Program\">\
+%s\
+    </textarea><br>\
     <INPUT type=\"submit\" value=\"Send\">\
     </FORM>\
+    </td>\
+    <td style=\"vertical-align: top;\">\
+    Errors:\
+    <FORM action=\"/\" method=\"post\">\
+    <textarea rows = \"50\" cols = \"50\" name=\"Errors\">\
+    %s\
+    </textarea><br>\
+    </FORM>\
+    </td>\
+    </tr>\
+    </table>\
   </body>\
-</html>", pRunning, _pProgramBuffer	);
+</html>", pRunning, _pProgramBuffer, _currentErrorsFetcher()	);
 
 	_pWebServer->send ( 200, "text/html", _pPageBuffer );
 }

@@ -25,8 +25,6 @@ class Loop
 
     static Loop Parse(const char* pCommand, ExecutionContext& executionContent, int lineNumber)
     {
-		const char *pCommandStart = pCommand;
-
 		Loop loop;
 
 		if (strncmp(pCommand, "FOR ", 4) != 0)
@@ -52,12 +50,12 @@ class Loop
 			return loop;
 		}
 
-		loop._variableStart = *executionContent.ParseFloatOrVariable(listParser.GetItem(0));
-		loop._variableEnd = *executionContent.ParseFloatOrVariable(listParser.GetItem(1));
+		loop._variableStart = *executionContent.ParseFloatOrVariable(listParser.GetItem(0), lineNumber);
+		loop._variableEnd = *executionContent.ParseFloatOrVariable(listParser.GetItem(1), lineNumber);
 
 		if (listParser.GetCount() > 2)
 		{
-			loop._variableInc = *executionContent.ParseFloatOrVariable(listParser.GetItem(2));
+			loop._variableInc = *executionContent.ParseFloatOrVariable(listParser.GetItem(2), lineNumber);
 		}
 
 		loop._match = 1;

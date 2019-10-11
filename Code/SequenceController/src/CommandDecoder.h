@@ -35,7 +35,7 @@ class CommandDecoder
 			return true;
 		}
 
-		Variable cycleCount = *executionContext.ParseFloatOrVariable(listParser.GetItem(0));
+		Variable cycleCount = *executionContext.ParseFloatOrVariable(listParser.GetItem(0), command.GetSerialNumber());
 
 		if (immediateMode)
 		{
@@ -51,12 +51,9 @@ class CommandDecoder
 
 		for (int i = 1; i < listParser.GetCount(); i += 2)
 		{
-			Variable channel = *executionContext.ParseFloatOrVariable(listParser.GetItem(i));
-			if (channel.GetValueInt() < 0 || channel.GetValueInt() > 15)
-			{
-				int k = 12;
-			}
-			Variable brightness = *executionContext.ParseFloatOrVariable(listParser.GetItem(i + 1));
+			Variable channel = *executionContext.ParseFloatOrVariable(listParser.GetItem(i), command.GetSerialNumber());
+
+			Variable brightness = *executionContext.ParseFloatOrVariable(listParser.GetItem(i + 1), command.GetSerialNumber());
 
 			commandResult.AddTarget(LedState(channel.GetValueInt(), brightness.GetValueFloat(), cycleCount.GetValueInt()));
 		}
@@ -93,7 +90,7 @@ class CommandDecoder
 			return true;
 		}
 
-		Variable cycleCount = *executionContext.ParseFloatOrVariable(listParser.GetItem(0));
+		Variable cycleCount = *executionContext.ParseFloatOrVariable(listParser.GetItem(0), command.GetSerialNumber());
 		if (immediateMode)
 		{
 			commandResult.SetCycleCount(cycleCount.GetValueInt());
@@ -101,7 +98,7 @@ class CommandDecoder
 
 		for (int channel = 1; channel < listParser.GetCount(); channel++)
 		{
-			Variable brightness = *executionContext.ParseFloatOrVariable(listParser.GetItem(channel));
+			Variable brightness = *executionContext.ParseFloatOrVariable(listParser.GetItem(channel), command.GetSerialNumber());
 			commandResult.AddTarget(LedState(channel - 1, brightness.GetValueFloat(), cycleCount.GetValueInt()));
 		}
 
@@ -120,7 +117,7 @@ class CommandDecoder
 			executionContext._parseErrors.AddError("Invalid A command: ", "expected (", command.GetSerialNumber());
 			return true;
 		}
-		*pCommand++;
+		pCommand++;
 
 		if (*pCommand == '\0')
 		{
@@ -128,7 +125,7 @@ class CommandDecoder
 			return true;
 		}
 
-		Variable cycleCount = *executionContext.ParseFloatOrVariable(pCommand);
+		Variable cycleCount = *executionContext.ParseFloatOrVariable(pCommand, command.GetSerialNumber());
 		commandResult.SetCycleCount(cycleCount.GetValueInt());
 		commandResult.SetStatus(CommandResultStatus::CommandExecute);
 
@@ -148,11 +145,11 @@ class CommandDecoder
 		if (executionContext._stack.GetFrameCount() != 0 && 
 			executionContext._stack.GetTopFrame().SerialNumberStart == command.GetSerialNumber())
 		{
-			executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors)->Increment(loop.GetVariableInc());
+			executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors, command.GetSerialNumber())->Increment(loop.GetVariableInc());
 
-			if (!loop.GetIsInRange(executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors)->GetValueFloat()))
+			if (!loop.GetIsInRange(executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors, command.GetSerialNumber())->GetValueFloat()))
 			{
-				executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors)->SetActiveFlag(false);
+				executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors, command.GetSerialNumber())->SetActiveFlag(false);
 				commandResult.SetStatus(CommandResultStatus::CommandExitLoopBody);
 				return true;
 			}
@@ -204,7 +201,7 @@ class CommandDecoder
 			}
 
 			//Serial.print("In Assignment3: "); Serial.println(pCommand);
-			Variable variable = *executionContext.ParseFloatOrVariable(pCommand);
+			Variable variable = *executionContext.ParseFloatOrVariable(pCommand, command.GetSerialNumber());
 
 			executionContext._variables.AddAndSet(variableName, variable.GetValueFloat());
 
@@ -219,7 +216,7 @@ class CommandDecoder
 	// P(<var-name>)
 	static bool DecodePrint(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
 	{
-		if (strchr(command.GetString(), 'P') != 0)
+		if (command.StartsWith("P"))
 		{
 			char outputString[64];
 			outputString[0] = '\0';
@@ -255,7 +252,7 @@ class CommandDecoder
 				char variableName[64];
 				pCommand = VariableCollection::GetVariableName(pCommand, variableName);
 
-				Variable variable = *executionContext.ParseFloatOrVariable(variableName);
+				Variable variable = *executionContext.ParseFloatOrVariable(variableName, command.GetSerialNumber());
 
 				snprintf(outputString, sizeof(outputString), "%f", variable.GetValueFloat());
 			}
