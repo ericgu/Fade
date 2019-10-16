@@ -101,6 +101,14 @@ public:
 		}
 	}
 
+	void Clear()
+	{
+		for (int i = 0; i < VariableCount; i++)
+		{
+			_variables[i].SetActiveFlag(0);
+		}
+	}
+
 	Variable* Get(int index)
 	{
 		if (index < 0 || index > VariableCount)
@@ -200,5 +208,4 @@ public:
 		Add(variableName);
 		Get(variableName, 0, -1)->SetValue(value);
 	}
-
 };

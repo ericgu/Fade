@@ -5,12 +5,14 @@ class Timebase
     ILedManager* _pLedManager;
     int _currentCount;
 	ExecutionFlow _executionFlow;
+	ParseErrors* _pParseErrors;
 
     public:
-        Timebase(ICommandSource* pCommandSource, ILedManager* pLedManager) :
-			_executionFlow(pCommandSource)
+        Timebase(ICommandSource* pCommandSource, ILedManager* pLedManager, ParseErrors* pParseErrors) :
+			_executionFlow(pCommandSource, pParseErrors)
         {
             _pLedManager = pLedManager;
+			_pParseErrors = pParseErrors;
 			_currentCount = 0;
         }
 
@@ -22,10 +24,10 @@ class Timebase
 				LedCommand ledCommand = _executionFlow.GetNextLedCommand();
 				if (ledCommand._commandResult.GetStatus() == CommandResultStatus::CommandTargetCountExceeded)
 				{
-					_executionFlow.GetParseErrors()->AddError(">> Target count exceeded: Did you forget an animate command? <<", "", 0);
+					_pParseErrors->AddError(">> Target count exceeded: Did you forget an animate command? <<", "", 0);
 				}
 
-				if (_executionFlow.GetParseErrors()->GetErrorCount() != 0)
+				if (_pParseErrors->GetErrorCount() != 0)
 				{
 					return;
 				}
@@ -38,8 +40,9 @@ class Timebase
 			_currentCount--;
         }
 
-		ParseErrors* GetParseErrors()
+		void ResetExecutionState()
 		{
-			return _executionFlow.GetParseErrors();
+			_executionFlow.ResetProgramState();
+			_pLedManager->ResetState();
 		}
 };

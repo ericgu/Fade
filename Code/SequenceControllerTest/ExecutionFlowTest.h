@@ -7,11 +7,12 @@ class ExecutionFlowTest
 	static void Test()
 	{
 		CommandSourceSimulator commandSource;
+		ParseErrors parseErrors;
 
 		commandSource.AddCommand(Command("D(10,0,10.0)", 0));
 		commandSource.AddCommand(Command("A(10)", 0));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		AssertResult(executionFlow.GetNextLedCommand(), 10, 0, 10.0F);
 	}
@@ -19,10 +20,11 @@ class ExecutionFlowTest
 	static void TestAutoRestart()
 	{
 		CommandSourceSimulator commandSource;
+		ParseErrors parseErrors;
 
 		commandSource.AddCommand(Command("DI(10,0,10.0)", 0));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		AssertResult(executionFlow.GetNextLedCommand(), 10, 0, 10.0F);
 		AssertResult(executionFlow.GetNextLedCommand(), 10, 0, 10.0F);
@@ -47,7 +49,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand(Command("D(15,15,15.0)", 3));
 		commandSource.AddCommand(Command("A(15)", 0));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 10.0F);
 
@@ -75,7 +78,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand(Command("D(15,15,15.0)", 5));
 		commandSource.AddCommand(Command("A(15)", 0));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 3.0F);
 
@@ -100,7 +104,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand(Command("D(15,15,15.0)", 4));
 		commandSource.AddCommand(Command("A(15)", 0));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		AssertResult(executionFlow.GetNextLedCommand(), 7, 1, 0.0F);
 
@@ -123,7 +128,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand(Command("D(15,15,15.0)", 3));
 		commandSource.AddCommand(Command("A(15)", 0));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		AssertResult(executionFlow.GetNextLedCommand(), 10, 0, 10.0F);
 		AssertResult(executionFlow.GetNextLedCommand(), 20, 0, 10.0F);
@@ -143,7 +149,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand(Command("D(15,15,15.0)", 4));
 		commandSource.AddCommand(Command("A(15)", 2));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		AssertResult(executionFlow.GetNextLedCommand(), 7, 6, 10.0F);
 		AssertResult(executionFlow.GetNextLedCommand(), 7, 3, 10.0F);
@@ -166,7 +173,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand(Command("D(15,15,15.0)", 7));
 		commandSource.AddCommand(Command("A(15)", 8));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		AssertResult(executionFlow.GetNextLedCommand(), 7, 6, 10.0F);
 		AssertResult(executionFlow.GetNextLedCommand(), 7, 3, 10.0F);
@@ -184,7 +192,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand(Command("ENDFOR", 2));
 		commandSource.AddCommand(Command("DI(15,15,15.0)", 3));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		AssertResult(executionFlow.GetNextLedCommand(), 7, 6, 10.0F);
 		AssertResult(executionFlow.GetNextLedCommand(), 7, 3, 10.0F);
@@ -206,7 +215,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand(Command("D(15,15,15.0)", 5));
 		commandSource.AddCommand(Command("A(15)", 2));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 3.0F);
 
@@ -229,7 +239,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand(Command("D(5,2,1.0)", 2));
 		commandSource.AddCommand(Command("A(5)", 3));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		LedCommand ledCommand = executionFlow.GetNextLedCommand();
 
@@ -253,7 +264,8 @@ class ExecutionFlowTest
 		CommandSourceSimulator commandSource;
 		commandSource.AddCommand(Command("D(10,1,1.0)", 0));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		LedCommand ledCommand = executionFlow.GetNextLedCommand();
 
@@ -266,12 +278,13 @@ class ExecutionFlowTest
 
 		commandSource.AddCommand(Command("FOR B 0:7", 0));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		executionFlow.GetNextLedCommand();
 
-		Assert::AreEqual(1, executionFlow.GetParseErrors()->GetErrorCount());
-		ParseError parseError = executionFlow.GetParseErrors()->GetError(0);
+		Assert::AreEqual(1, parseErrors.GetErrorCount());
+		ParseError parseError = parseErrors.GetError(0);
 	}
 
 	static void TestInvalidStatement()
@@ -280,14 +293,53 @@ class ExecutionFlowTest
 
 		commandSource.AddCommand(Command("guar", 0));
 
-		ExecutionFlow executionFlow(&commandSource);
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
 
 		executionFlow.GetNextLedCommand();
 
-		Assert::AreEqual(1, executionFlow.GetParseErrors()->GetErrorCount());
-		ParseError parseError = executionFlow.GetParseErrors()->GetError(0);
+		Assert::AreEqual(1, parseErrors.GetErrorCount());
+		ParseError parseError = parseErrors.GetError(0);
 		Assert::AreEqual("Unrecognized command: guar", parseError._errorText);
 	}
+
+	static void TestDoubleLoop()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand(Command("FOR A 0:6", 0));
+		commandSource.AddCommand(Command("ENDFOR", 1));
+		commandSource.AddCommand(Command("FOR A 7:1:-1", 2));
+		commandSource.AddCommand(Command("ENDFOR", 3));
+		commandSource.AddCommand(Command("A(1)", 4));
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+
+		executionFlow.GetNextLedCommand();
+	}
+
+	static void TestCommandReset()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand(Command("FOR A 0:6", 0));
+		commandSource.AddCommand(Command("ENDFOR", 1));
+		commandSource.AddCommand(Command("FOR A 7:1:-1", 2));
+		commandSource.AddCommand(Command("ENDFOR", 3));
+		commandSource.AddCommand(Command("A(1)", 4));
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+
+		executionFlow.GetNextLedCommand();
+		//executionFlow
+
+		//ExecutionContext executionContext = executionFlow.GetExecutionContext();
+		//Assert::Are
+	}
+
+
 public:
 
 	static int Run()
@@ -309,6 +361,9 @@ public:
 		TestAutoRestart();
 		TestMissingEndFor();
 		TestInvalidStatement();
+
+		TestDoubleLoop();
+		TestCommandReset();
 
 		return 0;
 	}

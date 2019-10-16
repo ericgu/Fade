@@ -32,12 +32,18 @@ public:
 
 	void println(int value)
 	{
-		printf("%d\n", value);
+		if (_outputOn)
+		{
+			printf("%d\n", value);
+		}
 	}
 
 	void print(int value)
 	{
-		printf("%d", value);
+		if (_outputOn)
+		{
+			printf("%d", value);
+		}
 	}
 
 	void flush() {}

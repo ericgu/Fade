@@ -19,7 +19,8 @@ class IntegrationTest
 		commandSource.AddCommand(Command("D(10,0,10.0)", 0));
 		commandSource.AddCommand(Command("A(10)", 1));
 
-		Timebase timebase(&commandSource, &ledManager);
+		ParseErrors parseErrors;
+		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
 		for (int i = 0; i < 10; i++)
 		{
@@ -50,7 +51,8 @@ class IntegrationTest
 		commandSource.AddCommand(Command("D(10,0,0.0)", 2));
 		commandSource.AddCommand(Command("A(10)", 3));
 
-		Timebase timebase(&commandSource, &ledManager);
+		ParseErrors parseErrors;
+		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
 		for (int i = 0; i < 10; i++)
 		{
@@ -95,7 +97,8 @@ class IntegrationTest
 		commandSource.AddCommand(Command("A(2)", 4));
 		commandSource.AddCommand(Command("ENDFOR", 5));
 
-		Timebase timebase(&commandSource, &ledManager);
+		ParseErrors parseErrors;
+		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
 		for (int i = 0; i < 100; i++)
 		{
@@ -135,7 +138,8 @@ class IntegrationTest
 		commandSource.AddCommand(Command("A(5);			  ", 3));
 		commandSource.AddCommand(Command("ENDFOR			  ", 4));
 
-		Timebase timebase(&commandSource, &ledManager);
+		ParseErrors parseErrors;
+		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
 		for (int i = 0; i < 100; i++)
 		{

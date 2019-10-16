@@ -13,6 +13,11 @@ public:
 		_commandResult = commandResult;
 	}
 
+	void ResetState()
+	{
+		_tickCount = 0;
+	}
+
 	void Tick()
 	{
 		_tickCount++;
@@ -35,11 +40,12 @@ class TimebaseTest
 	{
 		CommandSourceSimulator commandSource;
 		LedManagerSimulator ledManager;
+		ParseErrors parseErrors;
 
 		commandSource.AddCommand(Command("D(10,0,10.0)", 0));
 		commandSource.AddCommand(Command("A(10)", 1));
 
-		Timebase timebase(&commandSource, &ledManager);
+		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
 		for (int i = 0; i < 10; i++)
 		{
@@ -65,13 +71,14 @@ class TimebaseTest
 	{
 		CommandSourceSimulator commandSource;
 		LedManagerSimulator ledManager;
+		ParseErrors parseErrors;
 
 		commandSource.AddCommand(Command("FOR B 0:7", 0));
 		commandSource.AddCommand(Command("D(1,B,10.0)", 1));
 		commandSource.AddCommand(Command("A(10)", 2));
 		commandSource.AddCommand(Command("ENDFOR", 3));
 
-		Timebase timebase(&commandSource, &ledManager);
+		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
 		timebase.DoTick();
 
@@ -96,6 +103,7 @@ class TimebaseTest
 	{
 		CommandSourceSimulator commandSource;
 		LedManagerSimulator ledManager;
+		ParseErrors parseErrors;
 
 		//"$1$FOR %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDFOR"
 		commandSource.AddCommand(Command("FOR A 0:7", 0));
@@ -105,7 +113,7 @@ class TimebaseTest
 		commandSource.AddCommand(Command("A(100)", 4));
 		commandSource.AddCommand(Command("ENDFOR", 5));
 
-		Timebase timebase(&commandSource, &ledManager);
+		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
 		for (int i = 0; i < 200; i++)
 		{

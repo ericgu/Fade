@@ -139,6 +139,14 @@ class CommandSourceTest
 		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
 	}
 
+	static void TestWithoutSetCommand()
+	{
+		CommandSource commandSource;
+
+		Command command = commandSource.GetNextCommand();
+
+		Assert::AreEqual(-1, command.GetSerialNumber());
+	}
 public:
 
 	static int Run()
@@ -149,6 +157,7 @@ public:
 		TestSetCommandToSerialNumber();
 		TestMultipleWithSpaces();
 		TestMultipleWithNewlineAndCarriageReturn();
+		TestWithoutSetCommand();
 		
 		return 0;
 	}

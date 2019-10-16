@@ -27,9 +27,22 @@ class StackTest
 		Assert::AreEqual(0, stack.GetFrameCount());
 	}
 
+	static void TestClear()
+	{
+		Stack stack;
+
+		stack.CreateFrame();
+		Assert::AreEqual(1, stack.GetFrameCount());
+
+		stack.Clear();
+
+		Assert::AreEqual(0, stack.GetFrameCount());
+	}
+
 public:
 	static void Run()
 	{
 		TestFrame();
+		TestClear();
 	}
 };

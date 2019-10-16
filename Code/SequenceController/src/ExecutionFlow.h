@@ -2,6 +2,7 @@ class ExecutionFlow
 {
 	ICommandSource* _pCommandSource;
 	ExecutionContext _executionContext;
+	ParseErrors* _pParseErrors;
 
 	LedCommand CommandExecute(CommandResult commandResult)
 	{
@@ -19,6 +20,7 @@ class ExecutionFlow
 	void CommandExitLoopBody()
 	{
 		int serialNumber = _executionContext._stack.GetTopFrame().SerialNumberEnd;
+		//Serial.print("Exit loop body: "); Serial.println(serialNumber);
 
 		_pCommandSource->SetCommandToSerialNumber(serialNumber); // point to endloop
 		_executionContext._stack.DestroyFrame();
@@ -26,14 +28,20 @@ class ExecutionFlow
 	}
 
 public:
-	ExecutionFlow(ICommandSource* pCommandSource)
+	ExecutionFlow(ICommandSource* pCommandSource, ParseErrors* pParseErrors)
 	{
 		_pCommandSource = pCommandSource;
+		_pParseErrors = pParseErrors;
 	}
 
-	ParseErrors* GetParseErrors()
+	void ResetProgramState()
 	{
-		return &_executionContext._parseErrors;
+		_executionContext.ResetVariablesAndStack();
+	}
+
+	ExecutionContext GetExecutionContext()
+	{
+		return _executionContext;
 	}
 
 	LedCommand GetNextLedCommand()
@@ -44,7 +52,7 @@ public:
 		{
 			Command command = _pCommandSource->GetNextCommand();
 
-			if (_executionContext._parseErrors.GetErrorCount() != 0)
+			if (_pParseErrors->GetErrorCount() != 0)
 			{
 				return LedCommand(commandResult);
 			}
@@ -53,7 +61,13 @@ public:
 			{
 				if (_executionContext._stack.GetFrameCount() != 0)
 				{
-					_executionContext._parseErrors.AddError("Missing loop end", "", -1);
+					//Serial.println("Stack not empty at end of program");
+					//Serial.println(_executionContext._stack.GetFrameCount());
+					//StackFrame frame = _executionContext._stack.GetTopFrame();
+					//Serial.println(frame.SerialNumberStart);
+					//Serial.println(frame.SerialNumberEnd);
+
+					_pParseErrors->AddError("Missing loop end", "", -1);
 					return LedCommand(commandResult);
 				}
 
@@ -61,7 +75,7 @@ public:
 				command = _pCommandSource->GetNextCommand();
 			}
 
-			CommandDecoder::Decode(_executionContext, command, commandResult);
+			CommandDecoder::Decode(_executionContext, _pParseErrors, command, commandResult);
 			//Serial.print("Status: ");
 			//Serial.println((int) commandResult.GetStatus());
 

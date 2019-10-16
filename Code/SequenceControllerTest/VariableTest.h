@@ -124,6 +124,18 @@ class VariableTest
 		Assert::AreEqual(15, parseErrors.GetError(0)._lineNumber);
 	}
 
+	static void TestClear()
+	{
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+
+		variableCollection.AddAndSet("Fred", 55.0F);
+		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
+
+		variableCollection.Clear();
+		Assert::AreEqual(0, variableCollection.GetActiveVariableCount());
+	}
+
 public:
 
 	static int Run()
@@ -147,6 +159,7 @@ public:
 		TestGetVariableName();
 
 		TestMissingVariable();
+		TestClear();
 
 		return 0;
 	}

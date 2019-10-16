@@ -2,7 +2,7 @@
 
 class CommandSourceSimulator : public ICommandSource
 {
-	Command _commands[10];
+	Command _commands[20];
 	int _commandCount;
 	int _currentCommand;
 
@@ -17,6 +17,11 @@ public:
 	{
 		_commands[_commandCount] = command;
 		_commandCount++;
+	}
+
+	void ClearCommands()
+	{
+		_commandCount = 0;
 	}
 
 	Command GetNextCommand()

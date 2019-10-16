@@ -23,7 +23,7 @@ class Loop
 			_match = 0;
 		}
 
-    static Loop Parse(const char* pCommand, ExecutionContext& executionContent, int lineNumber)
+    static Loop Parse(const char* pCommand, ExecutionContext& executionContent, ParseErrors* pParseErrors, int lineNumber)
     {
 		Loop loop;
 
@@ -38,7 +38,7 @@ class Loop
 
 		if (strlen(loop._variableName) == 0)
 		{
-			executionContent._parseErrors.AddError("Error in FOR: ", "missing variable name", lineNumber);
+			pParseErrors->AddError("Error in FOR: ", "missing variable name", lineNumber);
 			return loop;
 		}
 
@@ -46,16 +46,16 @@ class Loop
 
 		if (listParser.GetCount() < 2)
 		{
-			executionContent._parseErrors.AddError("Error in FOR: ", "missing range value(s)", lineNumber);
+			pParseErrors->AddError("Error in FOR: ", "missing range value(s)", lineNumber);
 			return loop;
 		}
 
-		loop._variableStart = *executionContent.ParseFloatOrVariable(listParser.GetItem(0), lineNumber);
-		loop._variableEnd = *executionContent.ParseFloatOrVariable(listParser.GetItem(1), lineNumber);
+		loop._variableStart = *executionContent.ParseFloatOrVariable(listParser.GetItem(0), pParseErrors, lineNumber);
+		loop._variableEnd = *executionContent.ParseFloatOrVariable(listParser.GetItem(1), pParseErrors, lineNumber);
 
 		if (listParser.GetCount() > 2)
 		{
-			loop._variableInc = *executionContent.ParseFloatOrVariable(listParser.GetItem(2), lineNumber);
+			loop._variableInc = *executionContent.ParseFloatOrVariable(listParser.GetItem(2), pParseErrors, lineNumber);
 		}
 
 		loop._match = 1;

@@ -2,7 +2,7 @@
 
 class CommandDecoder
 {
-	static bool DecodeDirect(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	static bool DecodeDirect(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command command, CommandResult& commandResult)
 	{
 		if (!command.StartsWith("D")) { return false; }
 
@@ -22,7 +22,7 @@ class CommandDecoder
 		}
 		else
 		{
-			executionContext._parseErrors.AddError("Invalid D command: ", "expected I or (", command.GetSerialNumber());
+			pParseErrors->AddError("Invalid D command: ", "expected I or (", command.GetSerialNumber());
 			return true;
 		}
 		pCommand++;		// skip (
@@ -31,11 +31,11 @@ class CommandDecoder
 
 		if (listParser.GetCount() == 0)
 		{
-			executionContext._parseErrors.AddError("Invalid D command: ", "expected cycle count after (", command.GetSerialNumber());
+			pParseErrors->AddError("Invalid D command: ", "expected cycle count after (", command.GetSerialNumber());
 			return true;
 		}
 
-		Variable cycleCount = *executionContext.ParseFloatOrVariable(listParser.GetItem(0), command.GetSerialNumber());
+		Variable cycleCount = *executionContext.ParseFloatOrVariable(listParser.GetItem(0), pParseErrors, command.GetSerialNumber());
 
 		if (immediateMode)
 		{
@@ -45,15 +45,15 @@ class CommandDecoder
 		// even number of arguments is a problem...
 		if (listParser.GetCount() %2 == 0)
 		{
-			executionContext._parseErrors.AddError("Invalid D command: ", "missing brightness target", command.GetSerialNumber());
+			pParseErrors->AddError("Invalid D command: ", "missing brightness target", command.GetSerialNumber());
 			return true;
 		}
 
 		for (int i = 1; i < listParser.GetCount(); i += 2)
 		{
-			Variable channel = *executionContext.ParseFloatOrVariable(listParser.GetItem(i), command.GetSerialNumber());
+			Variable channel = *executionContext.ParseFloatOrVariable(listParser.GetItem(i), pParseErrors, command.GetSerialNumber());
 
-			Variable brightness = *executionContext.ParseFloatOrVariable(listParser.GetItem(i + 1), command.GetSerialNumber());
+			Variable brightness = *executionContext.ParseFloatOrVariable(listParser.GetItem(i + 1), pParseErrors, command.GetSerialNumber());
 
 			commandResult.AddTarget(LedState(channel.GetValueInt(), brightness.GetValueFloat(), cycleCount.GetValueInt()));
 		}
@@ -61,7 +61,7 @@ class CommandDecoder
 		return true;
 	}
 
-	static bool DecodeSequential(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	static bool DecodeSequential(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command command, CommandResult& commandResult)
 	{
 		if (!command.StartsWith("S")) { return false; }
 
@@ -77,20 +77,20 @@ class CommandDecoder
 
 		if (*pCommand != '(')
 		{
-			executionContext._parseErrors.AddError("Invalid S command: ", "expected I or (", command.GetSerialNumber());
+			pParseErrors->AddError("Invalid S command: ", "expected I or (", command.GetSerialNumber());
 			return true;
 		}
 
 		pCommand++;		// skip (
-		
+
 		ListParser listParser(",", pCommand);
 		if (listParser.GetCount() == 0)
 		{
-			executionContext._parseErrors.AddError("Invalid S command: ", "expected cycle count after (", command.GetSerialNumber());
+			pParseErrors->AddError("Invalid S command: ", "expected cycle count after (", command.GetSerialNumber());
 			return true;
 		}
 
-		Variable cycleCount = *executionContext.ParseFloatOrVariable(listParser.GetItem(0), command.GetSerialNumber());
+		Variable cycleCount = *executionContext.ParseFloatOrVariable(listParser.GetItem(0), pParseErrors, command.GetSerialNumber());
 		if (immediateMode)
 		{
 			commandResult.SetCycleCount(cycleCount.GetValueInt());
@@ -98,14 +98,14 @@ class CommandDecoder
 
 		for (int channel = 1; channel < listParser.GetCount(); channel++)
 		{
-			Variable brightness = *executionContext.ParseFloatOrVariable(listParser.GetItem(channel), command.GetSerialNumber());
+			Variable brightness = *executionContext.ParseFloatOrVariable(listParser.GetItem(channel), pParseErrors, command.GetSerialNumber());
 			commandResult.AddTarget(LedState(channel - 1, brightness.GetValueFloat(), cycleCount.GetValueInt()));
 		}
 
 		return true;
 	}
 
-	static bool DecodeAnimate(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	static bool DecodeAnimate(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command command, CommandResult& commandResult)
 	{
 		if (!command.StartsWith("A")) { return false; }
 
@@ -114,27 +114,27 @@ class CommandDecoder
 
 		if (*pCommand != '(')
 		{
-			executionContext._parseErrors.AddError("Invalid A command: ", "expected (", command.GetSerialNumber());
+			pParseErrors->AddError("Invalid A command: ", "expected (", command.GetSerialNumber());
 			return true;
 		}
 		pCommand++;
 
 		if (*pCommand == '\0')
 		{
-			executionContext._parseErrors.AddError("Invalid A command: ", "expected cycle count", command.GetSerialNumber());
+			pParseErrors->AddError("Invalid A command: ", "expected cycle count", command.GetSerialNumber());
 			return true;
 		}
 
-		Variable cycleCount = *executionContext.ParseFloatOrVariable(pCommand, command.GetSerialNumber());
+		Variable cycleCount = *executionContext.ParseFloatOrVariable(pCommand, pParseErrors, command.GetSerialNumber());
 		commandResult.SetCycleCount(cycleCount.GetValueInt());
 		commandResult.SetStatus(CommandResultStatus::CommandExecute);
 
 		return true;
 	}
 	
-	static bool DecodeLoopStart(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	static bool DecodeLoopStart(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command command, CommandResult& commandResult)
 	{
-		Loop loop = Loop::Parse(command.GetString(), executionContext, command.GetSerialNumber());
+		Loop loop = Loop::Parse(command.GetString(), executionContext, pParseErrors, command.GetSerialNumber());
 
 		if (!loop.GetMatch())
 		{
@@ -142,14 +142,14 @@ class CommandDecoder
 		}
 
 		// check top of stack to see if we're in process for this loop
-		if (executionContext._stack.GetFrameCount() != 0 && 
+		if (executionContext._stack.GetFrameCount() != 0 &&
 			executionContext._stack.GetTopFrame().SerialNumberStart == command.GetSerialNumber())
 		{
-			executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors, command.GetSerialNumber())->Increment(loop.GetVariableInc());
+			executionContext._variables.Get(loop.GetVariableName(), pParseErrors, command.GetSerialNumber())->Increment(loop.GetVariableInc());
 
-			if (!loop.GetIsInRange(executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors, command.GetSerialNumber())->GetValueFloat()))
+			if (!loop.GetIsInRange(executionContext._variables.Get(loop.GetVariableName(), pParseErrors, command.GetSerialNumber())->GetValueFloat()))
 			{
-				executionContext._variables.Get(loop.GetVariableName(), &executionContext._parseErrors, command.GetSerialNumber())->SetActiveFlag(false);
+				executionContext._variables.Get(loop.GetVariableName(), pParseErrors, command.GetSerialNumber())->SetActiveFlag(false);
 				commandResult.SetStatus(CommandResultStatus::CommandExitLoopBody);
 				return true;
 			}
@@ -169,7 +169,7 @@ class CommandDecoder
 		return true;
 	}
 
-	static bool DecodeLoopEnd(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	static bool DecodeLoopEnd(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command command, CommandResult& commandResult)
 	{
 		if (command.StartsWith("ENDFOR"))
 		{
@@ -183,7 +183,7 @@ class CommandDecoder
 		}
 	}
 
-	static bool DecodeAssignment(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	static bool DecodeAssignment(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command command, CommandResult& commandResult)
 	{
 		if (strchr(command.GetString(), '=') != 0)
 		{
@@ -201,7 +201,7 @@ class CommandDecoder
 			}
 
 			//Serial.print("In Assignment3: "); Serial.println(pCommand);
-			Variable variable = *executionContext.ParseFloatOrVariable(pCommand, command.GetSerialNumber());
+			Variable variable = *executionContext.ParseFloatOrVariable(pCommand, pParseErrors, command.GetSerialNumber());
 
 			executionContext._variables.AddAndSet(variableName, variable.GetValueFloat());
 
@@ -214,7 +214,7 @@ class CommandDecoder
 
 	// P("text")
 	// P(<var-name>)
-	static bool DecodePrint(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	static bool DecodePrint(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command command, CommandResult& commandResult)
 	{
 		if (command.StartsWith("P"))
 		{
@@ -252,7 +252,7 @@ class CommandDecoder
 				char variableName[64];
 				pCommand = VariableCollection::GetVariableName(pCommand, variableName);
 
-				Variable variable = *executionContext.ParseFloatOrVariable(variableName, command.GetSerialNumber());
+				Variable variable = *executionContext.ParseFloatOrVariable(variableName, pParseErrors, command.GetSerialNumber());
 
 				snprintf(outputString, sizeof(outputString), "%f", variable.GetValueFloat());
 			}
@@ -269,7 +269,7 @@ class CommandDecoder
 		return false;
 	}
 
-	static bool DecodeWhitespaceOrCommentCommand(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	static bool DecodeWhitespaceOrCommentCommand(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command command, CommandResult& commandResult)
 	{
 		char* pCommand = command.GetString();
 
@@ -291,33 +291,33 @@ class CommandDecoder
 		return true;
 	}
 
-	static bool DecodeUnrecognizedCommand(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+	static bool DecodeUnrecognizedCommand(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command command, CommandResult& commandResult)
 	{
-		executionContext._parseErrors.AddError("Unrecognized command: ", command.GetString(), command.GetSerialNumber());
+		pParseErrors->AddError("Unrecognized command: ", command.GetString(), command.GetSerialNumber());
 		return true;
 	}
 
     public:
-    static void Decode(ExecutionContext& executionContext, Command command, CommandResult& commandResult)
+    static void Decode(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command command, CommandResult& commandResult)
     {
 		//Serial.println(command.GetString());
 
-		if (DecodeLoopStart(executionContext, command, commandResult)) { return; }
+		if (DecodeLoopStart(executionContext, pParseErrors, command, commandResult)) { return; }
 
-		if (DecodeLoopEnd(executionContext, command, commandResult)) { return; }
+		if (DecodeLoopEnd(executionContext, pParseErrors, command, commandResult)) { return; }
 
-		if (DecodePrint(executionContext, command, commandResult)) { return; }
+		if (DecodePrint(executionContext, pParseErrors, command, commandResult)) { return; }
 
-		if (DecodeAssignment(executionContext, command, commandResult)) { return; }
+		if (DecodeAssignment(executionContext, pParseErrors, command, commandResult)) { return; }
 
-		if (DecodeAnimate(executionContext, command, commandResult)) { return; }
+		if (DecodeAnimate(executionContext, pParseErrors, command, commandResult)) { return; }
 
-		if (DecodeDirect(executionContext, command, commandResult)) { return; }
+		if (DecodeDirect(executionContext, pParseErrors, command, commandResult)) { return; }
 
-		if (DecodeSequential(executionContext, command, commandResult)) { return; }
+		if (DecodeSequential(executionContext, pParseErrors, command, commandResult)) { return; }
 
-		if (DecodeWhitespaceOrCommentCommand(executionContext, command, commandResult)) { return; }
+		if (DecodeWhitespaceOrCommentCommand(executionContext, pParseErrors, command, commandResult)) { return; }
 
-		if (DecodeUnrecognizedCommand(executionContext, command, commandResult)) { return; }
+		if (DecodeUnrecognizedCommand(executionContext, pParseErrors, command, commandResult)) { return; }
 	}
 };

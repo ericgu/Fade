@@ -5,6 +5,7 @@ public:
 	virtual void SetDelta(CommandResult commandResult) = 0;
 
 	virtual void Tick() = 0;
+	virtual void ResetState() = 0;
 };
 
 class LedManager: public ILedManager
@@ -21,15 +22,19 @@ class LedManager: public ILedManager
         LedManager(ILedPwm* pLedPwm, int channelCount)
         {
             _channelCount = channelCount;
-
             _pLedPwm = pLedPwm;
 
-            for (int i = 0; i < _channelCount; i++)
-            {
-                _states[i] = LedState(i, 0, 0);
-                _deltas[i] = LedState(i, 0, 0);
-            }
+			ResetState();
         }
+
+		void ResetState()
+		{
+			for (int i = 0; i < _channelCount; i++)
+			{
+				_states[i] = LedState(i, 0, 0);
+				_deltas[i] = LedState(i, 0, 0);
+			}
+		}
 
 		void SetDelta(CommandResult commandResult)
 		{

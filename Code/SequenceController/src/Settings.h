@@ -1,14 +1,12 @@
 class Settings
 {
-public:
-    Settings()
-    {
-        NVS.begin();
-    }
+    const char* _execOnStartupKeyName = "ExecOnStartup";
+	const char* _programKeyName = "Program";
 
-    String GetString(const char* key)
+    void GetString(const char* key, char* buffer, int bufferSize)
     {
-        return NVS.getString(key);
+        String value = NVS.getString(key);
+        strcpy(buffer, value.c_str());
     }
 
     bool SetString(const char* key, const char* value)
@@ -24,6 +22,32 @@ public:
     bool SetInt(const char* key, int value)
     {
         return NVS.setInt(key, value, true);
+    }
+
+public:
+    Settings()
+    {
+        NVS.begin();
+    }
+
+    void LoadProgramText(char* buffer, int bufferSize)
+    {
+        GetString(_programKeyName, buffer, bufferSize);
+    }
+
+    bool SaveProgramText(const char* value)
+    {
+        return SetString(_programKeyName, value);
+    }
+
+    bool LoadShouldExecuteCode()
+    {
+        return GetInt(_execOnStartupKeyName);
+    }
+
+    bool SaveShouldExecuteCode(bool value)
+    {
+        return SetInt(_execOnStartupKeyName, value);
     }
 
     void EraseAll()

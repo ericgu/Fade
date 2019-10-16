@@ -46,7 +46,7 @@ class CommandSource: public ICommandSource
 
 		Command GetNextCommand()
 		{
-			if (_serialNumber == _pListParser->GetCount())
+			if (_pListParser == 0 || _serialNumber == _pListParser->GetCount())
 			{
 				return Command(0, -1);
 			}

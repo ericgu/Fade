@@ -33,4 +33,9 @@ public:
 	{
 		return _stackFrames[_stackFrameCount - 1];
 	}
+
+	void Clear()
+	{
+		_stackFrameCount = 0;
+	}
 };

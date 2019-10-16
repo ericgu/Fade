@@ -36,96 +36,32 @@
 #include <WiFiManager.h>     
 #include <UdpLogger.h>
 
-#include "MyWebServer.h"
-
 #include <ArduinoNvs.h>
 #include <Settings.h>
-#include <Watchdog.h>
+#include <Supervisor.h>
 
-CommandSource commandSource;
+#include "MyWebServer.h"
+
 LedPwmEsp32 ledPwm;
 LedManager ledManager(&ledPwm, 16);
 
-Timebase timebase(&commandSource, &ledManager);
+Supervisor supervisor;
+Settings settings;
 
 MyWebServer* pMyWebServer;
 
-char* pCurrentCommand;
-
-Settings *pSettings;
-Watchdog watchdog;
-
-void ProgramUpdatedImplementation(const char* pProgram)
-{
-  Serial.println("Program Updated");
-
-  timebase.GetParseErrors()->Clear();
-  strcpy(pCurrentCommand, pProgram);
-  commandSource.SetCommand(pCurrentCommand);
-
-  pSettings->SetString("Program", pProgram);
-  watchdog.ProgramUpdated();
-
-  Serial.println("New Program: ");
-  Serial.println(pCurrentCommand);
-}
-
-const char* GetCurrentProgram()
-{
-  return pCurrentCommand;
-}
-
-bool GetExecutingProgramState()
-{
-  return watchdog.ShouldExecuteCode();
-}
-
-const char* GetCurrentErrors()
-{
-  return timebase.GetParseErrors()->FormatErrors();
-}
-
 void setup() {
-  pCurrentCommand = new char[16636];
-
-  //pinMode (LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
 
   WiFiManager wifiManager;
 
   wifiManager.autoConnect("SequenceController", "12345678");
-
-  Serial.println("after autoconnect");
+  Serial.print("after autoconnect: ");
   Serial.println(WiFi.localIP());
 
-  pMyWebServer = new MyWebServer(ProgramUpdatedImplementation, GetCurrentProgram, GetExecutingProgramState, GetCurrentErrors);
+  pMyWebServer = new MyWebServer(&supervisor);
 
-  strcpy(pCurrentCommand, "FOR B 100:10:-10\nFOR A 0:7\nDI(B,A,1.0)\nDI(B,A,0.0)\nENDFOR\nENDFOR");
-  strcpy(pCurrentCommand, "FOR B 20:10:-10\nFOR A 0:7\nDI(B,A,1.0)\nDI(B,A,0.0)\nENDFOR\nENDFOR");
-
-  pSettings = new Settings();
-  watchdog.Initialize(pSettings);
-
-  String savedProgram = pSettings->GetString("Program");
-  if (savedProgram.length() != 0)
-  {
-    strcpy(pCurrentCommand, savedProgram.c_str());
-    Serial.println("Loaded program: ");
-    Serial.println(pCurrentCommand);
-  }
-
-  Serial.print("Start Program: ");
-  Serial.println(watchdog.ShouldExecuteCode());
-
-  if (watchdog.ShouldExecuteCode())
-  {
-    commandSource.SetCommand(pCurrentCommand);
-    Serial.println("Program will be run...");
-  }
-  else
-  {
-    Serial.println("Program execution delayed...");
-  }
+  supervisor.Init(&ledManager, &settings);
 
   Serial.println("Setup completed");
 }
@@ -143,24 +79,13 @@ void setup() {
     iterations++;
  }
 
-void loop() {
+void loop() 
+{
   pMyWebServer->HandleClient();
 
-  if (watchdog.ShouldExecuteCode())
-  {
-    watchdog.ExecutionTick();
+  supervisor.Execute();
 
-    timebase.DoTick();
-    if (timebase.GetParseErrors()->GetErrorCount() != 0)
-    {
-      watchdog.StopExecution();
-      Serial.println("loop: errors found");
-      Serial.println(timebase.GetParseErrors()->FormatErrors());
-    }
-    //UdpLogger.print("Heartbeat");
-
-    //TrackMemory();
+  //TrackMemory();
     
-    delay(10);
-  }
+  delay(10);
 }

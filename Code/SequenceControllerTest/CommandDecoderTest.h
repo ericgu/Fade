@@ -26,8 +26,9 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("D(1,0,1.0)", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("D(1,0,1.0)", 15), commandResult);
 
 		Assert::AreEqual(1, commandResult.GetCount());
 
@@ -39,8 +40,9 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("DI(1,0,1.0)", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("DI(1,0,1.0)", 15), commandResult);
 
 		Assert::AreEqual(1, commandResult.GetCount());
 
@@ -55,8 +57,9 @@ class CommandDecoderTest
 		executionContext._variables.AddAndSet("B", 1.0F);
 
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("D(1,A,B)", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("D(1,A,B)", 15), commandResult);
 
 		Assert::AreEqual(1, commandResult.GetCount());
 
@@ -68,8 +71,9 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("D(1,2,2.0,10,8.0)", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("D(1,2,2.0,10,8.0)", 15), commandResult);
 
 		Assert::AreEqual(2, commandResult.GetCount());
 
@@ -82,8 +86,9 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("S(1,1.0)", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("S(1,1.0)", 15), commandResult);
 
 		Assert::AreEqual(1, commandResult.GetCount());
 
@@ -95,8 +100,9 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("SI(1,1.0)", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("SI(1,1.0)", 15), commandResult);
 
 		Assert::AreEqual(1, commandResult.GetCount());
 
@@ -111,8 +117,9 @@ class CommandDecoderTest
 		executionContext._variables.AddAndSet("B", 13.33F);
 
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("S(1,B)", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("S(1,B)", 15), commandResult);
 
 		Assert::AreEqual(1, commandResult.GetCount());
 
@@ -124,8 +131,9 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("S(1,1.0,2.0,3.0,4.0,5.0,6.0)", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("S(1,1.0,2.0,3.0,4.0,5.0,6.0)", 15), commandResult);
 
 		Assert::AreEqual(6, commandResult.GetCount());
 
@@ -136,9 +144,9 @@ class CommandDecoderTest
 		AreEqual(CommandResultStatus::CommandNone, commandResult.GetStatus());
 	}
 
-	static void ValidateVariable(ExecutionContext executionContext, const char *pVariableName, int active, int value)
+	static void ValidateVariable(ExecutionContext executionContext, ParseErrors* pParseErrors, const char *pVariableName, int active, int value)
 	{
-		Variable* pVariable = executionContext._variables.Get(pVariableName, &executionContext._parseErrors, -1);
+		Variable* pVariable = executionContext._variables.Get(pVariableName, pParseErrors, -1);
 		Assert::AreEqual(active, pVariable->GetActiveFlag());
 		Assert::AreEqual(value, pVariable->GetValueInt());
 	}
@@ -147,10 +155,11 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("FOR A 2:7", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("FOR A 2:7", 15), commandResult);
 
-		ValidateVariable(executionContext, "A", 1, 2);
+		ValidateVariable(executionContext, &parseErrors, "A", 1, 2);
 
 		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 
@@ -162,8 +171,9 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("ENDFOR", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("ENDFOR", 15), commandResult);
 
 		AreEqual(CommandResultStatus::CommandEndOfLoop, commandResult.GetStatus());
 	}
@@ -172,19 +182,20 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("FOR A 2:7", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("FOR A 2:7", 15), commandResult);
 
-		ValidateVariable(executionContext, "A", 1, 2);
+		ValidateVariable(executionContext, &parseErrors, "A", 1, 2);
 		
 		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 
 		Assert::AreEqual(1, executionContext._stack.GetFrameCount());
 		Assert::AreEqual(15, executionContext._stack.GetTopFrame().SerialNumberStart);
 
-		CommandDecoder::Decode(executionContext, Command("FOR A 2:7", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("FOR A 2:7", 15), commandResult);
 
-		ValidateVariable(executionContext, "A", 1, 3);
+		ValidateVariable(executionContext, &parseErrors, "A", 1, 3);
 
 		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 	}
@@ -193,19 +204,20 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("FOR A 2:2", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("FOR A 2:2", 15), commandResult);
 
-		ValidateVariable(executionContext, "A", 1, 2);
+		ValidateVariable(executionContext, &parseErrors, "A", 1, 2);
 
 		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
 
 		Assert::AreEqual(1, executionContext._stack.GetFrameCount());
 		Assert::AreEqual(15, executionContext._stack.GetTopFrame().SerialNumberStart);
 
-		CommandDecoder::Decode(executionContext, Command("FOR A 2:2", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("FOR A 2:2", 15), commandResult);
 
-		ValidateVariable(executionContext, "A", 0, 3);
+		ValidateVariable(executionContext, &parseErrors, "A", 0, 3);
 
 		AreEqual(CommandResultStatus::CommandExitLoopBody, commandResult.GetStatus());
 	}
@@ -214,49 +226,56 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("Var = 20", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("Var = 20", 15), commandResult);
 
-		ValidateVariable(executionContext, "Var", 1, 20);
+		ValidateVariable(executionContext, &parseErrors, "Var", 1, 20);
 	}
 
 	static void TestAssignmentVariable()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("Var = 20", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("Var = 20", 15), commandResult);
 
-		CommandDecoder::Decode(executionContext, Command("Second = Var", 15), commandResult);
-		ValidateVariable(executionContext, "Var", 1, 20);
-		ValidateVariable(executionContext, "Second", 1, 20);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("Second = Var", 15), commandResult);
+		ValidateVariable(executionContext, &parseErrors, "Var", 1, 20);
+		ValidateVariable(executionContext, &parseErrors, "Second", 1, 20);
 	}
 
 	static void TestAssignmentOverride()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
-		CommandDecoder::Decode(executionContext, Command("Var = 20", 15), commandResult);
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("Var = 33", 15), commandResult);
-		ValidateVariable(executionContext, "Var", 1, 33);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("Var = 20", 15), commandResult);
+
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("Var = 33", 15), commandResult);
+		ValidateVariable(executionContext, &parseErrors, "Var", 1, 33);
 	}
 
 	static void TestAssignmentNoSpaces()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
-		CommandDecoder::Decode(executionContext, Command("Var=20", 15), commandResult);
+		ParseErrors parseErrors;
 
-		ValidateVariable(executionContext, "Var", 1, 20);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("Var=20", 15), commandResult);
+
+		ValidateVariable(executionContext, &parseErrors, "Var", 1, 20);
 	}
 
 	static void TestAnimateConstant()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("A(50)", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("A(50)", 15), commandResult);
 
 		Assert::AreEqual(50, commandResult.GetCycleCount());
 	}
@@ -267,11 +286,13 @@ class CommandDecoderTest
 
 		ExecutionContext executionContext;
 		CommandResult commandResult;
-		CommandDecoder::Decode(executionContext, Command("Var = R(0:10)", 15), commandResult);
-		ValidateVariable(executionContext, "Var", 1, 1);
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("Var = R(0:10)", 15), commandResult);
-		ValidateVariable(executionContext, "Var", 1, 3);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("Var = R(0:10)", 15), commandResult);
+		ValidateVariable(executionContext, &parseErrors, "Var", 1, 1);
+
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("Var = R(0:10)", 15), commandResult);
+		ValidateVariable(executionContext, &parseErrors, "Var", 1, 3);
 	}
 
 	static void TestRandomUsage()
@@ -280,9 +301,10 @@ class CommandDecoderTest
 		executionContext._variables.AddAndSet("B", 1.0F);
 
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
 		MyRandom::SetFirstValue(1);
-		CommandDecoder::Decode(executionContext, Command("D(1,R(0:16),B)", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("D(1,R(0:16),B)", 15), commandResult);
 
 		Assert::AreEqual(1, commandResult.GetCount());
 
@@ -290,7 +312,7 @@ class CommandDecoderTest
 		AreEqual(CommandResultStatus::CommandNone, commandResult.GetStatus());
 
 		CommandResult commandResult2;
-		CommandDecoder::Decode(executionContext, Command("D(1,R(0:16),B)", 15), commandResult2);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("D(1,R(0:16),B)", 15), commandResult2);
 
 		Assert::AreEqual(1, commandResult2.GetCount());
 
@@ -302,9 +324,10 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
 		Serial.SetOutput(false);
-		CommandDecoder::Decode(executionContext, Command("P(\"Hello\")", 0), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("P(\"Hello\")", 0), commandResult);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("Hello", Serial.GetLastString());
@@ -314,9 +337,10 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
 		Serial.SetOutput(false);
-		CommandDecoder::Decode(executionContext, Command("P(\"Varname = \")", 0), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("P(\"Varname = \")", 0), commandResult);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("Varname = ", Serial.GetLastString());
@@ -328,9 +352,10 @@ class CommandDecoderTest
 		executionContext._variables.AddAndSet("Variable", 1.0F);
 
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
 		Serial.SetOutput(false);
-		CommandDecoder::Decode(executionContext, Command("P(Variable)", 0), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("P(Variable)", 0), commandResult);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("1.000000", Serial.GetLastString());
@@ -340,9 +365,10 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
 		Serial.SetOutput(false);
-		CommandDecoder::Decode(executionContext, Command("PL(\"Hello\")", 0), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("PL(\"Hello\")", 0), commandResult);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("Hello\n", Serial.GetLastString());
@@ -352,107 +378,115 @@ class CommandDecoderTest
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("", 0), commandResult);
-		Assert::AreEqual(0, executionContext._parseErrors.GetErrorCount());
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("", 0), commandResult);
+		Assert::AreEqual(0, parseErrors.GetErrorCount());
 	}
 
 	static void TestWhitespaceOnly()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("      ", 0), commandResult);
-		Assert::AreEqual(0, executionContext._parseErrors.GetErrorCount());
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("      ", 0), commandResult);
+		Assert::AreEqual(0, parseErrors.GetErrorCount());
 	}
 
 	static void TestComment()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("// comment", 0), commandResult);
-		Assert::AreEqual(0, executionContext._parseErrors.GetErrorCount());
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("// comment", 0), commandResult);
+		Assert::AreEqual(0, parseErrors.GetErrorCount());
 	}
 
-	static void ValidateError(ExecutionContext& executionContext, int errorCount, const char* pExpectedString, int lineNumber)
+	static void ValidateError(ExecutionContext& executionContext, ParseErrors* pParseErrors, int errorCount, const char* pExpectedString, int lineNumber)
 	{
-		Assert::AreEqual(errorCount, executionContext._parseErrors.GetErrorCount());
-		if (errorCount != executionContext._parseErrors.GetErrorCount())
+		Assert::AreEqual(errorCount, pParseErrors->GetErrorCount());
+		if (errorCount != pParseErrors->GetErrorCount())
 		{
 			return;
 		}
-		Assert::AreEqual(pExpectedString, executionContext._parseErrors.GetError(errorCount - 1)._errorText);
-		Assert::AreEqual(lineNumber, executionContext._parseErrors.GetError(errorCount - 1)._lineNumber);
+		Assert::AreEqual(pExpectedString, pParseErrors->GetError(errorCount - 1)._errorText);
+		Assert::AreEqual(lineNumber, pParseErrors->GetError(errorCount - 1)._lineNumber);
 	}
 
 	static void TestErrorDirect()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("DX(", 0), commandResult);
-		ValidateError(executionContext, 1, "Invalid D command: expected I or (", 0);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("DX(", 0), commandResult);
+		ValidateError(executionContext, &parseErrors, 1, "Invalid D command: expected I or (", 0);
 
-		CommandDecoder::Decode(executionContext, Command("D(", 1), commandResult);
-		ValidateError(executionContext, 2, "Invalid D command: expected cycle count after (", 1);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("D(", 1), commandResult);
+		ValidateError(executionContext, &parseErrors, 2, "Invalid D command: expected cycle count after (", 1);
 
-		CommandDecoder::Decode(executionContext, Command("D(55, 1)", 2), commandResult);
-		ValidateError(executionContext, 3, "Invalid D command: missing brightness target", 2);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("D(55, 1)", 2), commandResult);
+		ValidateError(executionContext, &parseErrors, 3, "Invalid D command: missing brightness target", 2);
 
-		CommandDecoder::Decode(executionContext, Command("D(MissingVar, 5, 1.0)", 3), commandResult);
-		ValidateError(executionContext, 4, "Undeclared variable: MissingVar", 3);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("D(MissingVar, 5, 1.0)", 3), commandResult);
+		ValidateError(executionContext, &parseErrors, 4, "Undeclared variable: MissingVar", 3);
 
-		CommandDecoder::Decode(executionContext, Command("D33", 4), commandResult);
-		ValidateError(executionContext, 5, "Invalid D command: expected I or (", 4);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("D33", 4), commandResult);
+		ValidateError(executionContext, &parseErrors, 5, "Invalid D command: expected I or (", 4);
 	}
 
 	static void TestErrorSequential()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("SX(", 0), commandResult);
-		ValidateError(executionContext, 1, "Invalid S command: expected I or (", 0);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("SX(", 0), commandResult);
+		ValidateError(executionContext, &parseErrors, 1, "Invalid S command: expected I or (", 0);
 
-		CommandDecoder::Decode(executionContext, Command("S(", 1), commandResult);
-		ValidateError(executionContext, 2, "Invalid S command: expected cycle count after (", 1);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("S(", 1), commandResult);
+		ValidateError(executionContext, &parseErrors, 2, "Invalid S command: expected cycle count after (", 1);
 
-		CommandDecoder::Decode(executionContext, Command("S(MissingVar, 5, 1.0)", 3), commandResult);
-		ValidateError(executionContext, 3, "Undeclared variable: MissingVar", 3);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("S(MissingVar, 5, 1.0)", 3), commandResult);
+		ValidateError(executionContext, &parseErrors, 3, "Undeclared variable: MissingVar", 3);
 
-		CommandDecoder::Decode(executionContext, Command("S", 4), commandResult);
-		ValidateError(executionContext, 4, "Invalid S command: expected I or (", 4);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("S", 4), commandResult);
+		ValidateError(executionContext, &parseErrors, 4, "Invalid S command: expected I or (", 4);
 	}
 
 	static void TestErrorAnimate()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("Axx(", 0), commandResult);
-		ValidateError(executionContext, 1, "Invalid A command: expected (", 0);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("Axx(", 0), commandResult);
+		ValidateError(executionContext, &parseErrors, 1, "Invalid A command: expected (", 0);
 
-		CommandDecoder::Decode(executionContext, Command("A(", 1), commandResult);
-		ValidateError(executionContext, 2, "Invalid A command: expected cycle count", 1);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("A(", 1), commandResult);
+		ValidateError(executionContext, &parseErrors, 2, "Invalid A command: expected cycle count", 1);
 	}
 
 	static void TestUnrecognizedCommand()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("FASDF", 0), commandResult);
-		ValidateError(executionContext, 1, "Unrecognized command: FASDF", 0);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("FASDF", 0), commandResult);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized command: FASDF", 0);
 	}
 
 	static void TestUnrecognizedCommand2()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
+		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, Command("qqP(\"UP \")", 0), commandResult);
-		ValidateError(executionContext, 1, "Unrecognized command: FASDF", 0);
+		CommandDecoder::Decode(executionContext, &parseErrors, Command("qqP(\"UP \")", 0), commandResult);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized command: FASDF", 0);
 	}
 
 public:

@@ -1,7 +1,3 @@
-typedef void (*ProgramUpdated)(const char* pProgram);
-typedef const char* (*CurrentProgramFetcher)();
-typedef bool (*CurrentExecutionStateFetcher)();
-typedef const char* (*CurrentErrorsFetcher)();
 
 class MyWebServer
 {
@@ -12,10 +8,7 @@ class MyWebServer
     char* _pProgramBuffer;
     char* _pPageBuffer;
 
-    ProgramUpdated _onProgramUpdated;
-    CurrentProgramFetcher _currentProgramFetcher;
-    CurrentExecutionStateFetcher _currentExecutionStateFetcher;
-    CurrentErrorsFetcher _currentErrorsFetcher;
+    Supervisor* _pSupervisor;
 
     static void handleRoot()
     {
@@ -24,20 +17,14 @@ class MyWebServer
 
     public:
 
-      MyWebServer(ProgramUpdated onProgramUpdated, 
-                  CurrentProgramFetcher currentProgramFetcher, 
-                  CurrentExecutionStateFetcher currentExecutionStateFetcher,
-                  CurrentErrorsFetcher currentErrorsFetcher)
+      MyWebServer(Supervisor* pSupervisor)
       {
         _pWebServer = new WebServer(80);
 
         _pProgramBuffer = new char[16636];
         _pPageBuffer = new char[16636];
 
-        _onProgramUpdated = onProgramUpdated;
-        _currentProgramFetcher = currentProgramFetcher;
-        _currentExecutionStateFetcher = currentExecutionStateFetcher;
-        _currentErrorsFetcher = currentErrorsFetcher;
+        _pSupervisor = pSupervisor;
 
         _pWebServer->on ( "/", handleRoot );
         _pWebServer->begin();
@@ -79,16 +66,16 @@ void handleRootInstance()
     }
 
     //Serial.println("Saving"); Serial.flush();
-    _onProgramUpdated(Program.c_str());
+    _pSupervisor->UpdateProgram(Program.c_str());
 
     _pWebServer->sendHeader("Location", String("/"), true);
    _pWebServer->send ( 302, "text/plain", "");
     Serial.println("Save done - redirecting"); Serial.flush();
   }
 
-  CommandFormatter::PrettyFormat(_currentProgramFetcher(), _pProgramBuffer, 16636);
+  CommandFormatter::PrettyFormat(_pSupervisor->GetCurrentProgram(), _pProgramBuffer, 16636);
 
-  const char* pRunning = _currentExecutionStateFetcher() ? "Program executing" : "<b>Program execution pending</b>";
+  const char* pRunning = _pSupervisor->GetExecutingProgramState() ? "Program executing" : "<b>Program execution pending</b>";
 
 	snprintf ( _pPageBuffer, 16636,
 
@@ -124,7 +111,7 @@ void handleRootInstance()
     </tr>\
     </table>\
   </body>\
-</html>", pRunning, _pProgramBuffer, _currentErrorsFetcher()	);
+</html>", pRunning, _pProgramBuffer, _pSupervisor->GetCurrentErrors()	);
 
 	_pWebServer->send ( 200, "text/html", _pPageBuffer );
 }
