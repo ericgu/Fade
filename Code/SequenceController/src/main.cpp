@@ -52,7 +52,6 @@ MyWebServer* pMyWebServer;
 
 void setup() {
   Serial.begin(115200);
-
   WiFiManager wifiManager;
 
   wifiManager.autoConnect("SequenceController", "12345678");
@@ -61,6 +60,7 @@ void setup() {
 
   pMyWebServer = new MyWebServer(&supervisor);
 
+  settings.Init();
   supervisor.Init(&ledManager, &settings);
 
   Serial.println("Setup completed");

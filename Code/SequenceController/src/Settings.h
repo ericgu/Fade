@@ -25,7 +25,7 @@ class Settings
     }
 
 public:
-    Settings()
+    void Init()
     {
         NVS.begin();
     }
