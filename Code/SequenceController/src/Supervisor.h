@@ -6,6 +6,7 @@ class Supervisor
     Timebase *_pTimebase;
 
     char* _pCurrentCommand;
+	char* _pNodeName;
 
     Settings *_pSettings;
 
@@ -19,10 +20,19 @@ public:
 	{
 		_pCurrentCommand = new char[16636];
 		*_pCurrentCommand = '\0';
+
+		_pNodeName = new char[128];
+		*_pNodeName = '\0';
+
 		_pTimebase = new Timebase(&_commandSource, pLedManager, &_parseErrors);
 
 		_pSettings = pSettings;
 		_pSettings->LoadProgramText(_pCurrentCommand, 16636);
+		_pSettings->LoadNodeName(_pNodeName, 128);
+		if (*_pNodeName == '\0')
+		{
+			strcpy(_pNodeName, "Sequencer");
+		}
 
 		_shouldExecuteCode = _pSettings->LoadShouldExecuteCode();
 		_shouldExecuteCodeLoaded = _shouldExecuteCode;
@@ -56,6 +66,17 @@ public:
 		_executionCount = 0;
 
 		Serial.println(_pCurrentCommand);
+	}
+
+	void UpdateNodeName(const char* pNodeName)
+	{
+		_pSettings->SaveNodeName(pNodeName);
+		strcpy(_pNodeName, pNodeName);
+	}
+
+	const char* GetNodeName()
+	{
+		return _pNodeName;
 	}
 
 	const char* GetCurrentProgram()

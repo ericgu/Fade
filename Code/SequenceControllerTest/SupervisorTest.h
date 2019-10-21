@@ -187,6 +187,27 @@ class SupervisorTest
 		Serial.SetOutput(true);
 	}
 
+	static void TestUpdatedNodeName()
+	{
+		Supervisor supervisor;
+		LedPwmSimulator ledPwm(100);
+		LedManager ledManager(&ledPwm, 1);
+
+		Settings settings;
+
+		Serial.SetOutput(false);
+		supervisor.Init(&ledManager, &settings);
+
+		supervisor.UpdateNodeName("MyNameIsFred");
+
+		char value[128];
+		settings.LoadNodeName(value, 128);
+		Assert::AreEqual("MyNameIsFred", value);
+
+		Assert::AreEqual("MyNameIsFred", supervisor.GetNodeName());
+	}
+
+
 public:
 	static void Run()
 	{
@@ -198,5 +219,7 @@ public:
 		TestUpdateCodeSavesShouldExecuteAfter500Loops();
 		TestCodeWithErrorsDisablesExecution();
 		TestSavedRunningProgramDoesNotUpdateSettingsAfter500Loops();
+
+		TestUpdatedNodeName();
 	}
 };

@@ -15,6 +15,11 @@ class MyWebServer
       pMyWebServerInstance->handleRootInstance();
     }
 
+    static void handleNodeName()
+    {
+      pMyWebServerInstance->handleNodeNameInstance();
+    }
+
     public:
 
       MyWebServer(Supervisor* pSupervisor)
@@ -27,6 +32,7 @@ class MyWebServer
         _pSupervisor = pSupervisor;
 
         _pWebServer->on ( "/", handleRoot );
+        _pWebServer->on ( "/SetNodeName", handleNodeName );
         _pWebServer->begin();
 
         pMyWebServerInstance = this; 
@@ -52,20 +58,8 @@ void handleRootInstance()
 
   String Program;
   Program = _pWebServer->arg("Program");
-  //Serial.println("1"); Serial.flush();
   if (Program.length() != 0)
   {
-    //Serial.println("Received program: "); 
-    //Serial.println(Program.c_str());
-    const char* pProgram = Program.c_str();
-
-    while (*pProgram != '\0')
-    {
-     // Serial.print((int) *pProgram); Serial.print(" "); Serial.println(*pProgram);
-      pProgram++;
-    }
-
-    //Serial.println("Saving"); Serial.flush();
     _pSupervisor->UpdateProgram(Program.c_str());
 
     _pWebServer->sendHeader("Location", String("/"), true);
@@ -76,19 +70,20 @@ void handleRootInstance()
   CommandFormatter::PrettyFormat(_pSupervisor->GetCurrentProgram(), _pProgramBuffer, 16636);
 
   const char* pRunning = _pSupervisor->GetExecutingProgramState() ? "Program executing" : "<b>Program execution pending</b>";
+  const char* pNodeName = _pSupervisor->GetNodeName();
 
 	snprintf ( _pPageBuffer, 16636,
 
 "<html>\
   <head>\
-    <title>EagleDecorations Sequence Controller</title>\
+    <title>%s: EagleDecorations Sequence Controller</title>\
     <style>\
       body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
     </style>\
   </head>\
   <body>\
-    <h1>EagleDecorations Sequence Controller</h1>\
-    <p>%s</p>\
+    <h1><a href=\"SetNodeName\">%s</a>: EagleDecorations Sequence Controller</h1>\
+    <p>%s (up for %d seconds)</p>\
     <table>\
     <tr>\
     <td style=\"vertical-align: top;\">\
@@ -111,7 +106,50 @@ void handleRootInstance()
     </tr>\
     </table>\
   </body>\
-</html>", pRunning, _pProgramBuffer, _pSupervisor->GetCurrentErrors()	);
+</html>", 
+  pNodeName, 
+  pNodeName,
+  pRunning, 
+  _pSupervisor->GetExecutionCount() / 100, 
+  _pProgramBuffer, 
+  _pSupervisor->GetCurrentErrors()	);
+
+	_pWebServer->send ( 200, "text/html", _pPageBuffer );
+}
+
+void handleNodeNameInstance() 
+{
+  //DumpArgs();
+
+  String nodeName;
+  nodeName = _pWebServer->arg("nodename");
+  if (nodeName.length() != 0)
+  {
+    _pSupervisor->UpdateNodeName(nodeName.c_str());
+
+    _pWebServer->sendHeader("Location", String("/"), true);
+    _pWebServer->send ( 302, "text/plain", "");
+    Serial.println("Node name update done - redirecting"); Serial.flush();
+  }
+
+	snprintf ( _pPageBuffer, 16636,
+
+"<html>\
+  <head>\
+    <title>Node name update</title>\
+    <style>\
+      body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
+    </style>\
+  </head>\
+  <body>\
+    <h1>Node name update</h1>\
+    <FORM action=\"/SetNodeName\" method=\"post\">\
+    Node name: \
+    <input type=\"text\" name=\"nodename\" value=\"%s\">\
+    <INPUT type=\"submit\" value=\"Update\">\
+    </FORM>\
+  </body>\
+</html>", _pSupervisor->GetNodeName());
 
 	_pWebServer->send ( 200, "text/html", _pPageBuffer );
 }

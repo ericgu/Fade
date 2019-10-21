@@ -3,6 +3,7 @@
 class Settings
 {
 	char _programText[16636];
+	char _nodeName[128];
 	bool _shouldExecuteCode;
 
 public:
@@ -10,6 +11,7 @@ public:
 	Settings()
 	{
 		_programText[0] = '\0';
+		_nodeName[0] = '\0';
 		_shouldExecuteCode = 0;
 	}
 
@@ -32,6 +34,17 @@ public:
 	bool SaveShouldExecuteCode(bool value)
 	{
 		_shouldExecuteCode = value;
+		return true;
+	}
+
+	void LoadNodeName(char* buffer, int bufferSize)
+	{
+		strcpy(buffer, _nodeName);
+	}
+
+	bool SaveNodeName(const char *nodeName)
+	{
+		strcpy(_nodeName, nodeName);
 		return true;
 	}
 };

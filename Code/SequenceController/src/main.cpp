@@ -52,9 +52,12 @@ MyWebServer* pMyWebServer;
 
 void setup() {
   Serial.begin(115200);
-  WiFiManager wifiManager;
+  WiFi.setHostname(supervisor.GetNodeName());
 
+  WiFiManager wifiManager;
+  
   wifiManager.autoConnect("SequenceController", "12345678");
+  //wifiManager.startConfigPortal("SequenceController", "12345678");
   Serial.print("after autoconnect: ");
   Serial.println(WiFi.localIP());
 

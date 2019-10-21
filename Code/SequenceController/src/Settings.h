@@ -2,6 +2,7 @@ class Settings
 {
     const char* _execOnStartupKeyName = "ExecOnStartup";
 	const char* _programKeyName = "Program";
+    const char* _nodeNameKeyName = "NodeName";
 
     void GetString(const char* key, char* buffer, int bufferSize)
     {
@@ -49,6 +50,16 @@ public:
     {
         return SetInt(_execOnStartupKeyName, value);
     }
+
+	void LoadNodeName(char* buffer, int bufferSize)
+	{
+        GetString(_nodeNameKeyName, buffer, bufferSize);
+	}
+
+	bool SaveNodeName(const char *nodeName)
+	{
+        return SetString(_nodeNameKeyName, nodeName);
+	}
 
     void EraseAll()
     {

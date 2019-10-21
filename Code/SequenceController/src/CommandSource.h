@@ -24,6 +24,7 @@ class CommandSource: public ICommandSource
 			if (_pListParser != 0)
 			{
 				delete _pListParser;
+				_pListParser = 0;
 			}
 
 			_serialNumber = 0;
