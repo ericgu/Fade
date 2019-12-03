@@ -1,7 +1,7 @@
 class ListParser
 {
 	char* _pBuffer;
-	char* _pItems[64];
+	char* _pItems[1024];
 	int _itemCount;
 
 	static const char* SkipToCharOrNull(const char* pCommand, char c)

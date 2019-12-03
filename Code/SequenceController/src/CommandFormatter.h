@@ -42,6 +42,8 @@ public:
 
 	static void PrettyFormat(const char* pCommand, char* pOutput, int bufferSize)
 	{
+		//Serial.println(">PrettyFormat");
+
 		CommandSource commandSource;
 		commandSource.SetCommand(pCommand);
 
@@ -50,15 +52,13 @@ public:
 		bool first = true;
 
 		int indent = 0;
-		int lastSerialNumber = -1;
 		while (true)
 		{
 			Command command = commandSource.GetNextCommand();
-			if (lastSerialNumber >= command.GetSerialNumber())
+			if (command.GetSerialNumber() == -1)
 			{
 				break;
 			}
-			lastSerialNumber = command.GetSerialNumber();
 
 			if (!first)
 			{
@@ -76,8 +76,10 @@ public:
 			{
 				MyCat(pOutput, pString);
 			}
+			//Serial.println(pString);
 
 			indent += GetIndentPost(command);
 		}
+		//Serial.println("<PrettyFormat");
 	}
 };

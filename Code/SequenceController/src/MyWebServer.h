@@ -54,7 +54,7 @@ class MyWebServer
 
 void handleRootInstance() 
 {
-     //DumpArgs();
+  //DumpArgs();
 
   String Program;
   Program = _pWebServer->arg("Program");
@@ -119,7 +119,7 @@ void handleRootInstance()
 
 void handleNodeNameInstance() 
 {
-  //DumpArgs();
+  // DumpArgs();
 
   String nodeName;
   nodeName = _pWebServer->arg("nodename");
