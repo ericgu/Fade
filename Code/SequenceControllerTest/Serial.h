@@ -2,13 +2,14 @@
 
 class SerialOutput
 {
-	const char* _pLastString;
+	char* _pLastString;
 	bool _outputOn;
 
 public:
 	SerialOutput()
 	{
-		_pLastString = (char*) "<undefined>";
+		_pLastString = new char[16636];
+		strcpy(_pLastString, "<Undefined>");
 		_outputOn = true;
 	}
 
@@ -18,7 +19,7 @@ public:
 		{
 			puts(pString);
 		}
-		_pLastString = pString;
+		strcpy(_pLastString, pString);
 	}
 
 	void print(const char* pString)
@@ -27,7 +28,7 @@ public:
 		{
 			printf(pString);
 		}
-		_pLastString = pString;
+		strcpy(_pLastString, pString);
 	}
 
 	void println(int value)
@@ -53,6 +54,10 @@ public:
 	void SetOutput(bool outputOn)
 	{
 		_outputOn = outputOn;
+		if (!outputOn)
+		{
+			*_pLastString = '\0';
+		}
 	}
 };
 

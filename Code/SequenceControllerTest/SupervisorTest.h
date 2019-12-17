@@ -22,7 +22,7 @@ class SupervisorTest
 		Assert::AreEqual(1, supervisor.GetExecutingProgramState());
 
 		CommandSource* pCommandSource = supervisor.GetCommandSource();
-		Command command = pCommandSource->GetNextCommand();
+		Command command = pCommandSource->GetCommand(0);
 		Assert::AreEqual("A(55)", command.GetString());
 
 		Assert::AreEqual(0, supervisor.GetExecutionCount());
@@ -48,7 +48,7 @@ class SupervisorTest
 		Assert::AreEqual(0, supervisor.GetExecutingProgramState());
 
 		CommandSource* pCommandSource = supervisor.GetCommandSource();
-		Command command = pCommandSource->GetNextCommand();
+		Command command = pCommandSource->GetCommand(0);
 		Assert::AreEqual(-1, command.GetSerialNumber());
 
 		Assert::AreEqual(0, supervisor.GetExecutionCount());
@@ -73,7 +73,7 @@ class SupervisorTest
 		Assert::AreEqual(0, supervisor.GetExecutingProgramState());
 
 		CommandSource* pCommandSource = supervisor.GetCommandSource();
-		Command command = pCommandSource->GetNextCommand();
+		Command command = pCommandSource->GetCommand(0);
 		Assert::AreEqual(-1, command.GetSerialNumber());
 	}
 
@@ -103,7 +103,7 @@ class SupervisorTest
 		Assert::AreEqual(1, supervisor.GetExecutingProgramState());
 
 		CommandSource* pCommandSource = supervisor.GetCommandSource();
-		Command command = pCommandSource->GetNextCommand();
+		Command command = pCommandSource->GetCommand(0);
 		Assert::AreEqual("A(333)", command.GetString());
 
 		Assert::AreEqual(0, settings.LoadShouldExecuteCode());

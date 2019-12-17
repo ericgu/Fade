@@ -9,7 +9,7 @@ class CommandSourceSimulatorTest
 
 		commandSource.AddCommand(Command("D 15 11,1.0", 0));
 
-		Command command = commandSource.GetNextCommand();
+		Command command = commandSource.GetCommand(0);
 
 		Assert::AreEqual("D 15 11,1.0", command.GetString());
 	}
@@ -21,15 +21,15 @@ class CommandSourceSimulatorTest
 		commandSource.AddCommand(Command("D 15 11,1.0", 0));
 		commandSource.AddCommand(Command("D 5 15,0.5", 1));
 
-		Command command = commandSource.GetNextCommand();
+		Command command = commandSource.GetCommand(0);
 		Assert::AreEqual("D 15 11,1.0", command.GetString());
 		Assert::AreEqual(0, command.GetSerialNumber());
 
-		command = commandSource.GetNextCommand();
+		command = commandSource.GetCommand(1);
 		Assert::AreEqual("D 5 15,0.5", command.GetString());
 		Assert::AreEqual(1, command.GetSerialNumber());
 
-		command = commandSource.GetNextCommand();
+		command = commandSource.GetCommand(2);
 		Assert::AreEqual(-1, command.GetSerialNumber());
 	}
 
@@ -38,25 +38,23 @@ class CommandSourceSimulatorTest
 		CommandSourceSimulator commandSource;
 
 		commandSource.AddCommand(Command("D 15 11,1.0", 0));
-		commandSource.AddCommand(Command("D 5 15,0.5", 1));
-		commandSource.AddCommand(Command("D 9 9,0.5", 2));
-		commandSource.AddCommand(Command("D 6 6,0.5", 3));
+		commandSource.AddCommand(Command("D 5 15,0.5", 0));
+		commandSource.AddCommand(Command("D 9 9,0.5", 0));
+		commandSource.AddCommand(Command("D 6 6,0.5", 0));
 
-		Command command = commandSource.GetNextCommand();
+		Command command = commandSource.GetCommand(0);
 		Assert::AreEqual("D 15 11,1.0", command.GetString());
 		Assert::AreEqual(0, command.GetSerialNumber());
 
-		command = commandSource.GetNextCommand();
+		command = commandSource.GetCommand(1);
 		Assert::AreEqual("D 5 15,0.5", command.GetString());
 		Assert::AreEqual(1, command.GetSerialNumber());
 
-		command = commandSource.GetNextCommand();
+		command = commandSource.GetCommand(2);
 		Assert::AreEqual("D 9 9,0.5", command.GetString());
 		Assert::AreEqual(2, command.GetSerialNumber());
 
-		commandSource.SetCommandToSerialNumber(1);
-
-		command = commandSource.GetNextCommand();
+		command = commandSource.GetCommand(1);
 		Assert::AreEqual("D 5 15,0.5", command.GetString());
 		Assert::AreEqual(1, command.GetSerialNumber());
 	}

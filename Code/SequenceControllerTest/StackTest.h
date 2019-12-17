@@ -11,17 +11,17 @@ class StackTest
 		stack.CreateFrame();
 		Assert::AreEqual(1, stack.GetFrameCount());
 
-		stack.GetTopFrame().SerialNumberStart = 14;
-		stack.GetTopFrame().SerialNumberEnd = 15;
+		stack.GetTopFrame()->SerialNumberStart = 14;
+		stack.GetTopFrame()->SerialNumberEnd = 15;
 
 		stack.CreateFrame();
 		Assert::AreEqual(2, stack.GetFrameCount());
-		Assert::AreEqual(0, stack.GetTopFrame().SerialNumberStart);
-		Assert::AreEqual(0, stack.GetTopFrame().SerialNumberEnd);
+		Assert::AreEqual(0, stack.GetTopFrame()->SerialNumberStart);
+		Assert::AreEqual(0, stack.GetTopFrame()->SerialNumberEnd);
 
 		stack.DestroyFrame();
-		Assert::AreEqual(14, stack.GetTopFrame().SerialNumberStart);
-		Assert::AreEqual(15, stack.GetTopFrame().SerialNumberEnd);
+		Assert::AreEqual(14, stack.GetTopFrame()->SerialNumberStart);
+		Assert::AreEqual(15, stack.GetTopFrame()->SerialNumberEnd);
 
 		stack.DestroyFrame();
 		Assert::AreEqual(0, stack.GetFrameCount());

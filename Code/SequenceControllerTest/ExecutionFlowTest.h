@@ -72,11 +72,11 @@ class ExecutionFlowTest
 		commandSource.AddCommand(Command("FOR B 0:1", 0));
 		commandSource.AddCommand(Command("FOR D 3:4", 1));
 		commandSource.AddCommand(Command("D(7,B,D)", 2));
-		commandSource.AddCommand(Command("A(7)", 0));
-		commandSource.AddCommand(Command("ENDFOR", 3));
+		commandSource.AddCommand(Command("A(7)", 3));
 		commandSource.AddCommand(Command("ENDFOR", 4));
-		commandSource.AddCommand(Command("D(15,15,15.0)", 5));
-		commandSource.AddCommand(Command("A(15)", 0));
+		commandSource.AddCommand(Command("ENDFOR", 5));
+		commandSource.AddCommand(Command("D(15,15,15.0)", 6));
+		commandSource.AddCommand(Command("A(15)", 7));
 
 		ParseErrors parseErrors;
 		ExecutionFlow executionFlow(&commandSource, &parseErrors);
@@ -147,7 +147,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand(Command("A(7)", 2));
 		commandSource.AddCommand(Command("ENDFOR", 3));
 		commandSource.AddCommand(Command("D(15,15,15.0)", 4));
-		commandSource.AddCommand(Command("A(15)", 2));
+		commandSource.AddCommand(Command("A(15)", 5));
 
 		ParseErrors parseErrors;
 		ExecutionFlow executionFlow(&commandSource, &parseErrors);
@@ -339,6 +339,84 @@ class ExecutionFlowTest
 		//Assert::Are
 	}
 
+	static void TestPrint()
+	{
+		CommandSourceSimulator commandSource;
+
+		Command printCommand = Command("PL(\"Hello\")", 0);
+		commandSource.AddCommand(printCommand);
+		commandSource.AddCommand(Command("DI(1, 2, 1.0)", 2));
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+
+		Serial.SetOutput(false);
+		executionFlow.GetNextLedCommand();
+		Serial.SetOutput(true);
+
+		Assert::AreEqual("Hello\n", Serial.GetLastString());
+	}
+
+	static void TestFunctionDef()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand(Command("FUNC Function", 0));
+		commandSource.AddCommand(Command("ENDFUNC", 1));
+		commandSource.AddCommand(Command("DI(1, 2, 1.0)", 2));
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+
+		executionFlow.GetNextLedCommand();
+		Assert::AreEqual(1, executionFlow.GetExecutionContext()._functionStore.GetCount());
+		FunctionDefinition* pFunction = executionFlow.GetExecutionContext()._functionStore.Lookup("Function");
+		Assert::AreEqual("Function", pFunction->Name);
+		Assert::AreEqual(0, pFunction->SerialNumberStart);
+		Assert::AreEqual(1, pFunction->SerialNumberEnd);
+
+		ExecutionContext executionContext = executionFlow.GetExecutionContext();
+	}
+
+	static void TestFunctionCall()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand(Command("FUNC Function", 0));
+		commandSource.AddCommand(Command("PL(\"Hello\")", 1));
+		commandSource.AddCommand(Command("ENDFUNC", 2));
+		commandSource.AddCommand(Command("A=Function()", 4));
+		commandSource.AddCommand(Command("DI(1, 2, 1.0)", 4));
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+
+		Serial.SetOutput(false);
+		executionFlow.GetNextLedCommand();
+		Serial.SetOutput(true);
+
+		Assert::AreEqual("Hello\n", Serial.GetLastString());
+	}
+
+	static void TestMethodCall()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand(Command("FUNC Function", 0));
+		commandSource.AddCommand(Command("PL(\"Hello\")", 1));
+		commandSource.AddCommand(Command("ENDFUNC", 2));
+		commandSource.AddCommand(Command("Function()", 4));
+		commandSource.AddCommand(Command("DI(1, 2, 1.0)", 4));
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+
+		Serial.SetOutput(false);
+		executionFlow.GetNextLedCommand();
+		Serial.SetOutput(true);
+
+		Assert::AreEqual("Hello\n", Serial.GetLastString());
+	}
 
 public:
 
@@ -364,6 +442,11 @@ public:
 
 		TestDoubleLoop();
 		TestCommandReset();
+		TestPrint();
+
+		TestFunctionDef();
+		TestFunctionCall();
+		TestMethodCall();
 
 		return 0;
 	}

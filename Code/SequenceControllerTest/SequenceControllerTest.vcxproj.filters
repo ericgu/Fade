@@ -81,6 +81,12 @@
     <ClInclude Include="Settings.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="FunctionStoreTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpressionTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -50,12 +50,12 @@ class Loop
 			return loop;
 		}
 
-		loop._variableStart = *executionContent.ParseFloatOrVariable(listParser.GetItem(0), pParseErrors, lineNumber);
-		loop._variableEnd = *executionContent.ParseFloatOrVariable(listParser.GetItem(1), pParseErrors, lineNumber);
+		loop._variableStart = *executionContent.Parse(listParser.GetItem(0), pParseErrors, lineNumber);
+		loop._variableEnd = *executionContent.Parse(listParser.GetItem(1), pParseErrors, lineNumber);
 
 		if (listParser.GetCount() > 2)
 		{
-			loop._variableInc = *executionContent.ParseFloatOrVariable(listParser.GetItem(2), pParseErrors, lineNumber);
+			loop._variableInc = *executionContent.Parse(listParser.GetItem(2), pParseErrors, lineNumber);
 		}
 
 		loop._match = 1;

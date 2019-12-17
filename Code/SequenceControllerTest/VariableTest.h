@@ -54,31 +54,6 @@ class VariableTest
 		pVariable->SetActiveFlag(true);
 	}
 
-	static void TestParseFloatOrVariable()
-	{
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
-
-		variableCollection.AddAndSet("C", 55.0F);
-
-		Variable* pParsed = variableCollection.ParseFloatOrVariable("88.0", &parseErrors, 1);
-		Assert::AreEqual(88.0F, pParsed->GetValueFloat());
-
-		pParsed = variableCollection.ParseFloatOrVariable("C", &parseErrors, 1);
-		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
-	}
-
-	static void TestParseFloatOrVariableNamed()
-	{
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
-
-		variableCollection.AddAndSet("Fred", 55.0F);
-
-		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors, 1);
-		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
-	}
-
 	static void TestAddVariableTwice()
 	{
 		VariableCollection variableCollection;
@@ -88,18 +63,8 @@ class VariableTest
 		variableCollection.AddAndSet("Fred", 55.0F);
 
 		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
-		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors, 1);
+		Variable* pParsed = variableCollection.Lookup("Fred", &parseErrors, 1);
 		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
-	}
-
-	static void TestRandom()
-	{
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
-
-		MyRandom::SetFirstValue(1);
-		Variable* pParsed = variableCollection.ParseFloatOrVariable("R(0:10)", &parseErrors, 1);
-		Assert::AreEqual(1.0F, pParsed->GetValueFloat());
 	}
 
 	static void TestGetVariableName()
@@ -118,11 +83,21 @@ class VariableTest
 		VariableCollection variableCollection;
 		ParseErrors parseErrors;
 
-		Variable* pParsed = variableCollection.ParseFloatOrVariable("Fred", &parseErrors, 15);
+		Variable* pParsed = variableCollection.Lookup("Fred", &parseErrors, 15);
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		Assert::AreEqual("Undeclared variable: Fred", parseErrors.GetError(0)._errorText);
 		Assert::AreEqual(15, parseErrors.GetError(0)._lineNumber);
 	}
+
+	static void TestMissingVariableNoErrorCheck()
+	{
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+
+		Variable* pParsed = variableCollection.GetWithoutErrorCheck("Fred");
+		Assert::AreEqual(0, (int) pParsed);
+	}
+
 
 	static void TestClear()
 	{
@@ -149,16 +124,12 @@ public:
 
 		TestCollectionWorks();
 
-		TestParseFloatOrVariable();
-		TestParseFloatOrVariableNamed();
-
 		TestAddVariableTwice();
-
-		TestRandom();
 
 		TestGetVariableName();
 
 		TestMissingVariable();
+		TestMissingVariableNoErrorCheck();
 		TestClear();
 
 		return 0;

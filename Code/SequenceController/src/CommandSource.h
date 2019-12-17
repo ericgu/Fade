@@ -1,14 +1,12 @@
 class ICommandSource
 {
     public:
-        virtual Command GetNextCommand() = 0;
-		virtual void SetCommandToSerialNumber(int serialNumber) = 0;
-		virtual void Reset() = 0;
+        virtual Command GetCommand(int commandNumber) = 0;
 };
 
 class CommandSource: public ICommandSource
 {
-	int _serialNumber;
+	//int _serialNumber;
 
 	ListParser* _pListParser;
 
@@ -27,7 +25,7 @@ class CommandSource: public ICommandSource
 				_pListParser = 0;
 			}
 
-			_serialNumber = 0;
+			//_serialNumber = 0;
 			_pListParser = new ListParser("\n\r", pCommandString);
 			//Serial.println(">CommandSource.SetCommand");
 			//Serial.print("This: "); Serial.println((int) this);
@@ -40,14 +38,9 @@ class CommandSource: public ICommandSource
 			//Serial.println("<CommandSource.SetCommand");
 		}
 
-		void Reset()
+		Command GetCommand(int commandNumber)
 		{
-			_serialNumber = 0;
-		}
-
-		Command GetNextCommand()
-		{
-			if (_pListParser == 0 || _serialNumber == _pListParser->GetCount())
+			if (_pListParser == 0 || commandNumber == _pListParser->GetCount())
 			{
 				return Command(0, -1);
 			}
@@ -64,7 +57,7 @@ class CommandSource: public ICommandSource
 			}
 			//Serial.println("<GetNextCommand");
 
-			const char *pCommandStart = _pListParser->GetItem(_serialNumber);
+			const char *pCommandStart = _pListParser->GetItem(commandNumber);
 			//Serial.print(_serialNumber); Serial.print(": "); Serial.println(pCommandStart);
 
 			while (*pCommandStart == ' ')
@@ -72,16 +65,11 @@ class CommandSource: public ICommandSource
 				pCommandStart++;
 			}
 
-			Command command = Command(pCommandStart, _serialNumber);
-			_serialNumber++;
+			Command command = Command(pCommandStart, commandNumber);
 
 			//Serial.println(command.GetString());
 
 			return command;
 		}
 
-		void SetCommandToSerialNumber(int serialNumber)
-		{
-			_serialNumber = serialNumber;
-		}
 };

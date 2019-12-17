@@ -48,6 +48,11 @@ class Command
 			return _serialNumber;
 		}
 
+		void SetSerialNumber(int serialNumber)
+		{
+			_serialNumber = serialNumber;
+		}
+
 		int StartsWith(const char* pPrefix)
 		{
 			return (strncmp(_commandString, pPrefix, strlen(pPrefix)) == 0);

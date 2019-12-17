@@ -11,20 +11,19 @@ class ExecutionFlow
 
 	void CommandEndOfLoop(Command command)
 	{
-		int serialNumber = _executionContext._stack.GetTopFrame().SerialNumberStart;
-		_executionContext._stack.GetTopFrame().SerialNumberEnd = command.GetSerialNumber();
+		int serialNumber = _executionContext._stack.GetTopFrame()->SerialNumberStart;
+		_executionContext._stack.GetTopFrame()->SerialNumberEnd = command.GetSerialNumber();
 
-		_pCommandSource->SetCommandToSerialNumber(serialNumber);
+		_executionContext._stack.GetTopFrame()->InstructionPointer = serialNumber;
 	}
 
 	void CommandExitLoopBody()
 	{
-		int serialNumber = _executionContext._stack.GetTopFrame().SerialNumberEnd;
+		int serialNumber = _executionContext._stack.GetTopFrame()->SerialNumberEnd;
 		//Serial.print("Exit loop body: "); Serial.println(serialNumber);
 
-		_pCommandSource->SetCommandToSerialNumber(serialNumber); // point to endloop
 		_executionContext._stack.DestroyFrame();
-		_pCommandSource->GetNextCommand(); // skip to next statement...
+		_executionContext._stack.GetTopFrame()->InstructionPointer = serialNumber + 1;
 	}
 
 public:
@@ -50,7 +49,8 @@ public:
 
 		while (true)
 		{
-			Command command = _pCommandSource->GetNextCommand();
+			Command command = _pCommandSource->GetCommand(_executionContext._stack.GetTopFrame()->InstructionPointer);
+			_executionContext._stack.GetTopFrame()->InstructionPointer++;
 
 			if (_pParseErrors->GetErrorCount() != 0)
 			{
@@ -59,7 +59,7 @@ public:
 
 			if (command.GetSerialNumber() == -1)
 			{
-				if (_executionContext._stack.GetFrameCount() != 0)
+				if (_executionContext._stack.GetFrameCount() > 1)
 				{
 					//Serial.println("Stack not empty at end of program");
 					//Serial.println(_executionContext._stack.GetFrameCount());
@@ -71,11 +71,11 @@ public:
 					return LedCommand(commandResult);
 				}
 
-				_pCommandSource->Reset();
-				command = _pCommandSource->GetNextCommand();
+				_executionContext._stack.GetTopFrame()->InstructionPointer = 0;
+				command = _pCommandSource->GetCommand(_executionContext._stack.GetTopFrame()->InstructionPointer);
 			}
 
-			CommandDecoder::Decode(_executionContext, _pParseErrors, command, commandResult);
+			CommandDecoder::Decode(_executionContext, _pParseErrors, &command, commandResult);
 			//Serial.print("Status: ");
 			//Serial.println((int) commandResult.GetStatus());
 

@@ -45,6 +45,13 @@ public:
 		_active = active;
 	}
 
+	void Clear()
+	{
+		_active = false;
+		_value = 0.0;
+		_variableName[0] = '\0';
+	}
+
 	int GetActiveFlag() { return _active; }
 
 	int GetValueInt() { return (int) _value; }
@@ -119,7 +126,7 @@ public:
 		return &_variables[index];
 	}
 
-	Variable* Get(const char* pVariableName, ParseErrors* pParseErrors, int lineNumber)
+	Variable* GetWithoutErrorCheck(const char* pVariableName)
 	{
 		for (int i = 0; i < VariableCount; i++)
 		{
@@ -127,6 +134,18 @@ public:
 			{
 				return &_variables[i];
 			}
+		}
+
+		return 0;
+	}
+
+	Variable* Get(const char* pVariableName, ParseErrors* pParseErrors, int lineNumber)
+	{
+		Variable* pResult = GetWithoutErrorCheck(pVariableName);
+
+		if (pResult != 0)
+		{
+			return pResult;
 		}
 
 		pParseErrors->AddError("Undeclared variable: ", pVariableName, lineNumber);
@@ -159,48 +178,14 @@ public:
 		return pCommand;
 	}
 
-	Variable* ParseFloatOrVariable(const char* pCommand, ParseErrors* pParseErrors, int lineNumber)
+	Variable* Lookup(const char* pCommand, ParseErrors* pParseErrors, int lineNumber)
 	{
 		char variableName[64];
 
-		while (*pCommand == ' ')
-		{
-			pCommand++;
-		}
+		//Serial.print("  Variable name: "); Serial.println(pCommand);
+		pCommand = GetVariableName(pCommand, variableName);
 
-		if ((*pCommand >= '0' && *pCommand <= '9') || *pCommand == '-')
-		{
-			_constant = Variable::ParseFloat(pCommand);
-			return &_constant;
-		}
-		else
-		{
-			//Serial.print("Variable or function call: "); Serial.println(pCommand);
-
-			if (strchr(pCommand, '(') != 0)
-			{
-				//Serial.print("  found function call: "); Serial.println(pCommand);
-				if (strncmp(pCommand, "R(", 2) == 0)
-				{
-					//Serial.println("    found random: ");
-					ListParser listParser(":", pCommand + 2);
-
-					Variable minValue = Variable::ParseFloat(listParser.GetItem(0));
-					Variable maxValue = Variable::ParseFloat(listParser.GetItem(1));
-
-					_constant = MyRandom::GetValue(minValue.GetValueInt(), maxValue.GetValueInt());
-
-					return &_constant;
-				}
-			}
-			else
-			{
-				//Serial.print("  Variable name: "); Serial.println(pCommand);
-				pCommand = GetVariableName(pCommand, variableName);
-			}
-
-			return Get(variableName, pParseErrors, lineNumber);
-		}
+		return Get(variableName, pParseErrors, lineNumber);
 	}
 
 	void AddAndSet(const char* variableName, float value)

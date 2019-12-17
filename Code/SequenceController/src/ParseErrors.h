@@ -23,6 +23,7 @@ public:
 	ParseErrors()
 	{
 		_errorCount = 0;
+		_buffer[0] = '\0';
 	}
 
 	ParseError GetError(int index)

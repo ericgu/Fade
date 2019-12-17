@@ -52,13 +52,15 @@ public:
 		bool first = true;
 
 		int indent = 0;
+		int commandNumber = 0;
 		while (true)
 		{
-			Command command = commandSource.GetNextCommand();
+			Command command = commandSource.GetCommand(commandNumber);
 			if (command.GetSerialNumber() == -1)
 			{
 				break;
 			}
+			commandNumber++;
 
 			if (!first)
 			{

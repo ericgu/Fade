@@ -5,11 +5,17 @@ public:
 
 	Stack _stack;
 
-	//ParseErrors _parseErrors;
+	FunctionStore _functionStore;
+	Expression _expression;
 
-	Variable* ParseFloatOrVariable(const char* pCommand, ParseErrors* pParseErrors, int lineNumber)
+	ExecutionContext()
 	{
-		return _variables.ParseFloatOrVariable(pCommand, pParseErrors, lineNumber);
+		_stack.CreateFrame();
+	}
+
+	Variable* Parse(const char* pCommand, ParseErrors* pParseErrors, int lineNumber)
+	{
+		return _expression.Parse(pCommand, &_variables, &_functionStore, &_stack, pParseErrors, lineNumber);
 	}
 
 	void ResetVariablesAndStack()

@@ -5,10 +5,12 @@ public:
 	{
 		SerialNumberStart = 0;
 		SerialNumberEnd = 0;
+		InstructionPointer = 0;
 	}
 
 	int SerialNumberStart;
 	int SerialNumberEnd;
+	int InstructionPointer;
 };
 
 class Stack
@@ -29,9 +31,9 @@ public:
 		_stackFrameCount--;
 	}
 
-	StackFrame& GetTopFrame()
+	StackFrame* GetTopFrame()
 	{
-		return _stackFrames[_stackFrameCount - 1];
+		return &_stackFrames[_stackFrameCount - 1];
 	}
 
 	void Clear()
