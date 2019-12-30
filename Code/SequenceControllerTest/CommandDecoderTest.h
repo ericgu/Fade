@@ -5,6 +5,8 @@
 
 class CommandDecoderTest
 {
+	static CommandResult* _pCallbackCommandResult;
+
 	static void AreEqual(CommandResultStatus expected, CommandResultStatus actual)
 	{
 		if (expected != actual)
@@ -20,6 +22,11 @@ class CommandDecoderTest
 		Assert::AreEqual(channel, ledState.GetChannel());
 		Assert::AreEqual(brightness, ledState.GetBrightness());
 		Assert::AreEqual(cycleCount, ledState.GetCycleCount());
+	}
+
+	static void ResultCallback(CommandResult* pCommandResult)
+	{
+		_pCallbackCommandResult = pCommandResult;
 	}
 
 	static void TestSingle()
@@ -42,6 +49,7 @@ class CommandDecoderTest
 		CommandResult commandResult;
 		ParseErrors parseErrors;
 
+
 		CommandDecoder::Decode(executionContext, &parseErrors, &Command("DI(1,0,1.0)", 15), commandResult);
 
 		Assert::AreEqual(1, commandResult.GetCount());
@@ -53,8 +61,8 @@ class CommandDecoderTest
 	static void TestSingleWithVariables()
 	{
 		ExecutionContext executionContext;
-		executionContext._variables.AddAndSet("A", 3);
-		executionContext._variables.AddAndSet("B", 1.0F);
+		executionContext._variables.AddAndSet("A", 3, 1);
+		executionContext._variables.AddAndSet("B", 1.0F, 1);
 
 		CommandResult commandResult;
 		ParseErrors parseErrors;
@@ -113,8 +121,8 @@ class CommandDecoderTest
 	static void TestSequentialWithVariables()
 	{
 		ExecutionContext executionContext;
-		executionContext._variables.AddAndSet("A", 3);
-		executionContext._variables.AddAndSet("B", 13.33F);
+		executionContext._variables.AddAndSet("A", 3, 1);
+		executionContext._variables.AddAndSet("B", 13.33F, 1);
 
 		CommandResult commandResult;
 		ParseErrors parseErrors;
@@ -146,25 +154,9 @@ class CommandDecoderTest
 
 	static void ValidateVariable(ExecutionContext executionContext, ParseErrors* pParseErrors, const char *pVariableName, int active, int value)
 	{
-		Variable* pVariable = executionContext._variables.Get(pVariableName, pParseErrors, -1);
+		Variable* pVariable = executionContext._variables.Get(pVariableName, executionContext._stack.GetFrameCount(), pParseErrors, -1);
 		Assert::AreEqual(active, pVariable->GetActiveFlag());
 		Assert::AreEqual(value, pVariable->GetValueInt());
-	}
-
-	static void TestLoopStart()
-	{
-		ExecutionContext executionContext;
-		CommandResult commandResult;
-		ParseErrors parseErrors;
-
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("FOR A 2:7", 15), commandResult);
-
-		ValidateVariable(executionContext, &parseErrors, "A", 1, 2);
-
-		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
-
-		Assert::AreEqual(2, executionContext._stack.GetFrameCount());
-		Assert::AreEqual(15, executionContext._stack.GetTopFrame()->SerialNumberStart);
 	}
 
 	static void TestLoopEnd()
@@ -176,51 +168,6 @@ class CommandDecoderTest
 		CommandDecoder::Decode(executionContext, &parseErrors, &Command("ENDFOR", 15), commandResult);
 
 		AreEqual(CommandResultStatus::CommandEndOfLoop, commandResult.GetStatus());
-	}
-
-	static void TestLoopStep()
-	{
-		ExecutionContext executionContext;
-		CommandResult commandResult;
-		ParseErrors parseErrors;
-
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("FOR A 2:7", 15), commandResult);
-
-		ValidateVariable(executionContext, &parseErrors, "A", 1, 2);
-		
-		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
-
-		Assert::AreEqual(2, executionContext._stack.GetFrameCount());
-		Assert::AreEqual(15, executionContext._stack.GetTopFrame()->SerialNumberStart);
-
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("FOR A 2:7", 15), commandResult);
-
-		ValidateVariable(executionContext, &parseErrors, "A", 1, 3);
-
-		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
-	}
-
-	static void TestLoopEndDetection()
-	{
-		ExecutionContext executionContext;
-		CommandResult commandResult;
-		ParseErrors parseErrors;
-
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("FOR A 2:2", 15), commandResult);
-
-		ValidateVariable(executionContext, &parseErrors, "A", 1, 2);
-
-		AreEqual(CommandResultStatus::CommandSkipToNext, commandResult.GetStatus());
-
-		Assert::AreEqual(2, executionContext._stack.GetFrameCount());
-		Assert::AreEqual(15, executionContext._stack.GetTopFrame()->SerialNumberStart);
-
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("FOR A 2:2", 15), commandResult);
-
-		Variable* pVariable = executionContext._variables.GetWithoutErrorCheck("A");
-		Assert::AreEqual(0, (int) pVariable);
-
-		AreEqual(CommandResultStatus::CommandExitLoopBody, commandResult.GetStatus());
 	}
 
 	static void TestAssignmentConstant()
@@ -299,7 +246,7 @@ class CommandDecoderTest
 	static void TestRandomUsage()
 	{
 		ExecutionContext executionContext;
-		executionContext._variables.AddAndSet("B", 1.0F);
+		executionContext._variables.AddAndSet("B", 1.0F, 1);
 
 		CommandResult commandResult;
 		ParseErrors parseErrors;
@@ -350,7 +297,7 @@ class CommandDecoderTest
 	static void TestPrintVariable()
 	{
 		ExecutionContext executionContext;
-		executionContext._variables.AddAndSet("Variable", 1.0F);
+		executionContext._variables.AddAndSet("Variable", 1.0F, 1);
 
 		CommandResult commandResult;
 		ParseErrors parseErrors;
@@ -509,14 +456,16 @@ class CommandDecoderTest
 		Assert::AreEqual(17, pFunctionDefinition->SerialNumberEnd);
 	}
 
-	static void TestFunctionCall()
+	static void TestReturn()
 	{
 		ExecutionContext executionContext;
 		CommandResult commandResult;
 		ParseErrors parseErrors;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("MyFunction()", 15), commandResult);
+		CommandDecoder::Decode(executionContext, &parseErrors, &Command("RETURN 15.5", 0), commandResult);
 
+		Variable* pVariable = executionContext._variables.GetWithoutErrorCheck("<ReturnValue>", executionContext._stack.GetFrameCount());
+		Assert::AreEqual(15.5, pVariable->GetValueFloat());
 		//Assert:AreEqual(2, executionContext._stack.GetFrameCount());
 	}
 
@@ -530,10 +479,7 @@ public:
 		TestSequential();
 		TestSequentialSeries();
 
-		TestLoopStart();
 		TestLoopEnd();
-		TestLoopStep();
-		TestLoopEndDetection();
 
 		TestSingleWithVariables();
 		TestSequentialWithVariables();
@@ -544,7 +490,6 @@ public:
 		TestAssignmentNoSpaces();
 
 		TestAnimateConstant();
-
 		TestSingleImmediate();
 		TestSequentialImmediate();
 
@@ -567,8 +512,10 @@ public:
 		//TestUnrecognizedCommand2();
 
 		TestDefineFunction();
-		TestFunctionCall();
+		TestReturn();		
 
 		return 0;
 	}
 };
+
+CommandResult* CommandDecoderTest::_pCallbackCommandResult;

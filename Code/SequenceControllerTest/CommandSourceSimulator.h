@@ -11,10 +11,16 @@ public:
 		_commandCount = 0;
 	}
 
-	void AddCommand(Command command)
+	//void AddCommand(Command command)
+	//{
+	//	command.SetSerialNumber(_commandCount);
+	//	_commands[_commandCount] = command;
+	//	_commandCount++;
+	//}
+
+	void AddCommand(const char* pCommand)
 	{
-		command.SetSerialNumber(_commandCount);
-		_commands[_commandCount] = command;
+		_commands[_commandCount] = Command(pCommand, _commandCount);
 		_commandCount++;
 	}
 

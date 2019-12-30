@@ -39,10 +39,25 @@ class StackTest
 		Assert::AreEqual(0, stack.GetFrameCount());
 	}
 
+	static void TestGetCallingFrame()
+	{
+		Stack stack;
+
+		stack.CreateFrame();
+		stack.GetTopFrame()->InstructionPointer = 15;
+		stack.CreateFrame();
+		Assert::AreEqual(2, stack.GetFrameCount());
+
+		StackFrame* pCallingFrame = stack.GetCallingFrame();
+		
+		Assert::AreEqual(15, pCallingFrame->InstructionPointer);
+	}
+
 public:
 	static void Run()
 	{
 		TestFrame();
 		TestClear();
+		TestGetCallingFrame();
 	}
 };

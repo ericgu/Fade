@@ -16,17 +16,14 @@ class IntegrationTest
 
 		LedManager ledManager(&ledPwm, 16);
 
-		commandSource.AddCommand(Command("D(10,0,10.0)", 0));
-		commandSource.AddCommand(Command("A(10)", 1));
+		commandSource.AddCommand("D(10,0,10.0)");
+		commandSource.AddCommand("A(10)");
 
 		ParseErrors parseErrors;
 		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
-		for (int i = 0; i < 10; i++)
-		{
-			timebase.DoTick();
-		}
-
+		timebase.RunProgram(1);
+		
 		Assert::AreEqual(160, ledPwm.GetUpdateCount());
 		for (int i = 0; i < 10; i++)
 		{
@@ -36,7 +33,7 @@ class IntegrationTest
 			AssertLedState(ledState, 0, (float) (i + 1));
 		}
 
-		timebase.DoTick();
+		timebase.RunProgram(1);
 	}
 
 	static void Test2()
@@ -46,23 +43,15 @@ class IntegrationTest
 
 		LedManager ledManager(&ledPwm, 16);
 
-		commandSource.AddCommand(Command("D(10,0,10.0)", 0));
-		commandSource.AddCommand(Command("A(10)", 1));
-		commandSource.AddCommand(Command("D(10,0,0.0)", 2));
-		commandSource.AddCommand(Command("A(10)", 3));
+		commandSource.AddCommand("D(10,0,10.0)");
+		commandSource.AddCommand("A(10)");
+		commandSource.AddCommand("D(10,0,0.0)");
+		commandSource.AddCommand("A(10)");
 
 		ParseErrors parseErrors;
 		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
-		for (int i = 0; i < 10; i++)
-		{
-			timebase.DoTick();
-		}
-
-		for (int i = 0; i < 10; i++)
-		{
-			timebase.DoTick();
-		}
+		timebase.RunProgram(1);
 
 		Assert::AreEqual(320, ledPwm.GetUpdateCount());
 		for (int i = 0; i < 10; i++)
@@ -90,20 +79,17 @@ class IntegrationTest
 		LedManager ledManager(&ledPwm, 16);
 
 		//"$1$FOR %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDFOR"
-		commandSource.AddCommand(Command("FOR A 0:7", 0));
-		commandSource.AddCommand(Command("D(2,A,1.0)", 1));
-		commandSource.AddCommand(Command("A(2)", 2));
-		commandSource.AddCommand(Command("D(2,A,0.0)", 3));
-		commandSource.AddCommand(Command("A(2)", 4));
-		commandSource.AddCommand(Command("ENDFOR", 5));
+		commandSource.AddCommand("FOR A 0:7");
+		commandSource.AddCommand("D(2,A,1.0)");
+		commandSource.AddCommand("A(2)");
+		commandSource.AddCommand("D(2,A,0.0)");
+		commandSource.AddCommand("A(2)");
+		commandSource.AddCommand("ENDFOR");
 
 		ParseErrors parseErrors;
 		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
-		for (int i = 0; i < 100; i++)
-		{
-			timebase.DoTick();
-		}
+		timebase.RunProgram(1);
 
 		// Validate that after channel one loop is done it stops changing and moves on to channel two. 
 		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(0).GetBrightness());
@@ -132,19 +118,16 @@ class IntegrationTest
 		// 	A(25);
 		// ENDFOR
 
-		commandSource.AddCommand(Command("FOR A 0:7			  ", 0));
-		commandSource.AddCommand(Command("DI(5, A, 1.0)	  ", 1));
-		commandSource.AddCommand(Command("D(20, A, 0.0)	  ", 2));
-		commandSource.AddCommand(Command("A(5);			  ", 3));
-		commandSource.AddCommand(Command("ENDFOR			  ", 4));
+		commandSource.AddCommand("FOR A 0:7			  ");
+		commandSource.AddCommand("DI(5, A, 1.0)	  ");
+		commandSource.AddCommand("D(20, A, 0.0)	  ");
+		commandSource.AddCommand("A(5);			  ");
+		commandSource.AddCommand("ENDFOR			  ");
 
 		ParseErrors parseErrors;
 		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
-		for (int i = 0; i < 100; i++)
-		{
-			timebase.DoTick();
-		}
+		timebase.RunProgram(1);
 
 		for (int i = 0; i < ledPwm.GetUpdateCount(); i += 16)
 		{

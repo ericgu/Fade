@@ -59,11 +59,30 @@ class VariableTest
 		VariableCollection variableCollection;
 		ParseErrors parseErrors;
 
-		variableCollection.AddAndSet("Fred", 55.0F);
-		variableCollection.AddAndSet("Fred", 55.0F);
+		variableCollection.AddAndSet("Fred", 55.0F, 1);
+		variableCollection.AddAndSet("Fred", 55.0F, 1);
 
 		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
-		Variable* pParsed = variableCollection.Lookup("Fred", &parseErrors, 1);
+		Variable* pParsed = variableCollection.Lookup("Fred", 1, &parseErrors, 1);
+		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
+	}
+
+	static void TestDuplicateNameOnNewLevelAndDelete()
+	{
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+
+		variableCollection.AddAndSet("Fred", 55.0F, 1);
+		variableCollection.AddAndSet("Fred", 100.0F, 2);
+
+		Assert::AreEqual(2, variableCollection.GetActiveVariableCount());
+		Variable* pParsed = variableCollection.Lookup("Fred", 2, &parseErrors, 1);
+		Assert::AreEqual(100.0F, pParsed->GetValueFloat());
+
+		variableCollection.DeleteStackLevel(2);
+
+		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
+		pParsed = variableCollection.Lookup("Fred", 1, &parseErrors, 1);
 		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
 	}
 
@@ -83,7 +102,7 @@ class VariableTest
 		VariableCollection variableCollection;
 		ParseErrors parseErrors;
 
-		Variable* pParsed = variableCollection.Lookup("Fred", &parseErrors, 15);
+		Variable* pParsed = variableCollection.Lookup("Fred", 1, &parseErrors, 15);
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		Assert::AreEqual("Undeclared variable: Fred", parseErrors.GetError(0)._errorText);
 		Assert::AreEqual(15, parseErrors.GetError(0)._lineNumber);
@@ -94,7 +113,7 @@ class VariableTest
 		VariableCollection variableCollection;
 		ParseErrors parseErrors;
 
-		Variable* pParsed = variableCollection.GetWithoutErrorCheck("Fred");
+		Variable* pParsed = variableCollection.GetWithoutErrorCheck("Fred", 1);
 		Assert::AreEqual(0, (int) pParsed);
 	}
 
@@ -104,11 +123,37 @@ class VariableTest
 		VariableCollection variableCollection;
 		ParseErrors parseErrors;
 
-		variableCollection.AddAndSet("Fred", 55.0F);
+		variableCollection.AddAndSet("Fred", 55.0F, 1);
 		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
 
 		variableCollection.Clear();
 		Assert::AreEqual(0, variableCollection.GetActiveVariableCount());
+	}
+
+	static void TestDelete()
+	{
+		VariableCollection variableCollection;
+		variableCollection.AddAndSet("Fred", 55.0F, 1);
+		variableCollection.AddAndSet("Barney", 15.0F, 1);
+		Assert::AreEqual(2, variableCollection.GetActiveVariableCount());
+
+		variableCollection.Delete("Fred", 1);
+		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
+
+		Variable* pParsed = variableCollection.GetWithoutErrorCheck("Fred", 1);
+		Assert::AreEqual(0, (int)pParsed);
+	}
+
+	static void TestRename()
+	{
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+
+		variableCollection.AddAndSet("Fred", 55.0F, 1);
+
+		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
+		Variable* pParsed = variableCollection.Lookup("Fred", 1, &parseErrors, 1);
+		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
 	}
 
 public:
@@ -131,6 +176,8 @@ public:
 		TestMissingVariable();
 		TestMissingVariableNoErrorCheck();
 		TestClear();
+		TestDelete();
+		TestDuplicateNameOnNewLevelAndDelete();
 
 		return 0;
 	}

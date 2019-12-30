@@ -10,6 +10,7 @@
 #define strncpy_s strncpy
 #define strncmp_s strncmp
 
+#include "SystemCallback.h"
 #include "MyRandom.h"
 #include "Command.h"
 #include "ListParser.h"
@@ -17,13 +18,16 @@
 #include "CommandFormatter.h"
 #include "LedState.h"
 #include "CommandResult.h"
+#include "IExecutionFlow.h"
 #include "LedCommand.h"
 #include "LedPwm.h"
 #include "LedPwmEsp32.h"
 #include "LedManager.h"
 #include "ParseErrors.h"
 #include "Variable.h"
+#include "FunctionStore.h"
 #include "Stack.h"
+#include "Expression.h"
 #include "ExecutionContext.h"
 #include "CommandDecoder.h"
 #include "ExecutionFlow.h"
@@ -82,8 +86,19 @@ void setup() {
     iterations++;
  }
 
+void Callback()
+{
+  pMyWebServer->HandleClient();
+
+  //TrackMemory();
+    
+  delay(10);
+}
+
 void loop() 
 {
+  supervisor.ExecuteLoop(Callback);
+
   pMyWebServer->HandleClient();
 
   supervisor.Execute();

@@ -40,7 +40,7 @@ class CommandSource: public ICommandSource
 
 		Command GetCommand(int commandNumber)
 		{
-			if (_pListParser == 0 || commandNumber == _pListParser->GetCount())
+			if (_pListParser == 0 || commandNumber >= _pListParser->GetCount())
 			{
 				return Command(0, -1);
 			}

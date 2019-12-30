@@ -2,19 +2,39 @@
 
 #include "ExecutionFlow.h"
 
+#define ResultStorageSize 100
+
 class ExecutionFlowTest
 {
+	static CommandResult _commandResults[ResultStorageSize];
+	static int _commandResultCount;
+
+	static void CommandResultCallback(CommandResult* pCommandResult)
+	{
+		_commandResults[_commandResultCount] = *pCommandResult;
+		_commandResultCount++;
+	}
+
+	static void ResetResultStore()
+	{
+		_commandResultCount = 0;
+	}
+
 	static void Test()
 	{
 		CommandSourceSimulator commandSource;
 		ParseErrors parseErrors;
 
-		commandSource.AddCommand(Command("D(10,0,10.0)", 0));
-		commandSource.AddCommand(Command("A(10)", 0));
+		commandSource.AddCommand("D(10,0,10.0)");
+		commandSource.AddCommand("A(10)");
 
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 10, 0, 10.0F);
+		ResetResultStore();
+		executionFlow.RunProgram(1);
+
+		Assert::AreEqual(1, _commandResultCount);
+		AssertResult(_commandResults[0], 10, 0, 10.0F);
 	}
 
 	static void TestAutoRestart()
@@ -22,12 +42,25 @@ class ExecutionFlowTest
 		CommandSourceSimulator commandSource;
 		ParseErrors parseErrors;
 
-		commandSource.AddCommand(Command("DI(10,0,10.0)", 0));
+		commandSource.AddCommand("DI(10,0,10.0)");
 
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 10, 0, 10.0F);
-		AssertResult(executionFlow.GetNextLedCommand(), 10, 0, 10.0F);
+
+		ResetResultStore();
+		executionFlow.RunProgram(2);
+
+		Assert::AreEqual(2, _commandResultCount);
+		AssertResult(_commandResults[0], 10, 0, 10.0F);
+		AssertResult(_commandResults[1], 10, 0, 10.0F);
+	}
+
+	static void AssertResult(CommandResult commandResult, int cycleCount, int channel, float brightness)
+	{
+		Assert::AreEqual(cycleCount, commandResult.GetCycleCount());
+		LedState ledState = commandResult.GetTarget(0);
+		Assert::AreEqual(channel, ledState.GetChannel());
+		Assert::AreEqual(brightness, ledState.GetBrightness());
 	}
 
 	static void AssertResult(LedCommand ledCommand, int cycleCount, int channel, float brightness)
@@ -42,261 +75,276 @@ class ExecutionFlowTest
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FOR B 0:7", 0));
-		commandSource.AddCommand(Command("D(7,B,10.0)", 1));
-		commandSource.AddCommand(Command("A(7)", 0));
-		commandSource.AddCommand(Command("ENDFOR", 2));
-		commandSource.AddCommand(Command("D(15,15,15.0)", 3));
-		commandSource.AddCommand(Command("A(15)", 0));
+		commandSource.AddCommand("FOR B 0:7");
+		commandSource.AddCommand("D(7,B,10.0)");
+		commandSource.AddCommand("A(7)");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("D(15,15,15.0)");
+		commandSource.AddCommand("A(15)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 10.0F);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 1, 10.0F);
+		ResetResultStore();
+		executionFlow.RunProgram(1);
 
-		for (int i = 2; i <= 7; i++)
+		Assert::AreEqual(9, _commandResultCount);
+
+		for (int i = 0; i <= 7; i++)
 		{
-			AssertResult(executionFlow.GetNextLedCommand(), 7, i, 10.0F);
+			AssertResult(_commandResults[i], 7, i, 10.0F);
 		}
 
 		// should be command outside of loop
-		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
+		AssertResult(_commandResults[8], 15, 15, 15.0F);
 	}
 
 	static void TestNestedLoop()
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FOR B 0:1", 0));
-		commandSource.AddCommand(Command("FOR D 3:4", 1));
-		commandSource.AddCommand(Command("D(7,B,D)", 2));
-		commandSource.AddCommand(Command("A(7)", 3));
-		commandSource.AddCommand(Command("ENDFOR", 4));
-		commandSource.AddCommand(Command("ENDFOR", 5));
-		commandSource.AddCommand(Command("D(15,15,15.0)", 6));
-		commandSource.AddCommand(Command("A(15)", 7));
+		commandSource.AddCommand("FOR B 0:1");
+		commandSource.AddCommand("FOR D 3:4");
+		commandSource.AddCommand("D(7,B,D)");
+		commandSource.AddCommand("A(7)");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("D(15,15,15.0)");
+		commandSource.AddCommand("A(15)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 3.0F);
+		ResetResultStore();
+		executionFlow.RunProgram(1);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 4.0F);
+		Assert::AreEqual(5, _commandResultCount);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 1, 3.0F);
-
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 1, 4.0F);
+		AssertResult(_commandResults[0], 7, 0, 3.0F);
+		AssertResult(_commandResults[1], 7, 0, 4.0F);
+		AssertResult(_commandResults[2], 7, 1, 3.0F);
+		AssertResult(_commandResults[3], 7, 1, 4.0F);
 
 		// should be command outside of loop
-		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
+		AssertResult(_commandResults[4], 15, 15, 15.0F);
 	}
 
 	static void TestLoopWithIncrement()
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FOR D 0:1:0.5", 0));
-		commandSource.AddCommand(Command("D(7,1,D)", 2));
-		commandSource.AddCommand(Command("A(7)", 0));
-		commandSource.AddCommand(Command("ENDFOR", 3));
-		commandSource.AddCommand(Command("D(15,15,15.0)", 4));
-		commandSource.AddCommand(Command("A(15)", 0));
+		commandSource.AddCommand("FOR D 0:1:0.5");
+		commandSource.AddCommand("D(7,1,D)");
+		commandSource.AddCommand("A(7)");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("D(15,15,15.0)");
+		commandSource.AddCommand("A(15)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 1, 0.0F);
+		ResetResultStore();
+		executionFlow.RunProgram(1);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 1, 0.5F);
+		Assert::AreEqual(4, _commandResultCount);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 1, 1.0F);
+		AssertResult(_commandResults[0], 7, 1, 0.0F);
+		AssertResult(_commandResults[1], 7, 1, 0.5F);
+		AssertResult(_commandResults[2], 7, 1, 1.0F);
 
 		// should be command outside of loop
-		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
+		AssertResult(_commandResults[3], 15, 15, 15.0F);
 	}
 
 	static void TestLoopWithVariableCount()
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FOR B 10:20:10", 0));
-		commandSource.AddCommand(Command("D(B,0,10.0)", 1));
-		commandSource.AddCommand(Command("A(B)", 0));
-		commandSource.AddCommand(Command("ENDFOR", 2));
-		commandSource.AddCommand(Command("D(15,15,15.0)", 3));
-		commandSource.AddCommand(Command("A(15)", 0));
+		commandSource.AddCommand("FOR B 10:20:10");
+		commandSource.AddCommand("D(B,0,10.0)");
+		commandSource.AddCommand("A(B)");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("D(15,15,15.0)");
+		commandSource.AddCommand("A(15)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 10, 0, 10.0F);
-		AssertResult(executionFlow.GetNextLedCommand(), 20, 0, 10.0F);
+		ResetResultStore();
+		executionFlow.RunProgram(1);
+
+		Assert::AreEqual(3, _commandResultCount);
+
+		AssertResult(_commandResults[0], 10, 0, 10.0F);
+		AssertResult(_commandResults[1], 20, 0, 10.0F);
 
 		// should be command outside of loop
-		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
+		AssertResult(_commandResults[2], 15, 15, 15.0F);
 	}
 
 	static void TestLoopDown()
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FOR B 6:0:-3", 0));
-		commandSource.AddCommand(Command("D(7,B,10.0)", 1));
-		commandSource.AddCommand(Command("A(7)", 2));
-		commandSource.AddCommand(Command("ENDFOR", 3));
-		commandSource.AddCommand(Command("D(15,15,15.0)", 4));
-		commandSource.AddCommand(Command("A(15)", 5));
+		commandSource.AddCommand("FOR B 6:0:-3");
+		commandSource.AddCommand("D(7,B,10.0)");
+		commandSource.AddCommand("A(7)");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("D(15,15,15.0)");
+		commandSource.AddCommand("A(15)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 6, 10.0F);
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 3, 10.0F);
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 10.0F);
+		ResetResultStore();
+		executionFlow.RunProgram(1);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
+		Assert::AreEqual(4, _commandResultCount);
+
+		AssertResult(_commandResults[0], 7, 6, 10.0F);
+		AssertResult(_commandResults[1], 7, 3, 10.0F);
+		AssertResult(_commandResults[2], 7, 0, 10.0F);
+
+		// should be command outside of loop
+		AssertResult(_commandResults[3], 15, 15, 15.0F);
 	}
 
 	static void TestLoopDownWithVariables()
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("Start=6", 0));
-		commandSource.AddCommand(Command("End=0", 1));
-		commandSource.AddCommand(Command("Inc=-3", 2));
-		commandSource.AddCommand(Command("FOR B Start:End:Inc", 3));
-		commandSource.AddCommand(Command("D(7,B,10.0)", 4));
-		commandSource.AddCommand(Command("A(7)", 5));
-		commandSource.AddCommand(Command("ENDFOR", 6));
-		commandSource.AddCommand(Command("D(15,15,15.0)", 7));
-		commandSource.AddCommand(Command("A(15)", 8));
+		commandSource.AddCommand("Start=6");
+		commandSource.AddCommand("End=0");
+		commandSource.AddCommand("Inc=-3");
+		commandSource.AddCommand("FOR B Start:End:Inc");
+		commandSource.AddCommand("D(7,B,10.0)");
+		commandSource.AddCommand("A(7)");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("D(15,15,15.0)");
+		commandSource.AddCommand("A(15)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 6, 10.0F);
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 3, 10.0F);
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 10.0F);
+		ResetResultStore();
+		executionFlow.RunProgram(1);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
+		Assert::AreEqual(4, _commandResultCount);
+
+		AssertResult(_commandResults[0], 7, 6, 10.0F);
+		AssertResult(_commandResults[1], 7, 3, 10.0F);
+		AssertResult(_commandResults[2], 7, 0, 10.0F);
+
+		// should be command outside of loop
+		AssertResult(_commandResults[3], 15, 15, 15.0F);
 	}
 
 	static void TestLoopImmediate()
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FOR B 6:0:-3", 0));
-		commandSource.AddCommand(Command("DI(7,B,10.0)", 1));
-		commandSource.AddCommand(Command("ENDFOR", 2));
-		commandSource.AddCommand(Command("DI(15,15,15.0)", 3));
+		commandSource.AddCommand("FOR B 6:0:-3");
+		commandSource.AddCommand("DI(7,B,10.0)");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("DI(15,15,15.0)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 6, 10.0F);
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 3, 10.0F);
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 10.0F);
+		ResetResultStore();
+		executionFlow.RunProgram(1);
 
-		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
+		Assert::AreEqual(4, _commandResultCount);
+
+		AssertResult(_commandResults[0], 7, 6, 10.0F);
+		AssertResult(_commandResults[1], 7, 3, 10.0F);
+		AssertResult(_commandResults[2], 7, 0, 10.0F);
+
+		// should be command outside of loop
+		AssertResult(_commandResults[3], 15, 15, 15.0F);
 	}
 
 	static void TestNestedLoopWithLongNames()
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FOR Bravo 0:1", 0));
-		commandSource.AddCommand(Command("FOR Delta 3:4", 1));
-		commandSource.AddCommand(Command("D(7,Bravo,Delta)", 2));
-		commandSource.AddCommand(Command("A(7)", 2));
-		commandSource.AddCommand(Command("ENDFOR", 3));
-		commandSource.AddCommand(Command("ENDFOR", 4));
-		commandSource.AddCommand(Command("D(15,15,15.0)", 5));
-		commandSource.AddCommand(Command("A(15)", 2));
+		commandSource.AddCommand("FOR Bravo 0:1");
+		commandSource.AddCommand("FOR Delta 3:4");
+		commandSource.AddCommand("D(7,Bravo,Delta)");
+		commandSource.AddCommand("A(7)");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("D(15,15,15.0)");
+		commandSource.AddCommand("A(15)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
-
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 3.0F);
-
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 0, 4.0F);
-
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 1, 3.0F);
-
-		AssertResult(executionFlow.GetNextLedCommand(), 7, 1, 4.0F);
-
-		// should be command outside of loop
-		AssertResult(executionFlow.GetNextLedCommand(), 15, 15, 15.0F);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 	}
 
 	static void TestOverlappingAnimation()
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("D(10,1,1.0)", 0));
-		commandSource.AddCommand(Command("A(5)", 1));
-		commandSource.AddCommand(Command("D(5,2,1.0)", 2));
-		commandSource.AddCommand(Command("A(5)", 3));
+		commandSource.AddCommand("D(10,1,1.0)");
+		commandSource.AddCommand("A(5)");
+		commandSource.AddCommand("D(5,2,1.0)");
+		commandSource.AddCommand("A(5)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		LedCommand ledCommand = executionFlow.GetNextLedCommand();
+		ResetResultStore();
+		executionFlow.RunProgram(1);
 
-		Assert::AreEqual(1, ledCommand._commandResult.GetCount());
-		LedState ledState = ledCommand._commandResult.GetTarget(0);
-		Assert::AreEqual(1.0, ledState.GetBrightness());
-		Assert::AreEqual(1, ledState.GetChannel());
-		Assert::AreEqual(10, ledState.GetCycleCount());
+		Assert::AreEqual(2, _commandResultCount);
 
-		ledCommand = executionFlow.GetNextLedCommand();
-
-		Assert::AreEqual(1, ledCommand._commandResult.GetCount());
-		ledState = ledCommand._commandResult.GetTarget(0);
-		Assert::AreEqual(1.0, ledState.GetBrightness());
-		Assert::AreEqual(2, ledState.GetChannel());
-		Assert::AreEqual(5, ledState.GetCycleCount());
+		AssertResult(_commandResults[0], 5, 1, 1.0F);
+		AssertResult(_commandResults[1], 5, 2, 1.0F);
 	}
 
 	static void TestMissingAnimation()
 	{
 		CommandSourceSimulator commandSource;
-		commandSource.AddCommand(Command("D(10,1,1.0)", 0));
+		commandSource.AddCommand("D(10,1,1.0)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		LedCommand ledCommand = executionFlow.GetNextLedCommand();
+		ResetResultStore();
+		CommandResultStatus commandResultStatus = executionFlow.RunProgram();
 
-		Assert::AreEqual((int) CommandResultStatus::CommandTargetCountExceeded, (int) ledCommand._commandResult.GetStatus());
+		Assert::AreEqual((int) CommandResultStatus::CommandTargetCountExceeded, (int) commandResultStatus);
 	}
 
 	static void TestMissingEndFor()
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FOR B 0:7", 0));
+		commandSource.AddCommand("FOR B 0:7");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		executionFlow.GetNextLedCommand();
+		ResetResultStore();
+		executionFlow.RunProgram(1);
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		ParseError parseError = parseErrors.GetError(0);
+		Assert::AreEqual("Missing loop end", parseError._errorText);
 	}
 
 	static void TestInvalidStatement()
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("guar", 0));
+		commandSource.AddCommand("guar");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		executionFlow.GetNextLedCommand();
+		ResetResultStore();
+		executionFlow.RunProgram(1);
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		ParseError parseError = parseErrors.GetError(0);
@@ -307,51 +355,33 @@ class ExecutionFlowTest
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FOR A 0:6", 0));
-		commandSource.AddCommand(Command("ENDFOR", 1));
-		commandSource.AddCommand(Command("FOR A 7:1:-1", 2));
-		commandSource.AddCommand(Command("ENDFOR", 3));
-		commandSource.AddCommand(Command("A(1)", 4));
+		commandSource.AddCommand("FOR A 0:6");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("FOR A 7:1:-1");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("A(1)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		executionFlow.GetNextLedCommand();
-	}
+		ResetResultStore();
+		executionFlow.RunProgram(1);
 
-	static void TestCommandReset()
-	{
-		CommandSourceSimulator commandSource;
-
-		commandSource.AddCommand(Command("FOR A 0:6", 0));
-		commandSource.AddCommand(Command("ENDFOR", 1));
-		commandSource.AddCommand(Command("FOR A 7:1:-1", 2));
-		commandSource.AddCommand(Command("ENDFOR", 3));
-		commandSource.AddCommand(Command("A(1)", 4));
-
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
-
-		executionFlow.GetNextLedCommand();
-		//executionFlow
-
-		//ExecutionContext executionContext = executionFlow.GetExecutionContext();
-		//Assert::Are
+		Assert::AreEqual(1, _commandResultCount);
 	}
 
 	static void TestPrint()
 	{
 		CommandSourceSimulator commandSource;
 
-		Command printCommand = Command("PL(\"Hello\")", 0);
-		commandSource.AddCommand(printCommand);
-		commandSource.AddCommand(Command("DI(1, 2, 1.0)", 2));
+		commandSource.AddCommand("PL(\"Hello\")");
+		commandSource.AddCommand("DI(1, 2, 1.0)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
 		Serial.SetOutput(false);
-		executionFlow.GetNextLedCommand();
+		executionFlow.RunProgram(1);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("Hello\n", Serial.GetLastString());
@@ -361,14 +391,14 @@ class ExecutionFlowTest
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FUNC Function", 0));
-		commandSource.AddCommand(Command("ENDFUNC", 1));
-		commandSource.AddCommand(Command("DI(1, 2, 1.0)", 2));
+		commandSource.AddCommand("FUNC Function");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("DI(1, 2, 1.0)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
-		executionFlow.GetNextLedCommand();
+		executionFlow.RunProgram(1);
 		Assert::AreEqual(1, executionFlow.GetExecutionContext()._functionStore.GetCount());
 		FunctionDefinition* pFunction = executionFlow.GetExecutionContext()._functionStore.Lookup("Function");
 		Assert::AreEqual("Function", pFunction->Name);
@@ -382,40 +412,189 @@ class ExecutionFlowTest
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FUNC Function", 0));
-		commandSource.AddCommand(Command("PL(\"Hello\")", 1));
-		commandSource.AddCommand(Command("ENDFUNC", 2));
-		commandSource.AddCommand(Command("A=Function()", 4));
-		commandSource.AddCommand(Command("DI(1, 2, 1.0)", 4));
+		commandSource.AddCommand("FUNC Function");
+		commandSource.AddCommand("RETURN 10.0");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("A=Function()");
+		commandSource.AddCommand("DI(A, 2, 1.0)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+		Assert::AreEqual(0, parseErrors.GetErrorCount());
 
-		Serial.SetOutput(false);
-		executionFlow.GetNextLedCommand();
-		Serial.SetOutput(true);
+		ResetResultStore();
+		executionFlow.RunProgram(1);
 
-		Assert::AreEqual("Hello\n", Serial.GetLastString());
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 10, 2, 1.0F);
+	}
+
+	static void TestIgnoredFunctionResult()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC Function");
+		commandSource.AddCommand("RETURN 10.0");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("Function()");
+		commandSource.AddCommand("DI(5, 2, 1.0)");
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+		Assert::AreEqual(0, parseErrors.GetErrorCount());
+
+		ResetResultStore();
+		executionFlow.RunProgram(1);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 5, 2, 1.0F);
 	}
 
 	static void TestMethodCall()
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("FUNC Function", 0));
-		commandSource.AddCommand(Command("PL(\"Hello\")", 1));
-		commandSource.AddCommand(Command("ENDFUNC", 2));
-		commandSource.AddCommand(Command("Function()", 4));
-		commandSource.AddCommand(Command("DI(1, 2, 1.0)", 4));
+		commandSource.AddCommand("FUNC Function");
+		commandSource.AddCommand("PL(\"Hello\")");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("Function()");
+		commandSource.AddCommand("DI(1, 2, 1.0)");
 
 		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors);
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
 		Serial.SetOutput(false);
-		executionFlow.GetNextLedCommand();
+		executionFlow.RunProgram(1);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("Hello\n", Serial.GetLastString());
+	}
+
+	static void TestMethodCallWithParameter()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC Function(V)");
+		commandSource.AddCommand("PL(V)");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("Function(13)");
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+		Serial.SetOutput(false);
+		executionFlow.RunProgram(1);
+		Serial.SetOutput(true);
+
+		Assert::AreEqual("13.000000\n", Serial.GetLastString());
+	}
+
+	static void TestMethodCallWithTwoParameters()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC Function(V, W)"); // ignore leading whitespace... - add it to the ListParser 
+		commandSource.AddCommand("PL(W)");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("Function(1, 12)");
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+		Serial.SetOutput(false);
+		executionFlow.RunProgram(1);
+		Serial.SetOutput(true);
+
+		Assert::AreEqual("12.000000\n", Serial.GetLastString());
+	}
+
+	static void TestMethodCallWithParameterDuplicateName()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("V=15.0");
+		commandSource.AddCommand("FUNC Function(V)");
+		commandSource.AddCommand("PL(V)");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("Function(13)");
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+		Serial.SetOutput(false);
+		executionFlow.RunProgram(1);
+		Serial.SetOutput(true);
+
+		Assert::AreEqual("13.000000\n", Serial.GetLastString());
+		Assert::AreEqual(15.0F, executionFlow.GetExecutionContext()._variables.GetWithoutErrorCheck("V", 1)->GetValueFloat());
+	}
+
+	static void TestMethodCannotAccessParentVariables()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("V=15.0");
+		commandSource.AddCommand("FUNC Function()");
+		commandSource.AddCommand("PL(V)");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("Function()");
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+		Serial.SetOutput(false);
+		executionFlow.RunProgram(1);
+		Serial.SetOutput(true);
+
+		Assert::AreEqual(1, parseErrors.GetErrorCount());
+		ParseError parseError = parseErrors.GetError(0);
+		Assert::AreEqual("Undeclared variable: V", parseError._errorText);
+	}
+
+	static void TestMethodCallWithWrongArgumentCount()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC Function(X)");
+		commandSource.AddCommand("PL(X)");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("Function()");
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+		Serial.SetOutput(false);
+		executionFlow.RunProgram(1);
+		Serial.SetOutput(true);
+
+		Assert::AreEqual(1, parseErrors.GetErrorCount());
+		ParseError parseError = parseErrors.GetError(0);
+		Assert::AreEqual("Mismatched Function Function requires 1 parameter(s) but was called with 0 argument(s).", parseError._errorText);
+		Assert::AreEqual(4, parseError._lineNumber);
+	}
+
+	static void TestMethodCallWithWrongArgumentCount2()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC Function(X)");
+		commandSource.AddCommand("PL(X)");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("Function(15.0, 35.0)");
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+		Serial.SetOutput(false);
+		executionFlow.RunProgram(1);
+		Serial.SetOutput(true);
+
+		Assert::AreEqual(1, parseErrors.GetErrorCount());
+		ParseError parseError = parseErrors.GetError(0);
+		Assert::AreEqual("Mismatched Function Function requires 1 parameter(s) but was called with 2 argument(s).", parseError._errorText);
+		Assert::AreEqual(4, parseError._lineNumber);
 	}
 
 public:
@@ -441,13 +620,22 @@ public:
 		TestInvalidStatement();
 
 		TestDoubleLoop();
-		TestCommandReset();
 		TestPrint();
 
+		TestMethodCallWithParameter();
+		TestMethodCallWithTwoParameters();
 		TestFunctionDef();
 		TestFunctionCall();
 		TestMethodCall();
+		TestIgnoredFunctionResult();
+		TestMethodCallWithParameterDuplicateName();
+		TestMethodCannotAccessParentVariables();
+		TestMethodCallWithWrongArgumentCount();
+		TestMethodCallWithWrongArgumentCount2();
 
 		return 0;
 	}
 };
+
+CommandResult ExecutionFlowTest::_commandResults[ResultStorageSize];
+int ExecutionFlowTest::_commandResultCount;

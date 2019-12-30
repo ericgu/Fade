@@ -1,36 +1,16 @@
-class ExecutionFlow
+class ExecutionFlow: public IExecutionFlow
 {
 	ICommandSource* _pCommandSource;
 	ExecutionContext _executionContext;
 	ParseErrors* _pParseErrors;
-
-	LedCommand CommandExecute(CommandResult commandResult)
-	{
-		return LedCommand(commandResult);
-	}
-
-	void CommandEndOfLoop(Command command)
-	{
-		int serialNumber = _executionContext._stack.GetTopFrame()->SerialNumberStart;
-		_executionContext._stack.GetTopFrame()->SerialNumberEnd = command.GetSerialNumber();
-
-		_executionContext._stack.GetTopFrame()->InstructionPointer = serialNumber;
-	}
-
-	void CommandExitLoopBody()
-	{
-		int serialNumber = _executionContext._stack.GetTopFrame()->SerialNumberEnd;
-		//Serial.print("Exit loop body: "); Serial.println(serialNumber);
-
-		_executionContext._stack.DestroyFrame();
-		_executionContext._stack.GetTopFrame()->InstructionPointer = serialNumber + 1;
-	}
+	CommandResultCallback _callback;
 
 public:
-	ExecutionFlow(ICommandSource* pCommandSource, ParseErrors* pParseErrors)
+	ExecutionFlow(ICommandSource* pCommandSource, ParseErrors* pParseErrors, CommandResultCallback callback)
 	{
 		_pCommandSource = pCommandSource;
 		_pParseErrors = pParseErrors;
+		_callback = callback;
 	}
 
 	void ResetProgramState()
@@ -43,9 +23,11 @@ public:
 		return _executionContext;
 	}
 
-	LedCommand GetNextLedCommand()
+	CommandResultStatus RunProgram(int runCount = -1)
 	{
 		CommandResult commandResult;
+
+		int calls = 0;
 
 		while (true)
 		{
@@ -54,55 +36,59 @@ public:
 
 			if (_pParseErrors->GetErrorCount() != 0)
 			{
-				return LedCommand(commandResult);
+				return CommandResultStatus::CommandParseError;
 			}
 
 			if (command.GetSerialNumber() == -1)
 			{
 				if (_executionContext._stack.GetFrameCount() > 1)
 				{
-					//Serial.println("Stack not empty at end of program");
-					//Serial.println(_executionContext._stack.GetFrameCount());
-					//StackFrame frame = _executionContext._stack.GetTopFrame();
-					//Serial.println(frame.SerialNumberStart);
-					//Serial.println(frame.SerialNumberEnd);
-
 					_pParseErrors->AddError("Missing loop end", "", -1);
-					return LedCommand(commandResult);
+					return CommandResultStatus::CommandParseError;
+				}
+
+				calls++;
+				if (calls == runCount && runCount != -1)
+				{
+					return CommandResultStatus::CommandCompleted;
 				}
 
 				_executionContext._stack.GetTopFrame()->InstructionPointer = 0;
-				command = _pCommandSource->GetCommand(_executionContext._stack.GetTopFrame()->InstructionPointer);
 			}
-
-			CommandDecoder::Decode(_executionContext, _pParseErrors, &command, commandResult);
-			//Serial.print("Status: ");
-			//Serial.println((int) commandResult.GetStatus());
-
-			switch (commandResult.GetStatus())
+			else
 			{
-				case CommandResultStatus::CommandExecute:
-					return CommandExecute(commandResult);
+				CommandDecoder::Decode(_executionContext, _pParseErrors, &command, commandResult, _callback, this);
 
-				case CommandResultStatus::CommandEndOfLoop:
-					CommandEndOfLoop(command);
-					break;
+				switch (commandResult.GetStatus())
+				{
+					case CommandResultStatus::CommandExecute:
+						if (_callback != 0)
+						{
+							_callback(&commandResult);
+							commandResult = CommandResult();
+							break;
+						}
+						break;
 
-				case CommandResultStatus::CommandExitLoopBody:
-					CommandExitLoopBody();
-					break;
+					case CommandResultStatus::CommandEndOfLoop:
+					case CommandResultStatus::CommandExitLoopBody:
+					case CommandResultStatus::CommandEndOfFunction:
+						return commandResult.GetStatus();
 
-				case CommandResultStatus::CommandLoopMatched:
-				case CommandResultStatus::CommandNone:
-				case CommandResultStatus::CommandSkipToNext:
-				case CommandResultStatus::CommandTargetCountExceeded:
-					break;
-			}
+					case CommandResultStatus::CommandLoopMatched:
+					case CommandResultStatus::CommandNone:
+					case CommandResultStatus::CommandSkipToNext:
+					case CommandResultStatus::CommandTargetCountExceeded:
+					case CommandResultStatus::CommandParseError:
+					case CommandResultStatus::CommandCompleted:
+						break;
+				}
 
-			if (commandResult.GetTargetCountExceeded())
-			{
-				commandResult.SetStatus(CommandResultStatus::CommandTargetCountExceeded);
-				return CommandExecute(commandResult);
+				if (commandResult.GetTargetCountExceeded())
+				{
+					commandResult.SetStatus(CommandResultStatus::CommandTargetCountExceeded);
+					return commandResult.GetStatus();
+				}
 			}
 		}
 	}

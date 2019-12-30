@@ -1,14 +1,18 @@
+#include <math.h>
+
 class Variable
 {
 	char _variableName[64];
 	int _active;
 	float _value;
+	int _stackLevel;
 
 public:
 	Variable()
 	{
 		_active = 0;
 		_value = 0.0;
+		_stackLevel = 0;
 		_variableName[0] = '\0';
 	}
 
@@ -16,6 +20,7 @@ public:
 	{
 		_active = true;
 		_value = (float) value;
+		_stackLevel = 0;
 		_variableName[0] = '\0';
 	}
 
@@ -23,6 +28,7 @@ public:
 	{
 		_active = true;
 		_value = value;
+		_stackLevel = 0;
 		_variableName[0] = '\0';
 	}
 
@@ -30,8 +36,19 @@ public:
 	{
 		Variable variable;
 		variable._value = (float) atof(pCommand);
+		variable._stackLevel = 0;
 
 		return variable;
+	}
+
+	void SetToNan()
+	{
+		_value = NAN;
+	}
+
+	bool IsNan()
+	{
+		return isnan(_value);
 	}
 
 	void Increment(Variable increment)
@@ -61,11 +78,14 @@ public:
 
 	void SetVariableName(const char* pVariableName) { strcpy(_variableName, pVariableName); }
 	char* GetVariableName() { return _variableName;}
+
+	void SetStackLevel(int stackLevel) { _stackLevel = stackLevel; }
+	int GetStackLevel() { return _stackLevel; }
 };
 
 class VariableCollection
 {
-	static const int VariableCount = 10;
+	static const int VariableCount = 30;
 	
 	Variable _undefined;
 	Variable _constant;
@@ -87,11 +107,16 @@ public:
 		return count;
 	}
 
-	void Add(const char* pVariableName)
+	bool Matches(Variable* pVariable, const char* pVariableName, int stackLevel)
+	{
+		return strcmp(pVariable->GetVariableName(), pVariableName) == 0 && pVariable->GetStackLevel() == stackLevel;
+	}
+
+	void Add(const char* pVariableName, int stackLevel)
 	{
 		for (int i = 0; i < VariableCount; i++)
 		{
-			if (strcmp(_variables[i].GetVariableName(), pVariableName) == 0)
+			if (Matches(_variables + i, pVariableName, stackLevel))
 			{
 				return;
 			}
@@ -103,6 +128,7 @@ public:
 			{
 				_variables[i].SetVariableName(pVariableName);
 				_variables[i].SetActiveFlag(1);
+				_variables[i].SetStackLevel(stackLevel);
 				return;
 			}
 		}
@@ -126,22 +152,44 @@ public:
 		return &_variables[index];
 	}
 
-	Variable* GetWithoutErrorCheck(const char* pVariableName)
+	Variable* GetWithoutErrorCheck(const char* pVariableName, int stackLevel)
 	{
-		for (int i = 0; i < VariableCount; i++)
+		for (int i = VariableCount - 1; i >= 0; i--)
 		{
-			if (strcmp(pVariableName, _variables[i].GetVariableName()) == 0)
+			if (Matches(_variables + i, pVariableName, stackLevel))
 			{
-				return &_variables[i];
+				return _variables + i;
 			}
 		}
 
 		return 0;
 	}
 
-	Variable* Get(const char* pVariableName, ParseErrors* pParseErrors, int lineNumber)
+	void Delete(const char* pVariableName, int stackLevel)
 	{
-		Variable* pResult = GetWithoutErrorCheck(pVariableName);
+		for (int i = 0; i < VariableCount; i++)
+		{
+			if (Matches(_variables + i, pVariableName, stackLevel))
+			{
+				_variables[i].Clear();
+			}
+		}
+	}
+
+	void DeleteStackLevel(int stackLevel)
+	{
+		for (int i = 0; i < VariableCount; i++)
+		{
+			if (_variables[i].GetStackLevel() == stackLevel)
+			{
+				_variables[i].Clear();
+			}
+		}
+	}
+
+	Variable* Get(const char* pVariableName, int stackLevel, ParseErrors* pParseErrors, int lineNumber)
+	{
+		Variable* pResult = GetWithoutErrorCheck(pVariableName, stackLevel);
 
 		if (pResult != 0)
 		{
@@ -178,19 +226,19 @@ public:
 		return pCommand;
 	}
 
-	Variable* Lookup(const char* pCommand, ParseErrors* pParseErrors, int lineNumber)
+	Variable* Lookup(const char* pCommand, int stackLevel, ParseErrors* pParseErrors, int lineNumber)
 	{
 		char variableName[64];
 
 		//Serial.print("  Variable name: "); Serial.println(pCommand);
 		pCommand = GetVariableName(pCommand, variableName);
 
-		return Get(variableName, pParseErrors, lineNumber);
+		return Get(variableName, stackLevel, pParseErrors, lineNumber);
 	}
 
-	void AddAndSet(const char* variableName, float value)
+	void AddAndSet(const char* variableName, float value, int stackLevel)
 	{
-		Add(variableName);
-		Get(variableName, 0, -1)->SetValue(value);
+		Add(variableName, stackLevel);
+		Get(variableName, stackLevel, 0, -1)->SetValue(value);
 	}
 };

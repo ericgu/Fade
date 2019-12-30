@@ -36,6 +36,16 @@ public:
 		return &_stackFrames[_stackFrameCount - 1];
 	}
 
+	StackFrame* GetCallingFrame()
+	{
+		if (_stackFrameCount >= 2)
+		{
+			return &_stackFrames[_stackFrameCount - 2];
+		}
+
+		return 0;
+	}
+
 	void Clear()
 	{
 		_stackFrameCount = 0;

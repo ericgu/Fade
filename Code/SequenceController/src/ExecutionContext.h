@@ -22,5 +22,6 @@ public:
 	{
 		_variables.Clear();
 		_stack.Clear();
+		_stack.CreateFrame();
 	}
 };

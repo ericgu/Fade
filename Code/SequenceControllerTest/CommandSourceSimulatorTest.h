@@ -7,7 +7,7 @@ class CommandSourceSimulatorTest
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("D 15 11,1.0", 0));
+		commandSource.AddCommand("D 15 11,1.0");
 
 		Command command = commandSource.GetCommand(0);
 
@@ -18,8 +18,8 @@ class CommandSourceSimulatorTest
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("D 15 11,1.0", 0));
-		commandSource.AddCommand(Command("D 5 15,0.5", 1));
+		commandSource.AddCommand("D 15 11,1.0");
+		commandSource.AddCommand("D 5 15,0.5");
 
 		Command command = commandSource.GetCommand(0);
 		Assert::AreEqual("D 15 11,1.0", command.GetString());
@@ -37,10 +37,10 @@ class CommandSourceSimulatorTest
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand(Command("D 15 11,1.0", 0));
-		commandSource.AddCommand(Command("D 5 15,0.5", 0));
-		commandSource.AddCommand(Command("D 9 9,0.5", 0));
-		commandSource.AddCommand(Command("D 6 6,0.5", 0));
+		commandSource.AddCommand("D 15 11,1.0");
+		commandSource.AddCommand("D 5 15,0.5");
+		commandSource.AddCommand("D 9 9,0.5");
+		commandSource.AddCommand("D 6 6,0.5");
 
 		Command command = commandSource.GetCommand(0);
 		Assert::AreEqual("D 15 11,1.0", command.GetString());

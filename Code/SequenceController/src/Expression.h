@@ -37,24 +37,44 @@ public:
 				}
 				else
 				{
-					int i = 12; // function call
 					FunctionDefinition* pFunctionDefinition = pFunctionStore->Lookup(parts.GetItem(0));
 
-					pStack->CreateFrame();
-					StackFrame* pStackFrame = pStack->GetTopFrame();
-					pStackFrame->SerialNumberStart = pFunctionDefinition->SerialNumberStart + 1;
-					pStackFrame->SerialNumberEnd = pFunctionDefinition->SerialNumberEnd;
-					pStackFrame->InstructionPointer = pFunctionDefinition->SerialNumberStart + 1;
+					if (pFunctionDefinition != 0)
+					{
+						pStack->CreateFrame();
 
-					_result.SetValue(-1000000);
-					return &_result;
+						int argumentCount = 0;
+						if (parts.GetCount() > 1)
+						{
+							ListParser arguments(",", parts.GetItem(1));
+							argumentCount = arguments.GetCount();
+
+							for (int i = 0; i < arguments.GetCount(); i++)
+							{
+								Variable* argument = Parse(arguments.GetItem(i), pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber);
+								char argumentName[10];
+								sprintf(argumentName, "#A%d", i);
+
+								pVariableCollection->AddAndSet(argumentName, argument->GetValueFloat(), pStack->GetFrameCount());
+							}
+
+						}
+						pVariableCollection->AddAndSet("#A", (float) argumentCount, pStack->GetFrameCount());	// marks a function call. 
+
+						StackFrame* pStackFrame = pStack->GetTopFrame();
+						pStackFrame->SerialNumberStart = pFunctionDefinition->SerialNumberStart;
+						pStackFrame->SerialNumberEnd = pFunctionDefinition->SerialNumberEnd;
+						pStackFrame->InstructionPointer = pFunctionDefinition->SerialNumberStart;
+						_result.SetToNan();
+						return &_result;
+					}
 				}
 
 				return 0;
 			}
 			else
 			{
-				return pVariableCollection->Lookup(pCommand, pParseErrors, lineNumber);
+				return pVariableCollection->Lookup(pCommand, pStack->GetFrameCount(), pParseErrors, lineNumber);
 			}
 		}
 	}

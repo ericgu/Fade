@@ -6,7 +6,10 @@ enum class CommandResultStatus
 	CommandEndOfLoop = 3,
 	CommandExitLoopBody = 4,
 	CommandLoopMatched = 5,
-	CommandTargetCountExceeded = 6
+	CommandTargetCountExceeded = 6,
+	CommandParseError = 7,
+	CommandCompleted = 8,
+	CommandEndOfFunction = 9
 };
 
 #define TargetMax 16
@@ -54,3 +57,6 @@ class CommandResult
 
 		bool GetTargetCountExceeded() { return _targetCountExceeded; }
 };
+
+typedef void(*CommandResultCallback)(CommandResult* pCommandResult);
+

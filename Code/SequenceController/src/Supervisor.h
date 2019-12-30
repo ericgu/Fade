@@ -1,3 +1,5 @@
+ typedef void (*SupervisorCallback)();
+
 class Supervisor
 {
     CommandSource _commandSource;
@@ -115,11 +117,20 @@ public:
 				_pSettings->SaveShouldExecuteCode(true);
 			}
 
-			_pTimebase->DoTick();
+			_pTimebase->RunProgram(1);
 			if (_parseErrors.GetErrorCount() != 0)
 			{
 				_shouldExecuteCode = false;
 			}
 		}
 	}
+
+	void ExecuteLoop(SupervisorCallback supervisorCallback)
+	{
+		while (true)
+		{
+			Execute();
+			(*supervisorCallback)();
+		}
+	}	
 };

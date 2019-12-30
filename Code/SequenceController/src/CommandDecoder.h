@@ -52,7 +52,6 @@ class CommandDecoder
 		for (int i = 1; i < listParser.GetCount(); i += 2)
 		{
 			Variable channel = *executionContext.Parse(listParser.GetItem(i), pParseErrors, pCommand->GetSerialNumber());
-
 			Variable brightness = *executionContext.Parse(listParser.GetItem(i + 1), pParseErrors, pCommand->GetSerialNumber());
 
 			commandResult.AddTarget(LedState(channel.GetValueInt(), brightness.GetValueFloat(), cycleCount.GetValueInt()));
@@ -132,7 +131,7 @@ class CommandDecoder
 		return true;
 	}
 	
-	static bool DecodeLoopStart(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult)
+	static bool DecodeLoopStart(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult, IExecutionFlow* pExecutionFlow)
 	{
 		Loop loop = Loop::Parse(pCommand->GetString(), executionContext, pParseErrors, pCommand->GetSerialNumber());
 
@@ -141,31 +140,29 @@ class CommandDecoder
 			return false;
 		}
 
-		// See if the variable we're using is defined. If it is, we're in process for this loop
-		Variable* pLoopVariable = executionContext._variables.GetWithoutErrorCheck(loop.GetVariableName());
-		
-		if (pLoopVariable != 0)
+		executionContext._variables.AddAndSet(loop.GetVariableName(), loop.GetVariableStart().GetValueFloat(), executionContext._stack.GetFrameCount());
+		Variable* pLoopVariable = executionContext._variables.GetWithoutErrorCheck(loop.GetVariableName(), executionContext._stack.GetFrameCount());
+
+		while (true)
 		{
+			executionContext._stack.GetTopFrame()->InstructionPointer = pCommand->GetSerialNumber() + 1;
+
+			CommandResultStatus commandResultStatus = pExecutionFlow->RunProgram(1);
+			if (commandResultStatus != CommandResultStatus::CommandEndOfLoop)
+			{
+				pParseErrors->AddError("Missing loop end", "", -1);
+				return true;
+			}
+			int instructionAfterEnd = executionContext._stack.GetTopFrame()->InstructionPointer;
+
 			pLoopVariable->Increment(loop.GetVariableInc());
 
 			if (!loop.GetIsInRange(pLoopVariable->GetValueFloat()))
 			{
 				pLoopVariable->Clear();
-				commandResult.SetStatus(CommandResultStatus::CommandExitLoopBody);
+				executionContext._stack.GetTopFrame()->InstructionPointer = instructionAfterEnd;
 				return true;
 			}
-
-			commandResult.SetStatus(CommandResultStatus::CommandSkipToNext);
-		}
-		else // first time
-		{
-			executionContext._variables.AddAndSet(loop.GetVariableName(), loop.GetVariableStart().GetValueFloat());
-
-			executionContext._stack.CreateFrame();
-			executionContext._stack.GetTopFrame()->SerialNumberStart = pCommand->GetSerialNumber();
-			executionContext._stack.GetTopFrame()->InstructionPointer = pCommand->GetSerialNumber() + 1;
-
-			commandResult.SetStatus(CommandResultStatus::CommandSkipToNext);
 		}
 
 		return true;
@@ -175,6 +172,8 @@ class CommandDecoder
 	{
 		if (pCommand->StartsWith("ENDFOR"))
 		{
+			executionContext._stack.GetTopFrame()->SerialNumberEnd = pCommand->GetSerialNumber();
+
 			commandResult.SetStatus(CommandResultStatus::CommandEndOfLoop);
 			return true;
 		}
@@ -183,6 +182,13 @@ class CommandDecoder
 			commandResult.SetStatus(CommandResultStatus::CommandNone);
 			return false;
 		}
+	}
+
+	static void AddFunctionCallError(ParseErrors* pParseErrors, const char* pFunctionName, int parameterCount, int argumentCount, int callingLineNumber)
+	{
+		char buffer[256];
+		sprintf(buffer, "Function %s requires %d parameter(s) but was called with %d argument(s).", pFunctionName, parameterCount, argumentCount);
+		pParseErrors->AddError("Mismatched ", buffer, callingLineNumber);
 	}
 
 	static bool DecodeFunction(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult)
@@ -195,8 +201,7 @@ class CommandDecoder
 			}
 			else
 			{
-				// done with function call, restore stack etc. Figure out how to handle return values here...
-				executionContext._stack.DestroyFrame();
+				commandResult.SetStatus(CommandResultStatus::CommandEndOfFunction);
 			}
 
 			return true;
@@ -216,11 +221,51 @@ class CommandDecoder
 				pCommandString++;
 			}
 
-			FunctionDefinition functionDefinition;
-			strcpy(functionDefinition.Name, pCommandString);
-			functionDefinition.SerialNumberStart = pCommand->GetSerialNumber();
+			ListParser parts("()", pCommandString);	// parse to remove parameters...
 
-			executionContext._functionStore.DefineStart(functionDefinition);
+			// Having a #A variable means that this is a function call rather than a function definition...
+
+			Variable* pArgumentCount = executionContext._variables.GetWithoutErrorCheck("#A", executionContext._stack.GetFrameCount());
+			if (pArgumentCount != 0)
+			{
+				// function call - copy arguments to local variable names...
+
+				if (parts.GetCount() > 1)
+				{
+					ListParser parameters(", \t", parts.GetItem(1));
+
+					if (parameters.GetCount() != pArgumentCount->GetValueInt())
+					{
+						AddFunctionCallError(pParseErrors, parts.GetItem(0), parameters.GetCount(), pArgumentCount->GetValueInt(), executionContext._stack.GetCallingFrame()->InstructionPointer);
+						return true;
+					}
+
+					for (int i = 0; i < parameters.GetCount(); i++)
+					{
+						char argumentName[10];
+						sprintf(argumentName, "#A%d", i);
+						Variable* pArgument = executionContext._variables.GetWithoutErrorCheck(argumentName, executionContext._stack.GetFrameCount());
+						if (pArgument != 0)
+						{
+							pArgument->SetVariableName(parameters.GetItem(i));
+						}
+					}
+				}
+				else if (pArgumentCount->GetValueInt() != 0)
+				{
+					AddFunctionCallError(pParseErrors, parts.GetItem(0), 0, pArgumentCount->GetValueInt(), executionContext._stack.GetCallingFrame()->InstructionPointer);
+					return true;
+				}
+				executionContext._variables.Delete("#A", executionContext._stack.GetFrameCount());
+			}
+			else
+			{
+				FunctionDefinition functionDefinition;
+				strcpy(functionDefinition.Name, parts.GetItem(0));
+				functionDefinition.SerialNumberStart = pCommand->GetSerialNumber();
+
+				executionContext._functionStore.DefineStart(functionDefinition);
+			}
 
 			return true;
 		}
@@ -228,36 +273,46 @@ class CommandDecoder
 		return false;
 	}
 
-	static bool DecodeAssignment(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult)
+	static bool DecodeAssignment(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult, IExecutionFlow* pExecutionFlow)
 	{
 		if (strchr(pCommand->GetString(), '=') != 0)
 		{
 			char variableName[64];
-
 			const char* pCommandString = pCommand->GetString();
-			//Serial.print("In Assignment1: "); Serial.println(pCommand);
 
 			pCommandString = VariableCollection::GetVariableName(pCommandString, variableName);
-			//Serial.print("In Assignment2: "); Serial.println(pCommand);
 
 			while ((*pCommandString == '=' || *pCommandString == ' ') && *pCommandString != '\0')
 			{
 				pCommandString++;
 			}
 
-			//Serial.print("In Assignment3: "); Serial.println(pCommand);
-			Variable variable = *executionContext.Parse(pCommandString, pParseErrors, pCommand->GetSerialNumber());
+			Variable* pValue = executionContext.Parse(pCommandString, pParseErrors, pCommand->GetSerialNumber());
 
-			executionContext._variables.AddAndSet(variableName, variable.GetValueFloat());
+			float result;
+			if (pValue->IsNan())
+			{
+				pExecutionFlow->RunProgram(1);
+				pValue = executionContext._variables.GetWithoutErrorCheck("<ReturnValue>", executionContext._stack.GetFrameCount());
+				result = pValue->GetValueFloat();
+				executionContext._variables.DeleteStackLevel(executionContext._stack.GetFrameCount());
+				executionContext._stack.DestroyFrame();
+			}
+			else
+			{
+				result = pValue->GetValueFloat();
+			}
 
+			executionContext._variables.AddAndSet(variableName, result, executionContext._stack.GetFrameCount());
 			commandResult.SetStatus(CommandResultStatus::CommandNone);
+
 			return true;
 		}
 
 		return false;
 	}
 
-	static bool DecodeFunctionCall(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult)
+	static bool DecodeFunctionCall(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult, IExecutionFlow* pExecutionFlow)
 	{
 		char* pCommandString = pCommand->GetString();
 		char* open = strchr(pCommandString, '(');
@@ -269,8 +324,31 @@ class CommandDecoder
 
 			if (pResult != 0)
 			{
+				if (pResult->IsNan())
+				{
+					pExecutionFlow->RunProgram(1);
+					executionContext._variables.DeleteStackLevel(executionContext._stack.GetFrameCount());
+					executionContext._stack.DestroyFrame();
+				}
+
 				return true;
 			}
+		}
+
+		return false;
+	}
+
+	static bool DecodeReturn(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult)
+	{
+		if (pCommand->StartsWith("RETURN"))
+		{
+			const char* pCommandString = pCommand->GetString() + 7;
+
+			Variable* pResult = executionContext.Parse(pCommandString, pParseErrors, pCommand->GetSerialNumber());
+
+			executionContext._variables.AddAndSet("<ReturnValue>", pResult->GetValueFloat(), executionContext._stack.GetFrameCount());
+
+			return true;
 		}
 
 		return false;
@@ -362,19 +440,19 @@ class CommandDecoder
 	}
 
     public:
-    static void Decode(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult)
+    static void Decode(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult, CommandResultCallback callback = 0, IExecutionFlow* pExecutionFlow = 0)
     {
 		//Serial.println(pCommand->GetString());
 
 		if (DecodeFunction(executionContext, pParseErrors, pCommand, commandResult)) { return; }
 
-		if (DecodeLoopStart(executionContext, pParseErrors, pCommand, commandResult)) { return; }
+		if (DecodeLoopStart(executionContext, pParseErrors, pCommand, commandResult, pExecutionFlow)) { return; }
 
 		if (DecodeLoopEnd(executionContext, pParseErrors, pCommand, commandResult)) { return; }
 
 		if (DecodePrint(executionContext, pParseErrors, pCommand, commandResult)) { return; }
 
-		if (DecodeAssignment(executionContext, pParseErrors, pCommand, commandResult)) { return; }
+		if (DecodeAssignment(executionContext, pParseErrors, pCommand, commandResult, pExecutionFlow)) { return; }
 
 		if (DecodeAnimate(executionContext, pParseErrors, pCommand, commandResult)) { return; }
 
@@ -382,7 +460,9 @@ class CommandDecoder
 
 		if (DecodeSequential(executionContext, pParseErrors, pCommand, commandResult)) { return; }
 
-		if (DecodeFunctionCall(executionContext, pParseErrors, pCommand, commandResult)) { return; }
+		if (DecodeFunctionCall(executionContext, pParseErrors, pCommand, commandResult, pExecutionFlow)) { return; }
+
+		if (DecodeReturn(executionContext, pParseErrors, pCommand, commandResult)) { return; }
 
 		if (DecodeWhitespaceOrCommentCommand(executionContext, pParseErrors, pCommand, commandResult)) { return; }
 

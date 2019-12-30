@@ -42,15 +42,12 @@ class TimebaseTest
 		LedManagerSimulator ledManager;
 		ParseErrors parseErrors;
 
-		commandSource.AddCommand(Command("D(10,0,10.0)", 0));
-		commandSource.AddCommand(Command("A(10)", 1));
+		commandSource.AddCommand("D(10,0,10.0)");
+		commandSource.AddCommand("A(10)");
 
 		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
-		for (int i = 0; i < 10; i++)
-		{
-			timebase.DoTick();
-		}
+		timebase.RunProgram(1);
 
 		Assert::AreEqual(10, ledManager.GetCommandResult().GetCycleCount());
 
@@ -62,9 +59,9 @@ class TimebaseTest
 
 		Assert::AreEqual(10, ledManager.GetTickCount());
 
-		commandSource.AddCommand(Command("Test", 1));
+		commandSource.AddCommand("Test");
 
-		timebase.DoTick();
+		timebase.RunProgram(1);
 	}
 
 	static void TestLoop()
@@ -73,14 +70,14 @@ class TimebaseTest
 		LedManagerSimulator ledManager;
 		ParseErrors parseErrors;
 
-		commandSource.AddCommand(Command("FOR B 0:7", 0));
-		commandSource.AddCommand(Command("D(1,B,10.0)", 1));
-		commandSource.AddCommand(Command("A(10)", 2));
-		commandSource.AddCommand(Command("ENDFOR", 3));
+		commandSource.AddCommand("FOR B 0:7");
+		commandSource.AddCommand("D(1,B,10.0)");
+		commandSource.AddCommand("A(10)");
+		commandSource.AddCommand("ENDFOR");
 
 		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
-		timebase.DoTick();
+		timebase.RunProgram(1);
 
 		CommandResult commandResult = ledManager.GetCommandResult();
 		Assert::AreEqual(1, commandResult.GetCount());
@@ -88,7 +85,7 @@ class TimebaseTest
 		Assert::AreEqual(0, ledState.GetChannel());
 		Assert::AreEqual(10.0F, ledState.GetBrightness());
 
-		timebase.DoTick();
+		timebase.RunProgram(1);
 
 		commandResult = ledManager.GetCommandResult();
 		Assert::AreEqual(1, commandResult.GetCount());
@@ -106,24 +103,20 @@ class TimebaseTest
 		ParseErrors parseErrors;
 
 		//"$1$FOR %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDFOR"
-		commandSource.AddCommand(Command("FOR A 0:7", 0));
-		commandSource.AddCommand(Command("D(100,A,1.0)", 1));
-		commandSource.AddCommand(Command("A(100)", 2));
-		commandSource.AddCommand(Command("D(100,A,0.0)", 3));
-		commandSource.AddCommand(Command("A(100)", 4));
-		commandSource.AddCommand(Command("ENDFOR", 5));
+		commandSource.AddCommand("FOR A 0:7");
+		commandSource.AddCommand("D(100,A,1.0)");
+		commandSource.AddCommand("A(100)");
+		commandSource.AddCommand("D(100,A,0.0)");
+		commandSource.AddCommand("A(100)");
+		commandSource.AddCommand("ENDFOR");
 
 		Timebase timebase(&commandSource, &ledManager, &parseErrors);
 
-		for (int i = 0; i < 200; i++)
-		{
-			timebase.DoTick();
+		timebase.RunProgram(1);
 
-			CommandResult commandResult = ledManager.GetCommandResult();
-			LedState ledState = commandResult.GetTarget(0);
+		CommandResult commandResult = ledManager.GetCommandResult();
+		LedState ledState = commandResult.GetTarget(0);
 
-			//printf("%d %f\n", ledState.GetChannel(), ledState.GetBrightness());
-		}
 	}
 
 public:
