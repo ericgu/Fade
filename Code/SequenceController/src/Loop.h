@@ -23,7 +23,7 @@ class Loop
 			_match = 0;
 		}
 
-    static Loop Parse(const char* pCommand, ExecutionContext& executionContent, ParseErrors* pParseErrors, int lineNumber)
+    static Loop Parse(const char* pCommand, ExecutionContext& executionContent, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow = 0)
     {
 		Loop loop;
 
@@ -50,12 +50,12 @@ class Loop
 			return loop;
 		}
 
-		loop._variableStart = *executionContent.Parse(listParser.GetItem(0), pParseErrors, lineNumber);
-		loop._variableEnd = *executionContent.Parse(listParser.GetItem(1), pParseErrors, lineNumber);
+		loop._variableStart = executionContent.Evaluate(listParser.GetItem(0), pParseErrors, lineNumber, pExecutionFlow);
+		loop._variableEnd = executionContent.Evaluate(listParser.GetItem(1), pParseErrors, lineNumber, pExecutionFlow);
 
 		if (listParser.GetCount() > 2)
 		{
-			loop._variableInc = *executionContent.Parse(listParser.GetItem(2), pParseErrors, lineNumber);
+			loop._variableInc = executionContent.Evaluate(listParser.GetItem(2), pParseErrors, lineNumber, pExecutionFlow);
 		}
 
 		loop._match = 1;

@@ -18,6 +18,11 @@ public:
 		_executionContext.ResetVariablesAndStack();
 	}
 
+	void ExecuteLedCommand(CommandResult* pCommandResult)
+	{
+		_callback(pCommandResult);
+	}
+
 	ExecutionContext GetExecutionContext()
 	{
 		return _executionContext;

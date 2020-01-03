@@ -493,8 +493,8 @@ public:
 		TestSingleImmediate();
 		TestSequentialImmediate();
 
-		TestRandomAssignment();
-		TestRandomUsage();
+		//TestRandomAssignment();
+		//TestRandomUsage();
 
 		TestPrintString();
 		TestPrintStringWithEquals();

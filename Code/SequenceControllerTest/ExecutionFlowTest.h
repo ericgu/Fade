@@ -183,6 +183,39 @@ class ExecutionFlowTest
 		AssertResult(_commandResults[2], 15, 15, 15.0F);
 	}
 
+	static void TestLoopWithFunctionCall()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC GetValue");
+		commandSource.AddCommand("RETURN 7");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("FOR B 0:GetValue()");
+		commandSource.AddCommand("D(7,B,10.0)");
+		commandSource.AddCommand("A(7)");
+		commandSource.AddCommand("ENDFOR");
+		commandSource.AddCommand("D(15,15,15.0)");
+		commandSource.AddCommand("A(15)");
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+
+		ResetResultStore();
+		executionFlow.RunProgram(1);
+
+		Assert::AreEqual(9, _commandResultCount);
+
+		for (int i = 0; i <= 7; i++)
+		{
+			AssertResult(_commandResults[i], 7, i, 10.0F);
+		}
+
+		// should be command outside of loop
+		AssertResult(_commandResults[8], 15, 15, 15.0F);
+	}
+
+
 	static void TestLoopDown()
 	{
 		CommandSourceSimulator commandSource;
@@ -430,6 +463,81 @@ class ExecutionFlowTest
 		AssertResult(_commandResults[0], 10, 2, 1.0F);
 	}
 
+	static void TestFunctionCallNested()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC Function");
+		commandSource.AddCommand("RETURN 11.0");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("FUNC FunctionOuter");
+		commandSource.AddCommand("A=Function()");
+		commandSource.AddCommand("RETURN A");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("B=FunctionOuter()");
+		commandSource.AddCommand("DI(B, 2, 1.0)");
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+		Assert::AreEqual(0, parseErrors.GetErrorCount());
+
+		ResetResultStore();
+		executionFlow.RunProgram(1);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 11, 2, 1.0F);
+	}
+
+	static void TestFunctionCallAsArgument()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC Function(A, B)");
+		commandSource.AddCommand("RETURN A");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("FUNC Function2(X, Y, Z)");
+		commandSource.AddCommand("RETURN X + Y + Z");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("B=Function2(3, Function(1, 3), 6)");
+		commandSource.AddCommand("DI(B, 2, 1.0)");
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+		Assert::AreEqual(0, parseErrors.GetErrorCount());
+
+		ResetResultStore();
+		executionFlow.RunProgram(1);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 10, 2, 1.0F);
+	}
+
+	static void TestFunctionCallRandomParameter()
+	{
+		CommandSourceSimulator commandSource;
+
+		MyRandom::SetFirstValue(13);
+
+		commandSource.AddCommand("FUNC Function(A)");
+		commandSource.AddCommand("RETURN A");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("B=Function(RAND(0,10))");
+		commandSource.AddCommand("DI(B, 2, 1.0)");
+
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+		Assert::AreEqual(0, parseErrors.GetErrorCount());
+
+		ResetResultStore();
+		executionFlow.RunProgram(1);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 13, 2, 1.0F);
+	}
+
 	static void TestIgnoredFunctionResult()
 	{
 		CommandSourceSimulator commandSource;
@@ -505,6 +613,7 @@ class ExecutionFlowTest
 
 		Serial.SetOutput(false);
 		executionFlow.RunProgram(1);
+
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("12.000000\n", Serial.GetLastString());
@@ -597,6 +706,25 @@ class ExecutionFlowTest
 		Assert::AreEqual(4, parseError._lineNumber);
 	}
 
+	static void TestDirectWithFunctionCall()
+	{
+		CommandSourceSimulator commandSource;
+		ParseErrors parseErrors;
+
+		commandSource.AddCommand("FUNC F()");
+		commandSource.AddCommand("RETURN 1.0");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("DI(F(), F(), F())");
+
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+		ResetResultStore();
+		executionFlow.RunProgram(1);
+
+		Assert::AreEqual(1, _commandResultCount);
+		AssertResult(_commandResults[0], 10, 0, 10.0F);
+	}
+
 public:
 
 	static int Run()
@@ -626,12 +754,18 @@ public:
 		TestMethodCallWithTwoParameters();
 		TestFunctionDef();
 		TestFunctionCall();
+		TestFunctionCallNested();
+		TestFunctionCallAsArgument();
+		TestFunctionCallRandomParameter();
 		TestMethodCall();
 		TestIgnoredFunctionResult();
 		TestMethodCallWithParameterDuplicateName();
 		TestMethodCannotAccessParentVariables();
 		TestMethodCallWithWrongArgumentCount();
 		TestMethodCallWithWrongArgumentCount2();
+
+		TestLoopWithFunctionCall();
+		// TestDirectWithFunctionCall();
 
 		return 0;
 	}

@@ -3,8 +3,11 @@
 class Assert
 {
 	static char _buffer[16636];
+	static int _assertCount;
 
 public:
+	static int GetAssertCount() { return _assertCount;  }
+
 	static void Failed(char* tag)
 	{
 		puts("Failed: ");
@@ -14,6 +17,8 @@ public:
 
 	static void AreEqual(int expected, int actual)
 	{
+		_assertCount++; 
+
 		if (expected != actual)
 		{
 			sprintf_s(_buffer, "Expected %d got %d", expected, actual);
@@ -23,6 +28,8 @@ public:
 
 	static void AreEqual(char* expected, char* actual)
 	{
+		_assertCount++;
+
 		if (strcmp(expected, actual) != 0)
 		{
 			sprintf_s(_buffer, "Expected %s got %s", expected, actual);
@@ -32,6 +39,8 @@ public:
 
 	static void AreEqual(const char* expected, char* actual)
 	{
+		_assertCount++;
+
 		if (actual == 0)
 		{
 			actual = (char*) "<null value>";
@@ -46,6 +55,8 @@ public:
 
 	static void AreEqual(const char* expected, const char* actual)
 	{
+		_assertCount++;
+
 		if (strcmp(expected, actual) != 0)
 		{
 			sprintf_s(_buffer, "Expected %s got %s", expected, actual);
@@ -55,6 +66,8 @@ public:
 
 	static void AreEqual(float expected, float actual)
 	{
+		_assertCount++;
+
 		if (expected != actual)
 		{
 			sprintf_s(_buffer, "Expected %f got %f", expected, actual);
@@ -65,3 +78,4 @@ public:
 };
 
 char Assert::_buffer[16636];
+int Assert::_assertCount = 0;

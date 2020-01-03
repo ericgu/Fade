@@ -2,7 +2,7 @@
 
 class CommandDecoder
 {
-	static bool DecodeDirect(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult)
+	static bool DecodeDirect(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult, IExecutionFlow* pExecutionFlow = 0)
 	{
 		if (!pCommand->StartsWith("D")) { return false; }
 
@@ -133,7 +133,7 @@ class CommandDecoder
 	
 	static bool DecodeLoopStart(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult, IExecutionFlow* pExecutionFlow)
 	{
-		Loop loop = Loop::Parse(pCommand->GetString(), executionContext, pParseErrors, pCommand->GetSerialNumber());
+		Loop loop = Loop::Parse(pCommand->GetString(), executionContext, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
 
 		if (!loop.GetMatch())
 		{
@@ -287,7 +287,8 @@ class CommandDecoder
 				pCommandString++;
 			}
 
-			Variable* pValue = executionContext.Parse(pCommandString, pParseErrors, pCommand->GetSerialNumber());
+			Variable value = executionContext.Evaluate(pCommandString, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
+			Variable* pValue = &value;
 
 			float result;
 			if (pValue->IsNan())
@@ -320,7 +321,9 @@ class CommandDecoder
 
 		if (open != 0 && closed != 0 && closed > open)
 		{
-			Variable* pResult = executionContext.Parse(pCommandString, pParseErrors, pCommand->GetSerialNumber());
+			//Variable* pResult = executionContext.Parse(pCommandString, pParseErrors, pCommand->GetSerialNumber());
+			Variable result = executionContext.Evaluate(pCommandString, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
+			Variable* pResult = &result;
 
 			if (pResult != 0)
 			{
@@ -338,15 +341,15 @@ class CommandDecoder
 		return false;
 	}
 
-	static bool DecodeReturn(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult)
+	static bool DecodeReturn(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, CommandResult& commandResult, IExecutionFlow* pExecutionFlow)
 	{
 		if (pCommand->StartsWith("RETURN"))
 		{
 			const char* pCommandString = pCommand->GetString() + 7;
 
-			Variable* pResult = executionContext.Parse(pCommandString, pParseErrors, pCommand->GetSerialNumber());
+			Variable result = executionContext.Evaluate(pCommandString, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
 
-			executionContext._variables.AddAndSet("<ReturnValue>", pResult->GetValueFloat(), executionContext._stack.GetFrameCount());
+			executionContext._variables.AddAndSet("<ReturnValue>", result.GetValueFloat(), executionContext._stack.GetFrameCount());
 
 			return true;
 		}
@@ -462,7 +465,7 @@ class CommandDecoder
 
 		if (DecodeFunctionCall(executionContext, pParseErrors, pCommand, commandResult, pExecutionFlow)) { return; }
 
-		if (DecodeReturn(executionContext, pParseErrors, pCommand, commandResult)) { return; }
+		if (DecodeReturn(executionContext, pParseErrors, pCommand, commandResult, pExecutionFlow)) { return; }
 
 		if (DecodeWhitespaceOrCommentCommand(executionContext, pParseErrors, pCommand, commandResult)) { return; }
 

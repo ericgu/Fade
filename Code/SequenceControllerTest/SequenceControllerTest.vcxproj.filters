@@ -87,6 +87,15 @@
     <ClInclude Include="ExpressionTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TickSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DelayerTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpressionTokenizerTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

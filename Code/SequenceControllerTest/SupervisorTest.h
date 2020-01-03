@@ -158,7 +158,7 @@ class SupervisorTest
 
 		supervisor.Execute();
 		Assert::AreEqual(0, supervisor.GetExecutingProgramState());
-		Assert::AreEqual("Unrecognized command: B(333)\n", supervisor.GetCurrentErrors());
+		Assert::AreEqual("Undeclared variable: B\n", supervisor.GetCurrentErrors());
 
 		Serial.SetOutput(true);
 	}

@@ -18,6 +18,11 @@ public:
 		return _expression.Parse(pCommand, &_variables, &_functionStore, &_stack, pParseErrors, lineNumber);
 	}
 
+	Variable Evaluate(const char* pCommand, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
+	{
+		return _expression.Evaluate(pCommand, &_variables, &_functionStore, &_stack, pParseErrors, lineNumber, pExecutionFlow);
+	}
+
 	void ResetVariablesAndStack()
 	{
 		_variables.Clear();
