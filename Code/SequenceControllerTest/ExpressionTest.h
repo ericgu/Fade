@@ -13,11 +13,11 @@ class ExpressionTest
 
 		variableCollection.AddAndSet("C", 55.0F, stack.GetFrameCount());
 
-		Variable* pParsed = expression.Parse("88.0", &variableCollection, 0, 0, &parseErrors, 1);
-		Assert::AreEqual(88.0F, pParsed->GetValueFloat());
+		Variable parsed = expression.Evaluate("88.0", &variableCollection, 0, 0, &parseErrors, 1);
+		Assert::AreEqual(88.0F, parsed.GetValueFloat());
 
-		pParsed = expression.Parse("C", &variableCollection, 0, &stack, &parseErrors, 1);
-		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
+		parsed = expression.Evaluate("C", &variableCollection, 0, &stack, &parseErrors, 1);
+		Assert::AreEqual(55.0F, parsed.GetValueFloat());
 	}
 
 	static void TestParseFloatOrVariableNamed()
@@ -29,20 +29,14 @@ class ExpressionTest
 
 		variableCollection.AddAndSet("Fred", 55.0F, stack.GetFrameCount());
 
-		Variable* pParsed = expression.Parse("Fred", &variableCollection, 0, &stack, &parseErrors, 1);
-		Assert::AreEqual(55.0F, pParsed->GetValueFloat());
+		Variable parsed = expression.Evaluate("Fred", &variableCollection, 0, &stack, &parseErrors, 1);
+		Assert::AreEqual(55.0F, parsed.GetValueFloat());
 	}
 
 	static void TestRandom()
 	{
-		Expression expression;
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
-		Stack stack;
-
 		MyRandom::SetFirstValue(1);
-		Variable* pParsed = expression.Parse("R(0:10)", &variableCollection, 0, &stack, &parseErrors, 1);
-		Assert::AreEqual(1.0F, pParsed->GetValueFloat());
+		TestExpression("RAND(0, 10)", 1.0F);
 	}
 
 	static void TestLiteral()

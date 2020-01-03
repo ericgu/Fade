@@ -4,6 +4,7 @@ class ExecutionFlow: public IExecutionFlow
 	ExecutionContext _executionContext;
 	ParseErrors* _pParseErrors;
 	CommandResultCallback _callback;
+	CommandResult _commandResult;
 
 public:
 	ExecutionFlow(ICommandSource* pCommandSource, ParseErrors* pParseErrors, CommandResultCallback callback)
@@ -28,10 +29,14 @@ public:
 		return _executionContext;
 	}
 
+	CommandResult* GetCommandResult()
+	{
+		return &_commandResult;
+	}
+
+
 	CommandResultStatus RunProgram(int runCount = -1)
 	{
-		CommandResult commandResult;
-
 		int calls = 0;
 
 		while (true)
@@ -62,15 +67,16 @@ public:
 			}
 			else
 			{
-				CommandDecoder::Decode(_executionContext, _pParseErrors, &command, commandResult, _callback, this);
+				CommandDecoder::Decode(_executionContext, _pParseErrors, &command, this);
 
-				switch (commandResult.GetStatus())
+				CommandResultStatus status = _commandResult.GetStatus();
+				switch (status)
 				{
 					case CommandResultStatus::CommandExecute:
 						if (_callback != 0)
 						{
-							_callback(&commandResult);
-							commandResult = CommandResult();
+							_callback(&_commandResult);
+							_commandResult = CommandResult();
 							break;
 						}
 						break;
@@ -78,7 +84,8 @@ public:
 					case CommandResultStatus::CommandEndOfLoop:
 					case CommandResultStatus::CommandExitLoopBody:
 					case CommandResultStatus::CommandEndOfFunction:
-						return commandResult.GetStatus();
+						_commandResult.SetStatus(CommandResultStatus::CommandNone);
+						return status;
 
 					case CommandResultStatus::CommandLoopMatched:
 					case CommandResultStatus::CommandNone:
@@ -89,10 +96,10 @@ public:
 						break;
 				}
 
-				if (commandResult.GetTargetCountExceeded())
+				if (_commandResult.GetTargetCountExceeded())
 				{
-					commandResult.SetStatus(CommandResultStatus::CommandTargetCountExceeded);
-					return commandResult.GetStatus();
+					_commandResult.SetStatus(CommandResultStatus::CommandTargetCountExceeded);
+					return _commandResult.GetStatus();
 				}
 			}
 		}

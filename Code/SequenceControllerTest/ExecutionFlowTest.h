@@ -714,7 +714,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("FUNC F()");
 		commandSource.AddCommand("RETURN 1.0");
 		commandSource.AddCommand("ENDFUNC");
-		commandSource.AddCommand("DI(F(), F(), F())");
+		commandSource.AddCommand("EI(F(), F(), F())");
 
 		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
@@ -729,15 +729,15 @@ public:
 
 	static int Run()
 	{
-		TestLoopDown();
-		TestLoopDownWithVariables();
-
 		Test();
 		TestLoop();
+		TestLoopDown();
+		TestLoopDownWithVariables();
 		TestNestedLoop();
 		TestLoopWithIncrement();
 		TestLoopWithVariableCount();
 		TestNestedLoopWithLongNames();
+
 		TestOverlappingAnimation();
 		TestMissingAnimation();
 
@@ -765,7 +765,7 @@ public:
 		TestMethodCallWithWrongArgumentCount2();
 
 		TestLoopWithFunctionCall();
-		// TestDirectWithFunctionCall();
+		//TestDirectWithFunctionCall();
 
 		return 0;
 	}
