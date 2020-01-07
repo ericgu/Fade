@@ -42,7 +42,7 @@ class Loop
 			return loop;
 		}
 
-		ListParser listParser(":", pCommand);
+		ListParser listParser(": ", pCommand);
 
 		if (listParser.GetCount() < 2)
 		{

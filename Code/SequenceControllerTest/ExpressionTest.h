@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ExpressionBuiltInFunctions.h"
+#include "ExpressionOperators.h"
 #include "Expression.h"
 
 class ExpressionTest

@@ -5,99 +5,6 @@ class Expression
 	Variable _result;
 
 public:
-
-	bool EvaluateBinary(ExpressionTokenizer* pExpressionTokenizer, int index)
-	{
-		ExpressionNode* pNode = pExpressionTokenizer->GetNode(index);
-
-		int leftOperandIndex = index - 1;
-		while (pExpressionTokenizer->GetNode(leftOperandIndex)->IsEmpty())
-		{
-			leftOperandIndex--;
-		}
-
-		int rightOperandIndex = index + 1;
-		while (pExpressionTokenizer->GetNode(rightOperandIndex)->IsEmpty())
-		{
-			rightOperandIndex++;
-		}
-
-		ExpressionNode* pOperandLeft = pExpressionTokenizer->GetNode(leftOperandIndex);
-		ExpressionNode* pOperandRight = pExpressionTokenizer->GetNode(rightOperandIndex);
-
-		float valueLeft = pOperandLeft->_pValue.GetValueFloat();
-		float valueRight = pOperandRight->_pValue.GetValueFloat();
-
-		switch (*pNode->_pItem)
-		{
-		case '*':
-			pNode->_pValue = valueLeft * valueRight;
-			break;
-
-		case '/':
-			pNode->_pValue = valueLeft / valueRight;
-			break;
-
-		case '%':
-			pNode->_pValue = (int) valueLeft % (int) valueRight;
-			break;
-
-		case '+':
-			pNode->_pValue = valueLeft + valueRight;
-			break;
-
-		case '-':
-			pNode->_pValue = valueLeft - valueRight;
-			break;
-
-		case '>':
-			if (*(pNode->_pItem + 1) == '=')
-			{
-				pNode->_pValue = valueLeft >= valueRight;
-			}
-			else
-			{
-				pNode->_pValue = valueLeft > valueRight;
-			}
-			break;
-
-		case '<':
-			if (*(pNode->_pItem + 1) == '=')
-			{
-				pNode->_pValue = valueLeft <= valueRight;
-			}
-			else
-			{
-				pNode->_pValue = valueLeft < valueRight;
-			}
-			break;
-
-		case '!':
-			if (*(pNode->_pItem + 1) == '=')
-			{
-				pNode->_pValue = valueLeft != valueRight;
-			}
-			break;
-
-		case '=':
-			if (*(pNode->_pItem + 1) == '=')
-			{
-				pNode->_pValue = valueLeft == valueRight;
-			}
-			break;
-
-		default:
-			// handle not-matched here with direct return
-			return false;
-		}
-
-		pNode->_pItem = 0;
-		pExpressionTokenizer->SetNodeEmpty(leftOperandIndex);
-		pExpressionTokenizer->SetNodeEmpty(rightOperandIndex);
-
-		return true;
-	}
-
 	static Variable DoFunctionCall(FunctionDefinition* pFunctionDefinition, VariableCollection* pVariableCollection, FunctionStore* pFunctionStore, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
 	{
 		StackFrame* pStackFrame = pStack->GetTopFrame();
@@ -117,7 +24,7 @@ public:
 			return Variable();
 		}
 	}
-
+	
 	bool HandleFunctionCall(const char* pFunctionName, ExpressionTokenizer* pExpressionTokenizer, int i, VariableCollection* pVariableCollection, FunctionStore* pFunctionStore, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, FunctionCallHandler functionCallHandler, IExecutionFlow* pExecutionFlow)
 	{
 		ExpressionNode* pNode = pExpressionTokenizer->GetNode(i);
@@ -128,7 +35,7 @@ public:
 		}
 		
 		ExpressionNode* pNext = pExpressionTokenizer->GetNode(i + 1);
-		if (*pNext->_pItem != '(')
+		if (pNext == 0 || pNext->_pItem == 0 || *pNext->_pItem != '(')
 		{
 			return false;
 		}
@@ -160,9 +67,10 @@ public:
 		pExpressionTokenizer->SetNodeEmpty(j);
 
 		bool handled = false;
-		pStack->CreateFrame();
 
 		int argumentCount = 0;
+		VariableCollection argumentCollection;
+
 
 		if (j > i + 2)	// there are arguments
 		{
@@ -200,12 +108,24 @@ public:
 
 				// NOTE: Add check that argumentIndex + 1 is a comma...
 
-				pVariableCollection->AddAndSet(argumentName, argument.GetValueFloat(), pStack->GetFrameCount());
+				argumentCollection.AddAndSet(argumentName, argument.GetValueFloat(), 0);
 
 				argumentIndex = argumentIndexEnd + 1;
 			}
 		}
-		pVariableCollection->AddAndSet("#A", (float)argumentCount, pStack->GetFrameCount());	// marks a function call. 
+
+		pStack->CreateFrame();
+
+		for (int i = 0; i < argumentCount; i++)
+		{
+			char argumentName[10];
+			sprintf(argumentName, "#A%d", i);
+
+			Variable* pArgument = argumentCollection.GetWithoutErrorCheck(argumentName, 0);
+			pVariableCollection->AddAndSet(argumentName, pArgument->GetValueFloat(), pStack->GetFrameCount());
+		}
+
+		pVariableCollection->AddAndSet("#A", (float)argumentCount, pStack->GetFrameCount());
 
 		if (pFunctionStore)
 		{
@@ -218,26 +138,10 @@ public:
 			}
 		}
 
-		if (!handled && strcmp(pFunctionName, "RAND") == 0)
+		if (!handled)
 		{
-			//Serial.println("    found random: ");
-			Variable* pMinValue = pVariableCollection->GetWithoutErrorCheck("#A0", pStack->GetFrameCount());
-			Variable* pMaxValue = pVariableCollection->GetWithoutErrorCheck("#A1", pStack->GetFrameCount());
-
-			pNode->_pValue = MyRandom::GetValue(pMinValue->GetValueInt(), pMaxValue->GetValueInt());
-			pExpressionTokenizer->SetNodeEmpty(i + 2);
-
-			handled = true;
+			handled = ExpressionBuiltInFunctions::HandleBuiltInFunctions(pFunctionName, pNode, pExpressionTokenizer, i, pVariableCollection, pStack, pParseErrors, lineNumber, pExecutionFlow);
 		}
-		
-		if (!handled && *pFunctionName == 'E')
-		{
-
-
-			pNode->_pValue = Variable(333);
-			handled = true;
-		}
-
 
 		pVariableCollection->DeleteStackLevel(pStack->GetFrameCount());
 		pStack->DestroyFrame();
@@ -282,98 +186,32 @@ public:
 			else if ((*pNode->_pItem >= 'a' && *pNode->_pItem <= 'z') || (*pNode->_pItem >= 'A' && *pNode->_pItem <= 'Z'))
 			{
 				// might be a variable or a function call. 
-				char functionName[128];
-				strncpy(functionName, pNode->_pItem, pNode->_pItemLength);
-				functionName[pNode->_pItemLength] = '\0';
+				char identifier[128];
+				strncpy(identifier, pNode->_pItem, pNode->_pItemLength);
+				identifier[pNode->_pItemLength] = '\0';
 
-				if (!HandleFunctionCall(functionName, pExpressionTokenizer, i, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, functionCallHandler, pExecutionFlow))
+				Variable* pValue = pVariableCollection->GetWithoutErrorCheck(identifier, pStack->GetFrameCount());
+				ExpressionNode* pNext = pExpressionTokenizer->GetNode(i + 1);
+
+					// if the next node is a '(', this is a function call even if there is a matching variable name. 
+				bool nextNodeParen = pNext != 0 && pNext->_pItem != 0 && *pNext->_pItem == '(';
+
+				if (pValue && !nextNodeParen)
 				{
-					pNode->_pValue = *pVariableCollection->Lookup(pNode->_pItem, pStack->GetFrameCount(), pParseErrors, lineNumber);
-					pNode->_pItem = 0;
+					pNode->_pValue = *pValue;
+				}
+				else
+				{
+					if (!HandleFunctionCall(identifier, pExpressionTokenizer, i, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, functionCallHandler, pExecutionFlow))
+					{
+						pParseErrors->AddError("Unrecognized identifier: ", identifier, lineNumber);
+						return Variable();
+					}
 				}
 			}
 		}
 
 		return EvaluateRest(pExpressionTokenizer, start, max, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber);
-	}
-
-	void EvaluateUnaryMatches(ExpressionTokenizer* pExpressionTokenizer, int start, int max)
-	{
-		const char *pMatchesTemplate = "+-!";
-
-		for (int i = start; i <= max; i++)
-		{
-			ExpressionNode* pNode = pExpressionTokenizer->GetNode(i);
-
-			if (pNode->_pItem != 0)
-			{
-				const char *pMatches = pMatchesTemplate;
-
-				while (*pMatches != '\0')
-				{
-					if (pNode->StartsWith(*pMatches))
-					{
-						// Unaries are matched by having a non-value (start or operator) on the left and a value on the right.
-
-						if (i == start || pExpressionTokenizer->GetNode(i - 1)->_pValue.IsNan())
-						{
-							ExpressionNode* pNext = pExpressionTokenizer->GetNode(i + 1);
-							if (!pNext->_pValue.IsNan())
-							{
-								Variable newValue;
-								switch (*pMatches)
-								{
-								case '-':
-									newValue = -pNext->_pValue.GetValueFloat();
-									break;
-
-								case '+':
-									newValue = pNext->_pValue.GetValueFloat();
-									break;
-
-								case '!':
-									newValue = !pNext->_pValue.GetValueFloat();
-									break;
-
-								}
-								pNext->_pValue.SetValue(newValue.GetValueFloat());
-								pExpressionTokenizer->SetNodeEmpty(i);
-							}
-						}
-						break;
-					}
-
-					pMatches++;
-				}
-			}
-		}
-	}
-
-	void EvaluateBinaryMatches(ExpressionTokenizer* pExpressionTokenizer, int start, int max, const char *pMatchesTemplate)
-	{
-		for (int i = start; i <= max; i++)
-		{
-			ExpressionNode* pNode = pExpressionTokenizer->GetNode(i);
-
-			if (pNode->_pItem != 0)
-			{
-				const char *pMatches = pMatchesTemplate;
-
-				while (*pMatches != '\0')
-				{
-					if (pNode->StartsWith(*pMatches))
-					{
-						if (EvaluateBinary(pExpressionTokenizer, i))
-						{
-							i -= 2;
-						}
-						break;
-					}
-
-					pMatches++;
-				}
-			}
-		}
 	}
 
 	void EvaluateParens(ExpressionTokenizer* pExpressionTokenizer, int start, int max, VariableCollection* pVariableCollection, FunctionStore* pFunctionStore, Stack* pStack, ParseErrors* pParseErrors, int lineNumber)
@@ -424,16 +262,16 @@ public:
 		EvaluateParens(pExpressionTokenizer, start, max, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber);
 
 		// evaluate unary +,-,!
-		EvaluateUnaryMatches(pExpressionTokenizer, start, max);
+		ExpressionOperators::EvaluateUnaryMatches(pExpressionTokenizer, start, max);
 
 		// evaluate *,/,%
-		EvaluateBinaryMatches(pExpressionTokenizer, start, max, "*/%");
+		ExpressionOperators::EvaluateBinaryMatches(pExpressionTokenizer, start, max, "*/%");
 
 		// evaluate +,-
-		EvaluateBinaryMatches(pExpressionTokenizer, start, max, "+-");
+		ExpressionOperators::EvaluateBinaryMatches(pExpressionTokenizer, start, max, "+-");
 
 		// evaluate ==, !=, >, <, >=, <=
-		EvaluateBinaryMatches(pExpressionTokenizer, start, max, "=!><");
+		ExpressionOperators::EvaluateBinaryMatches(pExpressionTokenizer, start, max, "=!><");
 
 		for (int i = start; i <= max; i++)
 		{

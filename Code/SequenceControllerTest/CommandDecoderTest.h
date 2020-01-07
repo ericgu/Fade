@@ -50,7 +50,6 @@ class CommandDecoderTest
 	static void TestSingle()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -65,7 +64,6 @@ class CommandDecoderTest
 	static void TestSingleImmediate()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -83,7 +81,6 @@ class CommandDecoderTest
 		executionContext._variables.AddAndSet("A", 3, 1);
 		executionContext._variables.AddAndSet("B", 1.0F, 1);
 
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -98,7 +95,6 @@ class CommandDecoderTest
 	static void TestDouble()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -114,7 +110,6 @@ class CommandDecoderTest
 	static void TestSequential()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -129,7 +124,6 @@ class CommandDecoderTest
 	static void TestSequentialImmediate()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -147,7 +141,6 @@ class CommandDecoderTest
 		executionContext._variables.AddAndSet("A", 3, 1);
 		executionContext._variables.AddAndSet("B", 13.33F, 1);
 
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -162,7 +155,6 @@ class CommandDecoderTest
 	static void TestSequentialSeries()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -187,7 +179,6 @@ class CommandDecoderTest
 	static void TestLoopEnd()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -199,7 +190,6 @@ class CommandDecoderTest
 	static void TestAssignmentConstant()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -211,7 +201,6 @@ class CommandDecoderTest
 	static void TestAssignmentVariable()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -225,7 +214,6 @@ class CommandDecoderTest
 	static void TestAssignmentOverride()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -238,7 +226,6 @@ class CommandDecoderTest
 	static void TestAssignmentNoSpaces()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -250,7 +237,6 @@ class CommandDecoderTest
 	static void TestAnimateConstant()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -261,18 +247,16 @@ class CommandDecoderTest
 
 	static void TestRandomAssignment()
 	{
-		MyRandom::SetFirstValue(1);
-
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Var = R(0:10)", 15), &executionFlow);
-		ValidateVariable(executionContext, &parseErrors, "Var", 1, 1);
+		MyRandom::SetFirstValue(5);
+		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Var = RAND(0,10)", 15), &executionFlow);
+		ValidateVariable(executionContext, &parseErrors, "Var", 1, 5);
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Var = R(0:10)", 15), &executionFlow);
-		ValidateVariable(executionContext, &parseErrors, "Var", 1, 3);
+		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Var = RAND(0,10)", 15), &executionFlow);
+		ValidateVariable(executionContext, &parseErrors, "Var", 1, 7);
 	}
 
 	static void TestRandomUsage()
@@ -280,31 +264,21 @@ class CommandDecoderTest
 		ExecutionContext executionContext;
 		executionContext._variables.AddAndSet("B", 1.0F, 1);
 
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
 		MyRandom::SetFirstValue(1);
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(1,R(0:16),B)", 15), &executionFlow);
+		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(1,RAND(0,16),B)", 15), &executionFlow);
 
-		Assert::AreEqual(1, commandResult.GetCount());
+		Assert::AreEqual(1, executionFlow.GetCommandResult()->GetCount());
 
-		AssertLedState(commandResult.GetTarget(0), 1, 1.0, 1);
-		AreEqual(CommandResultStatus::CommandNone, commandResult.GetStatus());
-
-		CommandResult commandResult2;
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(1,R(0:16),B)", 15), &executionFlow);
-
-		Assert::AreEqual(1, commandResult2.GetCount());
-
-		AssertLedState(commandResult2.GetTarget(0), 3, 1.0, 1);
-		AreEqual(CommandResultStatus::CommandNone, commandResult2.GetStatus());
+		AssertLedState(executionFlow.GetCommandResult()->GetTarget(0), 1, 1.0, 1);
+		AreEqual(CommandResultStatus::CommandNone, executionFlow.GetCommandResult()->GetStatus());
 	}
 
 	static void TestPrintString()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -318,7 +292,6 @@ class CommandDecoderTest
 	static void TestPrintStringWithEquals()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -334,7 +307,6 @@ class CommandDecoderTest
 		ExecutionContext executionContext;
 		executionContext._variables.AddAndSet("Variable", 1.0F, 1);
 
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -348,7 +320,6 @@ class CommandDecoderTest
 	static void TestPrintStringWithNewline()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -362,7 +333,6 @@ class CommandDecoderTest
 	static void TestBlankLine()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -373,7 +343,6 @@ class CommandDecoderTest
 	static void TestWhitespaceOnly()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -384,7 +353,6 @@ class CommandDecoderTest
 	static void TestComment()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -406,65 +374,51 @@ class CommandDecoderTest
 	static void TestErrorDirect()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-
 		CommandDecoder::Decode(executionContext, &parseErrors, &Command("DX(", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Invalid D command: expected I or (", 0);
-
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(", 1), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 2, "Invalid D command: expected cycle count after (", 1);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized command: DX(", 0);
 
 		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(55, 1)", 2), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 3, "Invalid D command: missing brightness target", 2);
+		ValidateError(executionContext, &parseErrors, 2, "Invalid D command: missing brightness target", 2);
 
 		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(MissingVar, 5, 1.0)", 3), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 4, "Undeclared variable: MissingVar", 3);
-
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D33", 4), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 5, "Invalid D command: expected I or (", 4);
+		ValidateError(executionContext, &parseErrors, 3, "Unrecognized identifier: MissingVar", 3);
 	}
 
 	static void TestErrorSequential()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
 		CommandDecoder::Decode(executionContext, &parseErrors, &Command("SX(", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Invalid S command: expected I or (", 0);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized command: SX(", 0);
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("S(", 1), &executionFlow);
+		CommandDecoder::Decode(executionContext, &parseErrors, &Command("S()", 1), &executionFlow);
 		ValidateError(executionContext, &parseErrors, 2, "Invalid S command: expected cycle count after (", 1);
 
 		CommandDecoder::Decode(executionContext, &parseErrors, &Command("S(MissingVar, 5, 1.0)", 3), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 3, "Undeclared variable: MissingVar", 3);
-
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("S", 4), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 4, "Invalid S command: expected I or (", 4);
+		ValidateError(executionContext, &parseErrors, 3, "Unrecognized identifier: MissingVar", 3);
 	}
 
 	static void TestErrorAnimate()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
 		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Axx(", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Invalid A command: expected (", 0);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized command: Axx(", 0);
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("A(", 1), &executionFlow);
+		CommandDecoder::Decode(executionContext, &parseErrors, &Command("A()", 1), &executionFlow);
 		ValidateError(executionContext, &parseErrors, 2, "Invalid A command: expected cycle count", 1);
 	}
 
 	static void TestUnrecognizedCommand()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -475,7 +429,6 @@ class CommandDecoderTest
 	static void TestUnrecognizedCommand2()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -486,7 +439,6 @@ class CommandDecoderTest
 	static void TestDefineFunction()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -506,7 +458,6 @@ class CommandDecoderTest
 	static void TestReturn()
 	{
 		ExecutionContext executionContext;
-		CommandResult commandResult;
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
@@ -541,8 +492,8 @@ public:
 		TestSingleImmediate();
 		TestSequentialImmediate();
 
-		//TestRandomAssignment();
-		//TestRandomUsage();
+		TestRandomAssignment();
+		TestRandomUsage();
 
 		TestPrintString();
 		TestPrintStringWithEquals();

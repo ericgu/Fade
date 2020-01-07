@@ -17,6 +17,48 @@
   <DEFECT>
     <SFA>
       <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
+      <FILENAME>delayer.h</FILENAME>
+      <LINE>9</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Delayer::_offset' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Delayer::{ctor}</FUNCTION>
+    <DECORATED>??0Delayer@@QAE@PAVTickSource@@@Z</DECORATED>
+    <FUNCLINE>9</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
+      <FILENAME>delayer.h</FILENAME>
+      <LINE>9</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Delayer::_ticks' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Delayer::{ctor}</FUNCTION>
+    <DECORATED>??0Delayer@@QAE@PAVTickSource@@@Z</DECORATED>
+    <FUNCLINE>9</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
+      <FILENAME>delayer.h</FILENAME>
+      <LINE>9</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Delayer::_interval' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Delayer::{ctor}</FUNCTION>
+    <DECORATED>??0Delayer@@QAE@PAVTickSource@@@Z</DECORATED>
+    <FUNCLINE>9</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
       <FILENAME>command.h</FILENAME>
       <LINE>15</LINE>
       <COLUMN>2</COLUMN>
@@ -227,6 +269,76 @@
   <DEFECT>
     <SFA>
       <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
+      <FILENAME>expressiontokenizer.h</FILENAME>
+      <LINE>9</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'ExpressionNode::_pItem' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>ExpressionNode::{ctor}</FUNCTION>
+    <DECORATED>??0ExpressionNode@@QAE@XZ</DECORATED>
+    <FUNCLINE>9</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
+      <FILENAME>expressiontokenizer.h</FILENAME>
+      <LINE>9</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'ExpressionNode::_pItemLength' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>ExpressionNode::{ctor}</FUNCTION>
+    <DECORATED>??0ExpressionNode@@QAE@XZ</DECORATED>
+    <FUNCLINE>9</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
+      <FILENAME>expressiontokenizer.h</FILENAME>
+      <LINE>9</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26439</DEFECTCODE>
+    <DESCRIPTION>This kind of function may not throw. Declare it 'noexcept' (f.6).</DESCRIPTION>
+    <FUNCTION>ExpressionNode::{ctor}</FUNCTION>
+    <DECORATED>??0ExpressionNode@@QAE@XZ</DECORATED>
+    <FUNCLINE>9</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
+      <FILENAME>expressiontokenizer.h</FILENAME>
+      <LINE>108</LINE>
+      <COLUMN>0</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'ExpressionTokenizer::_nodeCount' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>ExpressionTokenizer::{ctor}</FUNCTION>
+    <DECORATED>??0ExpressionTokenizer@@QAE@XZ</DECORATED>
+    <FUNCLINE>108</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
+      <FILENAME>expressiontokenizer.h</FILENAME>
+      <LINE>108</LINE>
+      <COLUMN>0</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'ExpressionTokenizer::_pExpression' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>ExpressionTokenizer::{ctor}</FUNCTION>
+    <DECORATED>??0ExpressionTokenizer@@QAE@XZ</DECORATED>
+    <FUNCLINE>108</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
       <FILENAME>functionstore.h</FILENAME>
       <LINE>4</LINE>
       <COLUMN>1</COLUMN>
@@ -354,14 +466,14 @@
     <SFA>
       <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontrollertest\</FILEPATH>
       <FILENAME>executionflowtest.h</FILENAME>
-      <LINE>390</LINE>
+      <LINE>423</LINE>
       <COLUMN>13</COLUMN>
     </SFA>
     <DEFECTCODE>6262</DEFECTCODE>
-    <DESCRIPTION>Function uses '16888' bytes of stack:  exceeds /analyze:stacksize '16384'.  Consider moving some data to heap.</DESCRIPTION>
+    <DESCRIPTION>Function uses '17096' bytes of stack:  exceeds /analyze:stacksize '16384'.  Consider moving some data to heap.</DESCRIPTION>
     <FUNCTION>ExecutionFlowTest::TestFunctionDef</FUNCTION>
     <DECORATED>?TestFunctionDef@ExecutionFlowTest@@CAXXZ</DECORATED>
-    <FUNCLINE>390</FUNCLINE>
+    <FUNCLINE>423</FUNCLINE>
     <PATH></PATH>
   </DEFECT>
   <DEFECT>
@@ -526,7 +638,7 @@
       <COLUMN>0</COLUMN>
     </SFA>
     <DEFECTCODE>26495</DEFECTCODE>
-    <DESCRIPTION>Variable 'Supervisor::_pCurrentCommand' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <DESCRIPTION>Variable 'Supervisor::_shouldExecuteCode' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
     <FUNCTION>Supervisor::{ctor}</FUNCTION>
     <DECORATED>??0Supervisor@@QAE@XZ</DECORATED>
     <FUNCLINE>136</FUNCLINE>
@@ -540,7 +652,7 @@
       <COLUMN>0</COLUMN>
     </SFA>
     <DEFECTCODE>26495</DEFECTCODE>
-    <DESCRIPTION>Variable 'Supervisor::_pNodeName' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <DESCRIPTION>Variable 'Supervisor::_pTimebase' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
     <FUNCTION>Supervisor::{ctor}</FUNCTION>
     <DECORATED>??0Supervisor@@QAE@XZ</DECORATED>
     <FUNCLINE>136</FUNCLINE>
@@ -568,20 +680,6 @@
       <COLUMN>0</COLUMN>
     </SFA>
     <DEFECTCODE>26495</DEFECTCODE>
-    <DESCRIPTION>Variable 'Supervisor::_shouldExecuteCode' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
-    <FUNCTION>Supervisor::{ctor}</FUNCTION>
-    <DECORATED>??0Supervisor@@QAE@XZ</DECORATED>
-    <FUNCLINE>136</FUNCLINE>
-    <PATH></PATH>
-  </DEFECT>
-  <DEFECT>
-    <SFA>
-      <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
-      <FILENAME>supervisor.h</FILENAME>
-      <LINE>136</LINE>
-      <COLUMN>0</COLUMN>
-    </SFA>
-    <DEFECTCODE>26495</DEFECTCODE>
     <DESCRIPTION>Variable 'Supervisor::_pSettings' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
     <FUNCTION>Supervisor::{ctor}</FUNCTION>
     <DECORATED>??0Supervisor@@QAE@XZ</DECORATED>
@@ -596,7 +694,21 @@
       <COLUMN>0</COLUMN>
     </SFA>
     <DEFECTCODE>26495</DEFECTCODE>
-    <DESCRIPTION>Variable 'Supervisor::_pTimebase' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <DESCRIPTION>Variable 'Supervisor::_pNodeName' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Supervisor::{ctor}</FUNCTION>
+    <DECORATED>??0Supervisor@@QAE@XZ</DECORATED>
+    <FUNCLINE>136</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>d:\data\electronics\sequencecontroller\code\sequencecontroller\src\</FILEPATH>
+      <FILENAME>supervisor.h</FILENAME>
+      <LINE>136</LINE>
+      <COLUMN>0</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Supervisor::_pCurrentCommand' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
     <FUNCTION>Supervisor::{ctor}</FUNCTION>
     <DECORATED>??0Supervisor@@QAE@XZ</DECORATED>
     <FUNCLINE>136</FUNCLINE>

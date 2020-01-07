@@ -2,135 +2,6 @@
 
 class CommandDecoder
 {
-	static bool DecodeDirect(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow = 0)
-	{
-		if (!pCommand->StartsWith("D")) { return false; }
-
-		char* pCommandString = pCommand->GetString() + 1;
-		
-		bool immediateMode;
-		if (*pCommandString == 'I')
-		{
-			pCommandString++;
-			pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandExecute);
-			immediateMode = true;
-		}
-		else if (*pCommandString == '(')
-		{
-			pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandNone);
-			immediateMode = false;
-		}
-		else
-		{
-			pParseErrors->AddError("Invalid D command: ", "expected I or (", pCommand->GetSerialNumber());
-			return true;
-		}
-		pCommandString++;		// skip (
-
-		ListParser listParser(",", pCommandString);
-
-		if (listParser.GetCount() == 0)
-		{
-			pParseErrors->AddError("Invalid D command: ", "expected cycle count after (", pCommand->GetSerialNumber());
-			return true;
-		}
-
-		Variable cycleCount = executionContext.Evaluate(listParser.GetItem(0), pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
-
-		if (immediateMode)
-		{
-			pExecutionFlow->GetCommandResult()->SetCycleCount(cycleCount.GetValueInt());
-		}
-		
-		// even number of arguments is a problem...
-		if (listParser.GetCount() %2 == 0)
-		{
-			pParseErrors->AddError("Invalid D command: ", "missing brightness target", pCommand->GetSerialNumber());
-			return true;
-		}
-
-		for (int i = 1; i < listParser.GetCount(); i += 2)
-		{
-			Variable channel = executionContext.Evaluate(listParser.GetItem(i), pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
-			Variable brightness = executionContext.Evaluate(listParser.GetItem(i + 1), pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
-
-			pExecutionFlow->GetCommandResult()->AddTarget(LedState(channel.GetValueInt(), brightness.GetValueFloat(), cycleCount.GetValueInt()));
-		}
-
-		return true;
-	}
-
-	static bool DecodeSequential(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
-	{
-		if (!pCommand->StartsWith("S")) { return false; }
-
-		char* pCommandString = pCommand->GetString() + 1;
-		bool immediateMode = false;
-
-		if (*pCommandString == 'I')
-		{
-			pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandExecute);
-			pCommandString++;
-			immediateMode = true;
-		}
-
-		if (*pCommandString != '(')
-		{
-			pParseErrors->AddError("Invalid S command: ", "expected I or (", pCommand->GetSerialNumber());
-			return true;
-		}
-
-		pCommandString++;		// skip (
-
-		ListParser listParser(",", pCommandString);
-		if (listParser.GetCount() == 0)
-		{
-			pParseErrors->AddError("Invalid S command: ", "expected cycle count after (", pCommand->GetSerialNumber());
-			return true;
-		}
-
-		Variable cycleCount = executionContext.Evaluate(listParser.GetItem(0), pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
-		if (immediateMode)
-		{
-			pExecutionFlow->GetCommandResult()->SetCycleCount(cycleCount.GetValueInt());
-		}
-
-		for (int channel = 1; channel < listParser.GetCount(); channel++)
-		{
-			Variable brightness = executionContext.Evaluate(listParser.GetItem(channel), pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
-			pExecutionFlow->GetCommandResult()->AddTarget(LedState(channel - 1, brightness.GetValueFloat(), cycleCount.GetValueInt()));
-		}
-
-		return true;
-	}
-
-	static bool DecodeAnimate(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
-	{
-		if (!pCommand->StartsWith("A")) { return false; }
-
-		char* pCommandString = pCommand->GetString();
-		pCommandString++;
-
-		if (*pCommandString != '(')
-		{
-			pParseErrors->AddError("Invalid A command: ", "expected (", pCommand->GetSerialNumber());
-			return true;
-		}
-		pCommandString++;
-
-		if (*pCommandString == '\0')
-		{
-			pParseErrors->AddError("Invalid A command: ", "expected cycle count", pCommand->GetSerialNumber());
-			return true;
-		}
-
-		Variable cycleCount = executionContext.Evaluate(pCommandString, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
-		pExecutionFlow->GetCommandResult()->SetCycleCount(cycleCount.GetValueInt());
-		pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandExecute);
-
-		return true;
-	}
-	
 	static bool DecodeLoopStart(ExecutionContext& executionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
 		Loop loop = Loop::Parse(pCommand->GetString(), executionContext, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
@@ -229,7 +100,7 @@ class CommandDecoder
 			Variable* pArgumentCount = executionContext._variables.GetWithoutErrorCheck("#A", executionContext._stack.GetFrameCount());
 			if (pArgumentCount != 0)
 			{
-				// function call - copy arguments to local variable names...
+				// function call - rename arguments to local variable names...
 
 				if (parts.GetCount() > 1)
 				{
@@ -289,23 +160,8 @@ class CommandDecoder
 			}
 
 			Variable value = executionContext.Evaluate(pCommandString, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
-			Variable* pValue = &value;
 
-			float result;
-			if (pValue->IsNan())
-			{
-				pExecutionFlow->RunProgram(1);
-				pValue = executionContext._variables.GetWithoutErrorCheck("<ReturnValue>", executionContext._stack.GetFrameCount());
-				result = pValue->GetValueFloat();
-				executionContext._variables.DeleteStackLevel(executionContext._stack.GetFrameCount());
-				executionContext._stack.DestroyFrame();
-			}
-			else
-			{
-				result = pValue->GetValueFloat();
-			}
-
-			executionContext._variables.AddAndSet(variableName, result, executionContext._stack.GetFrameCount());
+			executionContext._variables.AddAndSet(variableName, value.GetValueFloat(), executionContext._stack.GetFrameCount());
 			pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandNone);
 
 			return true;
@@ -322,19 +178,11 @@ class CommandDecoder
 
 		if (open != 0 && closed != 0 && closed > open)
 		{
-			//Variable* pResult = executionContext.Parse(pCommandString, pParseErrors, pCommand->GetSerialNumber());
 			Variable result = executionContext.Evaluate(pCommandString, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
 			Variable* pResult = &result;
 
 			if (pResult != 0)
 			{
-				if (pResult->IsNan())
-				{
-					pExecutionFlow->RunProgram(1);
-					executionContext._variables.DeleteStackLevel(executionContext._stack.GetFrameCount());
-					executionContext._stack.DestroyFrame();
-				}
-
 				return true;
 			}
 		}
@@ -457,12 +305,6 @@ class CommandDecoder
 		if (DecodePrint(executionContext, pParseErrors, pCommand, pExecutionFlow)) { return; }
 
 		if (DecodeAssignment(executionContext, pParseErrors, pCommand, pExecutionFlow)) { return; }
-
-		if (DecodeAnimate(executionContext, pParseErrors, pCommand, pExecutionFlow)) { return; }
-
-		if (DecodeDirect(executionContext, pParseErrors, pCommand, pExecutionFlow)) { return; }
-
-		if (DecodeSequential(executionContext, pParseErrors, pCommand, pExecutionFlow)) { return; }
 
 		if (DecodeFunctionCall(executionContext, pParseErrors, pCommand, pExecutionFlow)) { return; }
 

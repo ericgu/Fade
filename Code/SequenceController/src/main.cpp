@@ -30,6 +30,8 @@
 #include "ExpressionTokenizer.h"
 #include "FunctionStore.h"
 #include "Stack.h"
+#include "ExpressionBuiltInFunctions.h"
+#include "ExpressionOperators.h"
 #include "Expression.h"
 #include "ExecutionContext.h"
 #include "CommandDecoder.h"

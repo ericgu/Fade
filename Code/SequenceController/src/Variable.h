@@ -146,7 +146,7 @@ public:
 	{
 		if (index < 0 || index > VariableCount)
 		{
-			return &_undefined;
+			return 0;
 		}
 
 		return &_variables[index];
@@ -198,7 +198,7 @@ public:
 
 		pParseErrors->AddError("Undeclared variable: ", pVariableName, lineNumber);
 
-		return &_undefined;
+		return 0;
 	}
 
 	static bool IsAlphaOrNum(char c)

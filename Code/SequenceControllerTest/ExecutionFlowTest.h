@@ -659,7 +659,7 @@ class ExecutionFlowTest
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Undeclared variable: V", parseError._errorText);
+		Assert::AreEqual("Unrecognized identifier: V", parseError._errorText);
 	}
 
 	static void TestMethodCallWithWrongArgumentCount()
@@ -711,10 +711,10 @@ class ExecutionFlowTest
 		CommandSourceSimulator commandSource;
 		ParseErrors parseErrors;
 
-		commandSource.AddCommand("FUNC F()");
-		commandSource.AddCommand("RETURN 1.0");
+		commandSource.AddCommand("FUNC F(X)");
+		commandSource.AddCommand("RETURN X");
 		commandSource.AddCommand("ENDFUNC");
-		commandSource.AddCommand("EI(F(), F(), F())");
+		commandSource.AddCommand("DI(F(1), F(2), F(3))");
 
 		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
@@ -722,7 +722,7 @@ class ExecutionFlowTest
 		executionFlow.RunProgram(1);
 
 		Assert::AreEqual(1, _commandResultCount);
-		AssertResult(_commandResults[0], 10, 0, 10.0F);
+		AssertResult(_commandResults[0], 1, 2, 3.0F);
 	}
 
 public:
@@ -765,7 +765,7 @@ public:
 		TestMethodCallWithWrongArgumentCount2();
 
 		TestLoopWithFunctionCall();
-		//TestDirectWithFunctionCall();
+		TestDirectWithFunctionCall();
 
 		return 0;
 	}
