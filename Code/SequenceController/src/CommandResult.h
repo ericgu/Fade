@@ -9,7 +9,10 @@ enum class CommandResultStatus
 	CommandTargetCountExceeded = 6,
 	CommandParseError = 7,
 	CommandCompleted = 8,
-	CommandEndOfFunction = 9
+	CommandEndOfFunction = 9,
+	CommandEndIf = 10,
+	CommandElse = 11,
+	CommandElseIf = 12
 };
 
 #define TargetMax 16

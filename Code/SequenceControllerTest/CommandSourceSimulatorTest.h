@@ -59,11 +59,23 @@ class CommandSourceSimulatorTest
 		Assert::AreEqual(1, command.GetSerialNumber());
 	}
 
+	static void TestWhitespace()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("  D 15 11,1.0");
+
+		Command command = commandSource.GetCommand(0);
+
+		Assert::AreEqual("D 15 11,1.0", command.GetString());
+	}
+
 public:
 	static void Test()
 	{
 		TestSingle();
 		TestMultiple();
 		TestReset();
+		TestWhitespace();
 	}
 };

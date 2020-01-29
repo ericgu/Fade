@@ -18,8 +18,7 @@ class FunctionStoreTest
 	{
 		FunctionStore functionStore;
 
-		FunctionDefinition functionDefinition("Func", 14);
-		functionStore.DefineStart(functionDefinition);
+		functionStore.DefineStart("Func", 14);
 		Assert::AreEqual(true, functionStore.GetIsCurrentlyParsingFunction());
 		functionStore.DefineEnd(16);
 		Assert::AreEqual(false, functionStore.GetIsCurrentlyParsingFunction());
@@ -33,10 +32,9 @@ class FunctionStoreTest
 	{
 		FunctionStore functionStore;
 
-		FunctionDefinition functionDefinition("Func", 14);
-		functionStore.DefineStart(functionDefinition);
+		functionStore.DefineStart("Func", 14);
 		functionStore.DefineEnd(16);
-		functionStore.DefineStart(functionDefinition);
+		functionStore.DefineStart("Func", 14);
 
 		Assert::AreEqual(1, functionStore.GetCount());
 
@@ -47,11 +45,9 @@ class FunctionStoreTest
 	{
 		FunctionStore functionStore;
 
-		FunctionDefinition functionDefinition("Func", 14);
-		functionStore.DefineStart(functionDefinition);
+		functionStore.DefineStart("Func", 14);
 		functionStore.DefineEnd(16);
-		FunctionDefinition functionDefinition2("Func2", 33);
-		functionStore.DefineStart(functionDefinition2);
+		functionStore.DefineStart("Func2", 33);
 		functionStore.DefineEnd(77);
 
 		Assert::AreEqual(2, functionStore.GetCount());

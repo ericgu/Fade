@@ -20,64 +20,64 @@ class ExpressionOperators
 			ExpressionNode* pOperandLeft = pExpressionTokenizer->GetNode(leftOperandIndex);
 			ExpressionNode* pOperandRight = pExpressionTokenizer->GetNode(rightOperandIndex);
 
-			float valueLeft = pOperandLeft->_pValue.GetValueFloat();
-			float valueRight = pOperandRight->_pValue.GetValueFloat();
+			float valueLeft = pOperandLeft->_value.GetValueFloat();
+			float valueRight = pOperandRight->_value.GetValueFloat();
 
 			switch (*pNode->_pItem)
 			{
 			case '*':
-				pNode->_pValue = valueLeft * valueRight;
+				pNode->_value = valueLeft * valueRight;
 				break;
 
 			case '/':
-				pNode->_pValue = valueLeft / valueRight;
+				pNode->_value = valueLeft / valueRight;
 				break;
 
 			case '%':
-				pNode->_pValue = (int)valueLeft % (int)valueRight;
+				pNode->_value = (int)valueLeft % (int)valueRight;
 				break;
 
 			case '+':
-				pNode->_pValue = valueLeft + valueRight;
+				pNode->_value = valueLeft + valueRight;
 				break;
 
 			case '-':
-				pNode->_pValue = valueLeft - valueRight;
+				pNode->_value = valueLeft - valueRight;
 				break;
 
 			case '>':
 				if (*(pNode->_pItem + 1) == '=')
 				{
-					pNode->_pValue = valueLeft >= valueRight;
+					pNode->_value = valueLeft >= valueRight;
 				}
 				else
 				{
-					pNode->_pValue = valueLeft > valueRight;
+					pNode->_value = valueLeft > valueRight;
 				}
 				break;
 
 			case '<':
 				if (*(pNode->_pItem + 1) == '=')
 				{
-					pNode->_pValue = valueLeft <= valueRight;
+					pNode->_value = valueLeft <= valueRight;
 				}
 				else
 				{
-					pNode->_pValue = valueLeft < valueRight;
+					pNode->_value = valueLeft < valueRight;
 				}
 				break;
 
 			case '!':
 				if (*(pNode->_pItem + 1) == '=')
 				{
-					pNode->_pValue = valueLeft != valueRight;
+					pNode->_value = valueLeft != valueRight;
 				}
 				break;
 
 			case '=':
 				if (*(pNode->_pItem + 1) == '=')
 				{
-					pNode->_pValue = valueLeft == valueRight;
+					pNode->_value = valueLeft == valueRight;
 				}
 				break;
 
@@ -111,28 +111,28 @@ class ExpressionOperators
 						{
 							// Unaries are matched by having a non-value (start or operator) on the left and a value on the right.
 
-							if (i == start || pExpressionTokenizer->GetNode(i - 1)->_pValue.IsNan())
+							if (i == start || pExpressionTokenizer->GetNode(i - 1)->_value.IsNan())
 							{
 								ExpressionNode* pNext = pExpressionTokenizer->GetNode(i + 1);
-								if (!pNext->_pValue.IsNan())
+								if (!pNext->_value.IsNan())
 								{
 									Variable newValue;
 									switch (*pMatches)
 									{
 									case '-':
-										newValue = -pNext->_pValue.GetValueFloat();
+										newValue = -pNext->_value.GetValueFloat();
 										break;
 
 									case '+':
-										newValue = pNext->_pValue.GetValueFloat();
+										newValue = pNext->_value.GetValueFloat();
 										break;
 
 									case '!':
-										newValue = !pNext->_pValue.GetValueFloat();
+										newValue = !pNext->_value.GetValueFloat();
 										break;
 
 									}
-									pNext->_pValue.SetValue(newValue.GetValueFloat());
+									pNext->_value.SetValue(newValue.GetValueFloat());
 									pExpressionTokenizer->SetNodeEmpty(i);
 								}
 							}

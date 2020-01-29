@@ -34,6 +34,10 @@ public:
 		return &_commandResult;
 	}
 
+	Command GetCommand(int commandNumber)
+	{
+		return _pCommandSource->GetCommand(commandNumber);
+	}
 
 	CommandResultStatus RunProgram(int runCount = -1)
 	{
@@ -41,8 +45,7 @@ public:
 
 		while (true)
 		{
-			Command command = _pCommandSource->GetCommand(_executionContext._stack.GetTopFrame()->InstructionPointer);
-			_executionContext._stack.GetTopFrame()->InstructionPointer++;
+			Command command = GetCommand(_executionContext._stack.GetTopFrame()->InstructionPointer);
 
 			if (_pParseErrors->GetErrorCount() != 0)
 			{
@@ -67,7 +70,7 @@ public:
 			}
 			else
 			{
-				CommandDecoder::Decode(_executionContext, _pParseErrors, &command, this);
+				CommandDecoder::Decode(&_executionContext, _pParseErrors, &command, this);
 
 				CommandResultStatus status = _commandResult.GetStatus();
 				switch (status)
@@ -84,6 +87,9 @@ public:
 					case CommandResultStatus::CommandEndOfLoop:
 					case CommandResultStatus::CommandExitLoopBody:
 					case CommandResultStatus::CommandEndOfFunction:
+					case CommandResultStatus::CommandElseIf:
+					case CommandResultStatus::CommandElse:
+					case CommandResultStatus::CommandEndIf:
 						_commandResult.SetStatus(CommandResultStatus::CommandNone);
 						return status;
 
@@ -101,6 +107,8 @@ public:
 					_commandResult.SetStatus(CommandResultStatus::CommandTargetCountExceeded);
 					return _commandResult.GetStatus();
 				}
+
+				_executionContext._stack.GetTopFrame()->InstructionPointer++;
 			}
 		}
 	}

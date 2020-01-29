@@ -20,6 +20,11 @@ public:
 
 	void AddCommand(const char* pCommand)
 	{
+		while (*pCommand == ' ' || *pCommand == '\t')
+		{
+			pCommand++;
+		}
+
 		_commands[_commandCount] = Command(pCommand, _commandCount);
 		_commandCount++;
 	}

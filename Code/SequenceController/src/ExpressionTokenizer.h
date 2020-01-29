@@ -3,12 +3,12 @@ class ExpressionNode
 {
 public:
 	const char* _pItem;
-	int	_pItemLength;
-	Variable _pValue;
+	int	_itemLength;
+	Variable _value;
 
 	ExpressionNode()
 	{
-		_pValue.SetToNan();
+		_value.SetToNan();
 	}
 
 	bool StartsWith(char character)
@@ -16,7 +16,21 @@ public:
 		return _pItem != 0 && *_pItem == character;
 	}
 
-	bool IsEmpty() { return _pItemLength == -1; }
+	bool IsEmpty() { return _itemLength == -1; }
+
+	bool IsNumber() { return *_pItem >= '0' && *_pItem <= '9';  }
+
+	bool IsIdentifier() { return (*_pItem >= 'a' && *_pItem <= 'z') || (*_pItem >= 'A' && *_pItem <= 'Z'); }
+
+	bool Is(const char *pTest) 
+	{ 
+		if (_pItem == 0)
+		{
+			return false;
+		}
+
+		return strncmp(_pItem, pTest, _itemLength) == 0; 
+	}
 };
 
 class ExpressionTokenizer
@@ -36,27 +50,36 @@ public:
 
 		_nodeCount = 0;
 		_nodes[_nodeCount]._pItem = pCurrent;
+		bool inQuotedString = false;
 
 		while (*pCurrent != 0)
 		{
-			bool found = false;
-			for (int i = 0; i < _operatorCount; i++)
+			if (*pCurrent == '"')
 			{
-				if (strncmp(pCurrent, _operators[i], strlen(_operators[i])) == 0)
-				{
-					if (_nodes[_nodeCount]._pItem < pCurrent)
-					{
-						_nodes[_nodeCount]._pItemLength = pCurrent - _nodes[_nodeCount]._pItem;
-						_nodeCount++;
-					}
-					_nodes[_nodeCount]._pItem = _operators[i]; 
-					_nodes[_nodeCount]._pItemLength = strlen(_operators[i]);
-					_nodeCount++;
+				inQuotedString = !inQuotedString;
+			}
 
-					pCurrent += strlen(_operators[i]);
-					_nodes[_nodeCount]._pItem = pCurrent;
-					found = true;
-					break;
+			bool found = false;
+			if (!inQuotedString)
+			{
+				for (int i = 0; i < _operatorCount; i++)
+				{
+					if (strncmp(pCurrent, _operators[i], strlen(_operators[i])) == 0)
+					{
+						if (_nodes[_nodeCount]._pItem < pCurrent)
+						{
+							_nodes[_nodeCount]._itemLength = pCurrent - _nodes[_nodeCount]._pItem;
+							_nodeCount++;
+						}
+						_nodes[_nodeCount]._pItem = _operators[i];
+						_nodes[_nodeCount]._itemLength = strlen(_operators[i]);
+						_nodeCount++;
+
+						pCurrent += strlen(_operators[i]);
+						_nodes[_nodeCount]._pItem = pCurrent;
+						found = true;
+						break;
+					}
 				}
 			}
 
@@ -68,7 +91,7 @@ public:
 
 		if (pCurrent - _nodes[_nodeCount]._pItem > 0)
 		{
-			_nodes[_nodeCount]._pItemLength = pCurrent - _nodes[_nodeCount]._pItem;
+			_nodes[_nodeCount]._itemLength = pCurrent - _nodes[_nodeCount]._pItem;
 			_nodeCount++;
 		}
 
@@ -86,7 +109,7 @@ public:
 		for (int i = destination; i < _nodeCount; i++)
 		{
 			_nodes[i]._pItem = 0;
-			_nodes[i]._pValue.SetToNan();
+			_nodes[i]._value.SetToNan();
 		}
 		_nodeCount = destination;
 
@@ -101,11 +124,62 @@ public:
 
 	void SetNodeEmpty(int index)
 	{
-		_nodes[index]._pItemLength = -1;
+		_nodes[index]._itemLength = -1;
 		_nodes[index]._pItem = 0;
-		_nodes[index]._pValue.SetToNan();
+		_nodes[index]._value.SetToNan();
+	}
+
+	int FindMatchingParen(int parenIndex)
+	{
+		if (*_nodes[parenIndex]._pItem != '(')
+		{
+			return -1;
+		}
+
+		int openParenCount = 0;
+		for (int endParenIndex = parenIndex + 1; endParenIndex < _nodeCount; endParenIndex++)
+		{
+			ExpressionNode* pNode = _nodes + endParenIndex;
+			if (pNode->_pItem == 0)
+			{
+				continue;
+			}
+
+			if (*pNode->_pItem == '(')
+			{
+				openParenCount++;
+			}
+
+			if (*pNode->_pItem == ')')
+			{
+				if (openParenCount == 0)
+				{
+					return endParenIndex;
+				}
+				openParenCount--;
+			}
+		}
+
+		return -2;
+	}
+
+	Variable FindFirstValue(int start, int max)
+	{
+		for (int i = start; i <= max; i++)
+		{
+			ExpressionNode* pNode = _nodes + i;
+
+			if (!pNode->IsEmpty())
+			{
+				return pNode->_value;
+			}
+		}
+
+		Variable nan = Variable();
+		nan.SetToNan();
+		return nan;
 	}
 };
 
-const char* ExpressionTokenizer::_operators[] = { " ", "\t", "+", "-", "*", "/", "%", "!=", "==", ">=", ">", "<=", "<", "&&", "||", "(", ")", "!", ","};
-const int ExpressionTokenizer::_operatorCount = 19;
+const char* ExpressionTokenizer::_operators[] = { " ", "\t", "++", "+", "--", "-", "*", "/", "%", "!=", "==", ">=", ">", "<=", "<", "&&", "||", "(", ")", "!", ",", "="};
+const int ExpressionTokenizer::_operatorCount = 22;

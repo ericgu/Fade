@@ -33,36 +33,22 @@ public:
 		{
 			return false;
 		}
-		
+
 		ExpressionNode* pNext = pExpressionTokenizer->GetNode(i + 1);
-		if (pNext == 0 || pNext->_pItem == 0 || *pNext->_pItem != '(')
+		if (pNext == 0 || !pNext->Is("("))
 		{
 			return false;
 		}
 
-		// find matching close brace. 
-		int j;
-		int openParenCount = 0;
-		for (j = i + 1; j < pExpressionTokenizer->GetNodeCount(); j++)
+		int j = pExpressionTokenizer->FindMatchingParen(i + 1);
+
+		if (j < 0)
 		{
-			ExpressionNode* pClosed = pExpressionTokenizer->GetNode(j);
-
-			if (*pClosed->_pItem == '(')
-			{
-				openParenCount++;
-			}
-
-			if (*pClosed->_pItem == ')')
-			{
-				if (openParenCount == 1)
-				{
-					break;
-				}
-				openParenCount--;
-			}
+			pParseErrors->AddError("Invalid expression: ", "missing \")\"", lineNumber);
+			return false;
 		}
 
-		// terminator
+		// get rid of parens...
 		pExpressionTokenizer->SetNodeEmpty(i + 1);
 		pExpressionTokenizer->SetNodeEmpty(j);
 
@@ -71,7 +57,6 @@ public:
 		int argumentCount = 0;
 		VariableCollection argumentCollection;
 
-
 		if (j > i + 2)	// there are arguments
 		{
 			int argumentIndex = i + 2;
@@ -79,18 +64,18 @@ public:
 			{
 				int argumentIndexEnd = argumentIndex;
 				int parenCount = 0;
-				while (argumentIndexEnd < j)	
+				while (argumentIndexEnd < j)
 				{
 					ExpressionNode *pArgument = pExpressionTokenizer->GetNode(argumentIndexEnd);
-					if (*pArgument->_pItem == '(')
+					if (pArgument->Is("("))
 					{
 						parenCount++;
 					}
-					else if (*pArgument->_pItem == ')')
+					else if (pArgument->Is(")"))
 					{
 						parenCount--;
 					}
-					else if (pArgument->IsEmpty() || (*pArgument->_pItem == ',') && parenCount == 0)
+					else if (pArgument->IsEmpty() || pArgument->Is(",") && parenCount == 0)
 					{
 						break;
 					}
@@ -99,7 +84,7 @@ public:
 				}
 
 				// we have an argument list that runs from argumentIndex to argumentIndexEnd - 1. Evaluate it
-				
+
 
 				Variable argument = Evaluate(pExpressionTokenizer, argumentIndex, argumentIndexEnd, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, functionCallHandler, pExecutionFlow);
 				char argumentName[10];
@@ -132,7 +117,7 @@ public:
 			FunctionDefinition* pFunction = pFunctionStore->Lookup(pFunctionName);
 			if (pFunction != 0)
 			{
-				pNode->_pValue = (*functionCallHandler)(pFunction, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, pExecutionFlow);
+				pNode->_value = (*functionCallHandler)(pFunction, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, pExecutionFlow);
 
 				handled = true;
 			}
@@ -162,6 +147,60 @@ public:
 		expressionTokenizer.Tokenize(pCommand);
 		int nodeCount = expressionTokenizer.GetNodeCount();
 
+		// Detect assignments...
+		if (nodeCount > 2)
+		{
+			ExpressionNode* pIdentifier = expressionTokenizer.GetNode(0);
+			ExpressionNode* pEquals = expressionTokenizer.GetNode(1);
+
+			if (pEquals->Is("="))
+			{
+				if (pIdentifier->IsIdentifier())
+				{
+					Variable result = Evaluate(&expressionTokenizer, 2, nodeCount - 1, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, functionCallHandler, pExecutionFlow);
+					char identifier[128];
+					strncpy(identifier, pIdentifier->_pItem, pIdentifier->_itemLength);
+					identifier[pIdentifier->_itemLength] = '\0';
+
+					pVariableCollection->AddAndSet(identifier, result.GetValueFloat(), pStack->GetFrameCount());
+
+					return result;
+				}
+			}
+		}
+		else if (nodeCount == 2)
+		{
+			ExpressionNode* pIdentifier = expressionTokenizer.GetNode(0);
+			ExpressionNode* pSecond = expressionTokenizer.GetNode(1);
+
+			int delta = 0;
+
+			if (pSecond->Is("++"))
+			{
+				delta = 1;
+			}
+			else if (pSecond->Is("--"))
+			{
+				delta = -1;
+			}
+
+			if (delta != 0)
+			{
+				// might be a variable or a function call. 
+				char identifier[128];
+				strncpy(identifier, pIdentifier->_pItem, pIdentifier->_itemLength);
+				identifier[pIdentifier->_itemLength] = '\0';
+
+				Variable* pVariable = pVariableCollection->GetWithoutErrorCheck(identifier, pStack->GetFrameCount());
+				if (pVariable != 0)
+				{
+					float value = pVariable->GetValueFloat();
+					pVariable->SetValue(value + delta);
+					return value;
+				}
+			}
+		}
+
 		return Evaluate(&expressionTokenizer, 0, nodeCount - 1, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, functionCallHandler, pExecutionFlow);
 	}
 	
@@ -173,32 +212,51 @@ public:
 		{
 			ExpressionNode* pNode = pExpressionTokenizer->GetNode(i);
 
-			if (pNode->IsEmpty() || !pNode->_pValue.IsNan())
+			if (pNode->IsEmpty() || !pNode->_value.IsNan())
 			{
 				continue;
 			}
 
-			if (*pNode->_pItem >= '0' && *pNode->_pItem <= '9')
+			if (pNode->IsNumber())
 			{
-				pNode->_pValue = Variable::ParseFloat(pNode->_pItem);
+				pNode->_value = Variable::ParseFloat(pNode->_pItem);
 				pNode->_pItem = 0;
 			}
-			else if ((*pNode->_pItem >= 'a' && *pNode->_pItem <= 'z') || (*pNode->_pItem >= 'A' && *pNode->_pItem <= 'Z'))
+			else if (pNode->IsIdentifier())
 			{
 				// might be a variable or a function call. 
 				char identifier[128];
-				strncpy(identifier, pNode->_pItem, pNode->_pItemLength);
-				identifier[pNode->_pItemLength] = '\0';
+				strncpy(identifier, pNode->_pItem, pNode->_itemLength);
+				identifier[pNode->_itemLength] = '\0';
 
 				Variable* pValue = pVariableCollection->GetWithoutErrorCheck(identifier, pStack->GetFrameCount());
 				ExpressionNode* pNext = pExpressionTokenizer->GetNode(i + 1);
 
+				// implement ++ and --
+				int delta = 0;
+
+				if (pNext->_pItem != 0 && strcmp(pNext->_pItem, "++") == 0)
+				{
+					delta = 1;
+				}
+				else if (pNext->_pItem != 0 && strcmp(pNext->_pItem, "--") == 0)
+				{
+					delta = -1;
+				}
+
+				if (delta != 0)
+				{
+					float value = pValue->GetValueFloat();
+					pValue->SetValue(value + delta);
+					return value;
+				}
+
 					// if the next node is a '(', this is a function call even if there is a matching variable name. 
-				bool nextNodeParen = pNext != 0 && pNext->_pItem != 0 && *pNext->_pItem == '(';
+				bool nextNodeParen = pNext != 0 && pNext->Is("(");
 
 				if (pValue && !nextNodeParen)
 				{
-					pNode->_pValue = *pValue;
+					pNode->_value = *pValue;
 				}
 				else
 				{
@@ -220,38 +278,18 @@ public:
 		{
 			ExpressionNode* pNode = pExpressionTokenizer->GetNode(i);
 
-			if (pNode->StartsWith('('))
+			if (pNode->Is("("))
 			{
 				int openParams = 0;
 
-				for (int j = i + 1; j <= max; j++)
-				{
-					ExpressionNode* pEndNode = pExpressionTokenizer->GetNode(j);
+				int j = pExpressionTokenizer->FindMatchingParen(i);
 
-					// Keep open param count here, decrement with ')'. It must be zero to do the evaluation...
+				pExpressionTokenizer->SetNodeEmpty(i);
+				pExpressionTokenizer->SetNodeEmpty(j);
 
-					if (pEndNode->StartsWith(')'))
-					{
-						if (openParams == 0)
-						{
-							pExpressionTokenizer->SetNodeEmpty(i);
-							pExpressionTokenizer->SetNodeEmpty(j);
+				Evaluate(pExpressionTokenizer, i + 1, j - 1, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber);
 
-							Evaluate(pExpressionTokenizer, i + 1, j - 1, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber);
-
-							i -= 1; // reevaluate the current node
-							break;
-						}
-						else
-						{
-							openParams--;
-						}
-					}
-					else if (pEndNode->StartsWith('('))
-					{
-						openParams++;
-					}
-				}
+				i -= 1; // reevaluate the current node
 			}
 		}
 	}
@@ -273,19 +311,6 @@ public:
 		// evaluate ==, !=, >, <, >=, <=
 		ExpressionOperators::EvaluateBinaryMatches(pExpressionTokenizer, start, max, "=!><");
 
-		for (int i = start; i <= max; i++)
-		{
-			ExpressionNode* pNode = pExpressionTokenizer->GetNode(i);
-
-			if (!pNode->IsEmpty())
-			{
-				return pNode->_pValue;
-			}
-		}
-
-		Variable badValue;
-		badValue.SetToNan();
-
-		return badValue;;
+		return pExpressionTokenizer->FindFirstValue(start, max);
 	}
 };

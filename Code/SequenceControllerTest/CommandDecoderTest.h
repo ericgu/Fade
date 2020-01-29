@@ -19,6 +19,11 @@ public:
 	{
 		return &_commandResult;
 	}
+
+	virtual Command GetCommand(int commandNumber)
+	{
+		return Command();
+	}
 };
 
 class CommandDecoderTest
@@ -53,7 +58,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(1,0,1.0)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("D(1,0,1.0)", 15), &executionFlow);
 
 		Assert::AreEqual(1, executionFlow.GetCommandResult()->GetCount());
 
@@ -67,7 +72,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("DI(1,0,1.0)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("DI(1,0,1.0)", 15), &executionFlow);
 
 		Assert::AreEqual(1, executionFlow.GetCommandResult()->GetCount());
 
@@ -84,7 +89,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(1,A,B)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("D(1,A,B)", 15), &executionFlow);
 
 		Assert::AreEqual(1, executionFlow.GetCommandResult()->GetCount());
 
@@ -98,7 +103,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(1,2,2.0,10,8.0)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("D(1,2,2.0,10,8.0)", 15), &executionFlow);
 
 		Assert::AreEqual(2, executionFlow.GetCommandResult()->GetCount());
 
@@ -113,7 +118,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("S(1,1.0)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("S(1,1.0)", 15), &executionFlow);
 
 		Assert::AreEqual(1, executionFlow.GetCommandResult()->GetCount());
 
@@ -127,7 +132,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("SI(1,1.0)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("SI(1,1.0)", 15), &executionFlow);
 
 		Assert::AreEqual(1, executionFlow.GetCommandResult()->GetCount());
 
@@ -144,7 +149,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("S(1,B)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("S(1,B)", 15), &executionFlow);
 
 		Assert::AreEqual(1, executionFlow.GetCommandResult()->GetCount());
 
@@ -158,7 +163,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("S(1,1.0,2.0,3.0,4.0,5.0,6.0)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("S(1,1.0,2.0,3.0,4.0,5.0,6.0)", 15), &executionFlow);
 
 		Assert::AreEqual(6, executionFlow.GetCommandResult()->GetCount());
 
@@ -182,7 +187,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("ENDFOR", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("ENDFOR", 15), &executionFlow);
 
 		AreEqual(CommandResultStatus::CommandEndOfLoop, executionFlow.GetCommandResult()->GetStatus());
 	}
@@ -193,7 +198,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Var = 20", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("Var = 20", 15), &executionFlow);
 
 		ValidateVariable(executionContext, &parseErrors, "Var", 1, 20);
 	}
@@ -204,9 +209,9 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Var = 20", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("Var = 20", 15), &executionFlow);
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Second = Var", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("Second = Var", 15), &executionFlow);
 		ValidateVariable(executionContext, &parseErrors, "Var", 1, 20);
 		ValidateVariable(executionContext, &parseErrors, "Second", 1, 20);
 	}
@@ -217,9 +222,9 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Var = 20", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("Var = 20", 15), &executionFlow);
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Var = 33", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("Var = 33", 15), &executionFlow);
 		ValidateVariable(executionContext, &parseErrors, "Var", 1, 33);
 	}
 
@@ -229,7 +234,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Var=20", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("Var=20", 15), &executionFlow);
 
 		ValidateVariable(executionContext, &parseErrors, "Var", 1, 20);
 	}
@@ -240,7 +245,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("A(50)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("A(50)", 15), &executionFlow);
 
 		Assert::AreEqual(50, executionFlow.GetCommandResult()->GetCycleCount());
 	}
@@ -252,10 +257,10 @@ class CommandDecoderTest
 		MockExecutionFlow executionFlow;
 
 		MyRandom::SetFirstValue(5);
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Var = RAND(0,10)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("Var = RAND(0,10)", 15), &executionFlow);
 		ValidateVariable(executionContext, &parseErrors, "Var", 1, 5);
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Var = RAND(0,10)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("Var = RAND(0,10)", 15), &executionFlow);
 		ValidateVariable(executionContext, &parseErrors, "Var", 1, 7);
 	}
 
@@ -268,7 +273,7 @@ class CommandDecoderTest
 		MockExecutionFlow executionFlow;
 
 		MyRandom::SetFirstValue(1);
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(1,RAND(0,16),B)", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("D(1,RAND(0,16),B)", 15), &executionFlow);
 
 		Assert::AreEqual(1, executionFlow.GetCommandResult()->GetCount());
 
@@ -283,7 +288,7 @@ class CommandDecoderTest
 		MockExecutionFlow executionFlow;
 
 		Serial.SetOutput(false);
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("P(\"Hello\")", 0), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("P(\"Hello\")", 0), &executionFlow);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("Hello", Serial.GetLastString());
@@ -296,7 +301,7 @@ class CommandDecoderTest
 		MockExecutionFlow executionFlow;
 
 		Serial.SetOutput(false);
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("P(\"Varname = \")", 0), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("P(\"Varname = \")", 0), &executionFlow);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("Varname = ", Serial.GetLastString());
@@ -311,7 +316,7 @@ class CommandDecoderTest
 		MockExecutionFlow executionFlow;
 
 		Serial.SetOutput(false);
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("P(Variable)", 0), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("P(Variable)", 0), &executionFlow);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("1.000000", Serial.GetLastString());
@@ -324,7 +329,7 @@ class CommandDecoderTest
 		MockExecutionFlow executionFlow;
 
 		Serial.SetOutput(false);
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("PL(\"Hello\")", 0), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("PL(\"Hello\")", 0), &executionFlow);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("Hello\n", Serial.GetLastString());
@@ -336,7 +341,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("", 0), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("", 0), &executionFlow);
 		Assert::AreEqual(0, parseErrors.GetErrorCount());
 	}
 
@@ -346,7 +351,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("      ", 0), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("      ", 0), &executionFlow);
 		Assert::AreEqual(0, parseErrors.GetErrorCount());
 	}
 
@@ -356,7 +361,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("// comment", 0), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("// comment", 0), &executionFlow);
 		Assert::AreEqual(0, parseErrors.GetErrorCount());
 	}
 
@@ -377,14 +382,22 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("DX(", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Unrecognized command: DX(", 0);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("DX()", 0), &executionFlow);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: DX", 0);
+		parseErrors.Clear();
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(55, 1)", 2), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 2, "Invalid D command: missing brightness target", 2);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("D(55, 1)", 2), &executionFlow);
+		ValidateError(executionContext, &parseErrors, 1, "Invalid D command: missing brightness target", 2);
+		parseErrors.Clear();
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("D(MissingVar, 5, 1.0)", 3), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 3, "Unrecognized identifier: MissingVar", 3);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("D(MissingVar, 5, 1.0)", 3), &executionFlow);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: MissingVar", 3);
+		parseErrors.Clear();
+
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("DX(", 0), &executionFlow);
+		ValidateError(executionContext, &parseErrors, 1, "Invalid expression: missing \")\"", 0);
+		parseErrors.Clear();
+
 	}
 
 	static void TestErrorSequential()
@@ -393,13 +406,13 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("SX(", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Unrecognized command: SX(", 0);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("SX()", 0), &executionFlow);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: SX", 0);
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("S()", 1), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("S()", 1), &executionFlow);
 		ValidateError(executionContext, &parseErrors, 2, "Invalid S command: expected cycle count after (", 1);
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("S(MissingVar, 5, 1.0)", 3), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("S(MissingVar, 5, 1.0)", 3), &executionFlow);
 		ValidateError(executionContext, &parseErrors, 3, "Unrecognized identifier: MissingVar", 3);
 	}
 
@@ -409,10 +422,10 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("Axx(", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Unrecognized command: Axx(", 0);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("Axx()", 0), &executionFlow);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: Axx", 0);
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("A()", 1), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("A()", 1), &executionFlow);
 		ValidateError(executionContext, &parseErrors, 2, "Invalid A command: expected cycle count", 1);
 	}
 
@@ -422,8 +435,8 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("FASDF", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Unrecognized command: FASDF", 0);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("FASDF", 0), &executionFlow);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: FASDF", 0);
 	}
 
 	static void TestUnrecognizedCommand2()
@@ -432,7 +445,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("qqP(\"UP \")", 0), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("qqP(\"UP \")", 0), &executionFlow);
 		ValidateError(executionContext, &parseErrors, 1, "Unrecognized command: FASDF", 0);
 	}
 
@@ -443,9 +456,9 @@ class CommandDecoderTest
 		MockExecutionFlow executionFlow;
 
 		Serial.SetOutput(false);
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("FUNC MyFunction", 15), &executionFlow);
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("PL(\"Hello\")", 16), &executionFlow);
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("ENDFUNC", 17), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("FUNC MyFunction", 15), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("PL(\"Hello\")", 16), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("ENDFUNC", 17), &executionFlow);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual(1, executionContext._functionStore.GetCount());
@@ -461,7 +474,7 @@ class CommandDecoderTest
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
 
-		CommandDecoder::Decode(executionContext, &parseErrors, &Command("RETURN 15.5", 0), &executionFlow);
+		CommandDecoder::Decode(&executionContext, &parseErrors, &Command("RETURN 15.5", 0), &executionFlow);
 
 		Variable* pVariable = executionContext._variables.GetWithoutErrorCheck("<ReturnValue>", executionContext._stack.GetFrameCount());
 		Assert::AreEqual(15.5, pVariable->GetValueFloat());

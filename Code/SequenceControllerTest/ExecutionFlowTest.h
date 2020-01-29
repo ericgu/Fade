@@ -17,7 +17,22 @@ class ExecutionFlowTest
 
 	static void ResetResultStore()
 	{
+		for (int i = 0; i < _commandResultCount; i++)
+		{
+			_commandResults[i] = CommandResult();
+		}
+			
 		_commandResultCount = 0;
+	}
+
+	static void RunProgram(CommandSourceSimulator* pCommandSource)
+	{
+		ParseErrors parseErrors;
+		ExecutionFlow executionFlow(pCommandSource, &parseErrors, CommandResultCallback);
+
+		ResetResultStore();
+		executionFlow.RunProgram(1);
+		Assert::AreEqual(0, parseErrors.GetErrorCount());
 	}
 
 	static void Test()
@@ -28,10 +43,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(10,0,10.0)");
 		commandSource.AddCommand("A(10)");
 
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(1, _commandResultCount);
 		AssertResult(_commandResults[0], 10, 0, 10.0F);
@@ -45,7 +57,6 @@ class ExecutionFlowTest
 		commandSource.AddCommand("DI(10,0,10.0)");
 
 		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
 
 		ResetResultStore();
 		executionFlow.RunProgram(2);
@@ -82,12 +93,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(9, _commandResultCount);
 
@@ -113,11 +119,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(5, _commandResultCount);
 
@@ -141,11 +143,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(4, _commandResultCount);
 
@@ -168,11 +166,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(3, _commandResultCount);
 
@@ -197,12 +191,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(9, _commandResultCount);
 
@@ -227,11 +216,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(4, _commandResultCount);
 
@@ -257,11 +242,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(4, _commandResultCount);
 
@@ -282,11 +263,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("ENDFOR");
 		commandSource.AddCommand("DI(15,15,15.0)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(4, _commandResultCount);
 
@@ -324,11 +301,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(5,2,1.0)");
 		commandSource.AddCommand("A(5)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(2, _commandResultCount);
 
@@ -381,7 +354,7 @@ class ExecutionFlowTest
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Unrecognized command: guar", parseError._errorText);
+		Assert::AreEqual("Unrecognized identifier: guar", parseError._errorText);
 	}
 
 	static void TestDoubleLoop()
@@ -394,11 +367,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("ENDFOR");
 		commandSource.AddCommand("A(1)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(1, _commandResultCount);
 	}
@@ -451,12 +420,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("A=Function()");
 		commandSource.AddCommand("DI(A, 2, 1.0)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-		Assert::AreEqual(0, parseErrors.GetErrorCount());
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(1, _commandResultCount);
 
@@ -477,12 +441,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("B=FunctionOuter()");
 		commandSource.AddCommand("DI(B, 2, 1.0)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-		Assert::AreEqual(0, parseErrors.GetErrorCount());
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(1, _commandResultCount);
 
@@ -502,12 +461,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("B=Function2(3, Function(1, 3), 6)");
 		commandSource.AddCommand("DI(B, 2, 1.0)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-		Assert::AreEqual(0, parseErrors.GetErrorCount());
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(1, _commandResultCount);
 
@@ -526,12 +480,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("B=Function(RAND(0,10))");
 		commandSource.AddCommand("DI(B, 2, 1.0)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-		Assert::AreEqual(0, parseErrors.GetErrorCount());
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(1, _commandResultCount);
 
@@ -548,12 +497,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("Function()");
 		commandSource.AddCommand("DI(5, 2, 1.0)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-		Assert::AreEqual(0, parseErrors.GetErrorCount());
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(1, _commandResultCount);
 
@@ -570,11 +514,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("Function()");
 		commandSource.AddCommand("DI(1, 2, 1.0)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
 		Serial.SetOutput(false);
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("Hello\n", Serial.GetLastString());
@@ -589,11 +530,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("ENDFUNC");
 		commandSource.AddCommand("Function(13)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
 		Serial.SetOutput(false);
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("13.000000\n", Serial.GetLastString());
@@ -608,12 +546,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("ENDFUNC");
 		commandSource.AddCommand("Function(1, 12)");
 
-		ParseErrors parseErrors;
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
 		Serial.SetOutput(false);
-		executionFlow.RunProgram(1);
-
+		RunProgram(&commandSource);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("12.000000\n", Serial.GetLastString());
@@ -681,7 +615,7 @@ class ExecutionFlowTest
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		ParseError parseError = parseErrors.GetError(0);
 		Assert::AreEqual("Mismatched Function Function requires 1 parameter(s) but was called with 0 argument(s).", parseError._errorText);
-		Assert::AreEqual(4, parseError._lineNumber);
+		Assert::AreEqual(3, parseError._lineNumber);
 	}
 
 	static void TestMethodCallWithWrongArgumentCount2()
@@ -703,7 +637,7 @@ class ExecutionFlowTest
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		ParseError parseError = parseErrors.GetError(0);
 		Assert::AreEqual("Mismatched Function Function requires 1 parameter(s) but was called with 2 argument(s).", parseError._errorText);
-		Assert::AreEqual(4, parseError._lineNumber);
+		Assert::AreEqual(3, parseError._lineNumber);
 	}
 
 	static void TestDirectWithFunctionCall()
@@ -716,13 +650,268 @@ class ExecutionFlowTest
 		commandSource.AddCommand("ENDFUNC");
 		commandSource.AddCommand("DI(F(1), F(2), F(3))");
 
-		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
-
-		ResetResultStore();
-		executionFlow.RunProgram(1);
+		RunProgram(&commandSource);
 
 		Assert::AreEqual(1, _commandResultCount);
 		AssertResult(_commandResults[0], 1, 2, 3.0F);
+	}
+
+	static void TestIfTrue()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("Value=3");
+		commandSource.AddCommand("IF Value==3");
+		commandSource.AddCommand("DI(7,7,10.0)");
+		commandSource.AddCommand("ENDIF");
+		commandSource.AddCommand("DI(15,15,15.0)");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(2, _commandResultCount);
+
+		AssertResult(_commandResults[0], 7, 7, 10.0F);
+		AssertResult(_commandResults[1], 15, 15, 15.0F);
+	}
+
+	static void TestIfFalse()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("Value=2");
+		commandSource.AddCommand("IF Value==3");
+		commandSource.AddCommand("DI(7,7,10.0)");
+		commandSource.AddCommand("ENDIF");
+		commandSource.AddCommand("DI(15,15,15.0)");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 15, 15, 15.0F);
+	}
+
+	static void TestIfElseTrue()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("Value=3");
+		commandSource.AddCommand("IF Value==3");
+		commandSource.AddCommand("DI(7,7,10.0)");
+		commandSource.AddCommand("ELSE");
+		commandSource.AddCommand("DI(15,15,15.0)");
+		commandSource.AddCommand("ENDIF");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 7, 7, 10.0F);
+	}
+
+	static void TestIfElseFalse()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("Value=2");
+		commandSource.AddCommand("IF Value>=3");
+		commandSource.AddCommand("DI(7,7,10.0)");
+		commandSource.AddCommand("ELSE");
+		commandSource.AddCommand("DI(15,15,15.0)");
+		commandSource.AddCommand("ENDIF");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 15, 15, 15.0F);
+	}
+
+	static void TestIfElseIfElseOne()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("Value=3");
+		commandSource.AddCommand("IF Value==3");
+		commandSource.AddCommand("DI(7,7,10.0)");
+		commandSource.AddCommand("ELSEIF Value==4");
+		commandSource.AddCommand("DI(10,10,10.0)");
+		commandSource.AddCommand("ELSE");
+		commandSource.AddCommand("DI(15,15,15.0)");
+		commandSource.AddCommand("ENDIF");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 7, 7, 10.0F);
+	}
+
+	static void TestIfElseIfElseTwo()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("Value=4");
+		commandSource.AddCommand("IF Value==3");
+		commandSource.AddCommand("DI(7,7,10.0)");
+		commandSource.AddCommand("ELSEIF Value==4");
+		commandSource.AddCommand("DI(10,10,10.0)");
+		commandSource.AddCommand("ELSE");
+		commandSource.AddCommand("DI(15,15,15.0)");
+		commandSource.AddCommand("ENDIF");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 10, 10, 10.0F);
+	}
+
+	static void TestIfElseIfElseThree()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("Value=5");
+		commandSource.AddCommand("IF Value==3");
+		commandSource.AddCommand("DI(7,7,10.0)");
+		commandSource.AddCommand("ELSEIF Value==4");
+		commandSource.AddCommand("DI(10,10,10.0)");
+		commandSource.AddCommand("ELSE");
+		commandSource.AddCommand("DI(15,15,15.0)");
+		commandSource.AddCommand("ENDIF");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 15, 15, 15.0F);
+	}
+
+	static void AddCommands(CommandSourceSimulator& commandSource)
+	{
+
+		commandSource.AddCommand("IF A==3");
+		commandSource.AddCommand("  IF B==3");
+		commandSource.AddCommand("    DI(1,1,1.0)");
+		commandSource.AddCommand("  ELSE");
+		commandSource.AddCommand("    DI(2,2,2.0)");
+		commandSource.AddCommand("  ENDIF");
+		commandSource.AddCommand("ELSE");
+		commandSource.AddCommand("  IF B==3");
+		commandSource.AddCommand("    DI(3,3,3.0)");
+		commandSource.AddCommand("  ELSE");
+		commandSource.AddCommand("    DI(4,4,4.0)");
+		commandSource.AddCommand("  ENDIF");
+		commandSource.AddCommand("ENDIF");
+	}
+
+	static void TestNestedIfElse1()
+	{
+		CommandSourceSimulator commandSource;
+		commandSource.AddCommand("A=3");
+		commandSource.AddCommand("B=3");
+		AddCommands(commandSource);
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 1, 1, 1.0F);
+	}
+
+	static void TestNestedIfElse2()
+	{
+		CommandSourceSimulator commandSource;
+		commandSource.AddCommand("A=3");
+		commandSource.AddCommand("B=4");
+		AddCommands(commandSource);
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 2, 2, 2.0F);
+	}
+
+	static void TestNestedIfElse3()
+	{
+		CommandSourceSimulator commandSource;
+		commandSource.AddCommand("A=1");
+		commandSource.AddCommand("B=3");
+		AddCommands(commandSource);
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 3, 3, 3.0F);
+	}
+
+	static void TestNestedIfElse4()
+	{
+		CommandSourceSimulator commandSource;
+		commandSource.AddCommand("A=1");
+		commandSource.AddCommand("B=2");
+		AddCommands(commandSource);
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(1, _commandResultCount);
+
+		AssertResult(_commandResults[0], 4, 4, 4.0F);
+	}
+
+	static void TestIncrement()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("Value=3");
+		commandSource.AddCommand("Value++");
+		commandSource.AddCommand("DI(Value, Value, Value)");
+		commandSource.AddCommand("Value++");
+		commandSource.AddCommand("DI(Value, Value, Value)");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(2, _commandResultCount);
+
+		AssertResult(_commandResults[0], 4, 4, 4.0F);
+		AssertResult(_commandResults[1], 5, 5, 5.0F);
+	}
+
+	static void TestDecrement()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("Value=3");
+		commandSource.AddCommand("Value--");
+		commandSource.AddCommand("DI(Value, Value, Value)");
+		commandSource.AddCommand("Value--");
+		commandSource.AddCommand("DI(Value, Value, Value)");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(2, _commandResultCount);
+
+		AssertResult(_commandResults[0], 2, 2, 2.0F);
+		AssertResult(_commandResults[1], 1, 1, 1.0F);
+	}
+
+	static void TestIncrementReference()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("Value=3");
+		commandSource.AddCommand("Test=Value++");
+		commandSource.AddCommand("DI(Test, Test, Test)");
+		commandSource.AddCommand("DI(Value, Value, Value)");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(2, _commandResultCount);
+
+		AssertResult(_commandResults[0], 3, 3, 3.0F);
+		AssertResult(_commandResults[1], 4, 4, 4.0F);
 	}
 
 public:
@@ -766,6 +955,24 @@ public:
 
 		TestLoopWithFunctionCall();
 		TestDirectWithFunctionCall();
+
+		TestNestedIfElse1();
+		TestNestedIfElse2();
+		TestNestedIfElse3();
+		TestNestedIfElse4();
+
+		TestIfElseTrue();
+		TestIfElseFalse();
+		TestIfFalse();
+		TestIfTrue();
+
+		TestIfElseIfElseOne();
+		TestIfElseIfElseTwo();
+		TestIfElseIfElseThree();
+
+		TestIncrement();
+		TestDecrement();
+		TestIncrementReference();
 
 		return 0;
 	}

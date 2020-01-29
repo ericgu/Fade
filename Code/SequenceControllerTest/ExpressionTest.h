@@ -2,6 +2,7 @@
 
 #include "ExpressionBuiltInFunctions.h"
 #include "ExpressionOperators.h"
+#include "ExpressionFunctionCall.h"
 #include "Expression.h"
 
 class ExpressionTest
@@ -181,9 +182,8 @@ class ExpressionTest
 		FunctionStore functionStore;
 
 		stack.CreateFrame();
-		FunctionDefinition functionDefinition("MyFunction", 10);
 
-		functionStore.DefineStart(functionDefinition);
+		functionStore.DefineStart("MyFunction", 10);
 
 		Variable value = expression.Evaluate("MyFunction()", &variableCollection, &functionStore, &stack, &parseErrors, 1, FunctionCallHandlerImplementation);
 		Assert::AreEqual(10.0F, value.GetValueFloat());
@@ -206,9 +206,8 @@ class ExpressionTest
 		FunctionStore functionStore;
 
 		stack.CreateFrame();
-		FunctionDefinition functionDefinition("MyFunction", 10);
 
-		functionStore.DefineStart(functionDefinition);
+		functionStore.DefineStart("MyFunction", 10);
 
 		Variable value = expression.Evaluate("MyFunction(15.3)", &variableCollection, &functionStore, &stack, &parseErrors, 1, FunctionCallHandlerImplementation2, 0);
 		Assert::AreEqual(15.3F, value.GetValueFloat());

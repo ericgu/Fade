@@ -42,9 +42,9 @@ public:
 
 	int GetCount() { return _functionDefinitionCount; }
 
-	void DefineStart(FunctionDefinition& functionDefinition)
+	void DefineStart(const char* pFunctionName, int serialNumberStart)
 	{
-		FunctionDefinition* pLookup = Lookup(functionDefinition.Name);
+		FunctionDefinition* pLookup = Lookup(pFunctionName);
 
 		if (pLookup != 0)
 		{
@@ -52,8 +52,8 @@ public:
 		}
 
 		FunctionDefinition* pCurrent = _functionDefinitions + _functionDefinitionCount;
-		strcpy(pCurrent->Name, functionDefinition.Name);
-		pCurrent->SerialNumberStart = functionDefinition.SerialNumberStart;
+		strcpy(pCurrent->Name, pFunctionName);
+		pCurrent->SerialNumberStart = serialNumberStart;
 		pCurrent->SerialNumberEnd = -1;
 
 		_functionDefinitionCount++;
