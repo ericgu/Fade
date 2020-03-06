@@ -90,8 +90,8 @@ class Loop
 
 	int GetIsInRange(float value)
 	{
-		float variableStart = _variableStart.GetValueFloat();
-		float variableEnd = _variableEnd.GetValueFloat();
+		float variableStart = _variableStart.GetValueFloat(0);
+		float variableEnd = _variableEnd.GetValueFloat(0);
 
 		float min = variableStart < variableEnd ? variableStart : variableEnd;
 		float max = variableStart < variableEnd ? variableEnd : variableStart;

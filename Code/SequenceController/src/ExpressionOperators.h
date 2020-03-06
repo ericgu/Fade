@@ -20,8 +20,8 @@ class ExpressionOperators
 			ExpressionNode* pOperandLeft = pExpressionTokenizer->GetNode(leftOperandIndex);
 			ExpressionNode* pOperandRight = pExpressionTokenizer->GetNode(rightOperandIndex);
 
-			float valueLeft = pOperandLeft->_value.GetValueFloat();
-			float valueRight = pOperandRight->_value.GetValueFloat();
+			float valueLeft = pOperandLeft->_value.GetValueFloat(0);
+			float valueRight = pOperandRight->_value.GetValueFloat(0);
 
 			switch (*pNode->_pItem)
 			{
@@ -120,19 +120,19 @@ class ExpressionOperators
 									switch (*pMatches)
 									{
 									case '-':
-										newValue = -pNext->_value.GetValueFloat();
+										newValue = -pNext->_value.GetValueFloat(0);
 										break;
 
 									case '+':
-										newValue = pNext->_value.GetValueFloat();
+										newValue = pNext->_value.GetValueFloat(0);
 										break;
 
 									case '!':
-										newValue = !pNext->_value.GetValueFloat();
+										newValue = !pNext->_value.GetValueFloat(0);
 										break;
 
 									}
-									pNext->_value.SetValue(newValue.GetValueFloat());
+									pNext->_value.SetValue(0, newValue.GetValueFloat(0));
 									pExpressionTokenizer->SetNodeEmpty(i);
 								}
 							}

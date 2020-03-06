@@ -42,7 +42,7 @@ class LedManagerTest
 	static void AssertLedState(LedState ledState, int channel, float brightness)
 	{
 		Assert::AreEqual(channel, ledState.GetChannel());
-		Assert::AreEqual(brightness, ledState.GetBrightness());
+		Assert::AreEqual(brightness, ledState.GetBrightness()->GetValueFloat(0));
 	}
 
 	static void Test()

@@ -14,13 +14,95 @@ class ExpressionTest
 		ParseErrors parseErrors;
 		Stack stack;
 
-		variableCollection.AddAndSet("C", 55.0F, stack.GetFrameCount());
+		variableCollection.AddAndSet("C", &Variable(55.0F), stack.GetFrameCount());
 
 		Variable parsed = expression.Evaluate("88.0", &variableCollection, 0, 0, &parseErrors, 1);
-		Assert::AreEqual(88.0F, parsed.GetValueFloat());
+		Assert::AreEqual(88.0F, parsed.GetValueFloat(0));
 
 		parsed = expression.Evaluate("C", &variableCollection, 0, &stack, &parseErrors, 1);
-		Assert::AreEqual(55.0F, parsed.GetValueFloat());
+		Assert::AreEqual(55.0F, parsed.GetValueFloat(0));
+	}
+
+	static void TestParseFloatListOne()
+	{
+		Expression expression;
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+		Stack stack;
+
+		Variable parsed = expression.Evaluate("{88.0}", &variableCollection, 0, 0, &parseErrors, 1);
+		Assert::AreEqual(1, parsed.GetValueCount());
+		Assert::AreEqual(88.0F, parsed.GetValueFloat(0));
+	}
+
+	static void TestParseFloatListTwo()
+	{
+		Expression expression;
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+		Stack stack;
+
+		Variable parsed = expression.Evaluate("{88.0, 333.5}", &variableCollection, 0, 0, &parseErrors, 1);
+		Assert::AreEqual(2, parsed.GetValueCount());
+		Assert::AreEqual(88.0F, parsed.GetValueFloat(0));
+		Assert::AreEqual(333.5F, parsed.GetValueFloat(1));
+	}
+
+	static void TestParseFloatListThree()
+	{
+		Expression expression;
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+		Stack stack;
+
+		Variable parsed = expression.Evaluate("{88.0, 333.5, 1234.0}", &variableCollection, 0, 0, &parseErrors, 1);
+		Assert::AreEqual(3, parsed.GetValueCount());
+		Assert::AreEqual(88.0F, parsed.GetValueFloat(0));
+		Assert::AreEqual(333.5F, parsed.GetValueFloat(1));
+		Assert::AreEqual(1234.0F, parsed.GetValueFloat(2));
+	}
+
+	static void TestParseFloatListFour()
+	{
+		Expression expression;
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+		Stack stack;
+
+		Variable parsed = expression.Evaluate("{88.0, 333.5, 12, 13}", &variableCollection, 0, 0, &parseErrors, 1);
+		Assert::AreEqual(4, parsed.GetValueCount());
+		Assert::AreEqual(88.0F, parsed.GetValueFloat(0));
+		Assert::AreEqual(333.5F, parsed.GetValueFloat(1));
+		Assert::AreEqual(12.0F, parsed.GetValueFloat(2));
+		Assert::AreEqual(13.0F, parsed.GetValueFloat(3));
+	}
+
+	static void TestParseFloatListFive()
+	{
+		Expression expression;
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+		Stack stack;
+
+		Variable parsed = expression.Evaluate("{88.0, 333.5, 12, 13, 11111}", &variableCollection, 0, 0, &parseErrors, 1);
+		Assert::AreEqual(4, parsed.GetValueCount());
+		Assert::AreEqual(88.0F, parsed.GetValueFloat(0));
+		Assert::AreEqual(333.5F, parsed.GetValueFloat(1));
+		Assert::AreEqual(12.0F, parsed.GetValueFloat(2));
+		Assert::AreEqual(13.0F, parsed.GetValueFloat(3));
+	}
+
+	static void TestParseFloatListTwoExpressions()
+	{
+		Expression expression;
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+		Stack stack;
+
+		Variable parsed = expression.Evaluate("{88.0 * 2.0, (333.5 + 112.5) * 2 + 0.5}", &variableCollection, 0, 0, &parseErrors, 1);
+		Assert::AreEqual(2, parsed.GetValueCount());
+		Assert::AreEqual(176.0F, parsed.GetValueFloat(0));
+		Assert::AreEqual(892.5F, parsed.GetValueFloat(1));
 	}
 
 	static void TestParseFloatOrVariableNamed()
@@ -30,10 +112,10 @@ class ExpressionTest
 		ParseErrors parseErrors;
 		Stack stack;
 
-		variableCollection.AddAndSet("Fred", 55.0F, stack.GetFrameCount());
+		variableCollection.AddAndSet("Fred", &Variable(55.0F), stack.GetFrameCount());
 
 		Variable parsed = expression.Evaluate("Fred", &variableCollection, 0, &stack, &parseErrors, 1);
-		Assert::AreEqual(55.0F, parsed.GetValueFloat());
+		Assert::AreEqual(55.0F, parsed.GetValueFloat(0));
 	}
 
 	static void TestRandom()
@@ -50,7 +132,7 @@ class ExpressionTest
 		Stack stack;
 
 		Variable value = expression.Evaluate("33", &variableCollection, 0, &stack, &parseErrors, 1);
-		Assert::AreEqual(33.0F, value.GetValueFloat());
+		Assert::AreEqual(33.0F, value.GetValueFloat(0));
 	}
 
 	static void TestVariable()
@@ -60,10 +142,10 @@ class ExpressionTest
 		ParseErrors parseErrors;
 		Stack stack;
 
-		variableCollection.AddAndSet("Fred", 55.0F, stack.GetFrameCount());
+		variableCollection.AddAndSet("Fred", &Variable(55.0F), stack.GetFrameCount());
 
 		Variable value = expression.Evaluate("Fred", &variableCollection, 0, &stack, &parseErrors, 1);
-		Assert::AreEqual(55.0F, value.GetValueFloat());
+		Assert::AreEqual(55.0F, value.GetValueFloat(0));
 	}
 
 	static void TestExpression(const char* pExpression, float expectedValue)
@@ -74,7 +156,7 @@ class ExpressionTest
 		Stack stack;
 
 		Variable value = expression.Evaluate(pExpression, &variableCollection, 0, &stack, &parseErrors, 1);
-		Assert::AreEqual(expectedValue, value.GetValueFloat());
+		Assert::AreEqual(expectedValue, value.GetValueFloat(0));
 	}
 
 	static void TestMultiply()
@@ -186,13 +268,13 @@ class ExpressionTest
 		functionStore.DefineStart("MyFunction", 10);
 
 		Variable value = expression.Evaluate("MyFunction()", &variableCollection, &functionStore, &stack, &parseErrors, 1, FunctionCallHandlerImplementation);
-		Assert::AreEqual(10.0F, value.GetValueFloat());
+		Assert::AreEqual(10.0F, value.GetValueFloat(0));
 	}
 
 	static Variable FunctionCallHandlerImplementation2(FunctionDefinition* pFunctionDefinition, VariableCollection* pVariableCollection, FunctionStore* pFunctionStore, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
 	{
 		Assert::AreEqual(1, pVariableCollection->GetWithoutErrorCheck("#A", 2)->GetValueInt());
-		Assert::AreEqual(15.3F, pVariableCollection->GetWithoutErrorCheck("#A0", 2)->GetValueFloat());
+		Assert::AreEqual(15.3F, pVariableCollection->GetWithoutErrorCheck("#A0", 2)->GetValueFloat(0));
 
 		return *pVariableCollection->GetWithoutErrorCheck("#A0", 2);
 	}
@@ -210,7 +292,7 @@ class ExpressionTest
 		functionStore.DefineStart("MyFunction", 10);
 
 		Variable value = expression.Evaluate("MyFunction(15.3)", &variableCollection, &functionStore, &stack, &parseErrors, 1, FunctionCallHandlerImplementation2, 0);
-		Assert::AreEqual(15.3F, value.GetValueFloat());
+		Assert::AreEqual(15.3F, value.GetValueFloat(0));
 		Assert::AreEqual(1, stack.GetFrameCount());
 	}
 
@@ -248,6 +330,13 @@ public:
 		TestParens();
 		TestNestedParens();
 
+		TestParseFloatListOne();
+		TestParseFloatListTwo();
+		TestParseFloatListThree();
+		TestParseFloatListFour();
+		TestParseFloatListFive();
+
+		TestParseFloatListTwoExpressions();
 
 		return 0;
 	}

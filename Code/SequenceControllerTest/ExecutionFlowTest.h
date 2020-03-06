@@ -71,7 +71,7 @@ class ExecutionFlowTest
 		Assert::AreEqual(cycleCount, commandResult.GetCycleCount());
 		LedState ledState = commandResult.GetTarget(0);
 		Assert::AreEqual(channel, ledState.GetChannel());
-		Assert::AreEqual(brightness, ledState.GetBrightness());
+		Assert::AreEqual(brightness, ledState.GetBrightness()->GetValueFloat(0));
 	}
 
 	static void AssertResult(LedCommand ledCommand, int cycleCount, int channel, float brightness)
@@ -79,7 +79,7 @@ class ExecutionFlowTest
 		Assert::AreEqual(cycleCount, ledCommand._commandResult.GetCycleCount());
 		LedState ledState = ledCommand._commandResult.GetTarget(0);
 		Assert::AreEqual(channel, ledState.GetChannel());
-		Assert::AreEqual(brightness, ledState.GetBrightness());
+		Assert::AreEqual(brightness, ledState.GetBrightness()->GetValueFloat(0));
 	}
 
 	static void TestLoop()
@@ -571,7 +571,7 @@ class ExecutionFlowTest
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("13.000000\n", Serial.GetLastString());
-		Assert::AreEqual(15.0F, executionFlow.GetExecutionContext()._variables.GetWithoutErrorCheck("V", 1)->GetValueFloat());
+		Assert::AreEqual(15.0F, executionFlow.GetExecutionContext()._variables.GetWithoutErrorCheck("V", 1)->GetValueFloat(0));
 	}
 
 	static void TestMethodCannotAccessParentVariables()
@@ -914,10 +914,30 @@ class ExecutionFlowTest
 		AssertResult(_commandResults[1], 4, 4, 4.0F);
 	}
 
+	static void TestDirectWithLists()
+	{
+		CommandSourceSimulator commandSource;
+		ParseErrors parseErrors;
+
+		commandSource.AddCommand("DI(10, 15, {0.5, 1.0, 0.4})");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(1, _commandResultCount);
+		LedState ledState = _commandResults[0].GetTarget(0);
+		Assert::AreEqual(15, ledState.GetChannel());
+		Assert::AreEqual(0.5F, ledState.GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(1.0F, ledState.GetBrightness()->GetValueFloat(1));
+		Assert::AreEqual(0.4F, ledState.GetBrightness()->GetValueFloat(2));
+	}
+
+
 public:
 
 	static int Run()
 	{
+		TestDirectWithLists();
+
 		Test();
 		TestLoop();
 		TestLoopDown();
@@ -973,6 +993,7 @@ public:
 		TestIncrement();
 		TestDecrement();
 		TestIncrementReference();
+
 
 		return 0;
 	}

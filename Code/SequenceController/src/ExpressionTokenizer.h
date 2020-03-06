@@ -181,5 +181,5 @@ public:
 	}
 };
 
-const char* ExpressionTokenizer::_operators[] = { " ", "\t", "++", "+", "--", "-", "*", "/", "%", "!=", "==", ">=", ">", "<=", "<", "&&", "||", "(", ")", "!", ",", "="};
-const int ExpressionTokenizer::_operatorCount = 22;
+const char* ExpressionTokenizer::_operators[] = { " ", "\t", "++", "+", "--", "-", "*", "/", "%", "!=", "==", ">=", ">", "<=", "<", "&&", "||", "(", ")", "!", ",", "=", "{", "}"};
+const int ExpressionTokenizer::_operatorCount = 24;

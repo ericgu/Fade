@@ -11,9 +11,9 @@ class LoopTest
 
 		Assert::AreEqual(1, loop.GetMatch());
 		Assert::AreEqual("B11", loop.GetVariableName());
-		Assert::AreEqual(2.0F, loop.GetVariableStart().GetValueFloat());
-		Assert::AreEqual(7.0F, loop.GetVariableEnd().GetValueFloat());
-		Assert::AreEqual(1.0F, loop.GetVariableInc().GetValueFloat());
+		Assert::AreEqual(2.0F, loop.GetVariableStart().GetValueFloat(0));
+		Assert::AreEqual(7.0F, loop.GetVariableEnd().GetValueFloat(0));
+		Assert::AreEqual(1.0F, loop.GetVariableInc().GetValueFloat(0));
 	}
 
 	static void ValidateError(ParseErrors& parseErrors, int errorCount, const char* pExpectedString, int lineNumber)
@@ -89,9 +89,9 @@ class LoopTest
 
 		Assert::AreEqual(1, loop.GetMatch());
 		Assert::AreEqual("Variable", loop.GetVariableName());
-		Assert::AreEqual(2.0F, loop.GetVariableStart().GetValueFloat());
-		Assert::AreEqual(3.0F, loop.GetVariableEnd().GetValueFloat());
-		Assert::AreEqual(0.5F, loop.GetVariableInc().GetValueFloat());
+		Assert::AreEqual(2.0F, loop.GetVariableStart().GetValueFloat(0));
+		Assert::AreEqual(3.0F, loop.GetVariableEnd().GetValueFloat(0));
+		Assert::AreEqual(0.5F, loop.GetVariableInc().GetValueFloat(0));
 	}
 
 	static void TestInRangeCheck()

@@ -57,7 +57,7 @@ public:
 				sprintf(argumentName, "#A%d", i + 1);
 				Variable* pBrightness = pVariableCollection->GetWithoutErrorCheck(argumentName, pStack->GetFrameCount());
 
-				pExecutionFlow->GetCommandResult()->AddTarget(LedState(pChannel->GetValueInt(), pBrightness->GetValueFloat(), pCycleCount->GetValueInt()));
+				pExecutionFlow->GetCommandResult()->AddTarget(LedState(pChannel->GetValueInt(), pBrightness, pCycleCount->GetValueInt()));
 			}
 
 			handled = true;
@@ -98,7 +98,7 @@ public:
 				sprintf(argumentName, "#A%d", channel);
 				Variable* pBrightness = pVariableCollection->GetWithoutErrorCheck(argumentName, pStack->GetFrameCount());
 
-				pExecutionFlow->GetCommandResult()->AddTarget(LedState(channel - 1, pBrightness->GetValueFloat(), pCycleCount->GetValueInt()));
+				pExecutionFlow->GetCommandResult()->AddTarget(LedState(channel - 1, pBrightness, pCycleCount->GetValueInt()));
 			}
 
 			handled = true;
@@ -153,7 +153,7 @@ public:
 
 					//Variable variable = executionContext.Evaluate(variableName, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
 
-					snprintf(outputString, sizeof(outputString), "%f", pArgument->GetValueFloat());
+					snprintf(outputString, sizeof(outputString), "%f", pArgument->GetValueFloat(0));
 				}
 			}
 

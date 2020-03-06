@@ -55,7 +55,7 @@ class TimebaseTest
 		Assert::AreEqual(1, commandResult.GetCount());
 		LedState ledState = commandResult.GetTarget(0);
 		Assert::AreEqual(0, ledState.GetChannel());
-		Assert::AreEqual(10.0F, ledState.GetBrightness());
+		Assert::AreEqual(10.0F, ledState.GetBrightness()->GetValueFloat(0));
 
 		Assert::AreEqual(10, ledManager.GetTickCount());
 
@@ -83,7 +83,7 @@ class TimebaseTest
 		Assert::AreEqual(1, commandResult.GetCount());
 		LedState ledState = commandResult.GetTarget(0);
 		Assert::AreEqual(0, ledState.GetChannel());
-		Assert::AreEqual(10.0F, ledState.GetBrightness());
+		Assert::AreEqual(10.0F, ledState.GetBrightness()->GetValueFloat(0));
 
 		timebase.RunProgram(1);
 
@@ -91,7 +91,7 @@ class TimebaseTest
 		Assert::AreEqual(1, commandResult.GetCount());
 		ledState = commandResult.GetTarget(0);
 		Assert::AreEqual(0, ledState.GetChannel());
-		Assert::AreEqual(10.0F, ledState.GetBrightness());
+		Assert::AreEqual(10.0F, ledState.GetBrightness()->GetValueFloat(0));
 
 		Assert::AreEqual(10, ledManager.GetTickCount());
 	} 

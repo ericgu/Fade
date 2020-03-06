@@ -11,7 +11,7 @@ class CommandDecoder
 			return false;
 		}
 
-		pExecutionContext->_variables.AddAndSet(loop.GetVariableName(), loop.GetVariableStart().GetValueFloat(), pExecutionContext->_stack.GetFrameCount());
+		pExecutionContext->_variables.AddAndSet(loop.GetVariableName(), &loop.GetVariableStart(), pExecutionContext->_stack.GetFrameCount());
 		Variable* pLoopVariable = pExecutionContext->_variables.GetWithoutErrorCheck(loop.GetVariableName(), pExecutionContext->_stack.GetFrameCount());
 
 		while (true)
@@ -28,9 +28,9 @@ class CommandDecoder
 
 			pLoopVariable->Increment(loop.GetVariableInc());
 
-			if (!loop.GetIsInRange(pLoopVariable->GetValueFloat()))
+			if (!loop.GetIsInRange(pLoopVariable->GetValueFloat(0)))
 			{
-				pLoopVariable->Clear();
+				pExecutionContext->_variables.Delete(loop.GetVariableName(), pExecutionContext->_stack.GetFrameCount());
 				pExecutionContext->_stack.GetTopFrame()->InstructionPointer = instructionAfterEnd;
 				pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandNone);
 				return true;
@@ -293,7 +293,7 @@ class CommandDecoder
 
 			Variable result = pExecutionContext->Evaluate(pCommandString, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
 
-			pExecutionContext->_variables.AddAndSet("<ReturnValue>", result.GetValueFloat(), pExecutionContext->_stack.GetFrameCount());
+			pExecutionContext->_variables.AddAndSet("<ReturnValue>", &result, pExecutionContext->_stack.GetFrameCount());
 
 			return true;
 		}

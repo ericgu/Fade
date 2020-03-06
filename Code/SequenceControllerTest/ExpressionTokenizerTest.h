@@ -43,9 +43,9 @@ class ExpressionTokenizerTest
 	{
 		ExpressionTokenizer expressionTokenizer;
 
-		expressionTokenizer.Tokenize("1+2-3*4/5==6!=7>=8>9<=10<11&&12||13!14%15,16=17++18--19");
+		expressionTokenizer.Tokenize("1+2-3*4/5==6!=7>=8>9<=10<11&&12||13!14%15,16=17++18--19{20}21");
 
-		Assert::AreEqual(37, expressionTokenizer.GetNodeCount());
+		Assert::AreEqual(41, expressionTokenizer.GetNodeCount());
 		Assert(expressionTokenizer, 0, "1");
 		Assert(expressionTokenizer, 1, "+");
 		Assert(expressionTokenizer, 2, "2");
@@ -83,6 +83,10 @@ class ExpressionTokenizerTest
 		Assert(expressionTokenizer, 34, "18");
 		Assert(expressionTokenizer, 35, "--");
 		Assert(expressionTokenizer, 36, "19");
+		Assert(expressionTokenizer, 37, "{");
+		Assert(expressionTokenizer, 38, "20");
+		Assert(expressionTokenizer, 39, "}");
+		Assert(expressionTokenizer, 40, "21");
 	}
 
 	static void TestParens()
@@ -168,7 +172,7 @@ class ExpressionTokenizerTest
 
 		expressionTokenizer.Tokenize("( 3 + 4 * ( 2 + 5))");
 
-		expressionTokenizer.GetNode(1)->_value.SetValue(15.0F);
+		expressionTokenizer.GetNode(1)->_value.SetValue(0, 15.0F);
 		expressionTokenizer.GetNode(1)->_pItem = 0;
 
 		Assert::AreEqual(11, expressionTokenizer.GetNodeCount());
@@ -201,11 +205,11 @@ class ExpressionTokenizerTest
 		expressionTokenizer.SetNodeEmpty(4);
 
 		expressionTokenizer.GetNode(3)->_pItem = 0;
-		expressionTokenizer.GetNode(3)->_value.SetValue(33.0F);
+		expressionTokenizer.GetNode(3)->_value.SetValue(0, 33.0F);
 
 		Variable value = expressionTokenizer.FindFirstValue(1, 4);
 
-		Assert::AreEqual(33.0F, value.GetValueFloat());
+		Assert::AreEqual(33.0F, value.GetValueFloat(0));
 	}
 
 	static void TestNodeIsNumber()

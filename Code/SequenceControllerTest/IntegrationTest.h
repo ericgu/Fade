@@ -6,7 +6,7 @@ class IntegrationTest
 	static void AssertLedState(LedState ledState, int channel, float brightness)
 	{
 		Assert::AreEqual(channel, ledState.GetChannel());
-		Assert::AreEqual(brightness, ledState.GetBrightness());
+		Assert::AreEqual(brightness, ledState.GetBrightness()->GetValueFloat(0));
 	}
 
 	static void Test()
@@ -92,16 +92,16 @@ class IntegrationTest
 		timebase.RunProgram(1);
 
 		// Validate that after channel one loop is done it stops changing and moves on to channel two. 
-		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(0).GetBrightness());
-		Assert::AreEqual(1.0, ledPwm.GetUpdatedState(16).GetBrightness());
-		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(32).GetBrightness());
-		Assert::AreEqual(0.0, ledPwm.GetUpdatedState(48).GetBrightness());
-		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(0).GetBrightness());
-		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(0).GetBrightness());
-		Assert::AreEqual(0.0, ledPwm.GetUpdatedState(64).GetBrightness());
-		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(65).GetBrightness());
-		Assert::AreEqual(0.0, ledPwm.GetUpdatedState(80).GetBrightness());
-		Assert::AreEqual(1.0, ledPwm.GetUpdatedState(81).GetBrightness());
+		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(1.0, ledPwm.GetUpdatedState(16).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(32).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.0, ledPwm.GetUpdatedState(48).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.0, ledPwm.GetUpdatedState(64).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(65).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.0, ledPwm.GetUpdatedState(80).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(1.0, ledPwm.GetUpdatedState(81).GetBrightness()->GetValueFloat(0));
 	}
 
 	static void Test4()

@@ -2,32 +2,34 @@
 
 class Variable
 {
+	static const int ValuesPerVariable = 4;
+
 	char _variableName[64];
-	int _active;
-	float _value;
+	float _value[ValuesPerVariable];
+	int _valueCount;
 	int _stackLevel;
 
 public:
 	Variable()
 	{
-		_active = 0;
-		_value = 0.0;
+		_value[0] = 0.0;
+		_valueCount = 0;
 		_stackLevel = 0;
 		_variableName[0] = '\0';
 	}
 
 	Variable(int value)
 	{
-		_active = true;
-		_value = (float) value;
+		_value[0] = (float) value;
+		_valueCount = 1;
 		_stackLevel = 0;
 		_variableName[0] = '\0';
 	}
 
 	Variable(float value)
 	{
-		_active = true;
-		_value = value;
+		_value[0] = value;
+		_valueCount = 1;
 		_stackLevel = 0;
 		_variableName[0] = '\0';
 	}
@@ -35,7 +37,8 @@ public:
 	static Variable ParseFloat(const char* pCommand)
 	{
 		Variable variable;
-		variable._value = (float) atof(pCommand);
+		variable._value[0] = (float) atof(pCommand);
+		variable._valueCount = 1;
 		variable._stackLevel = 0;
 
 		return variable;
@@ -43,38 +46,53 @@ public:
 
 	void SetToNan()
 	{
-		_value = NAN;
+		_value[0] = NAN;
 	}
 
 	bool IsNan()
 	{
-		return isnan(_value);
+		return isnan(_value[0]);
 	}
 
 	void Increment(Variable increment)
 	{
-		_value += increment.GetValueFloat();
+		_value[0] += increment.GetValueFloat(0);
         //Serial.println(_value);
-	}
-
-	void SetActiveFlag(int active)
-	{
-		_active = active;
 	}
 
 	void Clear()
 	{
-		_active = false;
-		_value = 0.0;
+		_value[0] = 0.0;
+		_valueCount = 0;
 		_variableName[0] = '\0';
+		_stackLevel = 0;
 	}
 
-	int GetActiveFlag() { return _active; }
+	int GetValueCount() { return _valueCount; }
 
-	int GetValueInt() { return (int) _value; }
+	int GetValueInt() { return (int) _value[0]; }
 
-	float GetValueFloat() { return _value; }
-	void SetValue(float value) { _value = value; }
+	void SetValue(float value) 
+	{ 
+		_value[0] = value; 
+		_valueCount = 1;
+	}
+
+	float GetValueFloat(int index) { return _value[index]; }
+	void SetValue(int index, float value) 
+	{ 
+		if (_valueCount >= ValuesPerVariable)
+		{
+			return;
+		}
+
+		if (index + 1 > _valueCount)
+		{
+			_valueCount = index + 1;
+		}
+
+		_value[index] = value; 
+	}
 
 	void SetVariableName(const char* pVariableName) { strcpy(_variableName, pVariableName); }
 	char* GetVariableName() { return _variableName;}
@@ -86,25 +104,26 @@ public:
 class VariableCollection
 {
 	static const int VariableCount = 30;
+	static int _serialNumberNext;
+	static int _debugVariables;
 	
 	Variable _undefined;
 	Variable _constant;
 	Variable _variables[VariableCount];
+	int _activeCount;
+	int _serialNumber;
 
 public:
+	VariableCollection()
+	{
+		_activeCount = 0;
+		_serialNumber = _serialNumberNext++;
+		if (_debugVariables) printf("Create variable collection %d\n", _serialNumber);
+	}
+
 	int GetActiveVariableCount()
 	{
-		int count = 0;
-
-		for (int i = 0; i < VariableCount; i++)
-		{
-			if (_variables[i].GetActiveFlag() == 1)
-			{
-				count++;
-			}
-		}
-
-		return count;
+		return _activeCount;
 	}
 
 	bool Matches(Variable* pVariable, const char* pVariableName, int stackLevel)
@@ -114,7 +133,7 @@ public:
 
 	void Add(const char* pVariableName, int stackLevel)
 	{
-		for (int i = 0; i < VariableCount; i++)
+		for (int i = 0; i < _activeCount; i++)
 		{
 			if (Matches(_variables + i, pVariableName, stackLevel))
 			{
@@ -122,29 +141,26 @@ public:
 			}
 		}
 
-		for (int i = 0; i < VariableCount; i++)
-		{
-			if (_variables[i].GetActiveFlag() == 0)
-			{
-				_variables[i].SetVariableName(pVariableName);
-				_variables[i].SetActiveFlag(1);
-				_variables[i].SetStackLevel(stackLevel);
-				return;
-			}
-		}
+		_variables[_activeCount].SetVariableName(pVariableName);
+		_variables[_activeCount].SetStackLevel(stackLevel);
+		_activeCount++;
+		if (_debugVariables) printf("%d Add: %d %s (%d) active=%d\n", _serialNumber, _activeCount - 1, pVariableName, stackLevel, _activeCount);
+
+		return;
 	}
 
 	void Clear()
 	{
-		for (int i = 0; i < VariableCount; i++)
+		for (int i = 0; i < _activeCount; i++)
 		{
-			_variables[i].SetActiveFlag(0);
+			if (_debugVariables) printf("%d Delc: %d %s\n", _serialNumber, i, _variables[i].GetVariableName());
 		}
+		_activeCount = 0;
 	}
 
 	Variable* Get(int index)
 	{
-		if (index < 0 || index > VariableCount)
+		if (index < 0 || index > _activeCount)
 		{
 			return 0;
 		}
@@ -154,7 +170,7 @@ public:
 
 	Variable* GetWithoutErrorCheck(const char* pVariableName, int stackLevel)
 	{
-		for (int i = VariableCount - 1; i >= 0; i--)
+		for (int i = _activeCount - 1; i >= 0; i--)
 		{
 			if (Matches(_variables + i, pVariableName, stackLevel))
 			{
@@ -167,22 +183,29 @@ public:
 
 	void Delete(const char* pVariableName, int stackLevel)
 	{
-		for (int i = 0; i < VariableCount; i++)
+		for (int i = 0; i < _activeCount; i++)
 		{
 			if (Matches(_variables + i, pVariableName, stackLevel))
 			{
+				if (_debugVariables) printf("%d DelD: %d %s\n", _serialNumber, i, _variables[i].GetVariableName());
+
 				_variables[i].Clear();
+				_activeCount--;
+				return;
 			}
 		}
 	}
 
 	void DeleteStackLevel(int stackLevel)
 	{
-		for (int i = 0; i < VariableCount; i++)
+		for (int i = _activeCount - 1; i += 0; i--)
 		{
 			if (_variables[i].GetStackLevel() == stackLevel)
 			{
+				if (_debugVariables) printf("%d DelS: %d %s\n", _serialNumber, i, _variables[i].GetVariableName());
+
 				_variables[i].Clear();
+				_activeCount--;
 			}
 		}
 	}
@@ -236,9 +259,19 @@ public:
 		return Get(variableName, stackLevel, pParseErrors, lineNumber);
 	}
 
-	void AddAndSet(const char* variableName, float value, int stackLevel)
+	void AddAndSet(const char* variableName, Variable* pVariable, int stackLevel)
 	{
+		if (_debugVariables) printf("%d AddAndSet: %s %f %d\n", _serialNumber, variableName, pVariable->GetValueFloat(0), stackLevel);
+
 		Add(variableName, stackLevel);
-		Get(variableName, stackLevel, 0, -1)->SetValue(value);
+		Variable* pVariableNew = Get(variableName, stackLevel, 0, -1);
+		
+		for (int i = 0; i < pVariable->GetValueCount(); i++)
+		{
+			pVariableNew->SetValue(i, pVariable->GetValueFloat(i));
+		}
 	}
 };
+
+int VariableCollection::_serialNumberNext = 0;
+int VariableCollection::_debugVariables = 0;
