@@ -12,7 +12,10 @@ class Variable
 public:
 	Variable()
 	{
-		_value[0] = 0.0;
+		for (int i = 0; i < ValuesPerVariable; i++)
+		{
+			_value[i] = 0.0;
+		}
 		_valueCount = 0;
 		_stackLevel = 0;
 		_variableName[0] = '\0';

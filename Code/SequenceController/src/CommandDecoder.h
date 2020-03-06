@@ -11,7 +11,8 @@ class CommandDecoder
 			return false;
 		}
 
-		pExecutionContext->_variables.AddAndSet(loop.GetVariableName(), &loop.GetVariableStart(), pExecutionContext->_stack.GetFrameCount());
+		Variable startValue = loop.GetVariableStart();
+		pExecutionContext->_variables.AddAndSet(loop.GetVariableName(), &startValue, pExecutionContext->_stack.GetFrameCount());
 		Variable* pLoopVariable = pExecutionContext->_variables.GetWithoutErrorCheck(loop.GetVariableName(), pExecutionContext->_stack.GetFrameCount());
 
 		while (true)
@@ -156,7 +157,7 @@ class CommandDecoder
 			if (statementIndex != -1)
 			{
 				pExecutionContext->_stack.GetTopFrame()->InstructionPointer = statementIndex + 1;
-				CommandResultStatus commandResultStatus = pExecutionFlow->RunProgram(1);
+				pExecutionFlow->RunProgram(1);
 			}
 
 			int endIfIndex = FindEndif(pExecutionContext, pExecutionFlow, ifStatementIndex);
@@ -280,7 +281,7 @@ class CommandDecoder
 
 	static bool DecodeExpression(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
-		Variable result = pExecutionContext->Evaluate(pCommand->GetString(), pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
+		pExecutionContext->Evaluate(pCommand->GetString(), pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
 
 		return true;
 	}

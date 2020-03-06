@@ -75,7 +75,7 @@ public:
 					{
 						parenCount--;
 					}
-					else if (pArgument->IsEmpty() || pArgument->Is(",") && parenCount == 0)
+					else if ((pArgument->IsEmpty() || pArgument->Is(",")) && parenCount == 0)
 					{
 						break;
 					}
@@ -110,7 +110,9 @@ public:
 			pVariableCollection->AddAndSet(argumentName, pArgument, pStack->GetFrameCount());
 		}
 
-		pVariableCollection->AddAndSet("#A", &Variable(argumentCount), pStack->GetFrameCount());
+		Variable argumentCountVariable(argumentCount);
+
+		pVariableCollection->AddAndSet("#A", &argumentCountVariable, pStack->GetFrameCount());
 
 		if (pFunctionStore)
 		{
@@ -208,68 +210,68 @@ public:
 	{
 		// Replace literals with their values, look up variables...
 
-for (int i = start; i <= max; i++)
-{
-	ExpressionNode* pNode = pExpressionTokenizer->GetNode(i);
-
-	if (pNode->IsEmpty() || !pNode->_value.IsNan())
-	{
-		continue;
-	}
-
-	if (pNode->IsNumber())
-	{
-		pNode->_value = Variable::ParseFloat(pNode->_pItem);
-		pNode->_pItem = 0;
-	}
-	else if (pNode->IsIdentifier())
-	{
-		// might be a variable or a function call. 
-		char identifier[128];
-		strncpy(identifier, pNode->_pItem, pNode->_itemLength);
-		identifier[pNode->_itemLength] = '\0';
-
-		Variable* pValue = pVariableCollection->GetWithoutErrorCheck(identifier, pStack->GetFrameCount());
-		ExpressionNode* pNext = pExpressionTokenizer->GetNode(i + 1);
-
-		// implement ++ and --
-		int delta = 0;
-
-		if (pNext->_pItem != 0 && strcmp(pNext->_pItem, "++") == 0)
+		for (int i = start; i <= max; i++)
 		{
-			delta = 1;
-		}
-		else if (pNext->_pItem != 0 && strcmp(pNext->_pItem, "--") == 0)
-		{
-			delta = -1;
-		}
+			ExpressionNode* pNode = pExpressionTokenizer->GetNode(i);
 
-		if (delta != 0)
-		{
-			float value = pValue->GetValueFloat(0);
-			pValue->SetValue(0, value + delta);
-			return value;
-		}
-
-		// if the next node is a '(', this is a function call even if there is a matching variable name. 
-		bool nextNodeParen = pNext != 0 && pNext->Is("(");
-
-		if (pValue && !nextNodeParen)
-		{
-			pNode->_value = *pValue;
-		}
-		else
-		{
-			if (!HandleFunctionCall(identifier, pExpressionTokenizer, i, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, functionCallHandler, pExecutionFlow))
+			if (pNode->IsEmpty() || !pNode->_value.IsNan())
 			{
-				pParseErrors->AddError("Unrecognized identifier: ", identifier, lineNumber);
-				return Variable();
+				continue;
+			}
+
+			if (pNode->IsNumber())
+			{
+				pNode->_value = Variable::ParseFloat(pNode->_pItem);
+				pNode->_pItem = 0;
+			}
+			else if (pNode->IsIdentifier())
+			{
+				// might be a variable or a function call. 
+				char identifier[128];
+				strncpy(identifier, pNode->_pItem, pNode->_itemLength);
+				identifier[pNode->_itemLength] = '\0';
+
+				Variable* pValue = pVariableCollection->GetWithoutErrorCheck(identifier, pStack->GetFrameCount());
+				ExpressionNode* pNext = pExpressionTokenizer->GetNode(i + 1);
+
+				// implement ++ and --
+				int delta = 0;
+
+				if (pNext->_pItem != 0 && strcmp(pNext->_pItem, "++") == 0)
+				{
+					delta = 1;
+				}
+				else if (pNext->_pItem != 0 && strcmp(pNext->_pItem, "--") == 0)
+				{
+					delta = -1;
+				}
+
+				if (delta != 0)
+				{
+					float value = pValue->GetValueFloat(0);
+					pValue->SetValue(0, value + delta);
+					return value;
+				}
+
+				// if the next node is a '(', this is a function call even if there is a matching variable name. 
+				bool nextNodeParen = pNext != 0 && pNext->Is("(");
+
+				if (pValue && !nextNodeParen)
+				{
+					pNode->_value = *pValue;
+				}
+				else
+				{
+					if (!HandleFunctionCall(identifier, pExpressionTokenizer, i, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, functionCallHandler, pExecutionFlow))
+					{
+						pParseErrors->AddError("Unrecognized identifier: ", identifier, lineNumber);
+						return Variable();
+					}
+				}
 			}
 		}
-	}
-}
 
-return EvaluateRest(pExpressionTokenizer, start, max, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber);
+		return EvaluateRest(pExpressionTokenizer, start, max, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber);
 	}
 
 	void EvaluateParens(ExpressionTokenizer* pExpressionTokenizer, int start, int max, VariableCollection* pVariableCollection, FunctionStore* pFunctionStore, Stack* pStack, ParseErrors* pParseErrors, int lineNumber)
@@ -280,8 +282,6 @@ return EvaluateRest(pExpressionTokenizer, start, max, pVariableCollection, pFunc
 
 			if (pNode->Is("("))
 			{
-				int openParams = 0;
-
 				int j = pExpressionTokenizer->FindMatchingParen(i);
 
 				pExpressionTokenizer->SetNodeEmpty(i);
@@ -302,8 +302,6 @@ return EvaluateRest(pExpressionTokenizer, start, max, pVariableCollection, pFunc
 
 			if (pNode->Is("{"))
 			{
-				int openParams = 0;
-
 				int j;
 				for (j = i + 1; j <= max; j++)
 				{

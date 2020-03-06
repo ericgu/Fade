@@ -20,7 +20,7 @@ class LedPwmEsp32: public ILedPwm
 
         void UpdateLed(LedState ledState)
         {
-            int brightnessPwmValue = PwmMax * ledState.GetBrightness();
+            int brightnessPwmValue = PwmMax * ledState.GetBrightness()->GetValueFloat(0);
 
             ledcWrite(ledState.GetChannel(), brightnessPwmValue);
             if (ledState.GetChannel() == 100)
@@ -28,7 +28,7 @@ class LedPwmEsp32: public ILedPwm
             Serial.print("PWM: ");
             Serial.print(ledState.GetChannel());
             Serial.print(" ");           
-            Serial.print(ledState.GetBrightness());
+            Serial.print(ledState.GetBrightness()->GetValueFloat(0));
             Serial.print(": ");
             Serial.println(brightnessPwmValue);
             }

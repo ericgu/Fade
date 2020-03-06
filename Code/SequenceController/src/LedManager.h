@@ -31,8 +31,9 @@ class LedManager: public ILedManager
 		{
 			for (int i = 0; i < _channelCount; i++)
 			{
-				_states[i] = LedState(i, 0.0F, 0);
-				_deltas[i] = LedState(i, 0.0F, 0);
+				Variable zero;
+				_states[i] = LedState(i, &zero, 0);
+				_deltas[i] = LedState(i, &zero, 0);
 			}
 		}
 
@@ -49,15 +50,15 @@ class LedManager: public ILedManager
 				Variable* pTargetBrightness = ledState.GetBrightness();
 
 				// TODO: save target so that we get to the exact endpoint?
+				Variable delta;
 				for (int i = 0; i < pTargetBrightness->GetValueCount(); i++)
 				{
 					float itemDelta = (ledState.GetBrightness()->GetValueFloat(i) - _states[ledState.GetChannel()].GetBrightness()->GetValueFloat(i)) / ledState.GetCycleCount();
 
-					Variable delta;
 					delta.SetValue(i, itemDelta);
-
-					_deltas[ledState.GetChannel()] = LedState(ledState.GetChannel(), &delta, ledState.GetCycleCount());
 				}
+
+				_deltas[ledState.GetChannel()] = LedState(ledState.GetChannel(), &delta, ledState.GetCycleCount());
 			}
 		}
 

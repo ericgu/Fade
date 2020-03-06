@@ -45,6 +45,14 @@ class LedManagerTest
 		Assert::AreEqual(brightness, ledState.GetBrightness()->GetValueFloat(0));
 	}
 
+	static void AssertLedState(LedState ledState, int channel, float brightness0, float brightness1, float brightness2)
+	{
+		Assert::AreEqual(channel, ledState.GetChannel());
+		Assert::AreEqual(brightness0, ledState.GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(brightness1, ledState.GetBrightness()->GetValueFloat(1));
+		Assert::AreEqual(brightness2, ledState.GetBrightness()->GetValueFloat(2));
+	}
+
 	static void Test()
 	{
 		LedPwmSimulator ledPwm(100);
@@ -137,6 +145,51 @@ class LedManagerTest
 		AssertLedState(ledPwm.GetUpdatedState(3), 1, 2.0);
 	}
 
+	static void TestMultiValue()
+	{
+		LedPwmSimulator ledPwm(100);
+		LedManager ledManager(&ledPwm, 1);
+
+		CommandResult commandResult;
+		Variable target;
+		target.SetValue(0, 1.0F);
+		target.SetValue(1, 0.5F);
+		target.SetValue(2, 0.25F);
+		commandResult.AddTarget(LedState(0, &target, 1));
+		commandResult.SetCycleCount(1);
+
+		ledManager.SetDelta(commandResult);
+		ledManager.Tick();
+
+		Assert::AreEqual(1, ledPwm.GetUpdateCount());
+		AssertLedState(ledPwm.GetUpdatedState(0), 0, 1.0F, 0.5F, 0.25F);
+	}
+
+	static void TestMultiValueTwoStep()
+	{
+		LedPwmSimulator ledPwm(100);
+		LedManager ledManager(&ledPwm, 1);
+
+		CommandResult commandResult;
+		Variable target;
+		target.SetValue(0, 1.0F);
+		target.SetValue(1, 2.0F);
+		target.SetValue(2, 4.0F);
+		commandResult.AddTarget(LedState(0, &target, 2));
+		commandResult.SetCycleCount(2);
+
+		ledManager.SetDelta(commandResult);
+		ledManager.Tick();
+
+		Assert::AreEqual(1, ledPwm.GetUpdateCount());
+		AssertLedState(ledPwm.GetUpdatedState(0), 0, 0.5F, 1.0F, 2.0F);
+
+		ledManager.Tick();
+
+		Assert::AreEqual(2, ledPwm.GetUpdateCount());
+		AssertLedState(ledPwm.GetUpdatedState(1), 0, 1.0F, 2.0F, 4.0F);
+	}
+
 public:
 
 	static int Run()
@@ -145,6 +198,9 @@ public:
 		TestMultipleSteps();
 		TestTwoChannelsTwoUpdates();
 		Test();
+
+		TestMultiValue();
+		TestMultiValueTwoStep();
 
 		return 0;
 	}
