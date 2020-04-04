@@ -69,6 +69,43 @@ class ParseErrorsTest
 		Assert::AreEqual(1, parseError._lineNumber);
 	}
 
+	static void TestTooLong()
+	{
+		ParseErrors parseErrors;
+
+		parseErrors.AddError("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", "Value x", 1);
+
+		Assert::AreEqual(1, parseErrors.GetErrorCount());
+		ParseError parseError = parseErrors.GetError(0);
+		Assert::AreEqual("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567", parseError._errorText);
+	}
+
+	static void TestTooLong2()
+	{
+		ParseErrors parseErrors;
+
+		parseErrors.AddError("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", "Value 123456", 1);
+
+		Assert::AreEqual(1, parseErrors.GetErrorCount());
+		ParseError parseError = parseErrors.GetError(0);
+		Assert::AreEqual("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890Value 1", parseError._errorText);
+	}
+
+	static void TestTooMany()
+	{
+		ParseErrors parseErrors;
+
+		for (int i = 0; i < 16; i++)
+		{
+			parseErrors.AddError("a", "Value 123456", i);
+		}
+
+		Assert::AreEqual(16, parseErrors.GetErrorCount());
+
+		parseErrors.AddError("a", "Value 123456", 55);
+		Assert::AreEqual(16, parseErrors.GetErrorCount());
+	}
+
 public:
 	static void Run()
 	{
@@ -78,5 +115,9 @@ public:
 		TestFormat2();
 		TestClear();
 		TestRepeatedError();
+
+		TestTooLong();
+		TestTooLong2();
+		TestTooMany();
 	}
 };

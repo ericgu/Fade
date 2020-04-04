@@ -16,17 +16,28 @@ public:
 		_pUpdatedStates = new LedState[_maxUpdates];
 	}
 
+	~LedPwmSimulator()
+	{
+		delete _pUpdatedStates;
+		_pUpdatedStates = 0;
+	}
+
 	void UpdateLed(LedState ledState)
 	{
 		if (_updateCount >= _maxUpdates)
 		{
-			puts("max updates exceeded");
+			Serial.println("max updates exceeded");
 			return;
 		}
 
 		*(_pUpdatedStates + _updateCount) = ledState;
 
 		_updateCount++;
+	}
+
+	void Show()
+	{
+
 	}
 
 	int GetUpdateCount() { return _updateCount; }
@@ -190,6 +201,22 @@ class LedManagerTest
 		AssertLedState(ledPwm.GetUpdatedState(1), 0, 1.0F, 2.0F, 4.0F);
 	}
 
+	static void TestInvalidChannel()
+	{
+		LedPwmSimulator ledPwm(100);
+		LedManager ledManager(&ledPwm, 1);
+
+		CommandResult commandResult;
+		commandResult.AddTarget(LedState(1, 1.0, 1));
+		commandResult.SetCycleCount(1);
+
+		ledManager.SetDelta(commandResult);
+		ledManager.Tick();
+
+		Assert::AreEqual(1, ledPwm.GetUpdateCount());
+		AssertLedState(ledPwm.GetUpdatedState(0), 0, 0);
+	}
+
 public:
 
 	static int Run()
@@ -201,6 +228,7 @@ public:
 
 		TestMultiValue();
 		TestMultiValueTwoStep();
+		TestInvalidChannel();
 
 		return 0;
 	}

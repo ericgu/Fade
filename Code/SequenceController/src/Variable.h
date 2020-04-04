@@ -3,8 +3,9 @@
 class Variable
 {
 	static const int ValuesPerVariable = 4;
+	static const int MaxVariableNameLength = 64;
 
-	char _variableName[64];
+	char _variableName[MaxVariableNameLength];
 	float _value[ValuesPerVariable];
 	int _valueCount;
 	int _stackLevel;
@@ -23,7 +24,7 @@ public:
 
 	Variable(int value)
 	{
-		_value[0] = (float) value;
+		_value[0] = (float)value;
 		_valueCount = 1;
 		_stackLevel = 0;
 		_variableName[0] = '\0';
@@ -40,7 +41,7 @@ public:
 	static Variable ParseFloat(const char* pCommand)
 	{
 		Variable variable;
-		variable._value[0] = (float) atof(pCommand);
+		variable._value[0] = (float)atof(pCommand);
 		variable._valueCount = 1;
 		variable._stackLevel = 0;
 
@@ -60,7 +61,7 @@ public:
 	void Increment(Variable increment)
 	{
 		_value[0] += increment.GetValueFloat(0);
-        //Serial.println(_value);
+		//Serial.println(_value);
 	}
 
 	void Clear()
@@ -73,17 +74,17 @@ public:
 
 	int GetValueCount() { return _valueCount; }
 
-	int GetValueInt() { return (int) _value[0]; }
+	int GetValueInt() { return (int)_value[0]; }
 
-	void SetValue(float value) 
-	{ 
-		_value[0] = value; 
+	void SetValue(float value)
+	{
+		_value[0] = value;
 		_valueCount = 1;
 	}
 
 	float GetValueFloat(int index) { return _value[index]; }
-	void SetValue(int index, float value) 
-	{ 
+	void SetValue(int index, float value)
+	{
 		if (_valueCount >= ValuesPerVariable)
 		{
 			return;
@@ -94,10 +95,21 @@ public:
 			_valueCount = index + 1;
 		}
 
-		_value[index] = value; 
+		_value[index] = value;
 	}
 
-	void SetVariableName(const char* pVariableName) { strcpy(_variableName, pVariableName); }
+	void SetVariableName(const char* pVariableName)
+	{
+		if (strlen(pVariableName) >= MaxVariableNameLength)
+		{
+			Serial.println("Variable too long");
+			return;
+		}
+
+		strcpy(_variableName, pVariableName);
+	}
+
+
 	char* GetVariableName() { return _variableName;}
 
 	void SetStackLevel(int stackLevel) { _stackLevel = stackLevel; }
@@ -106,22 +118,29 @@ public:
 
 class VariableCollection
 {
-	static const int VariableCount = 30;
+	static const int VariableMaxCount = 30;
 	static int _serialNumberNext;
 	static int _debugVariables;
 	
 	Variable _undefined;
 	Variable _constant;
-	Variable _variables[VariableCount];
+	Variable* _pVariables;
 	int _activeCount;
 	int _serialNumber;
 
 public:
 	VariableCollection()
 	{
+		_pVariables = new Variable[VariableMaxCount];
+
 		_activeCount = 0;
 		_serialNumber = _serialNumberNext++;
 		if (_debugVariables) printf("Create variable collection %d\n", _serialNumber);
+	}
+
+	~VariableCollection()
+	{
+		delete _pVariables;
 	}
 
 	int GetActiveVariableCount()
@@ -138,14 +157,20 @@ public:
 	{
 		for (int i = 0; i < _activeCount; i++)
 		{
-			if (Matches(_variables + i, pVariableName, stackLevel))
+			if (Matches(_pVariables + i, pVariableName, stackLevel))
 			{
 				return;
 			}
 		}
 
-		_variables[_activeCount].SetVariableName(pVariableName);
-		_variables[_activeCount].SetStackLevel(stackLevel);
+		if (_activeCount == VariableMaxCount)
+		{
+			Serial.println("Too many variables");
+			return;
+		}
+
+		_pVariables[_activeCount].SetVariableName(pVariableName);
+		_pVariables[_activeCount].SetStackLevel(stackLevel);
 		_activeCount++;
 		if (_debugVariables) printf("%d Add: %d %s (%d) active=%d\n", _serialNumber, _activeCount - 1, pVariableName, stackLevel, _activeCount);
 
@@ -156,7 +181,7 @@ public:
 	{
 		for (int i = 0; i < _activeCount; i++)
 		{
-			if (_debugVariables) printf("%d Delc: %d %s\n", _serialNumber, i, _variables[i].GetVariableName());
+			if (_debugVariables) printf("%d Delc: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
 		}
 		_activeCount = 0;
 	}
@@ -168,16 +193,16 @@ public:
 			return 0;
 		}
 
-		return &_variables[index];
+		return &_pVariables[index];
 	}
 
 	Variable* GetWithoutErrorCheck(const char* pVariableName, int stackLevel)
 	{
 		for (int i = _activeCount - 1; i >= 0; i--)
 		{
-			if (Matches(_variables + i, pVariableName, stackLevel))
+			if (Matches(_pVariables + i, pVariableName, stackLevel))
 			{
-				return _variables + i;
+				return _pVariables + i;
 			}
 		}
 
@@ -188,11 +213,11 @@ public:
 	{
 		for (int i = 0; i < _activeCount; i++)
 		{
-			if (Matches(_variables + i, pVariableName, stackLevel))
+			if (Matches(_pVariables + i, pVariableName, stackLevel))
 			{
-				if (_debugVariables) printf("%d DelD: %d %s\n", _serialNumber, i, _variables[i].GetVariableName());
+				if (_debugVariables) printf("%d DelD: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
 
-				_variables[i].Clear();
+				_pVariables[i].Clear();
 				_activeCount--;
 				return;
 			}
@@ -203,11 +228,11 @@ public:
 	{
 		for (int i = _activeCount - 1; i += 0; i--)
 		{
-			if (_variables[i].GetStackLevel() == stackLevel)
+			if (_pVariables[i].GetStackLevel() == stackLevel)
 			{
-				if (_debugVariables) printf("%d DelS: %d %s\n", _serialNumber, i, _variables[i].GetVariableName());
+				if (_debugVariables) printf("%d DelS: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
 
-				_variables[i].Clear();
+				_pVariables[i].Clear();
 				_activeCount--;
 			}
 		}
@@ -236,7 +261,7 @@ public:
 		return false;
 	}
 
-	static const char* GetVariableName(const char *pCommand, char* pVariableName)
+	static const char* GetVariableName(const char *pCommand, char* pVariableName, int bufferLength)
 	{
 		const char *pStart = pCommand;
 
@@ -246,9 +271,18 @@ public:
 		}
 
 		int length = pCommand - pStart;
-		strncpy(pVariableName, pStart, length);
-		*(pVariableName + length) = '\0';
-		 
+
+		if (length >= bufferLength)
+		{
+			Serial.println("Variable name too long");
+			*pVariableName = '\0';
+		}
+		else
+		{
+			strncpy(pVariableName, pStart, length);
+			*(pVariableName + length) = '\0';
+		}
+
 		return pCommand;
 	}
 
@@ -257,7 +291,7 @@ public:
 		char variableName[64];
 
 		//Serial.print("  Variable name: "); Serial.println(pCommand);
-		pCommand = GetVariableName(pCommand, variableName);
+		pCommand = GetVariableName(pCommand, variableName, sizeof(variableName));
 
 		return Get(variableName, stackLevel, pParseErrors, lineNumber);
 	}

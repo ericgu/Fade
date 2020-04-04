@@ -10,7 +10,7 @@ public:
 		StackFrame* pStackFrame = pStack->GetTopFrame();
 		pStackFrame->SerialNumberStart = pFunctionDefinition->SerialNumberStart;
 		pStackFrame->SerialNumberEnd = pFunctionDefinition->SerialNumberEnd;
-		pStackFrame->InstructionPointer = pFunctionDefinition->SerialNumberStart;
+		pStackFrame->SetInstructionPointer(pFunctionDefinition->SerialNumberStart, "DoFunctionCall");
 
 		pExecutionFlow->RunProgram(1);
 
@@ -139,14 +139,18 @@ public:
 	// one to use for the real call. 
 	Variable Evaluate(const char* pCommand, VariableCollection* pVariableCollection, FunctionStore* pFunctionStore, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
 	{
+		StackWatcher::Log("Expression::Evaluate");
+
 		return Evaluate(pCommand, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, DoFunctionCall, pExecutionFlow);
 	}
 
 	Variable Evaluate(const char* pCommand, VariableCollection* pVariableCollection, FunctionStore* pFunctionStore, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, FunctionCallHandler functionCallHandler = 0, IExecutionFlow* pExecutionFlow = 0)
 	{
+		StackWatcher::Log("Expression::Evaluate.2 a");
+		//Serial.println(pCommand); Serial.flush();
 		ExpressionTokenizer expressionTokenizer;
 
-		expressionTokenizer.Tokenize(pCommand);
+		expressionTokenizer.Tokenize(pCommand, pParseErrors, lineNumber);
 		int nodeCount = expressionTokenizer.GetNodeCount();
 
 		// Detect assignments...
@@ -228,6 +232,13 @@ public:
 			{
 				// might be a variable or a function call. 
 				char identifier[128];
+				if (pNode->_itemLength >= sizeof(identifier))
+				{
+					pParseErrors->AddError("Identifier too long", "", lineNumber);
+					pNode->_value.SetToNan();
+					return pNode->_value;
+				}
+
 				strncpy(identifier, pNode->_pItem, pNode->_itemLength);
 				identifier[pNode->_itemLength] = '\0';
 
@@ -235,22 +246,25 @@ public:
 				ExpressionNode* pNext = pExpressionTokenizer->GetNode(i + 1);
 
 				// implement ++ and --
-				int delta = 0;
+				if (pNext != 0)
+				{
+					int delta = 0;
 
-				if (pNext->_pItem != 0 && strcmp(pNext->_pItem, "++") == 0)
-				{
-					delta = 1;
-				}
-				else if (pNext->_pItem != 0 && strcmp(pNext->_pItem, "--") == 0)
-				{
-					delta = -1;
-				}
+					if (pNext->_pItem != 0 && strcmp(pNext->_pItem, "++") == 0)
+					{
+						delta = 1;
+					}
+					else if (pNext->_pItem != 0 && strcmp(pNext->_pItem, "--") == 0)
+					{
+						delta = -1;
+					}
 
-				if (delta != 0)
-				{
-					float value = pValue->GetValueFloat(0);
-					pValue->SetValue(0, value + delta);
-					return value;
+					if (delta != 0)
+					{
+						float value = pValue->GetValueFloat(0);
+						pValue->SetValue(0, value + delta);
+						return value;
+					}
 				}
 
 				// if the next node is a '(', this is a function call even if there is a matching variable name. 

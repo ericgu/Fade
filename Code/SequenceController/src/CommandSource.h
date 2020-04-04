@@ -1,7 +1,7 @@
 class ICommandSource
 {
     public:
-        virtual Command GetCommand(int commandNumber) = 0;
+        virtual Command* GetCommand(int commandNumber) = 0;
 };
 
 class CommandSource: public ICommandSource
@@ -9,11 +9,20 @@ class CommandSource: public ICommandSource
 	//int _serialNumber;
 
 	ListParser* _pListParser;
-
+	Command _command;
 
     public:
 		CommandSource()
 		{
+			_pListParser = 0;
+		}
+
+		~CommandSource()
+		{
+			if (_pListParser != 0)
+			{
+				delete _pListParser;
+			}
 			_pListParser = 0;
 		}
 
@@ -26,7 +35,8 @@ class CommandSource: public ICommandSource
 			}
 
 			//_serialNumber = 0;
-			_pListParser = new ListParser("\n\r", pCommandString);
+			_pListParser = new ListParser(1024, 1024);
+			_pListParser->Parse("\n\r", pCommandString);
 			//Serial.println(">CommandSource.SetCommand");
 			//Serial.print("This: "); Serial.println((int) this);
 			//Serial.println(pCommandString);
@@ -38,11 +48,11 @@ class CommandSource: public ICommandSource
 			//Serial.println("<CommandSource.SetCommand");
 		}
 
-		Command GetCommand(int commandNumber)
+		Command* GetCommand(int commandNumber)
 		{
 			if (_pListParser == 0 || commandNumber >= _pListParser->GetCount())
 			{
-				return Command(0, -1);
+				return 0;
 			}
 
 			//Serial.println(">GetNextCommand");
@@ -65,11 +75,11 @@ class CommandSource: public ICommandSource
 				pCommandStart++;
 			}
 
-			Command command = Command(pCommandStart, commandNumber);
+			_command = Command(pCommandStart, commandNumber);
 
 			//Serial.println(command.GetString());
 
-			return command;
+			return &_command;
 		}
 
 };

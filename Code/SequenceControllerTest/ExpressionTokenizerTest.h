@@ -21,7 +21,8 @@ class ExpressionTokenizerTest
 	{
 		ExpressionTokenizer expressionTokenizer;
 
-		expressionTokenizer.Tokenize("13.0");
+		ParseErrors parseErrors;
+		expressionTokenizer.Tokenize("13.0", &parseErrors, 1);
 
 		Assert::AreEqual(1, expressionTokenizer.GetNodeCount());
 		Assert(expressionTokenizer, 0, "13.0");
@@ -31,7 +32,8 @@ class ExpressionTokenizerTest
 	{
 		ExpressionTokenizer expressionTokenizer;
 
-		expressionTokenizer.Tokenize("13.0+10.0");
+		ParseErrors parseErrors;
+		expressionTokenizer.Tokenize("13.0+10.0", &parseErrors, 1);
 
 		Assert::AreEqual(3, expressionTokenizer.GetNodeCount());
 		Assert(expressionTokenizer, 0, "13.0");
@@ -43,7 +45,8 @@ class ExpressionTokenizerTest
 	{
 		ExpressionTokenizer expressionTokenizer;
 
-		expressionTokenizer.Tokenize("1+2-3*4/5==6!=7>=8>9<=10<11&&12||13!14%15,16=17++18--19{20}21");
+		ParseErrors parseErrors;
+		expressionTokenizer.Tokenize("1+2-3*4/5==6!=7>=8>9<=10<11&&12||13!14%15,16=17++18--19{20}21", &parseErrors, 1);
 
 		Assert::AreEqual(41, expressionTokenizer.GetNodeCount());
 		Assert(expressionTokenizer, 0, "1");
@@ -93,7 +96,8 @@ class ExpressionTokenizerTest
 	{
 		ExpressionTokenizer expressionTokenizer;
 
-		expressionTokenizer.Tokenize("(1+2)*3");
+		ParseErrors parseErrors;
+		expressionTokenizer.Tokenize("(1+2)*3", &parseErrors, 1);
 
 		Assert::AreEqual(7, expressionTokenizer.GetNodeCount());
 		Assert(expressionTokenizer, 0, "(");
@@ -109,7 +113,8 @@ class ExpressionTokenizerTest
 	{
 		ExpressionTokenizer expressionTokenizer;
 
-		expressionTokenizer.Tokenize("(1+2)");
+		ParseErrors parseErrors;
+		expressionTokenizer.Tokenize("(1+2)", &parseErrors, 1);
 
 		Assert::AreEqual(5, expressionTokenizer.GetNodeCount());
 		Assert(expressionTokenizer, 0, "(");
@@ -123,7 +128,8 @@ class ExpressionTokenizerTest
 	{
 		ExpressionTokenizer expressionTokenizer;
 
-		expressionTokenizer.Tokenize(" (	1 + 2 )	");
+		ParseErrors parseErrors;
+		expressionTokenizer.Tokenize(" (	1 + 2 )	", &parseErrors, 1);
 
 		Assert::AreEqual(5, expressionTokenizer.GetNodeCount());
 		Assert(expressionTokenizer, 0, "(");
@@ -136,8 +142,9 @@ class ExpressionTokenizerTest
 	static void TestQuotedString()
 	{
 		ExpressionTokenizer expressionTokenizer;
+		ParseErrors parseErrors;
 
-		expressionTokenizer.Tokenize("= \" x + y = z \" *");
+		expressionTokenizer.Tokenize("= \" x + y = z \" *", &parseErrors, 1);
 
 		Assert::AreEqual(3, expressionTokenizer.GetNodeCount());
 		Assert(expressionTokenizer, 0, "=");
@@ -148,8 +155,9 @@ class ExpressionTokenizerTest
 	static void TestEmptyNodes()
 	{
 		ExpressionTokenizer expressionTokenizer;
+		ParseErrors parseErrors;
 
-		expressionTokenizer.Tokenize("1+2");
+		expressionTokenizer.Tokenize("1+2", &parseErrors, 1);
 
 		ExpressionNode* pOne = expressionTokenizer.GetNode(0);
 		ExpressionNode* pTwo = expressionTokenizer.GetNode(2);
@@ -169,8 +177,9 @@ class ExpressionTokenizerTest
 	static void TestFindMatchingCloseParen()
 	{
 		ExpressionTokenizer expressionTokenizer;
+		ParseErrors parseErrors;
 
-		expressionTokenizer.Tokenize("( 3 + 4 * ( 2 + 5))");
+		expressionTokenizer.Tokenize("( 3 + 4 * ( 2 + 5))", &parseErrors, 1);
 
 		expressionTokenizer.GetNode(1)->_value.SetValue(0, 15.0F);
 		expressionTokenizer.GetNode(1)->_pItem = 0;
@@ -187,7 +196,7 @@ class ExpressionTokenizerTest
 		Assert::AreEqual(-1, matching);
 
 		ExpressionTokenizer expressionTokenizer2;
-		expressionTokenizer2.Tokenize("( 3 + 4 * ( 2 + 5");
+		expressionTokenizer2.Tokenize("( 3 + 4 * ( 2 + 5", &parseErrors, 1);
 
 		matching = expressionTokenizer2.FindMatchingParen(0);
 		Assert::AreEqual(-2, matching);
@@ -196,8 +205,11 @@ class ExpressionTokenizerTest
 	static void TestFindFirstValue()
 	{
 		ExpressionTokenizer expressionTokenizer;
+		ParseErrors parseErrors;
 
-		expressionTokenizer.Tokenize("( 3 + 4 )");
+		int k = sizeof(ExpressionTokenizer);
+
+		expressionTokenizer.Tokenize("( 3 + 4 )", &parseErrors, 1);
 
 		expressionTokenizer.SetNodeEmpty(0);
 		expressionTokenizer.SetNodeEmpty(1);
@@ -245,6 +257,28 @@ class ExpressionTokenizerTest
 		Assert::AreEqual(false, expressionNode.Is("="));
 	}
 
+	static void TestAfterLastNode()
+	{
+		ExpressionTokenizer expressionTokenizer;
+		ParseErrors parseErrors;
+
+		expressionTokenizer.Tokenize("13.0", &parseErrors, 1);
+
+		Assert::AreEqual(0, (int) expressionTokenizer.GetNode(1));
+	}
+
+	static void TestTooManyNodes()
+	{
+		ExpressionTokenizer expressionTokenizer;
+		ParseErrors parseErrors;
+
+		expressionTokenizer.Tokenize("1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+", &parseErrors, 1);
+		
+		Assert::AreEqual(1, parseErrors.GetErrorCount());
+		Assert::AreEqual("Expression: Too many nodes in expression", parseErrors.GetError(0)._errorText);
+	}
+
+
 public:
 	static void Run()
 	{
@@ -263,5 +297,8 @@ public:
 		TestNodeIsNumber();
 		TestNodeIsIdentifier();
 		TestNodeIs();
+		TestAfterLastNode();
+
+		TestTooManyNodes();
 	}
 };

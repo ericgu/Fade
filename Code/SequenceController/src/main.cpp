@@ -10,6 +10,7 @@
 #define strncpy_s strncpy
 #define strncmp_s strncmp
 
+#include "StackWatcher.h"
 #include "SystemCallback.h"
 #include "MyRandom.h"
 #include "TickSource.h"
@@ -24,8 +25,9 @@
 #include "CommandResult.h"
 #include "IExecutionFlow.h"
 #include "LedCommand.h"
-#include "LedPwm.h"
+#include "ILedPwm.h"
 #include "LedPwmEsp32.h"
+#include "LedRGB.h"
 #include "LedManager.h"
 #include "ExpressionTokenizer.h"
 #include "FunctionStore.h"
@@ -52,17 +54,46 @@
 
 #include "MyWebServer.h"
 
-LedPwmEsp32 ledPwm;
-LedManager ledManager(&ledPwm, 16);
+ILedPwm* _pLedPwm;
+LedManager* _pLedManager;
 
-Supervisor supervisor;
-Settings settings;
+Supervisor* _pSupervisor;
+Settings* _pSettings;
 
 MyWebServer* pMyWebServer;
 
+void Callback()
+{
+  //Serial.println("Callback");
+  pMyWebServer->HandleClient();
+
+  //TrackMemory();
+    
+  delay(10);
+}
+
+void taskOne( void * parameter )
+{
+  StackWatcher::Init();
+
+  StackWatcher::Log("Task Start");
+  _pSupervisor->ExecuteLoop();
+
+}
+
 void setup() {
+
   Serial.begin(115200);
-  WiFi.setHostname(supervisor.GetNodeName());
+  StackWatcher::Log("setup");
+  _pSupervisor = new Supervisor();
+  _pSettings = new Settings();
+  WiFi.setHostname(_pSupervisor->GetNodeName());
+
+  //_pLedPwm = new LedPwmEsp32();
+  //_pLedManager = new LedManager(_pLedPwm, 16);
+
+  _pLedPwm = new LedRGB(16, 13);
+  _pLedManager = new LedManager(_pLedPwm, 16);
 
   WiFiManager wifiManager;
   
@@ -71,13 +102,24 @@ void setup() {
   Serial.print("after autoconnect: ");
   Serial.println(WiFi.localIP());
 
-  pMyWebServer = new MyWebServer(&supervisor);
+  pMyWebServer = new MyWebServer(_pSupervisor);
 
-  settings.Init();
-  supervisor.Init(&ledManager, &settings);
+  _pSettings->Init();
+  _pSupervisor->Init(_pLedManager, _pSettings, Callback);
 
   Serial.println("Setup completed");
+
+    xTaskCreate(
+                    taskOne,          /* Task function. */
+                    "TaskOne",        /* String with name of task. */
+                    30000,            /* Stack size in bytes. */
+                    NULL,             /* Parameter passed as input of the task */
+                    1,                /* Priority of the task. */
+                    NULL);            /* Task handle. */
+
 }
+
+
 
  int iterations = 0;
 
@@ -92,18 +134,11 @@ void setup() {
     iterations++;
  }
 
-void Callback()
-{
-  pMyWebServer->HandleClient();
-
-  //TrackMemory();
-    
-  delay(10);
-}
-
 void loop() 
 {
-  supervisor.ExecuteLoop(Callback);
+  delay(1000000);
+  //StackWatcher::Log("loop");
+  //_pSupervisor->ExecuteLoop();
 
   //pMyWebServer->HandleClient();
 

@@ -33,4 +33,7 @@ class LedPwmEsp32: public ILedPwm
             Serial.println(brightnessPwmValue);
             }
         }
+
+        void Show()
+        {}
 };

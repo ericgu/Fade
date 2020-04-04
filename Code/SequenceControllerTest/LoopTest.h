@@ -7,9 +7,10 @@ class LoopTest
 		ExecutionContext executionContext;
 		ParseErrors parseErrors;
 
-		Loop loop = Loop::Parse("FOR B11 2:7", &executionContext, &parseErrors, 3);
+		Loop loop;
+		int result = loop.Parse("FOR B11 2:7", &executionContext, &parseErrors, 3);
 
-		Assert::AreEqual(1, loop.GetMatch());
+		Assert::AreEqual(1, result);
 		Assert::AreEqual("B11", loop.GetVariableName());
 		Assert::AreEqual(2.0F, loop.GetVariableStart().GetValueFloat(0));
 		Assert::AreEqual(7.0F, loop.GetVariableEnd().GetValueFloat(0));
@@ -31,16 +32,18 @@ class LoopTest
 	{
 		ExecutionContext executionContext;
 		ParseErrors parseErrors;
-		Loop loop = Loop::Parse("junkjunkjunk", &executionContext, &parseErrors, 3);
+		Loop loop;
+		int result = loop.Parse("junkjunkjunk", &executionContext, &parseErrors, 3);
 
-		Assert::AreEqual(0, loop.GetMatch());
+		Assert::AreEqual(0, result);
 	}
 
 	static void TestMissingVariable()
 	{
 		ExecutionContext executionContext;
 		ParseErrors parseErrors;
-		Loop loop = Loop::Parse("FOR ", &executionContext, &parseErrors, 3);
+		Loop loop;
+		loop.Parse("FOR ", &executionContext, &parseErrors, 3);
 
 		ValidateError(parseErrors, 1, "Error in FOR: missing variable name", 3);
 	}
@@ -49,7 +52,8 @@ class LoopTest
 	{
 		ExecutionContext executionContext;
 		ParseErrors parseErrors;
-		Loop loop = Loop::Parse("FOR A ", &executionContext, &parseErrors, 3);
+		Loop loop;
+		loop.Parse("FOR A ", &executionContext, &parseErrors, 3);
 
 		ValidateError(parseErrors, 1, "Error in FOR: missing range value(s)", 3);
 	}
@@ -58,7 +62,8 @@ class LoopTest
 	{
 		ExecutionContext executionContext;
 		ParseErrors parseErrors;
-		Loop loop = Loop::Parse("FOR A 1", &executionContext, &parseErrors, 3);
+		Loop loop;
+		loop.Parse("FOR A 1", &executionContext, &parseErrors, 3);
 
 		ValidateError(parseErrors, 1, "Error in FOR: missing range value(s)", 3);
 	}
@@ -67,7 +72,8 @@ class LoopTest
 	{
 		ExecutionContext executionContext;
 		ParseErrors parseErrors;
-		Loop loop = Loop::Parse("FOR A :", &executionContext, &parseErrors, 3);
+		Loop loop;
+		loop.Parse("FOR A :", &executionContext, &parseErrors, 3);
 
 		ValidateError(parseErrors, 1, "Error in FOR: missing range value(s)", 3);
 	}
@@ -76,7 +82,8 @@ class LoopTest
 	{
 		ExecutionContext executionContext;
 		ParseErrors parseErrors;
-		Loop loop = Loop::Parse("FOR A 1:", &executionContext, &parseErrors, 3);
+		Loop loop;
+		loop.Parse("FOR A 1:", &executionContext, &parseErrors, 3);
 
 		ValidateError(parseErrors, 1, "Error in FOR: missing range value(s)", 3);
 	}
@@ -85,9 +92,10 @@ class LoopTest
 	{
 		ExecutionContext executionContext;
 		ParseErrors parseErrors;
-		Loop loop = Loop::Parse("FOR Variable 2:3:0.5", &executionContext, &parseErrors, 3);
+		Loop loop;
+		int result = loop.Parse("FOR Variable 2:3:0.5", &executionContext, &parseErrors, 3);
 
-		Assert::AreEqual(1, loop.GetMatch());
+		Assert::AreEqual(1, result);
 		Assert::AreEqual("Variable", loop.GetVariableName());
 		Assert::AreEqual(2.0F, loop.GetVariableStart().GetValueFloat(0));
 		Assert::AreEqual(3.0F, loop.GetVariableEnd().GetValueFloat(0));
@@ -96,15 +104,27 @@ class LoopTest
 
 	static void TestInRangeCheck()
 	{
+		Assert::AreEqual(0, Loop::GetIsInRange(2, 3, 0.99F));
+		Assert::AreEqual(1, Loop::GetIsInRange(2, 3, 2.0F));
+		Assert::AreEqual(1, Loop::GetIsInRange(2, 3, 2.5F));
+		Assert::AreEqual(1, Loop::GetIsInRange(2, 3, 3.0F));
+		Assert::AreEqual(0, Loop::GetIsInRange(2, 3, 3.01F));
+	}
+
+	static void TestWithDoubleSecondCallNotAFor()
+	{
 		ExecutionContext executionContext;
 		ParseErrors parseErrors;
-		Loop loop = Loop::Parse("FOR B 2:3:0.5", &executionContext, &parseErrors, 3);
+		Loop loop;
+		int result = loop.Parse("FOR Variable 2:3:0.5", &executionContext, &parseErrors, 3);
+		Assert::AreEqual(1, result);
 
-		Assert::AreEqual(0, loop.GetIsInRange(0.99F));
-		Assert::AreEqual(1, loop.GetIsInRange(2.0F));
-		Assert::AreEqual(1, loop.GetIsInRange(2.5F));
-		Assert::AreEqual(1, loop.GetIsInRange(3.0F));
-		Assert::AreEqual(0, loop.GetIsInRange(3.01F));
+		loop.Parse("junk", &executionContext, &parseErrors, 3);
+
+		Assert::AreEqual("Variable", loop.GetVariableName());
+		Assert::AreEqual(2.0F, loop.GetVariableStart().GetValueFloat(0));
+		Assert::AreEqual(3.0F, loop.GetVariableEnd().GetValueFloat(0));
+		Assert::AreEqual(0.5F, loop.GetVariableInc().GetValueFloat(0));
 	}
 
 public:
@@ -121,6 +141,7 @@ public:
 		TestWithIncrement();
 
 		TestInRangeCheck();
+		TestWithDoubleSecondCallNotAFor();
 
 		return 0;
 	}

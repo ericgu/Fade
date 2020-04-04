@@ -20,6 +20,12 @@ class Command
 
 		Command(const char* pCommand, int commandLength, int serialNumber)
 		{
+			if (commandLength >= sizeof(_commandString))
+			{
+				Serial.println("Command string too long");
+				return;
+			}
+
 			strncpy_s(_commandString, pCommand, commandLength);
 			*(_commandString + commandLength) = '\0';
 			_serialNumber = serialNumber;
@@ -27,6 +33,12 @@ class Command
 
 		Command(const char* pCommand, int serialNumber)
 		{
+			if (strlen(pCommand) >= sizeof(_commandString))
+			{
+				Serial.println("Command string too long");
+				return;
+			}
+
 			if (pCommand)
 			{
 				strcpy_s(_commandString, pCommand);

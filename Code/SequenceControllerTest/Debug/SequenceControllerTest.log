@@ -1,2 +1,3 @@
 ﻿  SequenceControllerTest.cpp
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\listparser.h(54): warning C4018: '>': signed/unsigned mismatch
   SequenceControllerTest.vcxproj -> D:\data\Electronics\SequenceController\Code\SequenceControllerTest\Debug\SequenceControllerTest.exe

@@ -1,14 +1,14 @@
- typedef void (*SupervisorCallback)();
+
 
 class Supervisor
 {
     CommandSource _commandSource;
     ParseErrors _parseErrors;    
 
-    Timebase *_pTimebase;
+	Timebase *_pTimebase = 0;
 
-    char* _pCurrentCommand;
-	char* _pNodeName;
+	char* _pCurrentCommand = 0;
+	char* _pNodeName = 0;
 
     Settings *_pSettings;
 
@@ -18,19 +18,40 @@ class Supervisor
 
 public:
 
-	void Init(ILedManager* pLedManager, Settings* pSettings)
+	~Supervisor()
 	{
-		_pCurrentCommand = new char[16636];
+		if (_pTimebase)
+		{
+			delete _pTimebase;
+		}
+
+		if (_pCurrentCommand)
+		{
+			delete _pCurrentCommand;
+		}
+
+		if (_pNodeName)
+		{
+			delete _pNodeName;
+		}
+	}
+
+	const static int MaxProgramSize = 16636;
+	const static int MaxNodeNameSize = 128;
+
+	void Init(ILedManager* pLedManager, Settings* pSettings, TimebaseCallback timebaseCallback)
+	{
+		_pCurrentCommand = new char[MaxProgramSize];
 		*_pCurrentCommand = '\0';
 
-		_pNodeName = new char[128];
+		_pNodeName = new char[MaxNodeNameSize];
 		*_pNodeName = '\0';
 
-		_pTimebase = new Timebase(&_commandSource, pLedManager, &_parseErrors);
+		_pTimebase = new Timebase(&_commandSource, pLedManager, &_parseErrors, timebaseCallback);
 
 		_pSettings = pSettings;
-		_pSettings->LoadProgramText(_pCurrentCommand, 16636);
-		_pSettings->LoadNodeName(_pNodeName, 128);
+		_pSettings->LoadProgramText(_pCurrentCommand, MaxProgramSize);
+		_pSettings->LoadNodeName(_pNodeName, MaxNodeNameSize);
 		if (*_pNodeName == '\0')
 		{
 			strcpy(_pNodeName, "Sequencer");
@@ -108,6 +129,7 @@ public:
 
 	void Execute()
 	{
+		StackWatcher::Log("Supervisor::Execute");
 		if (_shouldExecuteCode)
 		{
 			_executionCount++;
@@ -125,12 +147,12 @@ public:
 		}
 	}
 
-	void ExecuteLoop(SupervisorCallback supervisorCallback)
+	void ExecuteLoop()
 	{
 		while (true)
 		{
+			Serial.println("Supervisor::ExecuteLoop");
 			Execute();
-			(*supervisorCallback)();
 		}
 	}	
 };

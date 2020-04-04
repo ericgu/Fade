@@ -28,7 +28,15 @@ class CommandResult
     public:
 		CommandResult()
 		{
+			Reset();
+		}
+
+		void Reset()
+		{
 			_status = CommandResultStatus::CommandNone;
+			_targetCount = 0;
+			_cycleCount = 0;
+			_targetCountExceeded = false;
 		}
  
         void AddTarget(LedState ledState)

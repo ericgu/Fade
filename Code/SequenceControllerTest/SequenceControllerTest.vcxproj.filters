@@ -96,6 +96,9 @@
     <ClInclude Include="ExpressionTokenizerTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="StackWatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -401,13 +401,13 @@ class ExecutionFlowTest
 		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
 
 		executionFlow.RunProgram(1);
-		Assert::AreEqual(1, executionFlow.GetExecutionContext()._functionStore.GetCount());
-		FunctionDefinition* pFunction = executionFlow.GetExecutionContext()._functionStore.Lookup("Function");
+		Assert::AreEqual(1, executionFlow.GetExecutionContext()->_functionStore.GetCount());
+		FunctionDefinition* pFunction = executionFlow.GetExecutionContext()->_functionStore.Lookup("Function");
 		Assert::AreEqual("Function", pFunction->Name);
 		Assert::AreEqual(0, pFunction->SerialNumberStart);
 		Assert::AreEqual(1, pFunction->SerialNumberEnd);
 
-		ExecutionContext executionContext = executionFlow.GetExecutionContext();
+		ExecutionContext* pExecutionContext = executionFlow.GetExecutionContext();
 	}
 
 	static void TestFunctionCall()
@@ -571,7 +571,7 @@ class ExecutionFlowTest
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("13.000000\n", Serial.GetLastString());
-		Assert::AreEqual(15.0F, executionFlow.GetExecutionContext()._variables.GetWithoutErrorCheck("V", 1)->GetValueFloat(0));
+		Assert::AreEqual(15.0F, executionFlow.GetExecutionContext()->_variables.GetWithoutErrorCheck("V", 1)->GetValueFloat(0));
 	}
 
 	static void TestMethodCannotAccessParentVariables()

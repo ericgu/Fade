@@ -3,10 +3,10 @@
 #pragma once
 class CommandSourceTest
 {
-	static void AssertCommand(Command command, const char* commandString, int serialNumber)
+	static void AssertCommand(Command* pCommand, const char* commandString, int serialNumber)
 	{
-		Assert::AreEqual(commandString, command.GetString());
-		Assert::AreEqual(serialNumber, command.GetSerialNumber());
+		Assert::AreEqual(commandString, pCommand->GetString());
+		Assert::AreEqual(serialNumber, pCommand->GetSerialNumber());
 	}
 
 	static void TestSingle()
@@ -14,9 +14,9 @@ class CommandSourceTest
 		CommandSource commandSource;
 		commandSource.SetCommand("D 500 1,2,3,4,5,6,7,8");
 
-		Command command = commandSource.GetCommand(0);
+		Command* pCommand = commandSource.GetCommand(0);
 
-		AssertCommand(command, "D 500 1,2,3,4,5,6,7,8", 0);
+		AssertCommand(pCommand, "D 500 1,2,3,4,5,6,7,8", 0);
 	}
 
 	static void TestSingleTwice()
@@ -24,13 +24,13 @@ class CommandSourceTest
 		CommandSource commandSource;
 		commandSource.SetCommand("D 500 1,2,3,4,5,6,7,8");
 
-		Command command = commandSource.GetCommand(0);
+		Command* pCommand = commandSource.GetCommand(0);
 
-		AssertCommand(command, "D 500 1,2,3,4,5,6,7,8", 0);
+		AssertCommand(pCommand, "D 500 1,2,3,4,5,6,7,8", 0);
 
-		command = commandSource.GetCommand(0);
+		pCommand = commandSource.GetCommand(0);
 
-		AssertCommand(command, "D 500 1,2,3,4,5,6,7,8", 0);
+		AssertCommand(pCommand, "D 500 1,2,3,4,5,6,7,8", 0);
 	}
 
 	static void TestMultiple()
@@ -38,16 +38,16 @@ class CommandSourceTest
 		CommandSource commandSource;
 		commandSource.SetCommand("D 500 1,2,3,4,5,6,7,8\nxxx");
 
-		Command command = commandSource.GetCommand(0);
+		Command* pCommand = commandSource.GetCommand(0);
 
-		AssertCommand(command, "D 500 1,2,3,4,5,6,7,8", 0);
+		AssertCommand(pCommand, "D 500 1,2,3,4,5,6,7,8", 0);
 
-		command = commandSource.GetCommand(1);
+		pCommand = commandSource.GetCommand(1);
 
-		AssertCommand(command, "xxx", 1);
+		AssertCommand(pCommand, "xxx", 1);
 
-		command = commandSource.GetCommand(2);
-		Assert::AreEqual(-1, command.GetSerialNumber());
+		pCommand = commandSource.GetCommand(2);
+		Assert::AreEqual(0, (int) pCommand);
 	}
 
 	static void TestMultipleWithNewline()
@@ -56,13 +56,13 @@ class CommandSourceTest
 
 		commandSource.SetCommand("D1,2,3,4,5,6,7,8\nxxx");
 
-		Command command = commandSource.GetCommand(0);
+		Command* pCommand = commandSource.GetCommand(0);
 
-		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
+		AssertCommand(pCommand, "D1,2,3,4,5,6,7,8", 0);
 
-		command = commandSource.GetCommand(1);
+		pCommand = commandSource.GetCommand(1);
 
-		AssertCommand(command, "xxx", 1);
+		AssertCommand(pCommand, "xxx", 1);
 	}
 
 	static void TestMultipleWithNewlineAndCarriageReturn()
@@ -71,13 +71,13 @@ class CommandSourceTest
 
 		commandSource.SetCommand("D1,2,3,4,5,6,7,8\r\nxxx");
 
-		Command command = commandSource.GetCommand(0);
+		Command* pCommand = commandSource.GetCommand(0);
 
-		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
+		AssertCommand(pCommand, "D1,2,3,4,5,6,7,8", 0);
 
-		command = commandSource.GetCommand(1);
+		pCommand = commandSource.GetCommand(1);
 
-		AssertCommand(command, "xxx", 1);
+		AssertCommand(pCommand, "xxx", 1);
 	}
 
 	static void TestMultipleWithSpaces()
@@ -86,22 +86,22 @@ class CommandSourceTest
 
 		commandSource.SetCommand("  D1,2,3,4,5,6,7,8\n   xxx");
 
-		Command command = commandSource.GetCommand(0);
+		Command* pCommand = commandSource.GetCommand(0);
 
-		AssertCommand(command, "D1,2,3,4,5,6,7,8", 0);
+		AssertCommand(pCommand, "D1,2,3,4,5,6,7,8", 0);
 
-		command = commandSource.GetCommand(1);
+		pCommand = commandSource.GetCommand(1);
 
-		AssertCommand(command, "xxx", 1);
+		AssertCommand(pCommand, "xxx", 1);
 	}
 
 	static void TestWithoutSetCommand()
 	{
 		CommandSource commandSource;
 
-		Command command = commandSource.GetCommand(0);
+		Command* pCommand = commandSource.GetCommand(0);
 
-		Assert::AreEqual(-1, command.GetSerialNumber());
+		Assert::AreEqual(0, (int)pCommand);
 	}
 public:
 

@@ -2,9 +2,9 @@ class CommandFormatter
 {
 public:
 
-	static int GetIndentPre(Command command)
+	static int GetIndentPre(Command* pCommand)
 	{
-		switch (*command.GetString())
+		switch (*pCommand->GetString())
 		{
 		case 'E':
 			return -1;
@@ -13,9 +13,9 @@ public:
 		return 0;
 	}
 
-	static int GetIndentPost(Command command)
+	static int GetIndentPost(Command* pCommand)
 	{
-		switch (*command.GetString())
+		switch (*pCommand->GetString())
 		{
 		case 'F':
 			return 1;
@@ -55,8 +55,8 @@ public:
 		int commandNumber = 0;
 		while (true)
 		{
-			Command command = commandSource.GetCommand(commandNumber);
-			if (command.GetSerialNumber() == -1)
+			Command* pCommand = commandSource.GetCommand(commandNumber);
+			if (pCommand == 0)
 			{
 				break;
 			}
@@ -68,19 +68,19 @@ public:
 			}
 			first = false;
 
-			indent += GetIndentPre(command);
+			indent += GetIndentPre(pCommand);
 			for (int i = 0; i < indent * 2; i++)
 			{
 				MyCat(pOutput, " ");
 			}
-			char* pString = command.GetString();
+			char* pString = pCommand->GetString();
 			if (strlen(pString) != 0)
 			{
 				MyCat(pOutput, pString);
 			}
 			//Serial.println(pString);
 
-			indent += GetIndentPost(command);
+			indent += GetIndentPost(pCommand);
 		}
 		//Serial.println("<PrettyFormat");
 	}

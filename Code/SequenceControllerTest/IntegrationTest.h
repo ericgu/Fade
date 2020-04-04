@@ -3,10 +3,17 @@
 
 class IntegrationTest
 {
+	static int _callbackCount;
+
 	static void AssertLedState(LedState ledState, int channel, float brightness)
 	{
 		Assert::AreEqual(channel, ledState.GetChannel());
 		Assert::AreEqual(brightness, ledState.GetBrightness()->GetValueFloat(0));
+	}
+
+	static void Callback()
+	{
+		_callbackCount++;
 	}
 
 	static void Test()
@@ -20,7 +27,8 @@ class IntegrationTest
 		commandSource.AddCommand("A(10)");
 
 		ParseErrors parseErrors;
-		Timebase timebase(&commandSource, &ledManager, &parseErrors);
+		_callbackCount = 0;
+		Timebase timebase(&commandSource, &ledManager, &parseErrors, Callback);
 
 		timebase.RunProgram(1);
 		
@@ -32,6 +40,8 @@ class IntegrationTest
 			LedState ledState = ledPwm.GetUpdatedState(state);
 			AssertLedState(ledState, 0, (float) (i + 1));
 		}
+
+		Assert::AreEqual(10, _callbackCount);
 
 		timebase.RunProgram(1);
 	}
@@ -49,7 +59,7 @@ class IntegrationTest
 		commandSource.AddCommand("A(10)");
 
 		ParseErrors parseErrors;
-		Timebase timebase(&commandSource, &ledManager, &parseErrors);
+		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0);
 
 		timebase.RunProgram(1);
 
@@ -87,7 +97,7 @@ class IntegrationTest
 		commandSource.AddCommand("ENDFOR");
 
 		ParseErrors parseErrors;
-		Timebase timebase(&commandSource, &ledManager, &parseErrors);
+		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0);
 
 		timebase.RunProgram(1);
 
@@ -125,7 +135,7 @@ class IntegrationTest
 		commandSource.AddCommand("ENDFOR			  ");
 
 		ParseErrors parseErrors;
-		Timebase timebase(&commandSource, &ledManager, &parseErrors);
+		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0);
 
 		timebase.RunProgram(1);
 
@@ -152,3 +162,5 @@ public:
 		return 0;
 	}
 };
+
+int IntegrationTest::_callbackCount = 0;

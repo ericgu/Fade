@@ -1,10 +1,11 @@
 class ExecutionFlow: public IExecutionFlow
 {
 	ICommandSource* _pCommandSource;
-	ExecutionContext _executionContext;
+	ExecutionContext* _pExecutionContext;
 	ParseErrors* _pParseErrors;
 	CommandResultCallback _callback;
-	CommandResult _commandResult;
+	CommandResult* _pCommandResult;
+	CommandDecoder* _pCommandDecoder;
 
 public:
 	ExecutionFlow(ICommandSource* pCommandSource, ParseErrors* pParseErrors, CommandResultCallback callback)
@@ -12,49 +13,63 @@ public:
 		_pCommandSource = pCommandSource;
 		_pParseErrors = pParseErrors;
 		_callback = callback;
+		_pExecutionContext = new ExecutionContext();
+		_pCommandResult = new CommandResult();
+		_pCommandDecoder = new CommandDecoder();
+	}
+
+	~ExecutionFlow()
+	{
+		delete _pExecutionContext;
+		delete _pCommandResult;
+		delete _pCommandDecoder;
 	}
 
 	void ResetProgramState()
 	{
-		_executionContext.ResetVariablesAndStack();
+		_pExecutionContext->ResetVariablesAndStack();
 	}
 
 	void ExecuteLedCommand(CommandResult* pCommandResult)
 	{
 		_callback(pCommandResult);
+		
 	}
 
-	ExecutionContext GetExecutionContext()
+	ExecutionContext* GetExecutionContext()
 	{
-		return _executionContext;
+		return _pExecutionContext;
 	}
 
 	CommandResult* GetCommandResult()
 	{
-		return &_commandResult;
+		return _pCommandResult;
 	}
 
-	Command GetCommand(int commandNumber)
+	Command* GetCommand(int commandNumber)
 	{
 		return _pCommandSource->GetCommand(commandNumber);
 	}
 
 	CommandResultStatus RunProgram(int runCount = -1)
 	{
+		//StackWatcher::Log("ExecutionFlow::RunPrograma");
 		int calls = 0;
 
 		while (true)
 		{
-			Command command = GetCommand(_executionContext._stack.GetTopFrame()->InstructionPointer);
+			//Serial.print("IP = "); Serial.println(_pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer());
+			Command* pCommand = GetCommand(_pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer());
+			StackWatcher::Log("ExecutionFlow::RunProgramb");
 
 			if (_pParseErrors->GetErrorCount() != 0)
 			{
 				return CommandResultStatus::CommandParseError;
 			}
 
-			if (command.GetSerialNumber() == -1)
+			if (pCommand == 0)
 			{
-				if (_executionContext._stack.GetFrameCount() > 1)
+				if (_pExecutionContext->_stack.GetFrameCount() > 1)
 				{
 					_pParseErrors->AddError("Missing loop end", "", -1);
 					return CommandResultStatus::CommandParseError;
@@ -66,20 +81,22 @@ public:
 					return CommandResultStatus::CommandCompleted;
 				}
 
-				_executionContext._stack.GetTopFrame()->InstructionPointer = 0;
+				_pExecutionContext->_stack.GetTopFrame()->SetInstructionPointer(0, "RunProgram reset to 0");
 			}
 			else
 			{
-				CommandDecoder::Decode(&_executionContext, _pParseErrors, &command, this);
+				//Serial.println(pCommand->GetString());
+				StackWatcher::Log("ExecutionFlow::RunProgramc");
+				_pCommandDecoder->Decode(_pExecutionContext, _pParseErrors, pCommand, this);
 
-				CommandResultStatus status = _commandResult.GetStatus();
+				CommandResultStatus status = _pCommandResult->GetStatus();
 				switch (status)
 				{
 					case CommandResultStatus::CommandExecute:
 						if (_callback != 0)
 						{
-							_callback(&_commandResult);
-							_commandResult = CommandResult();
+							_callback(_pCommandResult);
+							_pCommandResult->Reset();
 							break;
 						}
 						break;
@@ -90,7 +107,7 @@ public:
 					case CommandResultStatus::CommandElseIf:
 					case CommandResultStatus::CommandElse:
 					case CommandResultStatus::CommandEndIf:
-						_commandResult.SetStatus(CommandResultStatus::CommandNone);
+						_pCommandResult->SetStatus(CommandResultStatus::CommandNone);
 						return status;
 
 					case CommandResultStatus::CommandLoopMatched:
@@ -102,13 +119,13 @@ public:
 						break;
 				}
 
-				if (_commandResult.GetTargetCountExceeded())
+				if (_pCommandResult->GetTargetCountExceeded())
 				{
-					_commandResult.SetStatus(CommandResultStatus::CommandTargetCountExceeded);
-					return _commandResult.GetStatus();
+					_pCommandResult->SetStatus(CommandResultStatus::CommandTargetCountExceeded);
+					return _pCommandResult->GetStatus();
 				}
 
-				_executionContext._stack.GetTopFrame()->InstructionPointer++;
+				_pExecutionContext->_stack.GetTopFrame()->IncrementInstructionPointer("Run program increment");
 			}
 		}
 	}

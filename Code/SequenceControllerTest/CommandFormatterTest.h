@@ -9,15 +9,15 @@ class CommandFormatterTest
 
 	static void TestIndent()
 	{
-		Assert::AreEqual(0, CommandFormatter::GetIndentPre(Command("FOR", 0)));
-		Assert::AreEqual(0, CommandFormatter::GetIndentPre(Command("D 15 1,15", 0)));
-		Assert::AreEqual(0, CommandFormatter::GetIndentPre(Command("S 15 1,2,3,4,5", 0)));
-		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(Command("ENDFOR", 0)));
+		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("FOR", 0)));
+		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("D 15 1,15", 0)));
+		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("S 15 1,2,3,4,5", 0)));
+		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("ENDFOR", 0)));
 
-		Assert::AreEqual(1, CommandFormatter::GetIndentPost(Command("FOR", 0)));
-		Assert::AreEqual(0, CommandFormatter::GetIndentPost(Command("D 15 1,15", 0)));
-		Assert::AreEqual(0, CommandFormatter::GetIndentPost(Command("S 15 1,2,3,4,5", 0)));
-		Assert::AreEqual(0, CommandFormatter::GetIndentPost(Command("ENDFOR", 0)));
+		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("FOR", 0)));
+		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("D 15 1,15", 0)));
+		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("S 15 1,2,3,4,5", 0)));
+		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("ENDFOR", 0)));
 
 	}
 

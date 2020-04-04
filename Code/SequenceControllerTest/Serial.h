@@ -47,6 +47,30 @@ public:
 		}
 	}
 
+	void print(float value)
+	{
+		if (_outputOn)
+		{
+			printf("%f", value);
+		}
+	}
+
+	void println(float value)
+	{
+		if (_outputOn)
+		{
+			printf("%f\n", value);
+		}
+	}
+
+	void println()
+	{
+		if (_outputOn)
+		{
+			printf("\n");
+		}
+	}
+
 	void flush() {}
 
 	const char* GetLastString() { return _pLastString; }

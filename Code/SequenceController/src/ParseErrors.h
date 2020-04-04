@@ -1,7 +1,7 @@
-#define MaxErrorCount 16
-
 class ParseError
 {
+	static const int ErrorTextLength = 128;
+
 public:
 	ParseError()
 	{
@@ -9,15 +9,48 @@ public:
 		_lineNumber = -1;
 	}
 
-	char _errorText[128];
+	void SetError(const char* pErrorCode, const char* pErrorText, int lineNumber)
+	{
+		int remainingSpace = ErrorTextLength - 1;
+
+		char* pDest = _errorText;
+		const char* pSource = pErrorCode;
+		
+		while (remainingSpace != 0 && *pSource != 0)
+		{
+			*pDest = *pSource;
+			pDest++;
+			pSource++;
+			remainingSpace--;
+		}
+
+		pSource = pErrorText;
+		while (remainingSpace != 0 && *pSource != 0)
+		{
+			*pDest = *pSource;
+			pDest++;
+			pSource++;
+			remainingSpace--;
+		}
+
+		*pDest = 0;
+
+		_lineNumber = lineNumber;
+	}
+
+	char _errorText[ErrorTextLength];
 	int _lineNumber;
 };
 
 class ParseErrors
 {
+	static const int MaxErrorCount = 16;
+	static const int TextErrorBufferSize = 4096;
+
 	ParseError _parseErrors[MaxErrorCount];
 	int _errorCount;
-	char _buffer[4096];
+	char _buffer[TextErrorBufferSize];
+	int _bufferUsed;
 
 public:
 	ParseErrors()
@@ -53,9 +86,7 @@ public:
 
         //Serial.print("Error: "); Serial.print(pErrorCode); Serial.print(pErrorText); Serial.print(" => "); Serial.println(lineNumber);
 
-		strcpy(_parseErrors[_errorCount]._errorText, pErrorCode);
-		strcat(_parseErrors[_errorCount]._errorText, pErrorText);
-		_parseErrors[_errorCount]._lineNumber = lineNumber;
+		_parseErrors[_errorCount].SetError(pErrorCode, pErrorText, lineNumber);
 		_errorCount++;
 	}
 	
@@ -69,9 +100,24 @@ public:
 		return _errorCount;
 	}
 
+	void AddToBuffer(const char* pString)
+	{
+		int newLength = strlen(pString);
+
+		if (_bufferUsed + newLength > TextErrorBufferSize - 1)
+		{
+			return;
+		}
+
+		strcat(_buffer, pString);
+		_bufferUsed += newLength;
+	}
+
 	char* FormatErrors()
 	{
 		*_buffer = '\0';
+		_bufferUsed = 0;
+
 		// find max line number...
 		int maxLineNumber = -1;
 
@@ -89,17 +135,17 @@ public:
 			{
 				if (_parseErrors[i]._lineNumber == lineNumber)
 				{
-					strcat(_buffer, _parseErrors[i]._errorText);
+					AddToBuffer(_parseErrors[i]._errorText);
 				}
 			}
-			strcat(_buffer, "\n");
+			AddToBuffer("\n");
 		}
 
 		for (int i = 0; i < _errorCount; i++)
 		{
 			if (_parseErrors[i]._lineNumber == -1)
 			{
-				strcat(_buffer, _parseErrors[i]._errorText);
+				AddToBuffer(_parseErrors[i]._errorText);
 			}
 		}
 

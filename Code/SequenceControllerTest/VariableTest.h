@@ -104,6 +104,18 @@ class VariableTest
 		pVariableCollection->AddAndSet(pName, &variable, stackLevel);
 	}
 
+	static void TestNameTooLong()
+	{
+		Variable variable;
+
+		Serial.SetOutput(0);
+		variable.SetVariableName("A234567890A234567890A234567890A234567890A234567890A234567890A234567890");
+		Serial.SetOutput(1);
+
+		Assert::AreEqual("", variable.GetVariableName());
+		Assert::AreEqual("Variable too long", Serial.GetLastString());
+	}
+
 	static void TestCollectionWorks()
 	{
 		VariableCollection variableCollection;
@@ -153,10 +165,23 @@ class VariableTest
 		const char* pCommand = "Test=15";
 
 		char variableName[64];
-		const char *pRemaining = VariableCollection::GetVariableName(pCommand, variableName);
+		const char *pRemaining = VariableCollection::GetVariableName(pCommand, variableName, sizeof(variableName));
 
 		Assert::AreEqual("Test", variableName);
 		Assert::AreEqual("=15", pRemaining);
+	}
+
+	static void TestGetVariableNameBufferTooSmall()
+	{
+		const char* pCommand = "Test=15";
+
+		char variableName[2];
+		Serial.SetOutput(0);
+		const char *pRemaining = VariableCollection::GetVariableName(pCommand, variableName, sizeof(variableName));
+		Serial.SetOutput(1);
+
+		Assert::AreEqual("Variable name too long", Serial.GetLastString());
+		Assert::AreEqual("", variableName);
 	}
 
 	static void TestMissingVariable()
@@ -244,6 +269,31 @@ class VariableTest
 		Assert::AreEqual(1234.567F, pParsed->GetValueFloat(2));
 	}
 
+	static void TestTooMany()
+	{
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+
+		for (int i = 0; i < 30; i++)
+		{
+			char buffer[10];
+
+			sprintf(buffer, "Var%d", i);
+			variableCollection.Add(buffer, 0);
+		}
+
+		Assert::AreEqual(30, variableCollection.GetActiveVariableCount());
+
+		Serial.SetOutput(0);
+		variableCollection.Add("Var31", 0);
+		Serial.SetOutput(1);
+
+		Assert::AreEqual(30, variableCollection.GetActiveVariableCount());
+
+		Assert::AreEqual("Too many variables", Serial.GetLastString());
+	}
+
+
 public:
 
 	static int Run()
@@ -262,6 +312,7 @@ public:
 		TestAddVariableTwice();
 
 		TestGetVariableName();
+		TestNameTooLong();
 
 		TestMissingVariable();
 		TestMissingVariableNoErrorCheck();
@@ -272,6 +323,10 @@ public:
 		TestFloatList();
 		TestFloatListTooMany();
 		TestAddFloatList();
+
+		TestGetVariableNameBufferTooSmall();
+
+		TestTooMany();
 
 		return 0;
 	}

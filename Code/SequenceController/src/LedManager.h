@@ -10,30 +10,36 @@ public:
 
 class LedManager: public ILedManager
 {
-    static const int MaxChannelCount = 16;
-
     ILedPwm* _pLedPwm;
     int _channelCount;
 
-    LedState _states[MaxChannelCount];
-    LedState _deltas[MaxChannelCount];
+    LedState* _pStates;
+    LedState* _pDeltas;
 
     public:
         LedManager(ILedPwm* pLedPwm, int channelCount)
         {
             _channelCount = channelCount;
             _pLedPwm = pLedPwm;
+			_pStates = new LedState[channelCount];
+			_pDeltas = new LedState[channelCount];
 
 			ResetState();
         }
+
+		~LedManager()
+		{
+			delete _pStates;
+			delete _pDeltas;
+		}
 
 		void ResetState()
 		{
 			for (int i = 0; i < _channelCount; i++)
 			{
 				Variable zero;
-				_states[i] = LedState(i, &zero, 0);
-				_deltas[i] = LedState(i, &zero, 0);
+				_pStates[i] = LedState(i, &zero, 0);
+				_pDeltas[i] = LedState(i, &zero, 0);
 			}
 		}
 
@@ -49,16 +55,19 @@ class LedManager: public ILedManager
 				LedState ledState = commandResult.GetTarget(item);
 				Variable* pTargetBrightness = ledState.GetBrightness();
 
-				// TODO: save target so that we get to the exact endpoint?
-				Variable delta;
-				for (int i = 0; i < pTargetBrightness->GetValueCount(); i++)
+				if (ledState.GetChannel() < _channelCount)
 				{
-					float itemDelta = (ledState.GetBrightness()->GetValueFloat(i) - _states[ledState.GetChannel()].GetBrightness()->GetValueFloat(i)) / ledState.GetCycleCount();
+					// TODO: save target so that we get to the exact endpoint?
+					Variable delta;
+					for (int i = 0; i < pTargetBrightness->GetValueCount(); i++)
+					{
+						float itemDelta = (ledState.GetBrightness()->GetValueFloat(i) - _pStates[ledState.GetChannel()].GetBrightness()->GetValueFloat(i)) / ledState.GetCycleCount();
 
-					delta.SetValue(i, itemDelta);
+						delta.SetValue(i, itemDelta);
+					}
+
+					_pDeltas[ledState.GetChannel()] = LedState(ledState.GetChannel(), &delta, ledState.GetCycleCount());
 				}
-
-				_deltas[ledState.GetChannel()] = LedState(ledState.GetChannel(), &delta, ledState.GetCycleCount());
 			}
 		}
 
@@ -66,16 +75,14 @@ class LedManager: public ILedManager
         {
             for (int i = 0; i < _channelCount; i++)
             {
-				if (_deltas[i].GetCycleCount() > 0)
+				if (_pDeltas[i].GetCycleCount() > 0)
 				{
-					_states[i].Update(_deltas[i]);
-					_deltas[i].DecrementCycleCount();
+					_pStates[i].Update(_pDeltas[i]);
+					_pDeltas[i].DecrementCycleCount();
 				}
-                _pLedPwm->UpdateLed(_states[i]);
-                //_states[i].GetBrightness();
-                //Serial.print(_states[i].GetBrightness());
-                //Serial.print(" ");
+                _pLedPwm->UpdateLed(_pStates[i]);
             }
-            //Serial.println();
+			
+			_pLedPwm->Show();
         }
 };

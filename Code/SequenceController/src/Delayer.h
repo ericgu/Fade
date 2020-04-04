@@ -40,4 +40,12 @@ public:
 		
 		return false;
 	}
+
+	void Wait()
+	{
+		while (!CheckIfDone())
+		{
+			delayMicroseconds(50);
+		}
+	}
 };

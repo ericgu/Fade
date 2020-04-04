@@ -1,10 +1,12 @@
 class Loop
 {
-	char _variableName[64];
+	static const int VariableNameMax = 128;
+
+	char _variableName[VariableNameMax];
 	Variable _variableStart;
 	Variable _variableEnd;
 	Variable _variableInc;
-	int _match;
+	ListParser* _pListParser;
 
 	static const char* FindColonOrEnd(const char *pCommand)
 	{
@@ -18,49 +20,52 @@ class Loop
     public:
 		Loop()
 		{
-			_variableName[0] = 0;
-			_variableInc = Variable(1.0F);
-			_match = 0;
+			_pListParser = new ListParser(1024, 1024);
 		}
 
-    static Loop Parse(const char* pCommand, ExecutionContext* pExecutionContent, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow = 0)
+		~Loop()
+		{
+			delete _pListParser;
+			_pListParser = 0;
+		}
+
+    bool Parse(const char* pCommand, ExecutionContext* pExecutionContent, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow = 0)
     {
-		Loop loop;
+		StackWatcher::Log("Loop::Parse");
 
 		if (strncmp(pCommand, "FOR ", 4) != 0)
 		{
-			return loop;
+			return false;
 		}
+		_variableName[0] = 0;
+		_variableInc = Variable(1.0F);
 
 		pCommand += 4;	// skip 'FOR '
+		pCommand = VariableCollection::GetVariableName(pCommand, _variableName, VariableNameMax);
 
-		pCommand = VariableCollection::GetVariableName(pCommand, loop._variableName);
-
-		if (strlen(loop._variableName) == 0)
+		if (strlen(_variableName) == 0)
 		{
 			pParseErrors->AddError("Error in FOR: ", "missing variable name", lineNumber);
-			return loop;
+			return false;
 		}
 
-		ListParser listParser(": ", pCommand);
+		_pListParser->Parse(": ", pCommand);
 
-		if (listParser.GetCount() < 2)
+		if (_pListParser->GetCount() < 2)
 		{
 			pParseErrors->AddError("Error in FOR: ", "missing range value(s)", lineNumber);
-			return loop;
+			return false;
 		}
 
-		loop._variableStart = pExecutionContent->Evaluate(listParser.GetItem(0), pParseErrors, lineNumber, pExecutionFlow);
-		loop._variableEnd = pExecutionContent->Evaluate(listParser.GetItem(1), pParseErrors, lineNumber, pExecutionFlow);
+		_variableStart = pExecutionContent->Evaluate(_pListParser->GetItem(0), pParseErrors, lineNumber, pExecutionFlow);
+		_variableEnd = pExecutionContent->Evaluate(_pListParser->GetItem(1), pParseErrors, lineNumber, pExecutionFlow);
 
-		if (listParser.GetCount() > 2)
+		if (_pListParser->GetCount() > 2)
 		{
-			loop._variableInc = pExecutionContent->Evaluate(listParser.GetItem(2), pParseErrors, lineNumber, pExecutionFlow);
+			_variableInc = pExecutionContent->Evaluate(_pListParser->GetItem(2), pParseErrors, lineNumber, pExecutionFlow);
 		}
 
-		loop._match = 1;
-
-		return loop;
+		return true;
     }
 
     char* GetVariableName()
@@ -83,16 +88,8 @@ class Loop
 		return _variableInc;
 	}
 
-	int GetMatch()
+	static int GetIsInRange(float variableStart, float variableEnd, float value)
 	{
-		return _match;
-	}
-
-	int GetIsInRange(float value)
-	{
-		float variableStart = _variableStart.GetValueFloat(0);
-		float variableEnd = _variableEnd.GetValueFloat(0);
-
 		float min = variableStart < variableEnd ? variableStart : variableEnd;
 		float max = variableStart < variableEnd ? variableEnd : variableStart;
 

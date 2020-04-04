@@ -25,11 +25,21 @@ class CommandTest
 		Assert::AreEqual(1, command.StartsWith("FOR"));
 	}
 
+	static void TestTooBig()
+	{
+		Serial.SetOutput(0);
+		Command command("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", 0);
+		Assert::AreEqual("Command string too long", Serial.GetLastString());
+		Serial.SetOutput(1);
+
+	}
+
 public:
 	static void Run()
 	{
 		TestStartsWithMismatch();
 		TestStartsWithMatch1();
 		TestStartsWithMatch2();
+		TestTooBig();
 	}
 };

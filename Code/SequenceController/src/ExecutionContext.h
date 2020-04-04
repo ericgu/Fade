@@ -15,6 +15,8 @@ public:
 
 	Variable Evaluate(const char* pCommand, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
 	{
+		StackWatcher::Log("ExecutionContext::Evaluate");
+
 		return _expression.Evaluate(pCommand, &_variables, &_functionStore, &_stack, pParseErrors, lineNumber, pExecutionFlow);
 	}
 

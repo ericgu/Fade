@@ -1,6 +1,8 @@
 class FunctionDefinition
 {
 public:
+	static const int FunctionNameMax = 128;
+
 	FunctionDefinition()
 	{
 		SerialNumberStart = 0;
@@ -15,15 +17,17 @@ public:
 		SerialNumberEnd = -1;
 	}
 
-	char Name[128];
+	char Name[FunctionNameMax];
 	int SerialNumberStart;
 	int SerialNumberEnd;
 };
 
 class FunctionStore
 {
+	static const int FunctionMaxCount = 10;
+
 	int _functionDefinitionCount = 0;
-	FunctionDefinition _functionDefinitions[10];
+	FunctionDefinition _functionDefinitions[FunctionMaxCount];
 
 	bool _isCurrentlyParsingFunction;
 	FunctionDefinition* _pCurrentFunctionDefinition;
@@ -42,8 +46,14 @@ public:
 
 	int GetCount() { return _functionDefinitionCount; }
 
-	void DefineStart(const char* pFunctionName, int serialNumberStart)
+	void DefineStart(const char* pFunctionName, ParseErrors* pParseErrors, int serialNumberStart)
 	{
+		if (_functionDefinitionCount == FunctionMaxCount)
+		{
+			pParseErrors->AddError("Function: ", "too many defined", serialNumberStart);
+			return;
+		}
+
 		FunctionDefinition* pLookup = Lookup(pFunctionName);
 
 		if (pLookup != 0)
@@ -52,6 +62,11 @@ public:
 		}
 
 		FunctionDefinition* pCurrent = _functionDefinitions + _functionDefinitionCount;
+		if (strlen(pFunctionName) >= FunctionDefinition::FunctionNameMax)
+		{
+			pParseErrors->AddError("Function: ", "name too long", serialNumberStart);
+		}
+
 		strcpy(pCurrent->Name, pFunctionName);
 		pCurrent->SerialNumberStart = serialNumberStart;
 		pCurrent->SerialNumberEnd = -1;
@@ -64,6 +79,11 @@ public:
 
 	void DefineEnd(int serialNumberEnd)
 	{
+		if (_pCurrentFunctionDefinition == 0)
+		{
+			return;
+		}
+
 		_pCurrentFunctionDefinition->SerialNumberEnd = serialNumberEnd;
 		_pCurrentFunctionDefinition = 0;
 		_isCurrentlyParsingFunction = false;

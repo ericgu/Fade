@@ -118,6 +118,22 @@ class ExpressionTest
 		Assert::AreEqual(55.0F, parsed.GetValueFloat(0));
 	}
 
+	static void TestVariableNameTooLong()
+	{
+		Expression expression;
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+		Stack stack;
+
+		variableCollection.AddAndSet("Fred", &Variable(55.0F), stack.GetFrameCount());
+
+		Variable parsed = expression.Evaluate("F1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", &variableCollection, 0, &stack, &parseErrors, 1);
+		Assert::AreEqual(1, parseErrors.GetErrorCount());
+
+		Assert::AreEqual("Identifier too long", parseErrors.GetError(0)._errorText);
+		Assert::AreEqual(1, parsed.IsNan());
+	}
+
 	static void TestRandom()
 	{
 		MyRandom::SetFirstValue(1);
@@ -265,7 +281,7 @@ class ExpressionTest
 
 		stack.CreateFrame();
 
-		functionStore.DefineStart("MyFunction", 10);
+		functionStore.DefineStart("MyFunction", &parseErrors, 10);
 
 		Variable value = expression.Evaluate("MyFunction()", &variableCollection, &functionStore, &stack, &parseErrors, 1, FunctionCallHandlerImplementation);
 		Assert::AreEqual(10.0F, value.GetValueFloat(0));
@@ -289,7 +305,7 @@ class ExpressionTest
 
 		stack.CreateFrame();
 
-		functionStore.DefineStart("MyFunction", 10);
+		functionStore.DefineStart("MyFunction", &parseErrors, 10);
 
 		Variable value = expression.Evaluate("MyFunction(15.3)", &variableCollection, &functionStore, &stack, &parseErrors, 1, FunctionCallHandlerImplementation2, 0);
 		Assert::AreEqual(15.3F, value.GetValueFloat(0));
@@ -337,6 +353,8 @@ public:
 		TestParseFloatListFive();
 
 		TestParseFloatListTwoExpressions();
+
+		TestVariableNameTooLong();
 
 		return 0;
 	}

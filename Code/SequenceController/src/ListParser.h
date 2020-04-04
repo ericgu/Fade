@@ -1,8 +1,10 @@
 class ListParser
 {
 	char* _pBuffer;
-	char* _pItems[1024];
+	int _bufferSize;
+	char** _pItems;
 	int _itemCount;
+	int _itemCountAllocated;
 
 	static const char* SkipToCharOrNull(const char* pCommand, char c)
 	{
@@ -31,12 +33,28 @@ class ListParser
 	}
 
 public:
-	ListParser(const char* pDelimiters, const char* pString)
+	ListParser(int stringSize, int itemCountAllocated)
+	{
+		_bufferSize = stringSize;
+		_pBuffer = new char[stringSize];
+		_pItems = new char*[itemCountAllocated];
+		_itemCountAllocated = itemCountAllocated;
+	}
+
+	~ListParser()
+	{
+		delete _pBuffer;
+		delete _pItems;
+	}
+
+	void Parse(const char* pDelimiters, const char* pString)
 	{
 		_itemCount = 0;
 
-		int length = strlen(pString) + 1;
-		_pBuffer = new char[length];
+		if (strlen(pString) > _bufferSize)
+		{
+			Serial.println("too big"); Serial.flush();
+		}
 
 		//strcpy_s(_pBuffer, length, pString);
 		strcpy(_pBuffer, pString);
@@ -47,6 +65,12 @@ public:
 
 		while (*pCurrent != '\0')
 		{
+			if (_itemCount == _itemCountAllocated)
+			{
+				Serial.print("List to parse had too many items...");
+				return;
+			}
+
 			bool isDelimiter = IsDelimiter(pDelimiters, pCurrent);
 
 			if (inDelimiter)
@@ -73,11 +97,6 @@ public:
 
 			pCurrent++;
 		}
-	}
-
-	~ListParser()
-	{
-		delete _pBuffer;
 	}
 
 	int GetCount() { return _itemCount; }

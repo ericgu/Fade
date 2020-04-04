@@ -45,7 +45,7 @@ class TimebaseTest
 		commandSource.AddCommand("D(10,0,10.0)");
 		commandSource.AddCommand("A(10)");
 
-		Timebase timebase(&commandSource, &ledManager, &parseErrors);
+		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0);
 
 		timebase.RunProgram(1);
 
@@ -75,7 +75,7 @@ class TimebaseTest
 		commandSource.AddCommand("A(10)");
 		commandSource.AddCommand("ENDFOR");
 
-		Timebase timebase(&commandSource, &ledManager, &parseErrors);
+		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0);
 
 		timebase.RunProgram(1);
 
@@ -110,7 +110,7 @@ class TimebaseTest
 		commandSource.AddCommand("A(100)");
 		commandSource.AddCommand("ENDFOR");
 
-		Timebase timebase(&commandSource, &ledManager, &parseErrors);
+		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0);
 
 		timebase.RunProgram(1);
 

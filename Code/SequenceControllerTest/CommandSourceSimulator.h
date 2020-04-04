@@ -34,15 +34,13 @@ public:
 		_commandCount = 0;
 	}
 
-	Command GetCommand(int commandNumber)
+	Command* GetCommand(int commandNumber)
 	{
 		if (commandNumber == _commandCount)
 		{
-			return Command(0, -1);
+			return 0;
 		}
 
-		Command command = _commands[commandNumber];
-
-		return command;
+		return &_commands[commandNumber];
 	}
 };

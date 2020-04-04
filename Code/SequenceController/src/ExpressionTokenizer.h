@@ -35,21 +35,28 @@ public:
 
 class ExpressionTokenizer
 {
+	static const int NodeCountAllocated = 128;
+
 	static const char* _operators[];
 	static const int _operatorCount;
 
 	const char* _pExpression;
-	ExpressionNode _nodes[128];
+	ExpressionNode _pNodes[NodeCountAllocated];
 	int _nodeCount;
+	int _nodeCountAllocated;
 
 public:
-	void Tokenize(const char *pExpression)
+	ExpressionTokenizer()
+	{
+	}
+
+	void Tokenize(const char *pExpression, ParseErrors* pParseErrors, int lineNumber)
 	{
 		_pExpression = pExpression;
 		const char* pCurrent = pExpression;
 
 		_nodeCount = 0;
-		_nodes[_nodeCount]._pItem = pCurrent;
+		_pNodes[_nodeCount]._pItem = pCurrent;
 		bool inQuotedString = false;
 
 		while (*pCurrent != 0)
@@ -66,17 +73,22 @@ public:
 				{
 					if (strncmp(pCurrent, _operators[i], strlen(_operators[i])) == 0)
 					{
-						if (_nodes[_nodeCount]._pItem < pCurrent)
+						if (_pNodes[_nodeCount]._pItem < pCurrent)
 						{
-							_nodes[_nodeCount]._itemLength = pCurrent - _nodes[_nodeCount]._pItem;
+							_pNodes[_nodeCount]._itemLength = pCurrent - _pNodes[_nodeCount]._pItem;
 							_nodeCount++;
 						}
-						_nodes[_nodeCount]._pItem = _operators[i];
-						_nodes[_nodeCount]._itemLength = strlen(_operators[i]);
+						_pNodes[_nodeCount]._pItem = _operators[i];
+						_pNodes[_nodeCount]._itemLength = strlen(_operators[i]);
 						_nodeCount++;
+						if (_nodeCount == NodeCountAllocated)
+						{
+							pParseErrors->AddError("Expression: ", "Too many nodes in expression", lineNumber);
+							return;
+						}
 
 						pCurrent += strlen(_operators[i]);
-						_nodes[_nodeCount]._pItem = pCurrent;
+						_pNodes[_nodeCount]._pItem = pCurrent;
 						found = true;
 						break;
 					}
@@ -89,27 +101,33 @@ public:
 			}
 		}
 
-		if (pCurrent - _nodes[_nodeCount]._pItem > 0)
+		if (pCurrent - _pNodes[_nodeCount]._pItem > 0)
 		{
-			_nodes[_nodeCount]._itemLength = pCurrent - _nodes[_nodeCount]._pItem;
+			_pNodes[_nodeCount]._itemLength = pCurrent - _pNodes[_nodeCount]._pItem;
 			_nodeCount++;
+
+			if (_nodeCount == NodeCountAllocated)
+			{
+				pParseErrors->AddError("Expression: ", "Too many nodes in expression", lineNumber);
+				return;
+			}
 		}
 
 		// Get rid of the whitespace nodes...
 		int destination = 0;
 		for (int i = 0; i < _nodeCount; i++)
 		{
-			if (*_nodes[i]._pItem != ' ' && *_nodes[i]._pItem != '\t')
+			if (*_pNodes[i]._pItem != ' ' && *_pNodes[i]._pItem != '\t')
 			{
-				_nodes[destination] = _nodes[i];
+				_pNodes[destination] = _pNodes[i];
 				destination++;
 			}
 		}
 
 		for (int i = destination; i < _nodeCount; i++)
 		{
-			_nodes[i]._pItem = 0;
-			_nodes[i]._value.SetToNan();
+			_pNodes[i]._pItem = 0;
+			_pNodes[i]._value.SetToNan();
 		}
 		_nodeCount = destination;
 
@@ -119,19 +137,24 @@ public:
 
 	ExpressionNode* GetNode(int nodeNumber)
 	{
-		return &_nodes[nodeNumber];
+		if (nodeNumber < 0 || nodeNumber >= _nodeCount)
+		{
+			return 0;
+		}
+
+		return &_pNodes[nodeNumber];
 	}
 
 	void SetNodeEmpty(int index)
 	{
-		_nodes[index]._itemLength = -1;
-		_nodes[index]._pItem = 0;
-		_nodes[index]._value.SetToNan();
+		_pNodes[index]._itemLength = -1;
+		_pNodes[index]._pItem = 0;
+		_pNodes[index]._value.SetToNan();
 	}
 
 	int FindMatchingParen(int parenIndex)
 	{
-		if (*_nodes[parenIndex]._pItem != '(')
+		if (*_pNodes[parenIndex]._pItem != '(')
 		{
 			return -1;
 		}
@@ -139,7 +162,7 @@ public:
 		int openParenCount = 0;
 		for (int endParenIndex = parenIndex + 1; endParenIndex < _nodeCount; endParenIndex++)
 		{
-			ExpressionNode* pNode = _nodes + endParenIndex;
+			ExpressionNode* pNode = _pNodes + endParenIndex;
 			if (pNode->_pItem == 0)
 			{
 				continue;
@@ -167,7 +190,7 @@ public:
 	{
 		for (int i = start; i <= max; i++)
 		{
-			ExpressionNode* pNode = _nodes + i;
+			ExpressionNode* pNode = _pNodes + i;
 
 			if (!pNode->IsEmpty())
 			{
