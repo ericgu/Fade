@@ -14,6 +14,11 @@ public:
 
 		pExecutionFlow->RunProgram(1);
 
+		if (pExecutionFlow->GetCommandResult()->GetAbort())
+		{
+			return Variable();
+		}
+
 		Variable* pReturnValue = pVariableCollection->GetWithoutErrorCheck("<ReturnValue>", pStack->GetFrameCount());
 		if (pReturnValue != 0)
 		{
@@ -146,12 +151,17 @@ public:
 
 	Variable Evaluate(const char* pCommand, VariableCollection* pVariableCollection, FunctionStore* pFunctionStore, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, FunctionCallHandler functionCallHandler = 0, IExecutionFlow* pExecutionFlow = 0)
 	{
+		Profiler.Start("E:");
+		Profiler.Start(pCommand);
 		StackWatcher::Log("Expression::Evaluate.2 a");
 		//Serial.println(pCommand); Serial.flush();
+		
 		ExpressionTokenizer expressionTokenizer;
+
 
 		expressionTokenizer.Tokenize(pCommand, pParseErrors, lineNumber);
 		int nodeCount = expressionTokenizer.GetNodeCount();
+		Profiler.Start("E: execute");
 
 		// Detect assignments...
 		if (nodeCount > 2)

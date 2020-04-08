@@ -21,14 +21,30 @@ class CommandResult
 {
     LedState _targets[TargetMax];
     int _targetCount = 0;
-	CommandResultStatus _status;
+	volatile CommandResultStatus _status;
 	int _cycleCount = 0;
 	bool _targetCountExceeded = false;
+	volatile bool _aborting = false;
 
     public:
 		CommandResult()
 		{
 			Reset();
+		}
+
+		void Abort()
+		{
+			_aborting = true;
+		}
+
+		void ClearAbort()
+		{
+			_aborting = false;
+		}
+
+		bool GetAbort()
+		{
+			return _aborting;
 		}
 
 		void Reset()

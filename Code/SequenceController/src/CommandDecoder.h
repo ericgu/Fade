@@ -25,12 +25,14 @@ public:
 
 	bool DecodeFor(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
+		Profiler.Start("DecodeFor");
 		StackWatcher::Log("CommandDecoder::DecodeFor a");
 
 		if (!_pLoop->Parse(pCommand->GetString(), pExecutionContext, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow))
 		{
 			return false;
 		}
+		Profiler.Start("DecodeFor-Loop");
 
 		Variable startValue = _pLoop->GetVariableStart();
 		//Variable endValue = _pLoop->GetVariableEnd();
@@ -51,6 +53,11 @@ public:
 			//Serial.print(pLoopVariable->GetVariableName()); Serial.print(" "); Serial.println(pLoopVariable->GetValueFloat(0));
 			CommandResultStatus commandResultStatus = pExecutionFlow->RunProgram(1);
 			StackWatcher::Log("CommandDecoder::DecodeFor c");
+			if (pExecutionFlow->IsAborting())
+			{
+				return true;
+			}
+
 			if (commandResultStatus != CommandResultStatus::CommandEndOfLoop)
 			{
 				pParseErrors->AddError("Missing loop end", "", -1);
@@ -179,6 +186,7 @@ public:
 
 	bool DecodeIf(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
+		Profiler.Start("DecodeIf");
 		if (pCommand->StartsWith("IF"))
 		{
 			int ifStatementIndex = pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer();
@@ -234,6 +242,7 @@ public:
 
 	bool DecodeFunction(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
+		Profiler.Start("DecodeFunction");
 		if (pCommand->StartsWith("ENDFUNC"))
 		{
 			if (pExecutionContext->_functionStore.GetIsCurrentlyParsingFunction())
@@ -250,6 +259,7 @@ public:
 
 		if (pExecutionContext->_functionStore.GetIsCurrentlyParsingFunction())
 		{
+			//Serial.print("Skipping: "); Serial.println(pCommand->GetString());
 			return true;
 		}
 
@@ -312,6 +322,7 @@ public:
 
 	bool DecodeExpression(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
+		Profiler.Start("DecodeExpression");
 		pExecutionContext->Evaluate(pCommand->GetString(), pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
 
 		return true;
@@ -319,6 +330,7 @@ public:
 
 	bool DecodeReturn(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
+		Profiler.Start("DecodeReturn");
 		if (pCommand->StartsWith("RETURN"))
 		{
 			const char* pCommandString = pCommand->GetString() + 7;
@@ -335,6 +347,8 @@ public:
 
 	bool DecodeWhitespaceOrCommentCommand(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
+		Profiler.Start("DecodeWhitespaceOrCommentCommand");
+
 		char* pCommandString = pCommand->GetString();
 
 		if (pCommand->StartsWith("//"))
@@ -355,9 +369,11 @@ public:
 		return true;
 	}
 
-    public:
+public:
     void Decode(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow = 0)
     {
+		//Serial.print(pCommand->GetSerialNumber()); Serial.print(" "); Serial.println(pCommand->GetString());
+
 		if (DecodeWhitespaceOrCommentCommand(pExecutionContext, pParseErrors, pCommand, pExecutionFlow)) { return; }
 
 		if (DecodeFunction(pExecutionContext, pParseErrors, pCommand, pExecutionFlow)) { return; }

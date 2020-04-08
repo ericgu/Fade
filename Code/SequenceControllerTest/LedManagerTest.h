@@ -2,21 +2,21 @@
 
 #include "LedManager.h"
 
-class LedPwmSimulator : public ILedPwm
+class LedDeviceSimulator : public ILedDevice
 {
 	int _updateCount;
 	int _maxUpdates;
 	LedState* _pUpdatedStates;
 
 public:
-	LedPwmSimulator(int maxUpdates)
+	LedDeviceSimulator(int maxUpdates)
 	{
 		_updateCount = 0;
 		_maxUpdates = maxUpdates;
 		_pUpdatedStates = new LedState[_maxUpdates];
 	}
 
-	~LedPwmSimulator()
+	~LedDeviceSimulator()
 	{
 		delete _pUpdatedStates;
 		_pUpdatedStates = 0;
@@ -66,7 +66,7 @@ class LedManagerTest
 
 	static void Test()
 	{
-		LedPwmSimulator ledPwm(100);
+		LedDeviceSimulator ledPwm(100);
 		LedManager ledManager(&ledPwm, 1);
 
 		CommandResult commandResult;
@@ -82,7 +82,7 @@ class LedManagerTest
 
 	static void TestTwoChannelsTwoUpdates()
 	{
-		LedPwmSimulator ledPwm(100);
+		LedDeviceSimulator ledPwm(100);
 
 		LedManager ledManager(&ledPwm, 2);
 
@@ -110,7 +110,7 @@ class LedManagerTest
 
 	static void TestMultipleSteps()
 	{
-		LedPwmSimulator ledPwm(100);
+		LedDeviceSimulator ledPwm(100);
 
 		LedManager ledManager(&ledPwm, 1);
 
@@ -130,9 +130,9 @@ class LedManagerTest
 
 	static void TestTwoChannelsDifferentUpdateRates()
 	{
-		LedPwmSimulator ledPwm(100);
+		LedDeviceSimulator ledDevice(100);
 
-		LedManager ledManager(&ledPwm, 2);
+		LedManager ledManager(&ledDevice, 2);
 
 		CommandResult commandResult;
 		commandResult.AddTarget(LedState(0, 10.0, 5));
@@ -143,23 +143,23 @@ class LedManagerTest
 
 		ledManager.Tick();
 
-		Assert::AreEqual(2, ledPwm.GetUpdateCount());
-		AssertLedState(ledPwm.GetUpdatedState(0), 0, 2.0);
-		AssertLedState(ledPwm.GetUpdatedState(1), 1, 1.0);
+		Assert::AreEqual(2, ledDevice.GetUpdateCount());
+		AssertLedState(ledDevice.GetUpdatedState(0), 0, 2.0);
+		AssertLedState(ledDevice.GetUpdatedState(1), 1, 1.0);
 
 		ledManager.Tick();
 
-		Assert::AreEqual(4, ledPwm.GetUpdateCount());
-		AssertLedState(ledPwm.GetUpdatedState(0), 0, 2.0);
-		AssertLedState(ledPwm.GetUpdatedState(1), 1, 1.0);
-		AssertLedState(ledPwm.GetUpdatedState(2), 0, 4.0);
-		AssertLedState(ledPwm.GetUpdatedState(3), 1, 2.0);
+		Assert::AreEqual(4, ledDevice.GetUpdateCount());
+		AssertLedState(ledDevice.GetUpdatedState(0), 0, 2.0);
+		AssertLedState(ledDevice.GetUpdatedState(1), 1, 1.0);
+		AssertLedState(ledDevice.GetUpdatedState(2), 0, 4.0);
+		AssertLedState(ledDevice.GetUpdatedState(3), 1, 2.0);
 	}
 
 	static void TestMultiValue()
 	{
-		LedPwmSimulator ledPwm(100);
-		LedManager ledManager(&ledPwm, 1);
+		LedDeviceSimulator ledDevice(100);
+		LedManager ledManager(&ledDevice, 1);
 
 		CommandResult commandResult;
 		Variable target;
@@ -172,14 +172,14 @@ class LedManagerTest
 		ledManager.SetDelta(commandResult);
 		ledManager.Tick();
 
-		Assert::AreEqual(1, ledPwm.GetUpdateCount());
-		AssertLedState(ledPwm.GetUpdatedState(0), 0, 1.0F, 0.5F, 0.25F);
+		Assert::AreEqual(1, ledDevice.GetUpdateCount());
+		AssertLedState(ledDevice.GetUpdatedState(0), 0, 1.0F, 0.5F, 0.25F);
 	}
 
 	static void TestMultiValueTwoStep()
 	{
-		LedPwmSimulator ledPwm(100);
-		LedManager ledManager(&ledPwm, 1);
+		LedDeviceSimulator ledDevice(100);
+		LedManager ledManager(&ledDevice, 1);
 
 		CommandResult commandResult;
 		Variable target;
@@ -192,19 +192,19 @@ class LedManagerTest
 		ledManager.SetDelta(commandResult);
 		ledManager.Tick();
 
-		Assert::AreEqual(1, ledPwm.GetUpdateCount());
-		AssertLedState(ledPwm.GetUpdatedState(0), 0, 0.5F, 1.0F, 2.0F);
+		Assert::AreEqual(1, ledDevice.GetUpdateCount());
+		AssertLedState(ledDevice.GetUpdatedState(0), 0, 0.5F, 1.0F, 2.0F);
 
 		ledManager.Tick();
 
-		Assert::AreEqual(2, ledPwm.GetUpdateCount());
-		AssertLedState(ledPwm.GetUpdatedState(1), 0, 1.0F, 2.0F, 4.0F);
+		Assert::AreEqual(2, ledDevice.GetUpdateCount());
+		AssertLedState(ledDevice.GetUpdatedState(1), 0, 1.0F, 2.0F, 4.0F);
 	}
 
 	static void TestInvalidChannel()
 	{
-		LedPwmSimulator ledPwm(100);
-		LedManager ledManager(&ledPwm, 1);
+		LedDeviceSimulator ledDevice(100);
+		LedManager ledManager(&ledDevice, 1);
 
 		CommandResult commandResult;
 		commandResult.AddTarget(LedState(1, 1.0, 1));
@@ -213,8 +213,8 @@ class LedManagerTest
 		ledManager.SetDelta(commandResult);
 		ledManager.Tick();
 
-		Assert::AreEqual(1, ledPwm.GetUpdateCount());
-		AssertLedState(ledPwm.GetUpdatedState(0), 0, 0);
+		Assert::AreEqual(1, ledDevice.GetUpdateCount());
+		AssertLedState(ledDevice.GetUpdatedState(0), 0, 0);
 	}
 
 public:

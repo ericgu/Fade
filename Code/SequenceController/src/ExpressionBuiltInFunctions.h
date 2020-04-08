@@ -166,6 +166,12 @@ public:
 			handled = true;
 		}
 
+		if (!handled && (strcmp(pFunctionName, "ABORT") == 0))
+		{
+			pExecutionFlow->AbortExecution();
+			handled = true;
+		}
+
 		return handled;
 	}
 

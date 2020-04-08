@@ -19,9 +19,9 @@ class IntegrationTest
 	static void Test()
 	{
 		CommandSourceSimulator commandSource;
-		LedPwmSimulator ledPwm(1000);
+		LedDeviceSimulator ledDevice(1000);
 
-		LedManager ledManager(&ledPwm, 16);
+		LedManager ledManager(&ledDevice, 16);
 
 		commandSource.AddCommand("D(10,0,10.0)");
 		commandSource.AddCommand("A(10)");
@@ -32,12 +32,12 @@ class IntegrationTest
 
 		timebase.RunProgram(1);
 		
-		Assert::AreEqual(160, ledPwm.GetUpdateCount());
+		Assert::AreEqual(160, ledDevice.GetUpdateCount());
 		for (int i = 0; i < 10; i++)
 		{
 			int state = i * 16;
 
-			LedState ledState = ledPwm.GetUpdatedState(state);
+			LedState ledState = ledDevice.GetUpdatedState(state);
 			AssertLedState(ledState, 0, (float) (i + 1));
 		}
 
@@ -49,9 +49,9 @@ class IntegrationTest
 	static void Test2()
 	{
 		CommandSourceSimulator commandSource;
-		LedPwmSimulator ledPwm(1000);
+		LedDeviceSimulator ledDevice(1000);
 
-		LedManager ledManager(&ledPwm, 16);
+		LedManager ledManager(&ledDevice, 16);
 
 		commandSource.AddCommand("D(10,0,10.0)");
 		commandSource.AddCommand("A(10)");
@@ -63,12 +63,12 @@ class IntegrationTest
 
 		timebase.RunProgram(1);
 
-		Assert::AreEqual(320, ledPwm.GetUpdateCount());
+		Assert::AreEqual(320, ledDevice.GetUpdateCount());
 		for (int i = 0; i < 10; i++)
 		{
 			int state = i * 16;
 
-			LedState ledState = ledPwm.GetUpdatedState(state);
+			LedState ledState = ledDevice.GetUpdatedState(state);
 			AssertLedState(ledState, 0, (float)(i + 1));
 		}
 
@@ -76,7 +76,7 @@ class IntegrationTest
 		{
 			int state = i * 16;
 
-			LedState ledState = ledPwm.GetUpdatedState(state);
+			LedState ledState = ledDevice.GetUpdatedState(state);
 			AssertLedState(ledState, 0, (float)(i + 1));
 		}
 	}
@@ -84,9 +84,9 @@ class IntegrationTest
 	static void Test3()
 	{
 		CommandSourceSimulator commandSource;
-		LedPwmSimulator ledPwm(10000);
+		LedDeviceSimulator ledDevice(10000);
 
-		LedManager ledManager(&ledPwm, 16);
+		LedManager ledManager(&ledDevice, 16);
 
 		//"$1$FOR %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDFOR"
 		commandSource.AddCommand("FOR A 0:7");
@@ -102,24 +102,24 @@ class IntegrationTest
 		timebase.RunProgram(1);
 
 		// Validate that after channel one loop is done it stops changing and moves on to channel two. 
-		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(1.0, ledPwm.GetUpdatedState(16).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(32).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.0, ledPwm.GetUpdatedState(48).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.0, ledPwm.GetUpdatedState(64).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.5, ledPwm.GetUpdatedState(65).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.0, ledPwm.GetUpdatedState(80).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(1.0, ledPwm.GetUpdatedState(81).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(1.0, ledDevice.GetUpdatedState(16).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.5, ledDevice.GetUpdatedState(32).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.0, ledDevice.GetUpdatedState(48).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.0, ledDevice.GetUpdatedState(64).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.5, ledDevice.GetUpdatedState(65).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(0.0, ledDevice.GetUpdatedState(80).GetBrightness()->GetValueFloat(0));
+		Assert::AreEqual(1.0, ledDevice.GetUpdatedState(81).GetBrightness()->GetValueFloat(0));
 	}
 
 	static void Test4()
 	{
 		CommandSourceSimulator commandSource;
-		LedPwmSimulator ledPwm(16000);
+		LedDeviceSimulator ledDevice(16000);
 
-		LedManager ledManager(&ledPwm, 16);
+		LedManager ledManager(&ledDevice, 16);
 
 		// FOR A 0:7
 		// 	PL(A)
@@ -139,11 +139,11 @@ class IntegrationTest
 
 		timebase.RunProgram(1);
 
-		for (int i = 0; i < ledPwm.GetUpdateCount(); i += 16)
+		for (int i = 0; i < ledDevice.GetUpdateCount(); i += 16)
 		{
 			for (int channel = 0; channel < 16; channel++)
 			{
-				LedState ledState = ledPwm.GetUpdatedState(i + channel);
+				LedState ledState = ledDevice.GetUpdatedState(i + channel);
 				//printf("%0.2f ", ledState.GetBrightness());
 			}
 			//puts("");

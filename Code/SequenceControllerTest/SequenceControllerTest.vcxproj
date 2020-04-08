@@ -168,6 +168,7 @@
     <ClInclude Include="LoopTest.h" />
     <ClInclude Include="MyRandom.h" />
     <ClInclude Include="ParseErrorsTest.h" />
+    <ClInclude Include="Profiler.h" />
     <ClInclude Include="Serial.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="StackTest.h" />
@@ -175,7 +176,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SupervisorTest.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TickSource.h" />
+    <ClInclude Include="TimeServices.h" />
     <ClInclude Include="TimebaseTest.h" />
     <ClInclude Include="VariableTest.h" />
   </ItemGroup>

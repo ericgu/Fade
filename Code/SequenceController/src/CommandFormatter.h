@@ -2,12 +2,22 @@ class CommandFormatter
 {
 public:
 
+	static const int preStringCount = 3;
+	static const char* preStrings[];
+
+	static const int postStringCount = 3;
+	static const char* postStrings[];
+
 	static int GetIndentPre(Command* pCommand)
 	{
-		switch (*pCommand->GetString())
+		char* pCommandString = pCommand->GetString();
+
+		for (int i = 0; i < preStringCount; i++)
 		{
-		case 'E':
-			return -1;
+			if (strncmp(preStrings[i], pCommandString, strlen(preStrings[i])) == 0)
+			{
+				return -1;
+			}
 		}
 
 		return 0;
@@ -15,10 +25,14 @@ public:
 
 	static int GetIndentPost(Command* pCommand)
 	{
-		switch (*pCommand->GetString())
+		char* pCommandString = pCommand->GetString();
+
+		for (int i = 0; i < postStringCount; i++)
 		{
-		case 'F':
-			return 1;
+			if (strncmp(postStrings[i], pCommandString, strlen(postStrings[i])) == 0)
+			{
+				return 1;
+			}
 		}
 
 		return 0;
@@ -74,7 +88,7 @@ public:
 				MyCat(pOutput, " ");
 			}
 			char* pString = pCommand->GetString();
-			if (strlen(pString) != 0)
+			//if (strlen(pString) != 0)
 			{
 				MyCat(pOutput, pString);
 			}
@@ -85,3 +99,6 @@ public:
 		//Serial.println("<PrettyFormat");
 	}
 };
+
+const char* CommandFormatter::preStrings[] = { "ENDIF", "ENDFOR", "ENDFUNC" };
+const char* CommandFormatter::postStrings[] = { "IF", "FOR", "FUNC" };

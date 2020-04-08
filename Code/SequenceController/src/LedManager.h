@@ -10,17 +10,17 @@ public:
 
 class LedManager: public ILedManager
 {
-    ILedPwm* _pLedPwm;
+    ILedDevice* _pLedDevice;
     int _channelCount;
 
     LedState* _pStates;
     LedState* _pDeltas;
 
     public:
-        LedManager(ILedPwm* pLedPwm, int channelCount)
+        LedManager(ILedDevice* pLedDevice, int channelCount)
         {
             _channelCount = channelCount;
-            _pLedPwm = pLedPwm;
+			_pLedDevice = pLedDevice;
 			_pStates = new LedState[channelCount];
 			_pDeltas = new LedState[channelCount];
 
@@ -80,9 +80,9 @@ class LedManager: public ILedManager
 					_pStates[i].Update(_pDeltas[i]);
 					_pDeltas[i].DecrementCycleCount();
 				}
-                _pLedPwm->UpdateLed(_pStates[i]);
+				_pLedDevice->UpdateLed(_pStates[i]);
             }
 			
-			_pLedPwm->Show();
+			_pLedDevice->Show();
         }
 };

@@ -12,9 +12,9 @@ class Supervisor
 
     Settings *_pSettings;
 
-	bool _shouldExecuteCode;
-	bool _shouldExecuteCodeLoaded;
-	int _executionCount = 0;
+	volatile bool _shouldExecuteCode;
+	volatile bool _shouldExecuteCodeLoaded;
+	volatile int _executionCount;
 
 public:
 
@@ -75,6 +75,14 @@ public:
 
 	void UpdateProgram(const char* pProgram)
 	{
+		_pTimebase->Abort();
+
+		while (_shouldExecuteCode)
+		{
+			Serial.println("Waiting for abort to finish");
+			TimeServices::TaskDelay(10); 
+		}
+
 		strcpy(_pCurrentCommand, pProgram);
 
 		Serial.println("Program Updated");
@@ -89,6 +97,8 @@ public:
 		_executionCount = 0;
 
 		Serial.println(_pCurrentCommand);
+
+		Serial.println("Starting execution");
 	}
 
 	void UpdateNodeName(const char* pNodeName)
@@ -124,7 +134,7 @@ public:
 
 	int GetExecutionCount()
 	{
-		return _executionCount;
+		return _pTimebase->GetExecutionCount();
 	}
 
 	void Execute()
@@ -133,17 +143,25 @@ public:
 		if (_shouldExecuteCode)
 		{
 			_executionCount++;
-
-			if (_executionCount == 500 && !_shouldExecuteCodeLoaded)
-			{
-				_pSettings->SaveShouldExecuteCode(true);
-			}
+			//Serial.print("ExecutionCount: "); Serial.println(_executionCount);
 
 			_pTimebase->RunProgram(1);
 			if (_parseErrors.GetErrorCount() != 0)
 			{
 				_shouldExecuteCode = false;
+				Serial.println("Error detected; disabling execution...");
+				return;
 			}
+
+			if (!_shouldExecuteCodeLoaded)
+			{
+				_pSettings->SaveShouldExecuteCode(true);
+				_shouldExecuteCodeLoaded = true;
+			}
+		}
+		else
+		{
+			_pTimebase->TaskDelay();
 		}
 	}
 
@@ -151,7 +169,6 @@ public:
 	{
 		while (true)
 		{
-			Serial.println("Supervisor::ExecuteLoop");
 			Execute();
 		}
 	}	

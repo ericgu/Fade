@@ -10,10 +10,11 @@
 #define strncpy_s strncpy
 #define strncmp_s strncmp
 
+#include "Profiler.h"
 #include "StackWatcher.h"
 #include "SystemCallback.h"
 #include "MyRandom.h"
-#include "TickSource.h"
+#include "TimeServices.h"
 #include "Delayer.h"
 #include "Command.h"
 #include "ListParser.h"
@@ -25,7 +26,7 @@
 #include "CommandResult.h"
 #include "IExecutionFlow.h"
 #include "LedCommand.h"
-#include "ILedPwm.h"
+#include "ILedDevice.h"
 #include "LedPwmEsp32.h"
 #include "LedRGB.h"
 #include "LedManager.h"
@@ -65,20 +66,28 @@ MyWebServer* pMyWebServer;
 void Callback()
 {
   //Serial.println("Callback");
-  pMyWebServer->HandleClient();
+  //pMyWebServer->HandleClient();
 
   //TrackMemory();
     
-  delay(10);
+  //delay(10);
 }
 
-void taskOne( void * parameter )
+void RunDim( void * parameter )
 {
   StackWatcher::Init();
 
   StackWatcher::Log("Task Start");
   _pSupervisor->ExecuteLoop();
+}
 
+void HandleWebClient( void * parameter )
+{
+  while (true)
+  {
+      pMyWebServer->HandleClient();
+      delay(25);
+  }
 }
 
 void setup() {
@@ -92,8 +101,8 @@ void setup() {
   //_pLedPwm = new LedPwmEsp32();
   //_pLedManager = new LedManager(_pLedPwm, 16);
 
-  _pLedPwm = new LedRGB(16, 13);
-  _pLedManager = new LedManager(_pLedPwm, 16);
+  _pLedPwm = new LedRGB(33, 13);
+  _pLedManager = new LedManager(_pLedPwm, 33);
 
   WiFiManager wifiManager;
   
@@ -102,7 +111,7 @@ void setup() {
   Serial.print("after autoconnect: ");
   Serial.println(WiFi.localIP());
 
-  pMyWebServer = new MyWebServer(_pSupervisor);
+  pMyWebServer = new MyWebServer(_pSupervisor, WiFi.localIP());
 
   _pSettings->Init();
   _pSupervisor->Init(_pLedManager, _pSettings, Callback);
@@ -110,11 +119,19 @@ void setup() {
   Serial.println("Setup completed");
 
     xTaskCreate(
-                    taskOne,          /* Task function. */
-                    "TaskOne",        /* String with name of task. */
+                    RunDim,           /* Task function. */
+                    "Dim",            /* String with name of task. */
                     30000,            /* Stack size in bytes. */
                     NULL,             /* Parameter passed as input of the task */
-                    1,                /* Priority of the task. */
+                    5,                /* Priority of the task. */
+                    NULL);            /* Task handle. */
+
+    xTaskCreate(
+                    HandleWebClient,           /* Task function. */
+                    "HandleWebClient",            /* String with name of task. */
+                    10000,            /* Stack size in bytes. */
+                    NULL,             /* Parameter passed as input of the task */
+                    5,                /* Priority of the task. */
                     NULL);            /* Task handle. */
 
 }
@@ -136,7 +153,9 @@ void setup() {
 
 void loop() 
 {
-  delay(1000000);
+  //pMyWebServer->HandleClient();
+  vTaskDelay(10);
+
   //StackWatcher::Log("loop");
   //_pSupervisor->ExecuteLoop();
 

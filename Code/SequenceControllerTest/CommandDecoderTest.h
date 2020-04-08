@@ -8,6 +8,7 @@ class MockExecutionFlow : public IExecutionFlow
 public:
 	CommandResult _commandResult;
 	Command _command;
+	bool _aborting = false;
 
 	virtual CommandResultStatus RunProgram(int runCount = -1) 
 	{
@@ -25,6 +26,16 @@ public:
 	virtual Command* GetCommand(int commandNumber)
 	{
 		return &_command;
+	}
+
+	virtual void AbortExecution()
+	{
+		_aborting = true;
+	}
+
+	virtual bool IsAborting()
+	{
+		return _aborting;
 	}
 };
 

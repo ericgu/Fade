@@ -36,7 +36,7 @@ class CommandSource: public ICommandSource
 
 			//_serialNumber = 0;
 			_pListParser = new ListParser(1024, 1024);
-			_pListParser->Parse("\n\r", pCommandString);
+			_pListParser->ParseByLines(pCommandString);
 			//Serial.println(">CommandSource.SetCommand");
 			//Serial.print("This: "); Serial.println((int) this);
 			//Serial.println(pCommandString);

@@ -10,17 +10,23 @@ class CommandFormatterTest
 	static void TestIndent()
 	{
 		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("FOR", 0)));
+		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("FUNC", 0)));
+		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("IF", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("D 15 1,15", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("S 15 1,2,3,4,5", 0)));
 		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("ENDFOR", 0)));
+		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("ENDFUNC", 0)));
+		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("ENDIF", 0)));
 
 		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("FOR", 0)));
+		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("FUNC", 0)));
+		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("IF", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("D 15 1,15", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("S 15 1,2,3,4,5", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("ENDFOR", 0)));
-
+		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("ENDFUNC", 0)));
+		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("ENDIF", 0)));
 	}
-
 
 	static void TestFormat()
 	{
@@ -54,6 +60,15 @@ class CommandFormatterTest
 		Assert::AreEqual("FOR %B 100:10 : -10\n  FOR %A 0 : 7\n    D %B %A, 1.0\n    D %B %A, 0.0\n  ENDFOR\nENDFOR", buffer2);
 	}
 
+	static void TestPreserveWhitespace()
+	{
+		const char* pProgram = "FOR A 1:10\n\r\n\rENDFOR";
+
+		char buffer[1024];
+		CommandFormatter::PrettyFormat(pProgram, buffer, 1024);
+		Assert::AreEqual("FOR A 1:10\n  \nENDFOR", buffer);
+	}
+
 public:
 	static void Run()
 	{
@@ -63,6 +78,8 @@ public:
 		TestFormatLoop();
 
 		TestFormatLoop2();
+
+		TestPreserveWhitespace();
 
 		//TestFormatLoopRepeat();
 	}

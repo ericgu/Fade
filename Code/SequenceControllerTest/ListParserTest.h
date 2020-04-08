@@ -64,6 +64,36 @@ class ListParserTest
 		Assert::AreEqual("List to parse had too many items...", Serial.GetLastString());
 	}
 
+	static void TestParseByLines()
+	{
+		ListParser listParser(128, 128);
+		listParser.ParseByLines("one\r\ntwo\r\nthree");
+
+		Assert::AreEqual(3, listParser.GetCount());
+		Assert::AreEqual("one", listParser.GetItem(0));
+		Assert::AreEqual("two", listParser.GetItem(1));
+		Assert::AreEqual("three", listParser.GetItem(2));
+	}
+
+	static void TestParseByLinesWithBlankLines()
+	{
+		ListParser listParser(128, 128);
+		listParser.ParseByLines("one\r\n\r\nthree");
+
+		Assert::AreEqual(3, listParser.GetCount());
+		Assert::AreEqual("one", listParser.GetItem(0));
+		Assert::AreEqual("", listParser.GetItem(1));
+		Assert::AreEqual("three", listParser.GetItem(2));
+	}
+
+	static void TestParseByLinesWithEmptyString()
+	{
+		ListParser listParser(128, 128);
+		listParser.ParseByLines("");
+
+		Assert::AreEqual(0, listParser.GetCount());
+	}
+
 public:
 	static void Run()
 	{
@@ -74,5 +104,8 @@ public:
 		TestThreeWithTwoDelimiters();
 
 		TestTooMany();
+		TestParseByLines();
+		TestParseByLinesWithBlankLines();
+		TestParseByLinesWithEmptyString();
 	}
 };

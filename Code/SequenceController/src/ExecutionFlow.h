@@ -28,6 +28,22 @@ public:
 	void ResetProgramState()
 	{
 		_pExecutionContext->ResetVariablesAndStack();
+		_pCommandResult->SetStatus(CommandResultStatus::CommandNone);
+	}
+
+	void AbortExecution()
+	{
+		_pCommandResult->Abort();
+	}
+
+	bool IsAborting()
+	{
+		return _pCommandResult->GetAbort();
+	}
+
+	void ClearAbort()
+	{
+		_pCommandResult->ClearAbort();
 	}
 
 	void ExecuteLedCommand(CommandResult* pCommandResult)
@@ -53,11 +69,14 @@ public:
 
 	CommandResultStatus RunProgram(int runCount = -1)
 	{
+		Profiler.Start("RunProgram");
+
 		//StackWatcher::Log("ExecutionFlow::RunPrograma");
 		int calls = 0;
 
 		while (true)
 		{
+			Profiler.Start("GetCommand");
 			//Serial.print("IP = "); Serial.println(_pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer());
 			Command* pCommand = GetCommand(_pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer());
 			StackWatcher::Log("ExecutionFlow::RunProgramb");
@@ -88,6 +107,11 @@ public:
 				//Serial.println(pCommand->GetString());
 				StackWatcher::Log("ExecutionFlow::RunProgramc");
 				_pCommandDecoder->Decode(_pExecutionContext, _pParseErrors, pCommand, this);
+
+				if (_pCommandResult->GetAbort())
+				{
+					return CommandResultStatus::CommandNone;
+				}
 
 				CommandResultStatus status = _pCommandResult->GetStatus();
 				switch (status)

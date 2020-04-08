@@ -11,9 +11,11 @@ class Timebase
 	ParseErrors* _pParseErrors;
 	static Timebase* _pTimebase;
 	TimebaseCallback _timebaseCallback;
-	TickSource _tickSource;
+	TimeServices _timeServices;
 	Delayer* _pDelayer;
 	int _lastMicros;
+	volatile long int _executionCount = 0;
+
 
     public:
         Timebase(ICommandSource* pCommandSource, ILedManager* pLedManager, ParseErrors* pParseErrors, TimebaseCallback timebaseCallback) :
@@ -27,10 +29,29 @@ class Timebase
 			_pDelayer = 0;
         }
 
+		void Abort()
+		{
+			_executionFlow.AbortExecution();
+		}
+
+		long int GetExecutionCount()
+		{
+			return _executionCount;
+		}
+
 		// Callback when there is an animation command to execute.
 		static void ExecuteLedCommand(CommandResult* pCommandResult)
 		{
+			Profiler.Start("Timebase::ExecuteLedCommand");
+			Profiler.StartBig("ExecuteLedCommandMember");
 			_pTimebase->ExecuteLedCommandMember(pCommandResult);
+			Profiler.StartBig("Other");
+
+		}
+
+		void TaskDelay()
+		{
+			_timeServices.TaskDelay(1);
 		}
 
 		void ExecuteLedCommandMember(CommandResult* pCommandResult)
@@ -40,17 +61,24 @@ class Timebase
 
 			while (_currentCount > 0)
 			{
+				_timeServices.TaskDelay(1); // this allows other tasks to run and keeps the watchdog timer happy.
+				_executionCount++;
 				_pLedManager->Tick();
 				_currentCount--;
 				if (_timebaseCallback)
 				{
 					(*_timebaseCallback)();
-					int mf = micros();
-					_pDelayer->Wait();
-					_pDelayer->Snapshot(UpdateRateInMicroseconds);
-					int m = micros();
-					Serial.print("Micros: "); Serial.print(m - _lastMicros); Serial.print(" w "); Serial.println(m-mf);
-					_lastMicros = m;
+					//int mf = _timeServices.GetTicks();
+
+					while (!_pDelayer->CheckIfDone(_timeServices.GetTicks()))
+					{
+						_timeServices.DelayMicroseconds(50);
+					}
+
+					_pDelayer->Snapshot(_timeServices.GetTicks(), UpdateRateInMicroseconds);
+					//int m = _timeServices.GetTicks();
+					//Serial.print("Micros: "); Serial.print(m - _lastMicros); Serial.print(" w "); Serial.println(m-mf);
+					//_lastMicros = m;
 				}
 			}
 		}
@@ -59,22 +87,27 @@ class Timebase
         {
 			if (_pDelayer == 0)
 			{
-				_pDelayer = new Delayer(&_tickSource);
-				_pDelayer->Snapshot(UpdateRateInMicroseconds);
+				_pDelayer = new Delayer();
+				_pDelayer->Snapshot(_timeServices.GetTicks(), UpdateRateInMicroseconds);
 			}
-
-			
-			Serial.println("> Timebase::RunProgram");
 
   			StackWatcher::Log("Timebase::RunProgram");			
 			_executionFlow.ResetProgramState();
 
 			CommandResultStatus commandResultStatus = _executionFlow.RunProgram(runCount);
+			if (_executionFlow.IsAborting())
+			{
+				_pParseErrors->AddError(">> Aborted <<", "", 0);	// tells supervisor to stop executing...
+				_executionFlow.ResetProgramState();
+				_executionFlow.GetCommandResult()->SetStatus(CommandResultStatus::CommandNone);
+				Serial.println("Timebase::RunProgram -> Abort");
+				return;
+			}
+
 			if (commandResultStatus == CommandResultStatus::CommandTargetCountExceeded)
 			{
 				_pParseErrors->AddError(">> Target count exceeded: Did you forget an animate command? <<", "", 0);
 			}
-			Serial.println("< Timebase::RunProgram");
 
 			if (_pParseErrors->GetErrorCount() != 0)
 			{
@@ -86,6 +119,8 @@ class Timebase
 		{
 			_executionFlow.ResetProgramState();
 			_pLedManager->ResetState();
+			_executionCount = 0;
+			_executionFlow.ClearAbort();
 		}
 };
 

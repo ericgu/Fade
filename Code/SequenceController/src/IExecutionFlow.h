@@ -5,4 +5,6 @@ public:
 	virtual	void ExecuteLedCommand(CommandResult* pCommandResult) = 0;
 	virtual CommandResult* GetCommandResult() = 0;
 	virtual Command* GetCommand(int commandNumber) = 0;
+	virtual void AbortExecution() = 0;
+	virtual bool IsAborting() = 0;
 };

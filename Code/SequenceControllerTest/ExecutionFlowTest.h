@@ -66,6 +66,29 @@ class ExecutionFlowTest
 		AssertResult(_commandResults[1], 10, 0, 10.0F);
 	}
 
+	static void TestFunctionDoubleRun()
+	{
+		// Validate that the function is skipped each time we execute the program. 
+
+		CommandSourceSimulator commandSource;
+		ParseErrors parseErrors;
+
+		commandSource.AddCommand("FUNC Test(a)");
+		commandSource.AddCommand("DI(a,0,10.0)");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("Test(5)");
+
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+		ResetResultStore();
+		executionFlow.RunProgram(2);
+
+		Assert::AreEqual(0, parseErrors.GetErrorCount());
+		Assert::AreEqual(2, _commandResultCount);
+		AssertResult(_commandResults[0], 5, 0, 10.0F);
+		AssertResult(_commandResults[1], 5, 0, 10.0F);
+	}
+
 	static void AssertResult(CommandResult commandResult, int cycleCount, int channel, float brightness)
 	{
 		Assert::AreEqual(cycleCount, commandResult.GetCycleCount());
@@ -656,6 +679,22 @@ class ExecutionFlowTest
 		AssertResult(_commandResults[0], 1, 2, 3.0F);
 	}
 
+	static void TestFunctionCallUsedInVector()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC Function(red, green, blue)"); 
+		commandSource.AddCommand("PL({red})");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("Function(1, 2, 3)");
+
+		Serial.SetOutput(false);
+		RunProgram(&commandSource);
+		Serial.SetOutput(true);
+
+		Assert::AreEqual("1.000000\n", Serial.GetLastString());
+	}
+
 	static void TestIfTrue()
 	{
 		CommandSourceSimulator commandSource;
@@ -931,11 +970,86 @@ class ExecutionFlowTest
 		Assert::AreEqual(0.4F, ledState.GetBrightness()->GetValueFloat(2));
 	}
 
+	static void TestFunctionWithVectorUse()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC Scan(red, green, blue)");
+		commandSource.AddCommand("	FOR channel 0:6");
+		commandSource.AddCommand("	DI(1, channel, { red, green, blue })");
+		commandSource.AddCommand("	D(50, channel, { 0, 0, 0 })");
+		commandSource.AddCommand("	A(12)");
+		commandSource.AddCommand("	ENDFOR");
+		commandSource.AddCommand("	FOR channel 7 : 1 : -1");
+		commandSource.AddCommand("	DI(1, channel, { red, green, blue })");
+		commandSource.AddCommand("	D(50, channel, { 0, 0, 0 })");
+		commandSource.AddCommand("	A(12)");
+		commandSource.AddCommand("	ENDFOR");
+		commandSource.AddCommand("	ENDFUNC");
+		commandSource.AddCommand("	Scan(1, 0, 0);");
+
+		RunProgram(&commandSource);
+
+		Assert::AreEqual(28, _commandResultCount);
+	}
+
+	static void TestAbort()
+	{
+		CommandSourceSimulator commandSource;
+		ParseErrors parseErrors;
+
+		commandSource.AddCommand("ABORT()");
+		commandSource.AddCommand("DI(a,0,10.0)");
+
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+		ResetResultStore();
+		CommandResultStatus status = executionFlow.RunProgram(1);
+
+		Assert::AreEqual(true, executionFlow.IsAborting());
+	}
+
+	static void TestAbortInForLoop()
+	{
+		CommandSourceSimulator commandSource;
+		ParseErrors parseErrors;
+
+		commandSource.AddCommand("FOR Test 0:1");
+		commandSource.AddCommand("ABORT()");
+		commandSource.AddCommand("DI(a,0,10.0)");
+		commandSource.AddCommand("ENDFOR");
+
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+		ResetResultStore();
+		CommandResultStatus status = executionFlow.RunProgram(1);
+
+		Assert::AreEqual(true, executionFlow.IsAborting());
+	}
+
+	static void TestAbortInFunctionCall()
+	{
+		CommandSourceSimulator commandSource;
+		ParseErrors parseErrors;
+
+		commandSource.AddCommand("FOR Test 0:1");
+		commandSource.AddCommand("ABORT()");
+		commandSource.AddCommand("DI(a,0,10.0)");
+		commandSource.AddCommand("ENDFOR");
+
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, CommandResultCallback);
+
+		ResetResultStore();
+		CommandResultStatus status = executionFlow.RunProgram(1);
+
+		Assert::AreEqual(true, executionFlow.IsAborting());
+	}
 
 public:
-
 	static int Run()
 	{
+		TestFunctionDoubleRun();
+
 		TestDirectWithLists();
 
 		Test();
@@ -972,6 +1086,8 @@ public:
 		TestMethodCannotAccessParentVariables();
 		TestMethodCallWithWrongArgumentCount();
 		TestMethodCallWithWrongArgumentCount2();
+		TestFunctionCallUsedInVector();
+		TestFunctionWithVectorUse();
 
 		TestLoopWithFunctionCall();
 		TestDirectWithFunctionCall();
@@ -994,6 +1110,9 @@ public:
 		TestDecrement();
 		TestIncrementReference();
 
+		TestAbort();
+		TestAbortInForLoop();
+		TestAbortInFunctionCall();
 
 		return 0;
 	}

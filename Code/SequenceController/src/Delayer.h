@@ -1,19 +1,17 @@
 class Delayer
 {
-	TickSource* _pTickSource;
 	unsigned long _ticks;
 	unsigned long _interval;
 	unsigned long _offset;
 
 public:
-	Delayer(TickSource* pTickSource)
+	Delayer()
 	{
-		_pTickSource = pTickSource;
 	}
 
-	void Snapshot(unsigned long interval) 
+	void Snapshot(unsigned long currentTicks, unsigned long interval) 
 	{
-		_ticks = _pTickSource->GetTicks();
+		_ticks = currentTicks;
 		_interval = interval;
 
 		// if _ticks + interval is going to overflow, we will fail. In that case, we figure out how far away we are from rolling over and add that value to both our snapshot and the value we are checking...
@@ -28,12 +26,12 @@ public:
 		}
 	}
 
-	bool CheckIfDone()
+	bool CheckIfDone(unsigned long currentTicks)
 	{
-		unsigned long currentTicks = _pTickSource->GetTicks() + _offset;
+		unsigned long currentTicksWithOffset = currentTicks + _offset;
 
 		unsigned long target = _ticks + _interval + _offset;
-		if (currentTicks >= target)
+		if (currentTicksWithOffset >= target)
 		{
 			return true;
 		}
@@ -41,11 +39,4 @@ public:
 		return false;
 	}
 
-	void Wait()
-	{
-		while (!CheckIfDone())
-		{
-			delayMicroseconds(50);
-		}
-	}
 };

@@ -6,37 +6,29 @@ class DelayerTest
 {
 	static void TestSimpleCase()
 	{
-		TickSource tickSource;
-		Delayer delayer(&tickSource);
+		Delayer delayer;
 
-		tickSource.SetTicks(0);
-		delayer.Snapshot(100);
+		delayer.Snapshot(0, 100);
 
-		Assert::AreEqual(false, delayer.CheckIfDone());
+		Assert::AreEqual(false, delayer.CheckIfDone(0));
 
-		tickSource.SetTicks(99);
-		Assert::AreEqual(false, delayer.CheckIfDone());
+		Assert::AreEqual(false, delayer.CheckIfDone(99));
 
-		tickSource.SetTicks(100);
-		Assert::AreEqual(true, delayer.CheckIfDone());
+		Assert::AreEqual(true, delayer.CheckIfDone(100));
 	}
 
 	// test case where ticks < maxlong but ticks + wait > maxlong
 	static void TestOverflowCase()
 	{
-		TickSource tickSource;
-		Delayer delayer(&tickSource);
+		Delayer delayer;
 
-		tickSource.SetTicks(-50);
-		delayer.Snapshot(100);
+		delayer.Snapshot(-50, 100);
 
-		Assert::AreEqual(false, delayer.CheckIfDone());
+		Assert::AreEqual(false, delayer.CheckIfDone(-50));
 
-		tickSource.SetTicks(49);
-		Assert::AreEqual(false, delayer.CheckIfDone());
+		Assert::AreEqual(false, delayer.CheckIfDone(49));
 
-		tickSource.SetTicks(50);
-		Assert::AreEqual(true, delayer.CheckIfDone());
+		Assert::AreEqual(true, delayer.CheckIfDone(50));
 	}
 
 public:

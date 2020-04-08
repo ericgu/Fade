@@ -54,8 +54,9 @@ public:
 			return;
 		}
 
-		FunctionDefinition* pLookup = Lookup(pFunctionName);
+		_isCurrentlyParsingFunction = true;
 
+		FunctionDefinition* pLookup = Lookup(pFunctionName);
 		if (pLookup != 0)
 		{
 			return;
@@ -74,11 +75,12 @@ public:
 		_functionDefinitionCount++;
 
 		_pCurrentFunctionDefinition = pCurrent;
-		_isCurrentlyParsingFunction = true;
 	}
 
 	void DefineEnd(int serialNumberEnd)
 	{
+		_isCurrentlyParsingFunction = false;
+
 		if (_pCurrentFunctionDefinition == 0)
 		{
 			return;
@@ -86,7 +88,6 @@ public:
 
 		_pCurrentFunctionDefinition->SerialNumberEnd = serialNumberEnd;
 		_pCurrentFunctionDefinition = 0;
-		_isCurrentlyParsingFunction = false;
 	}
 
 	FunctionDefinition* Lookup(const char* pFunctionName)

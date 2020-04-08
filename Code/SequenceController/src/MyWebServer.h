@@ -8,6 +8,8 @@ class MyWebServer
     char* _pProgramBuffer;
     char* _pPageBuffer;
 
+    IPAddress _myIPAddress;
+
     Supervisor* _pSupervisor;
 
     static void handleRoot()
@@ -22,7 +24,7 @@ class MyWebServer
 
     public:
 
-      MyWebServer(Supervisor* pSupervisor)
+      MyWebServer(Supervisor* pSupervisor, IPAddress myIPAddress)
       {
         _pWebServer = new WebServer(80);
 
@@ -30,6 +32,7 @@ class MyWebServer
         _pPageBuffer = new char[16636];
 
         _pSupervisor = pSupervisor;
+        _myIPAddress = myIPAddress;
 
         _pWebServer->on ( "/", handleRoot );
         _pWebServer->on ( "/SetNodeName", handleNodeName );
@@ -62,9 +65,13 @@ void handleRootInstance()
   {
     _pSupervisor->UpdateProgram(Program.c_str());
 
-    _pWebServer->sendHeader("Location", String("/"), true);
-   _pWebServer->send ( 302, "text/plain", "");
-    Serial.println("Save done - redirecting"); Serial.flush();
+    snprintf(_pPageBuffer, 16636, 
+        "<meta http-equiv=\"refresh\" content=\"3;url=http://%d.%d.%d.%d/\">\
+        <html><H1>Updating program</H1></html>", 
+        (int)_myIPAddress[0], (int)_myIPAddress[1], (int)_myIPAddress[2], (int)_myIPAddress[3]);
+
+   	_pWebServer->send ( 200, "text/html", _pPageBuffer );
+    Serial.println("Update done - redirecting"); Serial.flush();
   }
 
   CommandFormatter::PrettyFormat(_pSupervisor->GetCurrentProgram(), _pProgramBuffer, 16636);

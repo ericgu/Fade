@@ -26,17 +26,6 @@ public:
 		}
 	}
 
-	static void AreEqual(char* expected, char* actual)
-	{
-		_assertCount++;
-
-		if (strcmp(expected, actual) != 0)
-		{
-			sprintf_s(_buffer, "Expected %s got %s", expected, actual);
-			Failed(_buffer);
-		}
-	}
-
 	static void AreEqual(const char* expected, char* actual)
 	{
 		_assertCount++;

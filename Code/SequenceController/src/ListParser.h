@@ -99,6 +99,56 @@ public:
 		}
 	}
 
+	void ParseByLines(const char* pString)
+	{
+		_itemCount = 0;
+
+		if (strlen(pString) > _bufferSize)
+		{
+			Serial.println("too big"); Serial.flush();
+		}
+
+		//strcpy_s(_pBuffer, length, pString);
+		strcpy(_pBuffer, pString);
+
+		char* pCurrent = _pBuffer;
+		char* pStart = pCurrent;
+
+		while (*pCurrent != '\0')
+		{
+			if (_itemCount == _itemCountAllocated)
+			{
+				Serial.print("List to parse had too many items...");
+				return;
+			}
+
+			if (*pCurrent == '\n' || *pCurrent == '\r')
+			{
+				_pItems[_itemCount] = pStart;
+				_itemCount++;
+				*pCurrent = 0;
+
+				pCurrent++;
+
+				if (*pCurrent == '\n' || *pCurrent == '\r')
+				{
+					pCurrent++;
+				}
+				pStart = pCurrent;
+			}
+			else
+			{
+				pCurrent++;
+			}
+		}
+
+		if (strlen(pStart) != 0)
+		{
+			_pItems[_itemCount] = pStart;
+			_itemCount++;
+		}
+	}
+
 	int GetCount() { return _itemCount; }
 
 	char* GetItem(int i) { return _pItems[i]; }
