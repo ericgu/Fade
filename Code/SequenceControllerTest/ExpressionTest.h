@@ -312,6 +312,21 @@ class ExpressionTest
 		Assert::AreEqual(1, stack.GetFrameCount());
 	}
 
+	static void TestConfigLedCall()
+	{
+		Expression expression;
+		VariableCollection variableCollection;
+		ParseErrors parseErrors;
+		Stack stack;
+		FunctionStore functionStore;
+
+		stack.CreateFrame();
+
+		Variable value = expression.Evaluate("MyFunction(15.3)", &variableCollection, &functionStore, &stack, &parseErrors, 1, FunctionCallHandlerImplementation2, 0);
+		Assert::AreEqual(15.3F, value.GetValueFloat(0));
+		Assert::AreEqual(1, stack.GetFrameCount());
+	}
+
 public:
 
 	static int Run()

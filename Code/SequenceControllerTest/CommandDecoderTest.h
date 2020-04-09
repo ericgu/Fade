@@ -37,6 +37,11 @@ public:
 	{
 		return _aborting;
 	}
+
+	void ConfigureLeds(const char* pLedType, int ledTypeLength, int count)
+	{
+
+	}
 };
 
 class CommandDecoderTest

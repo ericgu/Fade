@@ -20,8 +20,10 @@ class IntegrationTest
 	{
 		CommandSourceSimulator commandSource;
 		LedDeviceSimulator ledDevice(1000);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
-		LedManager ledManager(&ledDevice, 16);
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 16, 555);
 
 		commandSource.AddCommand("D(10,0,10.0)");
 		commandSource.AddCommand("A(10)");
@@ -51,8 +53,11 @@ class IntegrationTest
 		CommandSourceSimulator commandSource;
 		LedDeviceSimulator ledDevice(1000);
 
-		LedManager ledManager(&ledDevice, 16);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 16, 555);
+		
 		commandSource.AddCommand("D(10,0,10.0)");
 		commandSource.AddCommand("A(10)");
 		commandSource.AddCommand("D(10,0,0.0)");
@@ -86,7 +91,10 @@ class IntegrationTest
 		CommandSourceSimulator commandSource;
 		LedDeviceSimulator ledDevice(10000);
 
-		LedManager ledManager(&ledDevice, 16);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 16, 555);
 
 		//"$1$FOR %A 0:7\n$100$D%A,1.0$100$D%A,0.0\n$1$ENDFOR"
 		commandSource.AddCommand("FOR A 0:7");
@@ -118,8 +126,10 @@ class IntegrationTest
 	{
 		CommandSourceSimulator commandSource;
 		LedDeviceSimulator ledDevice(16000);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
-		LedManager ledManager(&ledDevice, 16);
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 16, 555);
 
 		// FOR A 0:7
 		// 	PL(A)

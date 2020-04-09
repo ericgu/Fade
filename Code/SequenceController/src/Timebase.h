@@ -1,9 +1,9 @@
 
 typedef void(*TimebaseCallback)();
 
-class Timebase
+class Timebase: public ILedMessageHandler
 {
-	static const int UpdateRateInMicroseconds = 10000;		// 100 Hz
+	static const int UpdateRateInMicroseconds = 10000;		// 10 mS => 100 Hz
 
     ILedManager* _pLedManager;
     int _currentCount;
@@ -19,7 +19,7 @@ class Timebase
 
     public:
         Timebase(ICommandSource* pCommandSource, ILedManager* pLedManager, ParseErrors* pParseErrors, TimebaseCallback timebaseCallback) :
-			_executionFlow(pCommandSource, pParseErrors, ExecuteLedCommand)
+			_executionFlow(pCommandSource, pParseErrors, this)
         {
             _pLedManager = pLedManager;
 			_pParseErrors = pParseErrors;
@@ -47,6 +47,11 @@ class Timebase
 			_pTimebase->ExecuteLedCommandMember(pCommandResult);
 			Profiler.StartBig("Other");
 
+		}
+
+		void Configure(const char* pLedType, int ledTypeLength, int ledCount)
+		{
+			_pLedManager->Configure(pLedType, ledTypeLength, ledCount);
 		}
 
 		void TaskDelay()

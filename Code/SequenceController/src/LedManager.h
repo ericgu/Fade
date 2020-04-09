@@ -6,31 +6,46 @@ public:
 
 	virtual void Tick() = 0;
 	virtual void ResetState() = 0;
+
+	virtual void Configure(const char* pLedType, int ledCount, int ledPin) = 0;
 };
 
 class LedManager: public ILedManager
 {
-    ILedDevice* _pLedDevice;
+	ILedDeviceCreator* _pLedDeviceCreator;
+	ILedDevice* _pLedDevice = 0;
     int _channelCount;
 
     LedState* _pStates;
     LedState* _pDeltas;
 
-    public:
-        LedManager(ILedDevice* pLedDevice, int channelCount)
-        {
-            _channelCount = channelCount;
-			_pLedDevice = pLedDevice;
-			_pStates = new LedState[channelCount];
-			_pDeltas = new LedState[channelCount];
+	void Cleanup()
+	{
+		if (_pStates != 0)
+		{
+			delete _pStates;
+			delete _pDeltas;
+			_pStates = 0;
+			_pDeltas = 0;
+		}
+	}
 
-			ResetState();
+    public:
+        LedManager(ILedDeviceCreator* pLedDeviceCreator)
+        {
+			_pLedDeviceCreator = pLedDeviceCreator;
+
+			_channelCount = 0;
+			_pStates = 0;
+			_pDeltas = 0;
+			_pLedDevice = 0;
+
+			Configure("RGB", 1, 1);
         }
 
 		~LedManager()
 		{
-			delete _pStates;
-			delete _pDeltas;
+			Cleanup();
 		}
 
 		void ResetState()
@@ -40,6 +55,23 @@ class LedManager: public ILedManager
 				Variable zero;
 				_pStates[i] = LedState(i, &zero, 0);
 				_pDeltas[i] = LedState(i, &zero, 0);
+			}
+		}
+
+		void Configure(const char* pLedType, int ledCount, int ledPin)
+		{
+			ILedDevice* pLedDevice = _pLedDeviceCreator->Create(pLedType, ledCount, ledPin);
+
+			if (pLedDevice != 0)
+			{
+				_pLedDevice = pLedDevice;
+				_channelCount = ledCount;
+
+				Cleanup();
+				_pStates = new LedState[_channelCount];
+				_pDeltas = new LedState[_channelCount];
+
+				ResetState();
 			}
 		}
 

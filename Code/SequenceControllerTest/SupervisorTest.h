@@ -7,8 +7,11 @@ class SupervisorTest
 	static void TestInitRunningCode()
 	{
 		Supervisor supervisor;
-		LedDeviceSimulator ledDevice(100);
-		LedManager ledManager(&ledDevice, 1);
+		LedDeviceSimulator ledDevice(500);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 1, 555);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
@@ -34,7 +37,10 @@ class SupervisorTest
 	{
 		Supervisor supervisor;
 		LedDeviceSimulator ledDevice(100);
-		LedManager ledManager(&ledDevice, 1);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 16, 555);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
@@ -60,7 +66,10 @@ class SupervisorTest
 	{
 		Supervisor supervisor;
 		LedDeviceSimulator ledDevice(100);
-		LedManager ledManager(&ledDevice, 1);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 16, 555);
 
 		Settings settings;
 		settings.SaveShouldExecuteCode(false);
@@ -81,7 +90,10 @@ class SupervisorTest
 	{
 		Supervisor supervisor;
 		LedDeviceSimulator ledDevice(500);
-		LedManager ledManager(&ledDevice, 1);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 1, 555);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
@@ -116,11 +128,14 @@ class SupervisorTest
 		Assert::AreEqual(333, supervisor.GetExecutionCount());
 	}
 
-	static void TestUpdateCodeSavesShouldExecuteAfter500Loops()
+	static void TestUpdateCodeSavesShouldExecuteAfterSuccessfulLoop()
 	{
 		Supervisor supervisor;
 		LedDeviceSimulator ledDevice(1000);
-		LedManager ledManager(&ledDevice, 1);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 1, 555);
 
 		Settings settings;
 
@@ -133,10 +148,7 @@ class SupervisorTest
 		Assert::AreEqual(1, supervisor.GetExecutingProgramState());
 		Assert::AreEqual(0, settings.LoadShouldExecuteCode());
 
-		for (int i = 0; i < 500; i++)
-		{
-			supervisor.Execute();
-		}
+		supervisor.Execute();
 		Assert::AreEqual(1, settings.LoadShouldExecuteCode());
 
 		Serial.SetOutput(true);
@@ -146,7 +158,10 @@ class SupervisorTest
 	{
 		Supervisor supervisor;
 		LedDeviceSimulator ledDevice(1000);
-		LedManager ledManager(&ledDevice, 1);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 1, 555);
 
 		Settings settings;
 
@@ -167,7 +182,10 @@ class SupervisorTest
 	{
 		Supervisor supervisor;
 		LedDeviceSimulator ledDevice(1000);
-		LedManager ledManager(&ledDevice, 1);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 1, 555);
 
 		Settings settings;
 		settings.SaveProgramText("A(3)");
@@ -191,7 +209,10 @@ class SupervisorTest
 	{
 		Supervisor supervisor;
 		LedDeviceSimulator ledDevice(100);
-		LedManager ledManager(&ledDevice, 1);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 1, 555);
 
 		Settings settings;
 
@@ -216,7 +237,7 @@ public:
 		TestNoProgram();
 		TestUpdatedProgram();
 
-		TestUpdateCodeSavesShouldExecuteAfter500Loops();
+		TestUpdateCodeSavesShouldExecuteAfterSuccessfulLoop();
 		TestCodeWithErrorsDisablesExecution();
 		TestSavedRunningProgramDoesNotUpdateSettingsAfter500Loops();
 

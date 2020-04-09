@@ -1,5 +1,5 @@
 
-class LedPwmEsp32: public ILedPwm
+class LedPwmEsp32: public ILedDevice
 {
     const int ledPins[16] = { 2,  4,  5, 18, 19, 21, 22, 23,   // main row
                              14, 27, 26, 25, 33, 32, 12, 13};  // extension row

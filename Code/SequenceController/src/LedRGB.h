@@ -1,6 +1,6 @@
 #include <NeoPixelBus.h>
 
-class LedRGB: public ILedPwm
+class LedRGB: public ILedDevice
 {
     NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* _pStrip;
     int _pixelCount;

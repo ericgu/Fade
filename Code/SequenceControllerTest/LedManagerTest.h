@@ -2,6 +2,22 @@
 
 #include "LedManager.h"
 
+class LedDeviceCreatorSimulator : public ILedDeviceCreator
+{
+	ILedDevice* _pLedDevice;
+
+public:
+	LedDeviceCreatorSimulator(ILedDevice* pLedDevice)
+	{
+		_pLedDevice = pLedDevice;
+	}
+
+	ILedDevice* Create(const char* pLedType, int ledCount, int pin)
+	{
+		return _pLedDevice;
+	}
+};
+
 class LedDeviceSimulator : public ILedDevice
 {
 	int _updateCount;
@@ -66,8 +82,10 @@ class LedManagerTest
 
 	static void Test()
 	{
-		LedDeviceSimulator ledPwm(100);
-		LedManager ledManager(&ledPwm, 1);
+		LedDeviceSimulator ledDevice(100);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 1, 555);
 
 		CommandResult commandResult;
 		commandResult.AddTarget(LedState(0, 1.0, 1));
@@ -76,15 +94,17 @@ class LedManagerTest
 		ledManager.SetDelta(commandResult);
 		ledManager.Tick();
 
-		Assert::AreEqual(1, ledPwm.GetUpdateCount());
-		AssertLedState(ledPwm.GetUpdatedState(0), 0, 1);
+		Assert::AreEqual(1, ledDevice.GetUpdateCount());
+		AssertLedState(ledDevice.GetUpdatedState(0), 0, 1);
 	}
 
 	static void TestTwoChannelsTwoUpdates()
 	{
-		LedDeviceSimulator ledPwm(100);
+		LedDeviceSimulator ledDevice(100);
 
-		LedManager ledManager(&ledPwm, 2);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 2, 555);
 
 		CommandResult commandResult;
 		commandResult.AddTarget(LedState(0, 1.0, 1));
@@ -95,24 +115,26 @@ class LedManagerTest
 
 		ledManager.Tick();
 
-		Assert::AreEqual(2, ledPwm.GetUpdateCount());
-		AssertLedState(ledPwm.GetUpdatedState(0), 0, 1.0);
-		AssertLedState(ledPwm.GetUpdatedState(1), 1, 2.0);
+		Assert::AreEqual(2, ledDevice.GetUpdateCount());
+		AssertLedState(ledDevice.GetUpdatedState(0), 0, 1.0);
+		AssertLedState(ledDevice.GetUpdatedState(1), 1, 2.0);
 
 		ledManager.Tick();
 
-		Assert::AreEqual(4, ledPwm.GetUpdateCount());
-		AssertLedState(ledPwm.GetUpdatedState(0), 0, 1.0);
-		AssertLedState(ledPwm.GetUpdatedState(1), 1, 2.0);
-		AssertLedState(ledPwm.GetUpdatedState(2), 0, 1.0);
-		AssertLedState(ledPwm.GetUpdatedState(3), 1, 2.0);
+		Assert::AreEqual(4, ledDevice.GetUpdateCount());
+		AssertLedState(ledDevice.GetUpdatedState(0), 0, 1.0);
+		AssertLedState(ledDevice.GetUpdatedState(1), 1, 2.0);
+		AssertLedState(ledDevice.GetUpdatedState(2), 0, 1.0);
+		AssertLedState(ledDevice.GetUpdatedState(3), 1, 2.0);
 	}
 
 	static void TestMultipleSteps()
 	{
-		LedDeviceSimulator ledPwm(100);
+		LedDeviceSimulator ledDevice(100);
 
-		LedManager ledManager(&ledPwm, 1);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 1, 555);
 
 		CommandResult commandResult;
 		commandResult.AddTarget(LedState(0, 20.0, 10));
@@ -123,8 +145,8 @@ class LedManagerTest
 		for (int i = 1; i < 6; i++)
 		{
 			ledManager.Tick();
-			Assert::AreEqual(i, ledPwm.GetUpdateCount());
-			AssertLedState(ledPwm.GetUpdatedState(i - 1), 0, i * 2.0F);
+			Assert::AreEqual(i, ledDevice.GetUpdateCount());
+			AssertLedState(ledDevice.GetUpdatedState(i - 1), 0, i * 2.0F);
 		}
 	}
 
@@ -132,7 +154,9 @@ class LedManagerTest
 	{
 		LedDeviceSimulator ledDevice(100);
 
-		LedManager ledManager(&ledDevice, 2);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 2, 555);
 
 		CommandResult commandResult;
 		commandResult.AddTarget(LedState(0, 10.0, 5));
@@ -159,7 +183,9 @@ class LedManagerTest
 	static void TestMultiValue()
 	{
 		LedDeviceSimulator ledDevice(100);
-		LedManager ledManager(&ledDevice, 1);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 1, 555);
 
 		CommandResult commandResult;
 		Variable target;
@@ -179,7 +205,9 @@ class LedManagerTest
 	static void TestMultiValueTwoStep()
 	{
 		LedDeviceSimulator ledDevice(100);
-		LedManager ledManager(&ledDevice, 1);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 1, 555);
 
 		CommandResult commandResult;
 		Variable target;
@@ -204,7 +232,9 @@ class LedManagerTest
 	static void TestInvalidChannel()
 	{
 		LedDeviceSimulator ledDevice(100);
-		LedManager ledManager(&ledDevice, 1);
+		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+		LedManager ledManager(&ledCreator);
+		ledManager.Configure("", 1, 555);
 
 		CommandResult commandResult;
 		commandResult.AddTarget(LedState(1, 1.0, 1));

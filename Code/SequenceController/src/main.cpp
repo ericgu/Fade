@@ -29,6 +29,8 @@
 #include "ILedDevice.h"
 #include "LedPwmEsp32.h"
 #include "LedRGB.h"
+#include "ILedDeviceCreator.h"
+#include "LedDeviceCreator.h"
 #include "LedManager.h"
 #include "ExpressionTokenizer.h"
 #include "FunctionStore.h"
@@ -39,6 +41,7 @@
 #include "Expression.h"
 #include "ExecutionContext.h"
 #include "CommandDecoder.h"
+#include "ILedMessageHandler.h"
 #include "ExecutionFlow.h"
 #include "Timebase.h"
 
@@ -55,7 +58,8 @@
 
 #include "MyWebServer.h"
 
-ILedPwm* _pLedPwm;
+LedDeviceCreator* _pLedDeviceCreator;
+ILedDevice* _pLedDevice;
 LedManager* _pLedManager;
 
 Supervisor* _pSupervisor;
@@ -101,8 +105,9 @@ void setup() {
   //_pLedPwm = new LedPwmEsp32();
   //_pLedManager = new LedManager(_pLedPwm, 16);
 
-  _pLedPwm = new LedRGB(33, 13);
-  _pLedManager = new LedManager(_pLedPwm, 33);
+  _pLedDeviceCreator = new LedDeviceCreator();
+  //_pLedDevice = new LedRGB(33, 13);
+  _pLedManager = new LedManager(_pLedDeviceCreator);
 
   WiFiManager wifiManager;
   

@@ -8,6 +8,10 @@ class LedManagerSimulator : public ILedManager
 	int _tickCount = 0;
 
 public:
+	char _ledType[128];
+	int _ledCount;
+	int _ledPin;
+
 	void SetDelta(CommandResult commandResult)
 	{
 		_commandResult = commandResult;
@@ -31,6 +35,13 @@ public:
 	int GetTickCount()
 	{
 		return _tickCount;
+	}
+
+	void Configure(const char* pLedType, int ledCount, int ledPin)
+	{
+		strcpy(_ledType, pLedType);
+		_ledCount = ledCount;
+		_ledPin = ledPin;
 	}
 };
 

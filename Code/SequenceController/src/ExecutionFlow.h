@@ -3,16 +3,16 @@ class ExecutionFlow: public IExecutionFlow
 	ICommandSource* _pCommandSource;
 	ExecutionContext* _pExecutionContext;
 	ParseErrors* _pParseErrors;
-	CommandResultCallback _callback;
+	ILedMessageHandler* _pLedMessageHandler;
 	CommandResult* _pCommandResult;
 	CommandDecoder* _pCommandDecoder;
 
 public:
-	ExecutionFlow(ICommandSource* pCommandSource, ParseErrors* pParseErrors, CommandResultCallback callback)
+	ExecutionFlow(ICommandSource* pCommandSource, ParseErrors* pParseErrors, ILedMessageHandler* pLedMessageHandler)
 	{
 		_pCommandSource = pCommandSource;
 		_pParseErrors = pParseErrors;
-		_callback = callback;
+		_pLedMessageHandler = pLedMessageHandler;
 		_pExecutionContext = new ExecutionContext();
 		_pCommandResult = new CommandResult();
 		_pCommandDecoder = new CommandDecoder();
@@ -48,8 +48,12 @@ public:
 
 	void ExecuteLedCommand(CommandResult* pCommandResult)
 	{
-		_callback(pCommandResult);
-		
+		_pLedMessageHandler->ExecuteLedCommandMember(pCommandResult);
+	}
+
+	void ConfigureLeds(const char* pLedType, int ledCount, int pin)
+	{
+		_pLedMessageHandler->Configure(pLedType, ledCount, pin);
 	}
 
 	ExecutionContext* GetExecutionContext()
@@ -117,9 +121,9 @@ public:
 				switch (status)
 				{
 					case CommandResultStatus::CommandExecute:
-						if (_callback != 0)
+						if (_pLedMessageHandler != 0)
 						{
-							_callback(_pCommandResult);
+							_pLedMessageHandler->ExecuteLedCommandMember(_pCommandResult);
 							_pCommandResult->Reset();
 							break;
 						}
