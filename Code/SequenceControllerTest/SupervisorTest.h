@@ -173,7 +173,7 @@ class SupervisorTest
 
 		supervisor.Execute();
 		Assert::AreEqual(0, supervisor.GetExecutingProgramState());
-		Assert::AreEqual("Unrecognized identifier: B\n", supervisor.GetCurrentErrors());
+		Assert::AreEqual("Unrecognized function: B\n", supervisor.GetCurrentErrors());
 
 		Serial.SetOutput(true);
 	}

@@ -57,7 +57,9 @@ public:
 
 		if (!BuiltInFunctions::HandleBuiltInFunctions(pFunctionName, _pVariableCollection, _pStack, _pParseErrors, lineNumber, _pExecutionFlow, &returnValue))
 		{
-			// ERROR: unrecognized function
+			_pParseErrors->AddError("Unrecognized function: ", pFunctionName, lineNumber);
+
+			return Variable::Empty();
 		}
 
 		return returnValue;

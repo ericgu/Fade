@@ -97,7 +97,6 @@ class ExecutionFlowTest
 
 		ExecutionFlow executionFlow(&commandSource, &parseErrors, &ledMessageHandlerSimulator);
 
-
 		executionFlow.RunProgram(2);
 
 		Assert::AreEqual(0, parseErrors.GetErrorCount());
@@ -407,7 +406,7 @@ class ExecutionFlowTest
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Unrecognized identifier: guar", parseError._errorText);
+		Assert::AreEqual("Undefined variable: guar", parseError._errorText);
 	}
 
 	static void TestDoubleLoop()
@@ -470,7 +469,7 @@ class ExecutionFlowTest
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand("FUNC Function");
+		commandSource.AddCommand("FUNC Function()");
 		commandSource.AddCommand("RETURN 10.0");
 		commandSource.AddCommand("ENDFUNC");
 		commandSource.AddCommand("A=Function()");
@@ -488,7 +487,7 @@ class ExecutionFlowTest
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand("FUNC Function");
+		commandSource.AddCommand("FUNC Function()");
 		commandSource.AddCommand("RETURN {1, 2, 3}");
 		commandSource.AddCommand("ENDFUNC");
 		commandSource.AddCommand("A=Function()");
@@ -508,7 +507,7 @@ class ExecutionFlowTest
 	{
 		CommandSourceSimulator commandSource;
 
-		commandSource.AddCommand("FUNC Function");
+		commandSource.AddCommand("FUNC Function()");
 		commandSource.AddCommand("RETURN 11.0");
 		commandSource.AddCommand("ENDFUNC");
 		commandSource.AddCommand("FUNC FunctionOuter");
@@ -678,7 +677,7 @@ class ExecutionFlowTest
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Unrecognized identifier: V", parseError._errorText);
+		Assert::AreEqual("Undefined variable: V", parseError._errorText);
 	}
 
 	static void TestMethodCallWithWrongArgumentCount()
@@ -744,7 +743,7 @@ class ExecutionFlowTest
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Unrecognized identifier: PR", parseError._errorText);
+		Assert::AreEqual("Unrecognized function: PR", parseError._errorText);
 	}
 
 	static void TestDirectWithFunctionCall()
@@ -1105,7 +1104,7 @@ class ExecutionFlowTest
 		commandSource.AddCommand("	A(12)");
 		commandSource.AddCommand("	ENDFOR");
 		commandSource.AddCommand("	ENDFUNC");
-		commandSource.AddCommand("	Scan(1, 0, 0);");
+		commandSource.AddCommand("	Scan(1, 0, 0)");
 
 		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
 

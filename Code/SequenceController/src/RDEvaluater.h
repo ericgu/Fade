@@ -9,6 +9,43 @@ class RDEvaluater
 	ParseErrors* _pParseErrors;
 	int _lineNumber;
 
+	// recursively evaluate function arguments. On the way out of the function we store the arguments. This prevents collisions when the function
+	// argument evaluation requires function calls themselves. 
+	bool EvaluateFunctionArguments(int argumentNumber)
+	{
+		if (_pExpressionTokenSource->GetCurrentNode() == 0)
+		{
+			_pParseErrors->AddError("Missing closing ) in expression", "", _lineNumber);
+			return false;
+		}
+
+			// if the current token is the closing brace, we are done.
+		if (_pExpressionTokenSource->EqualTo(")"))
+		{
+			_pExpressionTokenSource->Advance();
+			_pVariableCollection->AddAndSet("#A", &Variable(argumentNumber), _pStack->GetFrameCount() + 1); // put into frame that will be created soon...
+			return true;
+		}
+
+		Variable value = EvaluateTop();
+
+		if (_pExpressionTokenSource->EqualTo(","))
+		{
+			_pExpressionTokenSource->Advance();
+		}
+
+		if (!EvaluateFunctionArguments(argumentNumber + 1))
+		{
+			return false;
+		}
+
+		char argumentName[10];
+		sprintf(argumentName, "#A%d", argumentNumber);
+		_pVariableCollection->AddAndSet(argumentName, &value, _pStack->GetFrameCount() + 1); // put into frame that will be created soon...
+
+		return true;
+	}
+
 	Variable EvaluateExpression()
 	{
 		ExpressionNode* pNode = _pExpressionTokenSource->GetCurrentNode();
@@ -37,50 +74,23 @@ class RDEvaluater
 			{
 				_pExpressionTokenSource->Advance();
 
-				_pStack->CreateFrame();
+				bool argumentParseSuccess = EvaluateFunctionArguments(0);
 
-				char argumentName[10];
-				int argumentCount = 0;
-
-				Variable value = EvaluateTop();
-				sprintf(argumentName, "#A%d", argumentCount);
-				argumentCount++;
-
-				_pVariableCollection->AddAndSet(argumentName, &value, _pStack->GetFrameCount());
-
-				while (_pExpressionTokenSource->EqualTo(","))
+				if (argumentParseSuccess)
 				{
-					_pExpressionTokenSource->Advance();
+					_pStack->CreateFrame();
 
-					value = EvaluateTop();
-
-					sprintf(argumentName, "#A%d", argumentCount);
-					argumentCount++;
-
-					_pVariableCollection->AddAndSet(argumentName, &value, _pStack->GetFrameCount());
-				}
-
-				_pVariableCollection->AddAndSet("#A", &Variable(argumentCount), _pStack->GetFrameCount());
-
-				if (_pExpressionTokenSource->EqualTo(")"))
-				{
-					_pExpressionTokenSource->Advance();
-
-					Variable returnValue = _pFunctionCaller->Call(identifier, 191919); //TODO: Add in line number here...
+					Variable returnValue = _pFunctionCaller->Call(identifier, _lineNumber);
 
 					_pVariableCollection->DeleteStackLevel(_pStack->GetFrameCount());
 					_pStack->DestroyFrame();
 
 					return returnValue;
 				}
-				else
-				{
-					_pParseErrors->AddError("Missing closing ) in expression", "", _lineNumber);
-				}
 			}
 			else
 			{
-				Variable *pVariable = _pVariableCollection->GetWithoutErrorCheck(identifier, 0);
+				Variable *pVariable = _pVariableCollection->GetWithoutErrorCheck(identifier, _pStack->GetFrameCount());
 				if (pVariable)
 				{
 					Variable returnValue = *pVariable;
@@ -108,7 +118,7 @@ class RDEvaluater
 					char taggedVariableName[128];
 					strcpy(taggedVariableName, "$");
 					strcat(taggedVariableName, identifier);
-					_pVariableCollection->AddAndSet(taggedVariableName, &Variable(1), 0); // stack level. 
+					_pVariableCollection->AddAndSet(taggedVariableName, &Variable(1), _pStack->GetFrameCount());
 
 					Variable returnValue;
 					returnValue.SetToNan();
@@ -363,15 +373,15 @@ class RDEvaluater
 			if (!pDestination)
 			{
 				// new variable. 
-				_pVariableCollection->AddAndSet(left.GetVariableName(), &Variable(), 0);
-				pDestination = _pVariableCollection->GetWithoutErrorCheck(left.GetVariableName(), 0);
+				_pVariableCollection->AddAndSet(left.GetVariableName(), &Variable(), _pStack->GetFrameCount());
+				pDestination = _pVariableCollection->GetWithoutErrorCheck(left.GetVariableName(), _pStack->GetFrameCount());
 
 				// Remove "undefined" sentinel...
 				char taggedVariableName[128];
 				strcpy(taggedVariableName, "$");
 				strcat(taggedVariableName, left.GetVariableName());
 
-				_pVariableCollection->Delete(taggedVariableName, 0); // stack level...
+				_pVariableCollection->Delete(taggedVariableName, _pStack->GetFrameCount()); 
 			}
 
 			for (int i = 0; i < right.GetValueCount(); i++)
@@ -416,7 +426,7 @@ public:
 			{
 				Variable* pVariable = pVariableCollection->Get(i);
 
-				if (*pVariable->GetVariableName() == '$')
+				if (*pVariable->GetVariableName() == '$' && pVariable->GetStackLevel() == pStack->GetFrameCount())
 				{
 					_pParseErrors->AddError("Undefined variable: ", pVariable->GetVariableName() + 1, _lineNumber); // line number
 				}

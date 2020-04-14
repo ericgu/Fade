@@ -445,7 +445,7 @@ class CommandDecoderTest
 
 		CommandDecoder commandDecoder;
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("DX()", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: DX", 0);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized function: DX", 0);
 		parseErrors.Clear();
 
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("D(55, 1)", 2), &executionFlow);
@@ -453,11 +453,11 @@ class CommandDecoderTest
 		parseErrors.Clear();
 
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("D(MissingVar, 5, 1.0)", 3), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: MissingVar", 3);
+		ValidateError(executionContext, &parseErrors, 1, "Undefined variable: MissingVar", 3);
 		parseErrors.Clear();
 
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("DX(", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Invalid expression: missing \")\"", 0);
+		ValidateError(executionContext, &parseErrors, 1, "Missing closing ) in expression", 0);
 		parseErrors.Clear();
 
 	}
@@ -470,13 +470,13 @@ class CommandDecoderTest
 
 		CommandDecoder commandDecoder;
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("SX()", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: SX", 0);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized function: SX", 0);
 
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("S()", 1), &executionFlow);
 		ValidateError(executionContext, &parseErrors, 2, "Invalid S command: expected cycle count after (", 1);
 
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("S(MissingVar, 5, 1.0)", 3), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 3, "Unrecognized identifier: MissingVar", 3);
+		ValidateError(executionContext, &parseErrors, 3, "Undefined variable: MissingVar", 3);
 	}
 
 	static void TestErrorAnimate()
@@ -487,7 +487,7 @@ class CommandDecoderTest
 
 		CommandDecoder commandDecoder;
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("Axx()", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: Axx", 0);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized function: Axx", 0);
 
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("A()", 1), &executionFlow);
 		ValidateError(executionContext, &parseErrors, 2, "Invalid A command: expected cycle count", 1);
@@ -501,7 +501,7 @@ class CommandDecoderTest
 
 		CommandDecoder commandDecoder;
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("FASDF", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: FASDF", 0);
+		ValidateError(executionContext, &parseErrors, 1, "Undefined variable: FASDF", 0);
 	}
 
 	static void TestUnrecognizedCommand2()
@@ -557,7 +557,7 @@ class CommandDecoderTest
 
 		CommandDecoder commandDecoder;
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("Orange(1)", 0), &executionFlow);
-		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: Orange", 0);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized function: Orange", 0);
 	}
 
 public:
