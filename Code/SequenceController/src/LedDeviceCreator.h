@@ -3,25 +3,37 @@ class LedDeviceCreator: public ILedDeviceCreator
     char _ledType[64];
     int _ledCount;
     int _pin;
-    ILedDevice* _pCurrentLedDevice;
+    ILedDevice* _pCurrentLedDevice = 0;
 
 public:
     ILedDevice* Create(const char* pLedType, int ledCount, int pin)
     {
         if (strcmp(pLedType, _ledType) == 0 && ledCount == _ledCount && pin == _pin)
         {
+            //Serial.println("Same device");
             return 0;   // same device as before...
         }
 
-        Serial.print("Creating: "); Serial.print(pLedType); Serial.print(" "); Serial.print(ledCount); Serial.print(" "); Serial.print(pin);
+        //Serial.print("Creating: "); Serial.flush();
+        //Serial.print(pLedType);  Serial.flush();
+        //Serial.print(" ");  Serial.flush();
+        //Serial.print(ledCount);  Serial.flush();
+        //Serial.print(" ");  Serial.flush();
+        //Serial.print(pin); Serial.flush();
+
         strcpy(_ledType, pLedType);
         _ledCount = ledCount;
         _pin = pin; 
 
-        delete _pCurrentLedDevice;
+        if (_pCurrentLedDevice)
+        {
+            //Serial.println("delete"); Serial.flush();
+            delete _pCurrentLedDevice;
+        }
 
         if (strcmp(pLedType, "RGB") == 0)
         {
+            Serial.println("Creating RGB device");
             _pCurrentLedDevice = new LedRGB(ledCount, pin);
             return _pCurrentLedDevice;
         }

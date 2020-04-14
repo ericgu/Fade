@@ -102,6 +102,15 @@
     <ClInclude Include="TimeServices.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RDEvaluaterTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionCallerTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpressionTokenSourceTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -110,5 +119,9 @@
     <ClCompile Include="SequenceControllerTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="SampleCode\HueTest.txt" />
+    <Text Include="SampleCode\Larson.txt" />
   </ItemGroup>
 </Project>

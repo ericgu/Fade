@@ -11,7 +11,7 @@ public:
 
     static void Log(const char* spot)
     {
-        return;
+        //return;
 
         char temp;
         Serial.print("Stack: (");

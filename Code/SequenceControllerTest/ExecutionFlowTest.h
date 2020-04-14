@@ -369,7 +369,7 @@ class ExecutionFlowTest
 		ExecutionFlow executionFlow(&commandSource, &parseErrors, &ledMessageHandlerSimulator);
 
 
-		CommandResultStatus commandResultStatus = executionFlow.RunProgram();
+		CommandResultStatus commandResultStatus = executionFlow.RunProgram(1000);
 
 		Assert::AreEqual((int) CommandResultStatus::CommandTargetCountExceeded, (int) commandResultStatus);
 	}
@@ -483,6 +483,26 @@ class ExecutionFlowTest
 
 		AssertResult(ledMessageHandlerSimulator._commandResults[0], 10, 2, 1.0F);
 	}
+
+	static void TestFunctionCallMultiValueReturn()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC Function");
+		commandSource.AddCommand("RETURN {1, 2, 3}");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("A=Function()");
+		commandSource.AddCommand("DI(1, 2, A)");
+
+		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
+
+		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
+		Variable* pBrightness = ledMessageHandlerSimulator._commandResults[0].GetTarget(0).GetBrightness();
+		Assert::AreEqual(1.0F, pBrightness->GetValueFloat(0));
+		Assert::AreEqual(2.0F, pBrightness->GetValueFloat(1));
+		Assert::AreEqual(3.0F, pBrightness->GetValueFloat(2));
+	}
+
 
 	static void TestFunctionCallNested()
 	{
@@ -707,6 +727,26 @@ class ExecutionFlowTest
 		Assert::AreEqual(3, parseError._lineNumber);
 	}
 
+	static void TestUndefinedFunctionWithVariableParameter()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("V=15.0");
+		commandSource.AddCommand("PR(V)");
+
+		ParseErrors parseErrors;
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		ExecutionFlow executionFlow(&commandSource, &parseErrors, &ledMessageHandlerSimulator);
+
+		Serial.SetOutput(false);
+		executionFlow.RunProgram(1);
+		Serial.SetOutput(true);
+
+		Assert::AreEqual(1, parseErrors.GetErrorCount());
+		ParseError parseError = parseErrors.GetError(0);
+		Assert::AreEqual("Unrecognized identifier: PR", parseError._errorText);
+	}
+
 	static void TestDirectWithFunctionCall()
 	{
 		CommandSourceSimulator commandSource;
@@ -721,6 +761,27 @@ class ExecutionFlowTest
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 		AssertResult(ledMessageHandlerSimulator._commandResults[0], 1, 2, 3.0F);
+	}
+
+	static void TestFunctionCallWithMultipleReturnStatements()
+	{
+		CommandSourceSimulator commandSource;
+		ParseErrors parseErrors;
+
+		commandSource.AddCommand("FUNC F(X)");
+		commandSource.AddCommand("  IF X==1");
+		commandSource.AddCommand("    RETURN 13");
+		commandSource.AddCommand("  ELSE");
+		commandSource.AddCommand("     RETURN 25");
+		commandSource.AddCommand("  ENDIF");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("P(F(1))");
+
+		Serial.SetOutput(false);
+		RunProgram(&commandSource);
+		Serial.SetOutput(true);
+
+		Assert::AreEqual("13.000000", Serial.GetLastString());
 	}
 
 	static void TestFunctionCallUsedInVector()
@@ -744,9 +805,9 @@ class ExecutionFlowTest
 		CommandSourceSimulator commandSource;
 
 		commandSource.AddCommand("Value=3");
-		commandSource.AddCommand("IF Value==3");
+		commandSource.AddCommand("  IF Value==3");
 		commandSource.AddCommand("DI(7,7,10.0)");
-		commandSource.AddCommand("ENDIF");
+		commandSource.AddCommand("  ENDIF");
 		commandSource.AddCommand("DI(15,15,15.0)");
 
 		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
@@ -1052,6 +1113,26 @@ class ExecutionFlowTest
 		Assert::AreEqual(28, ledMessageHandlerSimulator._commandResultCount);
 	}
 
+	static void TestAssignmentOfFunctionVectorReturn()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("FUNC AngleToRGB(angleInDegrees)");
+		commandSource.AddCommand("	RETURN { 1, 0, 2 }");
+		commandSource.AddCommand("ENDFUNC");
+		commandSource.AddCommand("FOR test 0:1");
+		commandSource.AddCommand("  rgb = AngleToRGB(1)");
+		commandSource.AddCommand("  PL(rgb)");
+		commandSource.AddCommand("ENDFOR");
+
+		Serial.SetOutput(0);
+		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
+		Serial.SetOutput(1);
+
+		Assert::AreEqual("{1.000000, 0.000000, 2.000000}\n", Serial.GetLastString());
+	}
+
+
 	static void TestAbort()
 	{
 		CommandSourceSimulator commandSource;
@@ -1125,6 +1206,23 @@ class ExecutionFlowTest
 		Assert::AreEqual(0, parseErrors.GetErrorCount());
 	}
 
+
+	static void TestAssignmentOfVarIntoVector()
+	{
+		CommandSourceSimulator commandSource;
+
+		commandSource.AddCommand("angleInDegrees = 0");
+		commandSource.AddCommand("temp = angleInDegrees / 120");
+		commandSource.AddCommand("value = { temp, 55, 1 - temp }");
+		commandSource.AddCommand("PL(value)");
+
+		Serial.SetOutput(0);
+		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
+		Serial.SetOutput(1);
+
+		Assert::AreEqual("{0.000000, 55.000000, 1.000000}\n", Serial.GetLastString());
+	}
+
 public:
 	static int Run()
 	{
@@ -1168,6 +1266,11 @@ public:
 		TestMethodCallWithWrongArgumentCount2();
 		TestFunctionCallUsedInVector();
 		TestFunctionWithVectorUse();
+		TestFunctionCallMultiValueReturn();
+		TestFunctionCallWithMultipleReturnStatements();
+		TestUndefinedFunctionWithVariableParameter();
+		TestAssignmentOfFunctionVectorReturn();
+		TestAssignmentOfVarIntoVector();
 
 		TestLoopWithFunctionCall();
 		TestDirectWithFunctionCall();

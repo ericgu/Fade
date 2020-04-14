@@ -16,6 +16,11 @@ public:
 		return _pItem != 0 && *_pItem == character;
 	}
 
+	bool EqualTo(const char* pString)
+	{
+		return this != 0 && _itemLength == strlen(pString) && strncmp(pString, _pItem, _itemLength) == 0;
+	}
+
 	bool IsEmpty() { return _itemLength == -1; }
 
 	bool IsNumber() { return *_pItem >= '0' && *_pItem <= '9';  }

@@ -67,6 +67,13 @@ class VariableTest
 		Assert::AreEqual(0, variable.GetStackLevel());
 	}
 
+	static void TestConstructorString()
+	{
+		Variable variable = Variable("MyNewString");
+		Assert::AreEqual("MyNewString", variable.GetValueString());
+		Assert::AreEqual(0, variable.GetValueCount());
+	}
+
 	static void TestFloatList()
 	{
 		Variable variable;
@@ -327,6 +334,8 @@ public:
 		TestGetVariableNameBufferTooSmall();
 
 		TestTooMany();
+
+		TestConstructorString();
 
 		return 0;
 	}

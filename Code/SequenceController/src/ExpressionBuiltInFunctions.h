@@ -170,8 +170,27 @@ class ExpressionBuiltInFunctions
 					//pCommandString = VariableCollection::GetVariableName(pCommandString, variableName);
 
 					//Variable variable = executionContext.Evaluate(variableName, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
+					if (pArgument->GetValueCount() > 1)
+					{
+						strcat(outputString, "{");
 
-					snprintf(outputString, sizeof(outputString), "%f", pArgument->GetValueFloat(0));
+						for (int i = 0; i < pArgument->GetValueCount(); i++)
+						{
+							if (i != 0)
+							{
+								strcat(outputString, ", ");
+							}
+							char buffer[16];
+							snprintf(buffer, sizeof(buffer), "%f", pArgument->GetValueFloat(i));
+							strcat(outputString, buffer);
+						}
+						strcat(outputString, "}");
+
+					}
+					else
+					{
+						snprintf(outputString, sizeof(outputString), "%f", pArgument->GetValueFloat(0));
+					}
 				}
 			}
 
@@ -211,6 +230,9 @@ class ExpressionBuiltInFunctions
 			Variable* pLedPin = pVariableCollection->GetWithoutErrorCheck("#A2", pStack->GetFrameCount());
 
 			pExecutionFlow->ConfigureLeds(buffer, pLedCount->GetValueInt(), pLedPin->GetValueInt());
+			
+			// strings aren't real variables so they aren't repurposed; we need to delete it explicitly. 
+			pVariableCollection->Delete("#A0", pStack->GetFrameCount());
 
 			return true;
 		}
@@ -223,8 +245,6 @@ class ExpressionBuiltInFunctions
 public:
 	static bool HandleBuiltInFunctions(const char* pFunctionName, ExpressionNode* pNode, ExpressionTokenizer* pExpressionTokenizer, int i, VariableCollection* pVariableCollection, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
 	{
-		bool handled = false;
-
 		if (HandleBuiltInRand(pFunctionName, pNode, pExpressionTokenizer, i, pVariableCollection, pStack, pParseErrors, lineNumber, pExecutionFlow))
 		{
 			return true;

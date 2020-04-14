@@ -173,10 +173,11 @@ public:
 			{
 				if (pIdentifier->IsIdentifier())
 				{
-					Variable result = Evaluate(&expressionTokenizer, 2, nodeCount - 1, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, functionCallHandler, pExecutionFlow);
 					char identifier[128];
 					strncpy(identifier, pIdentifier->_pItem, pIdentifier->_itemLength);
 					identifier[pIdentifier->_itemLength] = '\0';
+
+					Variable result = Evaluate(&expressionTokenizer, 2, nodeCount - 1, pVariableCollection, pFunctionStore, pStack, pParseErrors, lineNumber, functionCallHandler, pExecutionFlow);
 
 					pVariableCollection->AddAndSet(identifier, &result, pStack->GetFrameCount());
 

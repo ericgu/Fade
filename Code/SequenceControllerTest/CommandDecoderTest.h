@@ -359,6 +359,26 @@ class CommandDecoderTest
 		Assert::AreEqual("1.000000", Serial.GetLastString());
 	}
 
+	static void TestPrintMultiValueVariable()
+	{
+		ExecutionContext executionContext;
+		Variable value;
+		value.SetValue(0, 1.0F);
+		value.SetValue(1, 2.0F);
+		value.SetValue(2, 3.0F);
+		executionContext._variables.AddAndSet("Variable", &value, 1);
+
+		ParseErrors parseErrors;
+		MockExecutionFlow executionFlow;
+
+		Serial.SetOutput(false);
+		CommandDecoder commandDecoder;
+		commandDecoder.Decode(&executionContext, &parseErrors, &Command("P(Variable)", 0), &executionFlow);
+		Serial.SetOutput(true);
+
+		Assert::AreEqual("{1.000000, 2.000000, 3.000000}", Serial.GetLastString());
+	}
+
 	static void TestPrintStringWithNewline()
 	{
 		ExecutionContext executionContext;
@@ -529,6 +549,17 @@ class CommandDecoderTest
 		//Assert:AreEqual(2, executionContext._stack.GetFrameCount());
 	}
 
+	static void TestUnrecognizedFunction()
+	{
+		ExecutionContext executionContext;
+		ParseErrors parseErrors;
+		MockExecutionFlow executionFlow;
+
+		CommandDecoder commandDecoder;
+		commandDecoder.Decode(&executionContext, &parseErrors, &Command("Orange(1)", 0), &executionFlow);
+		ValidateError(executionContext, &parseErrors, 1, "Unrecognized identifier: Orange", 0);
+	}
+
 public:
 
 	static int Run()
@@ -560,6 +591,7 @@ public:
 		TestPrintStringWithEquals();
 		TestPrintVariable();
 		TestPrintStringWithNewline();
+		TestPrintMultiValueVariable();
 
 		TestBlankLine();
 		TestWhitespaceOnly();
@@ -570,6 +602,7 @@ public:
 		TestErrorAnimate();
 		TestUnrecognizedCommand();
 		//TestUnrecognizedCommand2();
+		TestUnrecognizedFunction();
 
 		TestDefineFunction();
 		TestReturn();		

@@ -1,11 +1,14 @@
+
 #include <math.h>
 
 class Variable
 {
 	static const int ValuesPerVariable = 4;
 	static const int MaxVariableNameLength = 64;
+	static const int MaxStringVariableLength = 128;
 
 	char _variableName[MaxVariableNameLength];
+	char _stringValue[MaxStringVariableLength];
 	float _value[ValuesPerVariable];
 	int _valueCount;
 	int _stackLevel;
@@ -20,6 +23,12 @@ public:
 		_valueCount = 0;
 		_stackLevel = 0;
 		_variableName[0] = '\0';
+		_stringValue[0] = '\0';
+	}
+
+	Variable(const char* pString)
+	{
+		SetValue(pString);
 	}
 
 	Variable(int value)
@@ -28,6 +37,7 @@ public:
 		_valueCount = 1;
 		_stackLevel = 0;
 		_variableName[0] = '\0';
+		_stringValue[0] = '\0';
 	}
 
 	Variable(float value)
@@ -36,6 +46,7 @@ public:
 		_valueCount = 1;
 		_stackLevel = 0;
 		_variableName[0] = '\0';
+		_stringValue[0] = '\0';
 	}
 
 	static Variable ParseFloat(const char* pCommand)
@@ -45,6 +56,13 @@ public:
 		variable._valueCount = 1;
 		variable._stackLevel = 0;
 
+		return variable;
+	}
+
+	static Variable Empty()
+	{
+		Variable variable;
+		variable.SetToNan();
 		return variable;
 	}
 
@@ -98,6 +116,21 @@ public:
 		_value[index] = value;
 	}
 
+	void SetValue(const char* pString)
+	{
+		_valueCount = 0;
+
+		int copyCount = strlen(pString) < MaxStringVariableLength ? strlen(pString) : MaxStringVariableLength - 1;
+
+		strncpy(_stringValue, pString, copyCount);
+		_stringValue[copyCount] = '\0';
+	}
+
+	const char* GetValueString()
+	{
+		return _stringValue;
+	}
+
 	void SetVariableName(const char* pVariableName)
 	{
 		if (strlen(pVariableName) >= MaxVariableNameLength)
@@ -125,15 +158,17 @@ class VariableCollection
 	Variable _undefined;
 	Variable _constant;
 	Variable* _pVariables;
-	int _activeCount;
 	int _serialNumber;
 
 public:
 	VariableCollection()
 	{
 		_pVariables = new Variable[VariableMaxCount];
+		for (int i = 0; i < VariableMaxCount; i++)
+		{
+			_pVariables[i].SetStackLevel(-1);	// mark as empty...
+		}
 
-		_activeCount = 0;
 		_serialNumber = _serialNumberNext++;
 		if (_debugVariables) printf("Create variable collection %d\n", _serialNumber);
 	}
@@ -145,7 +180,16 @@ public:
 
 	int GetActiveVariableCount()
 	{
-		return _activeCount;
+		int count = 0;
+		for (int i = 0; i < VariableMaxCount; i++)
+		{
+			if (_pVariables[i].GetStackLevel() != -1)
+			{
+				count++;
+			}
+		}
+
+		return count;
 	}
 
 	bool Matches(Variable* pVariable, const char* pVariableName, int stackLevel)
@@ -155,40 +199,71 @@ public:
 
 	void Add(const char* pVariableName, int stackLevel)
 	{
-		for (int i = 0; i < _activeCount; i++)
+		int firstFree = -1;
+		for (int i = 0; i < VariableMaxCount; i++)
 		{
+			if (_pVariables[i].GetStackLevel() == -1 && firstFree == -1)
+			{
+				firstFree = i;
+			}
+
 			if (Matches(_pVariables + i, pVariableName, stackLevel))
 			{
 				return;
 			}
 		}
 
-		if (_activeCount == VariableMaxCount)
+		if (firstFree == -1)
 		{
 			Serial.println("Too many variables");
 			return;
 		}
 
-		_pVariables[_activeCount].SetVariableName(pVariableName);
-		_pVariables[_activeCount].SetStackLevel(stackLevel);
-		_activeCount++;
-		if (_debugVariables) printf("%d Add: %d %s (%d) active=%d\n", _serialNumber, _activeCount - 1, pVariableName, stackLevel, _activeCount);
+		_pVariables[firstFree].SetVariableName(pVariableName);
+		_pVariables[firstFree].SetStackLevel(stackLevel);
+		if (_debugVariables) printf("%d Add: %s (%d)\n", _serialNumber, pVariableName, stackLevel);
 
 		return;
 	}
 
+	void Dump()
+	{
+		Serial.println("+++");
+		for (int i = 0; i < VariableMaxCount; i++)
+		{
+			int stackLevel = _pVariables[i].GetStackLevel();
+			if (stackLevel == -1)
+			{
+				continue;
+			}
+
+			Serial.print(stackLevel);
+			Serial.print("  ");
+			Serial.print(_pVariables[i].GetVariableName());
+			Serial.print(" = ");
+			for (int j = 0; j < _pVariables[i].GetValueCount(); j++)
+			{
+				Serial.print(_pVariables[i].GetValueFloat(i));
+				Serial.print(" ");
+			}
+			Serial.println();
+		}
+		Serial.println("+++");
+	}
+
 	void Clear()
 	{
-		for (int i = 0; i < _activeCount; i++)
+		for (int i = 0; i < VariableMaxCount; i++)
 		{
+			_pVariables[i].SetStackLevel(-1);
+
 			if (_debugVariables) printf("%d Delc: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
 		}
-		_activeCount = 0;
 	}
 
 	Variable* Get(int index)
 	{
-		if (index < 0 || index > _activeCount)
+		if (index < 0 || index > VariableMaxCount)
 		{
 			return 0;
 		}
@@ -198,7 +273,7 @@ public:
 
 	Variable* GetWithoutErrorCheck(const char* pVariableName, int stackLevel)
 	{
-		for (int i = _activeCount - 1; i >= 0; i--)
+		for (int i = 0; i < VariableMaxCount; i++)
 		{
 			if (Matches(_pVariables + i, pVariableName, stackLevel))
 			{
@@ -211,14 +286,14 @@ public:
 
 	void Delete(const char* pVariableName, int stackLevel)
 	{
-		for (int i = 0; i < _activeCount; i++)
+		for (int i = 0; i < VariableMaxCount; i++)
 		{
 			if (Matches(_pVariables + i, pVariableName, stackLevel))
 			{
 				if (_debugVariables) printf("%d DelD: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
 
 				_pVariables[i].Clear();
-				_activeCount--;
+				_pVariables[i].SetStackLevel(-1);
 				return;
 			}
 		}
@@ -226,14 +301,14 @@ public:
 
 	void DeleteStackLevel(int stackLevel)
 	{
-		for (int i = _activeCount - 1; i += 0; i--)
+		for (int i = 0; i < VariableMaxCount; i++)
 		{
 			if (_pVariables[i].GetStackLevel() == stackLevel)
 			{
 				if (_debugVariables) printf("%d DelS: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
 
 				_pVariables[i].Clear();
-				_activeCount--;
+				_pVariables[i].SetStackLevel(-1);
 			}
 		}
 	}
@@ -298,14 +373,29 @@ public:
 
 	void AddAndSet(const char* variableName, Variable* pVariable, int stackLevel)
 	{
-		if (_debugVariables) printf("%d AddAndSet: %s %f %d\n", _serialNumber, variableName, pVariable->GetValueFloat(0), stackLevel);
+		if (_debugVariables)
+		{
+			 printf("%d AddAndSet: %s {", _serialNumber, variableName);
+			 for (int i = 0; i < pVariable->GetValueCount(); i++)
+			 {
+				 printf("%f, ", pVariable->GetValueFloat(i));
+			 }
+			 printf("} Stack = %d\n", stackLevel);
+		} 
 
 		Add(variableName, stackLevel);
 		Variable* pVariableNew = Get(variableName, stackLevel, 0, -1);
-		
-		for (int i = 0; i < pVariable->GetValueCount(); i++)
+
+		if (pVariable->GetValueCount() != 0)
 		{
-			pVariableNew->SetValue(i, pVariable->GetValueFloat(i));
+			for (int i = 0; i < pVariable->GetValueCount(); i++)
+			{
+				pVariableNew->SetValue(i, pVariable->GetValueFloat(i));
+			}
+		}
+		else
+		{
+			pVariableNew->SetValue(pVariable->GetValueString());
 		}
 	}
 };

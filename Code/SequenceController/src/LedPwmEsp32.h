@@ -18,6 +18,11 @@ class LedPwmEsp32: public ILedDevice
             }
         }
 
+        ~LedPwmEsp32()
+        {
+            
+        }
+
         void UpdateLed(LedState ledState)
         {
             int brightnessPwmValue = PwmMax * ledState.GetBrightness()->GetValueFloat(0);

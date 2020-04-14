@@ -71,7 +71,7 @@ public:
 		return _pCommandSource->GetCommand(commandNumber);
 	}
 
-	CommandResultStatus RunProgram(int runCount = -1)
+	CommandResultStatus RunProgram(int runCount)
 	{
 		Profiler.Start("RunProgram");
 
@@ -108,9 +108,11 @@ public:
 			}
 			else
 			{
-				//Serial.println(pCommand->GetString());
+				//Serial.println(pCommand->GetString()); Serial.flush();
 				StackWatcher::Log("ExecutionFlow::RunProgramc");
 				_pCommandDecoder->Decode(_pExecutionContext, _pParseErrors, pCommand, this);
+
+				//_pExecutionContext->_variables.Dump();
 
 				if (_pCommandResult->GetAbort())
 				{

@@ -40,7 +40,7 @@ class LedManager: public ILedManager
 			_pDeltas = 0;
 			_pLedDevice = 0;
 
-			Configure("RGB", 1, 1);
+			Configure("RGB", 1, 13);
         }
 
 		~LedManager()
@@ -64,6 +64,7 @@ class LedManager: public ILedManager
 
 			if (pLedDevice != 0)
 			{
+
 				_pLedDevice = pLedDevice;
 				_channelCount = ledCount;
 

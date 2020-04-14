@@ -79,6 +79,7 @@ void Callback()
 
 void RunDim( void * parameter )
 {
+  Serial.println("RunDim Start");
   StackWatcher::Init();
 
   StackWatcher::Log("Task Start");
@@ -87,6 +88,7 @@ void RunDim( void * parameter )
 
 void HandleWebClient( void * parameter )
 {
+  Serial.println("HandleWedClient Start");
   while (true)
   {
       pMyWebServer->HandleClient();
@@ -97,6 +99,7 @@ void HandleWebClient( void * parameter )
 void setup() {
 
   Serial.begin(115200);
+  Serial.println("setup"); Serial.flush();
   StackWatcher::Log("setup");
   _pSupervisor = new Supervisor();
   _pSettings = new Settings();
@@ -107,8 +110,7 @@ void setup() {
 
   _pLedDeviceCreator = new LedDeviceCreator();
   //_pLedDevice = new LedRGB(33, 13);
-  _pLedManager = new LedManager(_pLedDeviceCreator);
-
+  
   WiFiManager wifiManager;
   
   wifiManager.autoConnect("SequenceController", "12345678");
@@ -119,6 +121,7 @@ void setup() {
   pMyWebServer = new MyWebServer(_pSupervisor, WiFi.localIP());
 
   _pSettings->Init();
+  _pLedManager = new LedManager(_pLedDeviceCreator);
   _pSupervisor->Init(_pLedManager, _pSettings, Callback);
 
   Serial.println("Setup completed");

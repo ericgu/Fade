@@ -161,6 +161,8 @@
     <ClInclude Include="ExecutionFlowTest.h" />
     <ClInclude Include="ExpressionTest.h" />
     <ClInclude Include="ExpressionTokenizerTest.h" />
+    <ClInclude Include="ExpressionTokenSourceTest.h" />
+    <ClInclude Include="FunctionCallerTest.h" />
     <ClInclude Include="FunctionStoreTest.h" />
     <ClInclude Include="IntegrationTest.h" />
     <ClInclude Include="LedManagerTest.h" />
@@ -169,6 +171,7 @@
     <ClInclude Include="MyRandom.h" />
     <ClInclude Include="ParseErrorsTest.h" />
     <ClInclude Include="Profiler.h" />
+    <ClInclude Include="RDEvaluaterTest.h" />
     <ClInclude Include="Serial.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="StackTest.h" />
@@ -188,6 +191,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="SampleCode\HueTest.txt" />
+    <Text Include="SampleCode\Larson.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
