@@ -42,4 +42,16 @@ class SafeString
         }
         *pDest = '\0';
     }
+
+	static void StringCopyCount(char* pDest, const char* pSource, int bufferSize, int charToCopy)
+	{
+		const char* pCurrent = pSource;
+		while (*pCurrent != 0 && (pCurrent - pSource) < bufferSize - 1 && (pCurrent - pSource) < charToCopy)
+		{
+			*pDest = *pCurrent;
+			pDest++;
+			pCurrent++;
+		}
+		*pDest = '\0';
+	}
 };

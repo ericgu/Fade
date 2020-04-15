@@ -8,7 +8,7 @@ class CommandSourceTest
 		Assert::AreEqual(commandString, pCommand->GetString());
 		Assert::AreEqual(serialNumber, pCommand->GetSerialNumber());
 	}
-
+	 
 	static void TestSingle()
 	{
 		CommandSource commandSource;
@@ -103,6 +103,50 @@ class CommandSourceTest
 
 		Assert::AreEqual(0, (int)pCommand);
 	}
+
+	static void TestManyLinesForward()
+	{
+		CommandSource commandSource;
+
+		commandSource.SetCommand("  a\n b\n c\n d\n e\n f");
+
+		AssertCommand(commandSource.GetCommand(0), "a", 0);
+		AssertCommand(commandSource.GetCommand(1), "b", 1);
+		AssertCommand(commandSource.GetCommand(2), "c", 2);
+		AssertCommand(commandSource.GetCommand(3), "d", 3);
+		AssertCommand(commandSource.GetCommand(4), "e", 4);
+		AssertCommand(commandSource.GetCommand(5), "f", 5);
+	}
+
+	static void TestManyLinesBackward()
+	{
+		CommandSource commandSource;
+
+		commandSource.SetCommand("  a\n b\n c\n d\n e\n f");
+
+		AssertCommand(commandSource.GetCommand(5), "f", 5);
+		AssertCommand(commandSource.GetCommand(4), "e", 4);
+		AssertCommand(commandSource.GetCommand(3), "d", 3);
+		AssertCommand(commandSource.GetCommand(2), "c", 2);
+		AssertCommand(commandSource.GetCommand(1), "b", 1);
+		AssertCommand(commandSource.GetCommand(0), "a", 0);
+	}
+
+	static void TestBeyondEnd()
+	{
+		CommandSource commandSource;
+
+		commandSource.SetCommand("  a");
+
+		Command* pCommand = commandSource.GetCommand(0);
+
+		AssertCommand(commandSource.GetCommand(0), "a", 0);
+
+		Assert::AreEqual(0, (int) commandSource.GetCommand(1));
+		Assert::AreEqual(0, (int) commandSource.GetCommand(2));
+	}
+
+
 public:
 
 	static int Run()
@@ -113,6 +157,11 @@ public:
 		TestMultipleWithSpaces();
 		TestMultipleWithNewlineAndCarriageReturn();
 		TestWithoutSetCommand();
+
+		TestManyLinesForward();
+		TestManyLinesBackward();
+
+		TestBeyondEnd();
 		
 		return 0;
 	}

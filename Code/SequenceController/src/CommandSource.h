@@ -4,82 +4,74 @@ class ICommandSource
         virtual Command* GetCommand(int commandNumber) = 0;
 };
 
-class CommandSource: public ICommandSource
+class CommandSource : public ICommandSource
 {
 	//int _serialNumber;
 
-	ListParser* _pListParser;
 	Command _command;
 
-    public:
-		CommandSource()
+	const char *_pCommandString;
+
+public:
+	void SetCommand(const char* pCommandString)
+	{
+		_pCommandString = pCommandString;
+	}
+
+	const char* SkipToNextLine(const char* pCurrent)
+	{
+		while (*pCurrent != '\0')
 		{
-			_pListParser = 0;
-		}
-
-		~CommandSource()
-		{
-			if (_pListParser != 0)
+			if (*pCurrent == '\n' || *pCurrent == '\r')
 			{
-				delete _pListParser;
-			}
-			_pListParser = 0;
-		}
-
-		void SetCommand(const char* pCommandString)
-		{
-			if (_pListParser != 0)
-			{
-				delete _pListParser;
-				_pListParser = 0;
-			}
-
-			//_serialNumber = 0;
-			_pListParser = new ListParser(1022, 1024);
-			_pListParser->ParseByLines(pCommandString);
-			//Serial.println(">CommandSource.SetCommand");
-			//Serial.print("This: "); Serial.println((int) this);
-			//Serial.println(pCommandString);
-			//Serial.println(_pListParser->GetCount());
-			//for (int i = 0; i < _pListParser->GetCount(); i++)
-			//{
-			//	Serial.println(_pListParser->GetItem(i));
-			//}
-			//Serial.println("<CommandSource.SetCommand");
-		}
-
-		Command* GetCommand(int commandNumber)
-		{
-			if (_pListParser == 0 || commandNumber >= _pListParser->GetCount())
-			{
-				return 0;
-			}
-
-			//Serial.println(">GetNextCommand");
-			//Serial.println(_pListParser->GetCount());
-			//for (int i = 0; i < _pListParser->GetCount(); i++)
-			{
-				//if (i == _serialNumber)
+				pCurrent++;
+				if (*pCurrent == '\n' || *pCurrent == '\r')
 				{
-					//Serial.print("+");
+					pCurrent++;
 				}
-				//Serial.println(_pListParser->GetItem(i));
+
+				return pCurrent;
 			}
-			//Serial.println("<GetNextCommand");
-
-			const char *pCommandStart = _pListParser->GetItem(commandNumber);
-			//Serial.print(_serialNumber); Serial.print(": "); Serial.println(pCommandStart);
-
-			while (*pCommandStart == ' ')
-			{
-				pCommandStart++;
-			}
-
-			_command = Command(pCommandStart, commandNumber);
-
-			//Serial.println(command.GetString());
-
-			return &_command;
+			pCurrent++;
 		}
 
+		return pCurrent;
+	}
+
+	Command* GetCommand(int commandNumber)
+	{
+		const char* pCurrent = _pCommandString;
+
+		if (_pCommandString == 0)
+		{
+			return 0;
+		}
+
+		int currentCommandNumber = commandNumber;
+		while (currentCommandNumber != 0)
+		{
+			pCurrent = SkipToNextLine(pCurrent);
+			currentCommandNumber--;
+		}
+
+		if (*pCurrent == 0)
+		{
+			return 0;
+		}
+
+		while (*pCurrent == ' ' || *pCurrent == '\t')
+		{
+			pCurrent++; 
+		}
+
+		const char* pEnd = pCurrent;
+		while (*pEnd != '\r' && *pEnd != '\n' && *pEnd != '\0')
+		{
+			pEnd++;
+		}
+
+		_command = Command(pCurrent, pEnd - pCurrent, commandNumber);
+
+		return &_command;
+	}
 };

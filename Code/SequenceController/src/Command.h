@@ -38,6 +38,26 @@ class Command
 			_serialNumber = serialNumber;
 		}
 
+		Command(const char* pCommand, int length, int serialNumber)
+		{
+			if (length >= sizeof(_commandString))
+			{
+				Serial.println(pCommand);
+				Serial.println("Command string too long");
+				return;
+			}
+
+			if (pCommand)
+			{
+				SafeString::StringCopyCount(_commandString, pCommand, sizeof(_commandString), length);
+			}
+			else
+			{
+				_commandString[0] = '\0';
+			}
+			_serialNumber = serialNumber;
+		}
+
         char* GetString()
         {
             return _commandString;

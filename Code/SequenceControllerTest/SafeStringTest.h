@@ -62,6 +62,31 @@ class SafeStringTest
 	}
 
 
+	static void TestStringCopyCountSimple()
+	{
+		char buffer[10];
+
+		SafeString::StringCopyCount(buffer, "1234567890", sizeof(buffer), 2);
+		Assert::AreEqual("12", buffer);
+	}
+
+	static void TestStringCopyCountBufferMax()
+	{
+		char buffer[10];
+
+		SafeString::StringCopyCount(buffer, "123456789", sizeof(buffer), 9);
+		Assert::AreEqual("123456789", buffer);
+	}
+
+
+	static void TestStringCopyCountBufferOverflow()
+	{
+		char buffer[10];
+
+		SafeString::StringCopyCount(buffer, "1234567890123", sizeof(buffer), 13);
+		Assert::AreEqual("123456789", buffer);
+	}
+
 public:
 	static void Run()
 	{
@@ -74,5 +99,9 @@ public:
 		TestStringCatSimple();
 		TestStringCatMax();
 		TestStringCatOverflow();
+
+		TestStringCopyCountSimple();
+		TestStringCopyCountBufferMax();
+		TestStringCopyCountBufferOverflow();
 	}
 };
