@@ -29,6 +29,11 @@ class Timebase: public ILedMessageHandler
 			_pDelayer = 0;
         }
 
+		virtual ~Timebase()
+		{
+
+		}
+
 		void Abort()
 		{
 			_executionFlow.AbortExecution();

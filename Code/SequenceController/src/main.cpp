@@ -6,12 +6,14 @@
 #include <Preferences.h>
 #include <WiFi.h>
 
-#define strcpy_s strcpy
 #define strncpy_s strncpy
 #define strncmp_s strncmp
 
+#include "SafeString.h"
+
 #include "Profiler.h"
 #include "StackWatcher.h"
+#include "Instrumentation.h"
 #include "SystemCallback.h"
 #include "MyRandom.h"
 #include "TimeServices.h"
@@ -32,13 +34,12 @@
 #include "ILedDeviceCreator.h"
 #include "LedDeviceCreator.h"
 #include "LedManager.h"
-#include "ExpressionTokenizer.h"
 #include "FunctionStore.h"
 #include "Stack.h"
-#include "ExpressionBuiltInFunctions.h"
-#include "ExpressionOperators.h"
-#include "ExpressionFunctionCall.h"
-#include "Expression.h"
+#include "ExpressionNode.h"
+#include "ExpressionTokenSource.h"
+#include "FunctionCaller.h"
+#include "RDEvaluater.h"
 #include "ExecutionContext.h"
 #include "CommandDecoder.h"
 #include "ILedMessageHandler.h"
@@ -81,6 +82,7 @@ void RunDim( void * parameter )
 {
   Serial.println("RunDim Start");
   StackWatcher::Init();
+  //StackWatcher::Enable();
 
   StackWatcher::Log("Task Start");
   _pSupervisor->ExecuteLoop();
@@ -129,7 +131,7 @@ void setup() {
     xTaskCreate(
                     RunDim,           /* Task function. */
                     "Dim",            /* String with name of task. */
-                    30000,            /* Stack size in bytes. */
+                    40000,            /* Stack size in bytes. */
                     NULL,             /* Parameter passed as input of the task */
                     5,                /* Priority of the task. */
                     NULL);            /* Task handle. */

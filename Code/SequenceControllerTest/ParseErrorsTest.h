@@ -18,9 +18,9 @@ class ParseErrorsTest
 		parseErrors.AddError("Invalid value: ", "Value x", 1);
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Invalid value: Value x", parseError._errorText);
-		Assert::AreEqual(1, parseError._lineNumber);
+		ParseError* parseError = parseErrors.GetError(0);
+		Assert::AreEqual("Invalid value: Value x", parseError->_errorText);
+		Assert::AreEqual(1, parseError->_lineNumber);
 	}
 
 	static void TestFormat()
@@ -64,9 +64,9 @@ class ParseErrorsTest
 		parseErrors.AddError("Invalid value: ", "Value x", 1);
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Invalid value: Value x", parseError._errorText);
-		Assert::AreEqual(1, parseError._lineNumber);
+		ParseError* pParseError = parseErrors.GetError(0);
+		Assert::AreEqual("Invalid value: Value x", pParseError->_errorText);
+		Assert::AreEqual(1, pParseError->_lineNumber);
 	}
 
 	static void TestTooLong()
@@ -76,8 +76,8 @@ class ParseErrorsTest
 		parseErrors.AddError("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", "Value x", 1);
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567", parseError._errorText);
+		ParseError* pParseError = parseErrors.GetError(0);
+		Assert::AreEqual("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567", pParseError->_errorText);
 	}
 
 	static void TestTooLong2()
@@ -87,8 +87,8 @@ class ParseErrorsTest
 		parseErrors.AddError("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", "Value 123456", 1);
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890Value 1", parseError._errorText);
+		ParseError* pParseError = parseErrors.GetError(0);
+		Assert::AreEqual("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890Value 1", pParseError->_errorText);
 	}
 
 	static void TestTooMany()

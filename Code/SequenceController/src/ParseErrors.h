@@ -59,14 +59,14 @@ public:
 		_buffer[0] = '\0';
 	}
 
-	ParseError GetError(int index)
+	ParseError* GetError(int index)
 	{
 		if (index < 0 || index >= _errorCount)
 		{
-			return ParseError();
+			return 0;
 		}
 
-		return _parseErrors[index];
+		return &_parseErrors[index];
 	}
 
 	void AddError(const char* pErrorCode, const char* pErrorText, int lineNumber)

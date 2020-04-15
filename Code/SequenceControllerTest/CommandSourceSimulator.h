@@ -2,7 +2,7 @@
 
 class CommandSourceSimulator : public ICommandSource
 {
-	Command _commands[20];
+	Command _commands[50];
 	int _commandCount;
 
 public:

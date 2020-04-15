@@ -11,8 +11,8 @@ class CommandDecoder
 public:
 	CommandDecoder()
 	{
-		_pListParser = new ListParser(1024, 1024);
-		_pParameters = new ListParser(1024, 1024);
+		_pListParser = new ListParser(1020, 1024);
+		_pParameters = new ListParser(1021, 1024);
 		_pLoop = new Loop();
 	}
 
@@ -26,12 +26,13 @@ public:
 	bool DecodeFor(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
 		Profiler.Start("DecodeFor");
-		StackWatcher::Log("CommandDecoder::DecodeFor a");
 
 		if (!_pLoop->Parse(pCommand->GetString(), pExecutionContext, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow))
 		{
 			return false;
 		}
+		StackWatcher::Log("CommandDecoder::DecodeFor a");
+
 		Profiler.Start("DecodeFor-Loop");
 
 		Variable startValue = _pLoop->GetVariableStart();
@@ -83,6 +84,7 @@ public:
 	{
 		if (pCommand->StartsWith("ENDFOR"))
 		{
+			StackWatcher::Log("CommandDecoder::DecodeEndFor");
 			pExecutionContext->_stack.GetTopFrame()->SerialNumberEnd = pCommand->GetSerialNumber();
 
 			pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandEndOfLoop);
@@ -97,6 +99,8 @@ public:
 
 	int FindTrueIfClause(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, IExecutionFlow* pExecutionFlow)
 	{
+		PROLOGUE
+
 		int statementIndex = pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer();
 
 		int ifCount = 0;
@@ -104,6 +108,8 @@ public:
 		while (true)
 		{
 			Command* pNextCommand = pExecutionFlow->GetCommand(statementIndex);
+			//Serial.print("Scan => ");
+			//Serial.println(pNextCommand->GetString());
 			if (pNextCommand->GetSerialNumber() == -1)
 			{
 				return -1;
@@ -120,6 +126,13 @@ public:
 				{
 					int offset = pNextCommand->StartsWith("ELSEIF") ? 7 : 3;
 
+					Variable condition = pExecutionContext->Evaluate(
+						pNextCommand->GetString() + offset,
+						pParseErrors,
+						pNextCommand->GetSerialNumber(),
+						pExecutionFlow);
+
+#if fred
 					Variable condition = pExecutionContext->_expression.Evaluate(
 						pNextCommand->GetString() + offset,
 						&pExecutionContext->_variables,
@@ -128,7 +141,7 @@ public:
 						pParseErrors,
 						pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer(),
 						pExecutionFlow);
-
+#endif
 					if (condition.GetValueInt() != 0)
 					{
 						return statementIndex;
@@ -189,6 +202,7 @@ public:
 		Profiler.Start("DecodeIf");
 		if (pCommand->StartsWith("IF"))
 		{
+			StackWatcher::Log("CommandDecoder::DecodeIf");
 			int ifStatementIndex = pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer();
 
 			int statementIndex = FindTrueIfClause(pExecutionContext, pParseErrors, pExecutionFlow);
@@ -236,7 +250,7 @@ public:
 	void AddFunctionCallError(ParseErrors* pParseErrors, const char* pFunctionName, int parameterCount, int argumentCount, int callingLineNumber)
 	{
 		char buffer[256];
-		sprintf(buffer, "Function %s requires %d parameter(s) but was called with %d argument(s).", pFunctionName, parameterCount, argumentCount);
+		snprintf(buffer, sizeof(buffer) / sizeof(char), "Function %s requires %d parameter(s) but was called with %d argument(s).", pFunctionName, parameterCount, argumentCount);
 		pParseErrors->AddError("Mismatched ", buffer, callingLineNumber);
 	}
 
@@ -265,6 +279,7 @@ public:
 
 		if (pCommand->StartsWith("FUNC"))
 		{
+			StackWatcher::Log("CommandDecoder::DecodeFunction");
 			const char* pCommandString = pCommand->GetString() + 4;
 
 			while (*pCommandString == ' ' || *pCommandString == '\t')
@@ -293,9 +308,7 @@ public:
 
 					for (int i = 0; i < _pParameters->GetCount(); i++)
 					{
-						char argumentName[10];
-						sprintf(argumentName, "#A%d", i);
-						Variable* pArgument = pExecutionContext->_variables.GetWithoutErrorCheck(argumentName, pExecutionContext->_stack.GetFrameCount());
+						Variable* pArgument = pExecutionContext->_variables.GetWithoutErrorCheck(FunctionCaller::GenerateArgumentName(i), pExecutionContext->_stack.GetFrameCount());
 						if (pArgument != 0)
 						{
 							pArgument->SetVariableName(_pParameters->GetItem(i));
@@ -322,6 +335,7 @@ public:
 
 	bool DecodeExpression(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
+		StackWatcher::Log("CommandDecoder::DecodeExpression");
 		Profiler.Start("DecodeExpression");
 		pExecutionContext->Evaluate(pCommand->GetString(), pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
 

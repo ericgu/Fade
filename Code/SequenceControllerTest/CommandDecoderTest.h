@@ -433,8 +433,8 @@ class CommandDecoderTest
 		{
 			return;
 		}
-		Assert::AreEqual(pExpectedString, pParseErrors->GetError(errorCount - 1)._errorText);
-		Assert::AreEqual(lineNumber, pParseErrors->GetError(errorCount - 1)._lineNumber);
+		Assert::AreEqual(pExpectedString, pParseErrors->GetError(errorCount - 1)->_errorText);
+		Assert::AreEqual(lineNumber, pParseErrors->GetError(errorCount - 1)->_lineNumber);
 	}
 
 	static void TestErrorDirect()

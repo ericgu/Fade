@@ -43,6 +43,15 @@ class RDEvaluaterTest
 		Assert::AreEqual(expected, result.GetValueFloat(0));
 	}
 
+	static void TestEmptyString()
+	{
+		RDEvaluater rdEvaluater;
+
+		Variable result = rdEvaluater.Evaluate("");
+
+		Assert::AreEqual(1, result.IsNan());
+	}
+
 	static void TestPrimitiveNumber()
 	{
 		TestEvaluation("369", 369.0F);
@@ -403,7 +412,12 @@ class RDEvaluaterTest
 		Assert::AreEqual("MyStringValue", result.GetValueString());
 	}
 
-
+	static void ValidateParseErrors(ParseErrors* pParseErrors, const char* pMessage, int lineNumber)
+	{
+		Assert::AreEqual(1, pParseErrors->GetErrorCount());
+		Assert::AreEqual(pMessage, pParseErrors->GetError(0)->_errorText);
+		Assert::AreEqual(lineNumber, pParseErrors->GetError(0)->_lineNumber);
+	}
 
 	static void TestAddWithMissingArgument()
 	{
@@ -413,9 +427,7 @@ class RDEvaluaterTest
 		Variable result = rdEvaluater.Evaluate("15 + ", 0, 0, 0, &parseErrors, 7);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Missing value at end of expression", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(7, parseErrors.GetError(0)._lineNumber);
+		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 7);
 	}
 
 	static void TestAddWithWrongArgument()
@@ -426,9 +438,7 @@ class RDEvaluaterTest
 		Variable result = rdEvaluater.Evaluate("15 + +", 0, 0, 0, &parseErrors, 9);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Missing value at end of expression", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(9, parseErrors.GetError(0)._lineNumber);
+		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 9);
 	}
 
 	static void TestUnknownCharacter()
@@ -439,9 +449,7 @@ class RDEvaluaterTest
 		Variable result = rdEvaluater.Evaluate("15 $ 12", 0, 0, 0, &parseErrors, 8);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Missing value at end of expression22", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(8, parseErrors.GetError(0)._lineNumber);
+		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 8);
 	}
 
 	static void TestUnexpectedValueAfterParsing()
@@ -452,9 +460,7 @@ class RDEvaluaterTest
 		Variable result = rdEvaluater.Evaluate("15 12", 0, 0, 0, &parseErrors, 444);
 
 		Assert::AreEqual(15.0, result.GetValueFloat(0));
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Unexpected token remaining after parsing: 12", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(444, parseErrors.GetError(0)._lineNumber);
+		ValidateParseErrors(&parseErrors, "Unexpected token remaining after parsing: 12", 444);
 	}
 
 	static void TestMissingClosingParen()
@@ -465,9 +471,7 @@ class RDEvaluaterTest
 		Variable result = rdEvaluater.Evaluate("(15 * 12", 0, 0, 0, &parseErrors, 123);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Missing ) in expression", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(123, parseErrors.GetError(0)._lineNumber);
+		ValidateParseErrors(&parseErrors, "Missing ) in expression", 123);
 	}
 
 	static void TestMissingClosingBrace()
@@ -478,9 +482,7 @@ class RDEvaluaterTest
 		Variable result = rdEvaluater.Evaluate("{15", 0, 0, 0, &parseErrors, 5512);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Missing } in expression", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(5512, parseErrors.GetError(0)._lineNumber);
+		ValidateParseErrors(&parseErrors, "Missing } in expression", 5512);
 	}
 
 	static void TestUndeclaredVariable()
@@ -493,9 +495,7 @@ class RDEvaluaterTest
 		Variable result = rdEvaluater.Evaluate("MyFirstValue", &variableCollection, &stack, 0, &parseErrors, 122);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Undefined variable: MyFirstValue", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(122, parseErrors.GetError(0)._lineNumber);
+		ValidateParseErrors(&parseErrors, "Undefined variable: MyFirstValue", 122);
 	}
 
 	static void TestUndeclaredVariable2()
@@ -509,9 +509,7 @@ class RDEvaluaterTest
 		Variable result = rdEvaluater.Evaluate("13 * (2 + MyFirstValue) * MyMissingValue * 33", &variableCollection, &stack, 0, &parseErrors, 55);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Undefined variable: MyMissingValue", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(55, parseErrors.GetError(0)._lineNumber);
+		ValidateParseErrors(&parseErrors, "Undefined variable: MyMissingValue", 55);
 	}
 
 	static void TestFunctionCallNoParametersMissingClosingParen()
@@ -526,9 +524,7 @@ class RDEvaluaterTest
 		Variable result = rdEvaluater.Evaluate("MyFunction(", &variableCollection, &stack, &functionCaller, &parseErrors, 55);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Missing closing ) in expression", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(55, parseErrors.GetError(0)._lineNumber);
+		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 55);
 	}
 
 	static void TestFunctionCallOneParametersMissingClosingParen()
@@ -543,9 +539,7 @@ class RDEvaluaterTest
 		Variable result = rdEvaluater.Evaluate("MyFunction(15", &variableCollection, &stack, &functionCaller, &parseErrors, 59);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Missing closing ) in expression", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(59, parseErrors.GetError(0)._lineNumber);
+		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 59);
 	}
 
 	static void TestFunctionCallTwoParametersEndsAfterComma()
@@ -560,14 +554,14 @@ class RDEvaluaterTest
 		Variable result = rdEvaluater.Evaluate("MyFunction(15,", &variableCollection, &stack, &functionCaller, &parseErrors, 99);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Missing closing ) in expression", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(99, parseErrors.GetError(0)._lineNumber);
+		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 99);
 	}
 
 public:
 	static void Run()
 	{
+		TestEmptyString();
+
 		TestPrimitiveNumber();
 
 		TestMultiValueSingle();

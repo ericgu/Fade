@@ -13,7 +13,9 @@ class ExpressionTokenSource
 public:
 	ExpressionTokenSource(const char* pExpression, ParseErrors* pParseErrors = 0)
 	{
-		strcpy(_expression, pExpression);
+        PROLOGUE
+
+		SafeString::StringCopy(_expression, pExpression, sizeof(_expression));
 		_pCurrent = _expression;
 		_pParseErrors = pParseErrors;
 
@@ -52,6 +54,7 @@ public:
 
 	ExpressionNode * GetCurrentNode()
 	{
+        PROLOGUE
 		return _pCurrentNode;
 	}
 
@@ -188,7 +191,7 @@ public:
 
 	void CopyToToken(const char* pValue)
 	{
-		strcpy(_value, pValue);
+		SafeString::StringCopy(_value, pValue, sizeof(_value));
 	}
 
 	void Advance()

@@ -67,7 +67,7 @@ class FunctionStoreTest
 		functionStore.DefineStart("Function90Function90Function90Function90Function90Function90Function90Function90Function90Function90Function90Function90Function90", &parseErrors, 14);
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Function: name too long", parseErrors.GetError(0)._errorText);
+		Assert::AreEqual("Function: name too long", parseErrors.GetError(0)->_errorText);
 	}
 
 	static void TestTooManyFunctions()
@@ -84,7 +84,7 @@ class FunctionStoreTest
 		}
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Function: too many defined", parseErrors.GetError(0)._errorText);
+		Assert::AreEqual("Function: too many defined", parseErrors.GetError(0)->_errorText);
 	}
 
 

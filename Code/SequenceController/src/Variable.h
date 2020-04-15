@@ -120,10 +120,7 @@ public:
 	{
 		_valueCount = 0;
 
-		int copyCount = strlen(pString) < MaxStringVariableLength ? strlen(pString) : MaxStringVariableLength - 1;
-
-		strncpy(_stringValue, pString, copyCount);
-		_stringValue[copyCount] = '\0';
+		SafeString::StringCopy(_stringValue, pString, sizeof(_stringValue));
 	}
 
 	const char* GetValueString()

@@ -373,6 +373,14 @@ class ExecutionFlowTest
 		Assert::AreEqual((int) CommandResultStatus::CommandTargetCountExceeded, (int) commandResultStatus);
 	}
 
+	static void ValidateParseErrors(ParseErrors *pParseErrors, const char* pMessage, int lineNumber)
+	{
+		Assert::AreEqual(1, pParseErrors->GetErrorCount());
+		ParseError* pParseError = pParseErrors->GetError(0);
+		Assert::AreEqual(pMessage, pParseError->_errorText);
+		Assert::AreEqual(lineNumber, pParseError->_lineNumber);
+	}
+
 	static void TestMissingEndFor()
 	{
 		CommandSourceSimulator commandSource;
@@ -386,10 +394,8 @@ class ExecutionFlowTest
 
 		executionFlow.RunProgram(1);
 
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Missing loop end", parseError._errorText);
-	}
+		ValidateParseErrors(&parseErrors, "Missing loop end", -1);
+}
 
 	static void TestInvalidStatement()
 	{
@@ -401,12 +407,9 @@ class ExecutionFlowTest
 		LedMessageHandlerSimulator ledMessageHandlerSimulator;
 		ExecutionFlow executionFlow(&commandSource, &parseErrors, &ledMessageHandlerSimulator);
 
+ 		executionFlow.RunProgram(1);
 
-		executionFlow.RunProgram(1);
-
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Undefined variable: guar", parseError._errorText);
+		ValidateParseErrors(&parseErrors, "Undefined variable: guar", 0);
 	}
 
 	static void TestDoubleLoop()
@@ -675,9 +678,7 @@ class ExecutionFlowTest
 		executionFlow.RunProgram(1);
 		Serial.SetOutput(true);
 
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Undefined variable: V", parseError._errorText);
+		ValidateParseErrors(&parseErrors, "Undefined variable: V", 2);
 	}
 
 	static void TestMethodCallWithWrongArgumentCount()
@@ -697,10 +698,7 @@ class ExecutionFlowTest
 		executionFlow.RunProgram(1);
 		Serial.SetOutput(true);
 
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Mismatched Function Function requires 1 parameter(s) but was called with 0 argument(s).", parseError._errorText);
-		Assert::AreEqual(3, parseError._lineNumber);
+		ValidateParseErrors(&parseErrors, "Mismatched Function Function requires 1 parameter(s) but was called with 0 argument(s).", 3);
 	}
 
 	static void TestMethodCallWithWrongArgumentCount2()
@@ -720,10 +718,7 @@ class ExecutionFlowTest
 		executionFlow.RunProgram(1);
 		Serial.SetOutput(true);
 
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Mismatched Function Function requires 1 parameter(s) but was called with 2 argument(s).", parseError._errorText);
-		Assert::AreEqual(3, parseError._lineNumber);
+		ValidateParseErrors(&parseErrors, "Mismatched Function Function requires 1 parameter(s) but was called with 2 argument(s).", 3);
 	}
 
 	static void TestUndefinedFunctionWithVariableParameter()
@@ -741,9 +736,7 @@ class ExecutionFlowTest
 		executionFlow.RunProgram(1);
 		Serial.SetOutput(true);
 
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		ParseError parseError = parseErrors.GetError(0);
-		Assert::AreEqual("Unrecognized function: PR", parseError._errorText);
+		ValidateParseErrors(&parseErrors, "Unrecognized function: PR", 1);
 	}
 
 	static void TestDirectWithFunctionCall()

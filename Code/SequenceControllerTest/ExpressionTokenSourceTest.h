@@ -1,3 +1,4 @@
+#include "ExpressionNode.h"
 #include "ExpressionTokenSource.h"
 
 class ExpressionTokenSourceTest
@@ -191,7 +192,7 @@ class ExpressionTokenSourceTest
 		}
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Unrecognized character: $", parseErrors.GetError(0)._errorText);
+		Assert::AreEqual("Unrecognized character: $", parseErrors.GetError(0)->_errorText);
 	}
 
 	static void TestUnclosedStringConstant()
@@ -205,7 +206,7 @@ class ExpressionTokenSourceTest
 		}
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Missing closing \" in string", parseErrors.GetError(0)._errorText);
+		Assert::AreEqual("Missing closing \" in string", parseErrors.GetError(0)->_errorText);
 	}
 
 public:

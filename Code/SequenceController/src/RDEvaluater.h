@@ -8,11 +8,14 @@ class RDEvaluater
 	IFunctionCaller* _pFunctionCaller;
 	ParseErrors* _pParseErrors;
 	int _lineNumber;
+	char _temporaryBuffer[1024];
 
 	// recursively evaluate function arguments. On the way out of the function we store the arguments. This prevents collisions when the function
 	// argument evaluation requires function calls themselves. 
 	bool EvaluateFunctionArguments(int argumentNumber)
 	{
+		PROLOGUE
+
 		if (_pExpressionTokenSource->GetCurrentNode() == 0)
 		{
 			_pParseErrors->AddError("Missing closing ) in expression", "", _lineNumber);
@@ -23,7 +26,8 @@ class RDEvaluater
 		if (_pExpressionTokenSource->EqualTo(")"))
 		{
 			_pExpressionTokenSource->Advance();
-			_pVariableCollection->AddAndSet("#A", &Variable(argumentNumber), _pStack->GetFrameCount() + 1); // put into frame that will be created soon...
+			Variable argument(argumentNumber);
+			_pVariableCollection->AddAndSet("#A", &argument, _pStack->GetFrameCount() + 1); // put into frame that will be created soon...
 			return true;
 		}
 
@@ -39,15 +43,15 @@ class RDEvaluater
 			return false;
 		}
 
-		char argumentName[10];
-		sprintf(argumentName, "#A%d", argumentNumber);
-		_pVariableCollection->AddAndSet(argumentName, &value, _pStack->GetFrameCount() + 1); // put into frame that will be created soon...
+		_pVariableCollection->AddAndSet(FunctionCaller::GenerateArgumentName(argumentNumber), &value, _pStack->GetFrameCount() + 1); // put into frame that will be created soon...
 
 		return true;
 	}
 
 	Variable EvaluateExpression()
 	{
+		PROLOGUE
+			
 		ExpressionNode* pNode = _pExpressionTokenSource->GetCurrentNode();
 		if (pNode == 0)
 		{
@@ -64,7 +68,7 @@ class RDEvaluater
 		else if (pNode->IsIdentifier())
 		{
 			char identifier[128];
-			strcpy(identifier, pNode->_pItem);
+			SafeString::StringCopy(identifier, pNode->_pItem, sizeof(identifier));
 
 			_pExpressionTokenSource->Advance();
 
@@ -115,10 +119,10 @@ class RDEvaluater
 						// 2) An undefined variable.
 						// We will delete this variable if we end up doing the assignment. 
 						// Any variables like this at the end of evaluation were undefined...
-					char taggedVariableName[128];
-					strcpy(taggedVariableName, "$");
-					strcat(taggedVariableName, identifier);
-					_pVariableCollection->AddAndSet(taggedVariableName, &Variable(1), _pStack->GetFrameCount());
+					SafeString::StringCopy(_temporaryBuffer, "$", sizeof(_temporaryBuffer));
+					SafeString::StringCat(_temporaryBuffer, identifier, sizeof(_temporaryBuffer));
+					Variable var = Variable::Empty();
+					_pVariableCollection->AddAndSet(_temporaryBuffer, &var, _pStack->GetFrameCount());
 
 					Variable returnValue;
 					returnValue.SetToNan();
@@ -149,6 +153,8 @@ class RDEvaluater
 
 	Variable EvaluateParentheses()
 	{
+		PROLOGUE
+			
 		if (_pExpressionTokenSource->EqualTo("("))
 		{
 			_pExpressionTokenSource->Advance();
@@ -171,6 +177,8 @@ class RDEvaluater
 
 	Variable EvaluateMultiValueNumber()
 	{
+		PROLOGUE
+			
 		if (_pExpressionTokenSource->EqualTo("{"))
 		{
 			_pExpressionTokenSource->Advance();
@@ -203,8 +211,8 @@ class RDEvaluater
 
 	Variable EvaluateUnary()
 	{
-		ExpressionNode* pNode = _pExpressionTokenSource->GetCurrentNode();
-
+		PROLOGUE
+			
 		if (_pExpressionTokenSource->EqualTo("+") || _pExpressionTokenSource->EqualTo("-"))
 		{
 			char op = _pExpressionTokenSource->FirstChar();
@@ -227,6 +235,8 @@ class RDEvaluater
 
 	Variable EvaluateMultiplicative()
 	{
+		PROLOGUE
+
 		Variable left = EvaluateUnary();
 
 		while (_pExpressionTokenSource->EqualTo("*") || _pExpressionTokenSource->EqualTo("/") || _pExpressionTokenSource->EqualTo("%"))
@@ -257,6 +267,8 @@ class RDEvaluater
 
 	Variable EvaluateAdditive()
 	{
+		PROLOGUE
+
 		Variable left = EvaluateMultiplicative();
 
 		while (_pExpressionTokenSource->EqualTo("+") || _pExpressionTokenSource->EqualTo("-"))
@@ -282,6 +294,8 @@ class RDEvaluater
 
 	Variable EvaluateRelational()
 	{
+		PROLOGUE
+
 		Variable left = EvaluateAdditive();
 
 		while (_pExpressionTokenSource->EqualTo("<") || _pExpressionTokenSource->EqualTo("<=") || 
@@ -308,6 +322,8 @@ class RDEvaluater
 
 	Variable EvaluateEquality()
 	{
+		PROLOGUE
+
 		Variable left = EvaluateRelational();
 
 		while (_pExpressionTokenSource->EqualTo("==") || _pExpressionTokenSource->EqualTo("!="))
@@ -332,6 +348,8 @@ class RDEvaluater
 
 	Variable EvaluateLogicalAnd()
 	{
+		PROLOGUE
+
 		Variable left = EvaluateEquality();
 
 		while (_pExpressionTokenSource->EqualTo("&&"))
@@ -347,6 +365,8 @@ class RDEvaluater
 
 	Variable EvaluateLogicalOr()
 	{
+		PROLOGUE
+
 		Variable left = EvaluateLogicalAnd();
 
 		while (_pExpressionTokenSource->EqualTo("||"))
@@ -362,6 +382,8 @@ class RDEvaluater
 
 	Variable EvaluateAssignment()
 	{
+		PROLOGUE
+
 		Variable left = EvaluateLogicalOr();
 
 		if (_pExpressionTokenSource->EqualTo("="))
@@ -373,15 +395,15 @@ class RDEvaluater
 			if (!pDestination)
 			{
 				// new variable. 
-				_pVariableCollection->AddAndSet(left.GetVariableName(), &Variable(), _pStack->GetFrameCount());
+				Variable futureValue = Variable::Empty();
+				_pVariableCollection->AddAndSet(left.GetVariableName(), &futureValue, _pStack->GetFrameCount());
 				pDestination = _pVariableCollection->GetWithoutErrorCheck(left.GetVariableName(), _pStack->GetFrameCount());
 
 				// Remove "undefined" sentinel...
-				char taggedVariableName[128];
-				strcpy(taggedVariableName, "$");
-				strcat(taggedVariableName, left.GetVariableName());
+				SafeString::StringCopy(_temporaryBuffer, "$", sizeof(_temporaryBuffer));
+				SafeString::StringCat(_temporaryBuffer, left.GetVariableName(), sizeof(_temporaryBuffer));
 
-				_pVariableCollection->Delete(taggedVariableName, _pStack->GetFrameCount()); 
+				_pVariableCollection->Delete(_temporaryBuffer, _pStack->GetFrameCount());
 			}
 
 			for (int i = 0; i < right.GetValueCount(); i++)
@@ -395,20 +417,39 @@ class RDEvaluater
 		return left;
 	}
 
+	Variable EvaluateEmpty()
+	{
+		PROLOGUE
+
+		RETURN(EvaluateAssignment());
+	}
+
 	Variable EvaluateTop()
 	{
-		return EvaluateAssignment();
+		PROLOGUE
+
+		if (_pExpressionTokenSource->GetCurrentNode() == 0)
+		{
+			RETURN(Variable::Empty());
+		}
+
+		RETURN(EvaluateEmpty());
 	}
 	
 public:
 	Variable Evaluate(const char* pExpression, VariableCollection* pVariableCollection = 0, Stack* pStack = 0, IFunctionCaller* pFunctionCaller = 0, ParseErrors* pParseErrors = 0, int lineNumber = -100)
 	{
-		_pExpressionTokenSource = new ExpressionTokenSource(pExpression, pParseErrors);
-		_pVariableCollection = pVariableCollection;
+		PROLOGUE
+
+		//Serial.print("Evaluating: "); Serial.println(pExpression);
+
+		ExpressionTokenSource expressionTokenSource(pExpression, pParseErrors);
+		_pExpressionTokenSource = &expressionTokenSource;
 		_pStack = pStack;
 		_pFunctionCaller = pFunctionCaller;
 		_pParseErrors = pParseErrors;
 		_lineNumber = lineNumber;
+		_pVariableCollection = pVariableCollection;
 
 		Variable value = EvaluateTop();
 
@@ -433,6 +474,6 @@ public:
 			}
 		}
 
-		return value;
+		RETURN(value);
 	}
 };

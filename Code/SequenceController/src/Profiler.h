@@ -17,9 +17,9 @@ public:
     {
         char buffer[1024];
         long int delta = micros() - _startMicros;
-        sprintf(buffer, "%s = %d", _stage, (int) delta);
+        snprintf(buffer, sizeof(buffer) / sizeof(char), "%s = %d", _stage, (int) delta);
         //Serial.println(buffer);
-        strcpy(_stage, stage);
+        SafeString::StringCopy(_stage, stage, sizeof(_stage));
         _startMicros = micros();
     }
 
@@ -27,9 +27,9 @@ public:
     {
         char buffer[1024];
         long int delta = micros() - _startMicrosBig;
-        sprintf(buffer, "%s = %d", _stageBig, (int) delta);
+        snprintf(buffer, sizeof(buffer) / sizeof(char), "%s = %d", _stageBig, (int) delta);
         //Serial.println(buffer);
-        strcpy(_stageBig, stage);
+		SafeString::StringCopy(_stageBig, stage, sizeof(_stageBig));
         _startMicrosBig = micros();
     }
 

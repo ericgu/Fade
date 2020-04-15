@@ -12,7 +12,7 @@ public:
 
 	FunctionDefinition(const char* pName, int serialNumberStart)
 	{
-		strcpy(Name, pName);
+		SafeString::StringCopy(Name, pName, sizeof(Name));
 		SerialNumberStart = serialNumberStart;
 		SerialNumberEnd = -1;
 	}
@@ -68,7 +68,7 @@ public:
 			pParseErrors->AddError("Function: ", "name too long", serialNumberStart);
 		}
 
-		strcpy(pCurrent->Name, pFunctionName);
+		SafeString::StringCopy(pCurrent->Name, pFunctionName, sizeof(pCurrent->Name));
 		pCurrent->SerialNumberStart = serialNumberStart;
 		pCurrent->SerialNumberEnd = -1;
 

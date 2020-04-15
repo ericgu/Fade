@@ -54,7 +54,7 @@ public:
 		_pSettings->LoadNodeName(_pNodeName, MaxNodeNameSize);
 		if (*_pNodeName == '\0')
 		{
-			strcpy(_pNodeName, "Sequencer");
+			SafeString::StringCopy(_pNodeName, "Sequencer", MaxNodeNameSize);
 		}
 
 		_shouldExecuteCode = _pSettings->LoadShouldExecuteCode();
@@ -83,9 +83,10 @@ public:
 			TimeServices::TaskDelay(10); 
 		}
 
-		strcpy(_pCurrentCommand, pProgram);
+		SafeString::StringCopy(_pCurrentCommand, pProgram, MaxProgramSize);
 
-		Serial.println("Program Updated");
+		Serial.print("Program Updated: ");
+		Serial.println((int) strlen(pProgram));
 
 		_parseErrors.Clear();
 		_commandSource.SetCommand(_pCurrentCommand);
@@ -104,7 +105,7 @@ public:
 	void UpdateNodeName(const char* pNodeName)
 	{
 		_pSettings->SaveNodeName(pNodeName);
-		strcpy(_pNodeName, pNodeName);
+		SafeString::StringCopy(_pNodeName, pNodeName, MaxNodeNameSize);
 	}
 
 	const char* GetNodeName()
@@ -139,7 +140,7 @@ public:
 
 	void Execute()
 	{
-		StackWatcher::Log("Supervisor::Execute");
+		// StackWatcher::Log("Supervisor::Execute");
 		if (_shouldExecuteCode)
 		{
 			_executionCount++;

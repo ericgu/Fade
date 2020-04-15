@@ -6,9 +6,10 @@ class IFunctionCaller
     virtual Variable Call(const char* pFunctionName, int lineNumber) = 0;
 };
 
-
 class FunctionCaller : public IFunctionCaller
 {
+	static char _argumentNameBuffer[10];
+
 	FunctionStore* _pFunctionStore;
 	Stack* _pStack;
 	VariableCollection* _pVariableCollection;
@@ -16,6 +17,13 @@ class FunctionCaller : public IFunctionCaller
 	IExecutionFlow* _pExecutionFlow;
 
 public:
+
+	static const char* GenerateArgumentName(int argumentNumber)
+	{
+		snprintf(_argumentNameBuffer, sizeof(_argumentNameBuffer), "#A%d", argumentNumber);
+
+		return _argumentNameBuffer;
+	}
 
 	FunctionCaller(FunctionStore* pFunctionStore, Stack* pStack, VariableCollection* pVariableCollection, ParseErrors* pParseErrors, IExecutionFlow* pExecutionFlow)
 	{
@@ -38,6 +46,8 @@ public:
 			pStackFrame->SerialNumberStart = pFunctionDefinition->SerialNumberStart;
 			pStackFrame->SerialNumberEnd = pFunctionDefinition->SerialNumberEnd;
 			pStackFrame->SetInstructionPointer(pFunctionDefinition->SerialNumberStart, "DoFunctionCall");
+
+    		StackWatcher::Log("FunctionCaller::Call");
 
 			_pExecutionFlow->RunProgram(1);
 
@@ -65,4 +75,6 @@ public:
 		return returnValue;
 	}
 };
+
+char FunctionCaller::_argumentNameBuffer[] = "";
 

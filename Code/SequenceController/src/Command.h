@@ -8,40 +8,28 @@ class Command
 
 		Command(const Command &source)
 		{
-			strcpy_s(_commandString, source._commandString);
+			SafeString::StringCopy(_commandString, source._commandString, sizeof(_commandString));
 			_serialNumber = source._serialNumber;
 		}
 
 		Command()
 		{
-			strcpy_s(_commandString, "<Unknown command>");
+			SafeString::StringCopy(_commandString, "<Unknown command>", sizeof(_commandString));
 			_serialNumber = -1;
-		}
-
-		Command(const char* pCommand, int commandLength, int serialNumber)
-		{
-			if (commandLength >= sizeof(_commandString))
-			{
-				Serial.println("Command string too long");
-				return;
-			}
-
-			strncpy_s(_commandString, pCommand, commandLength);
-			*(_commandString + commandLength) = '\0';
-			_serialNumber = serialNumber;
 		}
 
 		Command(const char* pCommand, int serialNumber)
 		{
 			if (strlen(pCommand) >= sizeof(_commandString))
 			{
+				Serial.println(pCommand);
 				Serial.println("Command string too long");
 				return;
 			}
 
 			if (pCommand)
 			{
-				strcpy_s(_commandString, pCommand);
+				SafeString::StringCopy(_commandString, pCommand, sizeof(_commandString));
 			}
 			else
 			{

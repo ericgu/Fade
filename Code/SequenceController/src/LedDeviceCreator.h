@@ -21,7 +21,7 @@ public:
         //Serial.print(" ");  Serial.flush();
         //Serial.print(pin); Serial.flush();
 
-        strcpy(_ledType, pLedType);
+        SafeString::StringCopy(_ledType, pLedType, sizeof(_ledType));
         _ledCount = ledCount;
         _pin = pin; 
 

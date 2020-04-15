@@ -87,6 +87,7 @@ public:
 
 			if (_pParseErrors->GetErrorCount() != 0)
 			{
+				//Serial.println(_pParseErrors->GetError(0)->_errorText);
 				return CommandResultStatus::CommandParseError;
 			}
 

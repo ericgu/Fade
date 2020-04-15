@@ -7,7 +7,7 @@ class Settings
     void GetString(const char* key, char* buffer, int bufferSize)
     {
         String value = NVS.getString(key);
-        strcpy(buffer, value.c_str());
+        SafeString::StringCopy(buffer, value.c_str(), bufferSize);
     }
 
     bool SetString(const char* key, const char* value)

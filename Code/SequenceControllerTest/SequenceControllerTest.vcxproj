@@ -123,6 +123,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\SequenceController\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,8 +160,6 @@
     <ClInclude Include="CommandTest.h" />
     <ClInclude Include="DelayerTest.h" />
     <ClInclude Include="ExecutionFlowTest.h" />
-    <ClInclude Include="ExpressionTest.h" />
-    <ClInclude Include="ExpressionTokenizerTest.h" />
     <ClInclude Include="ExpressionTokenSourceTest.h" />
     <ClInclude Include="FunctionCallerTest.h" />
     <ClInclude Include="FunctionStoreTest.h" />
@@ -172,10 +171,11 @@
     <ClInclude Include="ParseErrorsTest.h" />
     <ClInclude Include="Profiler.h" />
     <ClInclude Include="RDEvaluaterTest.h" />
+    <ClInclude Include="SafeStringTest.h" />
     <ClInclude Include="Serial.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="StackTest.h" />
-    <ClInclude Include="StackWatcher.h" />
+    <ClInclude Include="StackWatcherOld.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SupervisorTest.h" />
     <ClInclude Include="targetver.h" />

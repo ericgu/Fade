@@ -20,7 +20,7 @@ class Loop
     public:
 		Loop()
 		{
-			_pListParser = new ListParser(1024, 1024);
+			_pListParser = new ListParser(1023, 1024);
 		}
 
 		~Loop()

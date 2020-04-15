@@ -24,8 +24,8 @@ class LoopTest
 		{
 			return;
 		}
-		Assert::AreEqual(pExpectedString, parseErrors.GetError(errorCount - 1)._errorText);
-		Assert::AreEqual(lineNumber, parseErrors.GetError(errorCount - 1)._lineNumber);
+		Assert::AreEqual(pExpectedString, parseErrors.GetError(errorCount - 1)->_errorText);
+		Assert::AreEqual(lineNumber, parseErrors.GetError(errorCount - 1)->_lineNumber);
 	}
 
 	static void TestNoFor()

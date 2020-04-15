@@ -110,12 +110,23 @@ class FunctionCallerTest
 		Assert::AreEqual(15.5F, executionFlow.GetFirstParameter());
 	}
 
+	static void TestArgumentNameGenerator()
+	{
+		const char* pArgumentName = FunctionCaller::GenerateArgumentName(1);
+		Assert::AreEqual("#A1", pArgumentName);
+
+		pArgumentName = FunctionCaller::GenerateArgumentName(2);
+		Assert::AreEqual("#A2", pArgumentName);
+	}
+
 public:
 
 	static void Run()
 	{
 		TestFunctionCall();
 		TestFunctionCallWithParameter();
+
+		TestArgumentNameGenerator();
 	}
 
 };

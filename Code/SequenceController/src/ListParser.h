@@ -51,13 +51,13 @@ public:
 	{
 		_itemCount = 0;
 
-		if (strlen(pString) > _bufferSize)
+		if ((int) strlen(pString) > _bufferSize)
 		{
-			Serial.println("too big"); Serial.flush();
+			Serial.print("Too big to parse: "); Serial.print((int) strlen(pString)); Serial.print(" "); Serial.println(_bufferSize);
+			Serial.flush();
 		}
 
-		//strcpy_s(_pBuffer, length, pString);
-		strcpy(_pBuffer, pString);
+		SafeString::StringCopy(_pBuffer, pString, _bufferSize);
 
 		char* pCurrent = _pBuffer;
 
@@ -103,13 +103,13 @@ public:
 	{
 		_itemCount = 0;
 
-		if (strlen(pString) > _bufferSize)
+		if ((int) strlen(pString) > _bufferSize)
 		{
-			Serial.println("too big"); Serial.flush();
+			Serial.print("Too big to parse: "); Serial.print((int) strlen(pString)); Serial.print(" "); Serial.println(_bufferSize);
+			Serial.flush();
 		}
 
-		//strcpy_s(_pBuffer, length, pString);
-		strcpy(_pBuffer, pString);
+		SafeString::StringCopy(_pBuffer, pString, _bufferSize);
 
 		char* pCurrent = _pBuffer;
 		char* pStart = pCurrent;

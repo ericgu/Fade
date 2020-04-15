@@ -198,8 +198,8 @@ class VariableTest
 
 		Variable* pParsed = variableCollection.Lookup("Fred", 1, &parseErrors, 15);
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Undeclared variable: Fred", parseErrors.GetError(0)._errorText);
-		Assert::AreEqual(15, parseErrors.GetError(0)._lineNumber);
+		Assert::AreEqual("Undeclared variable: Fred", parseErrors.GetError(0)->_errorText);
+		Assert::AreEqual(15, parseErrors.GetError(0)->_lineNumber);
 	}
 
 	static void TestMissingVariableNoErrorCheck()

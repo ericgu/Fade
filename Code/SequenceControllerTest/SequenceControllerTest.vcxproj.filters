@@ -84,16 +84,7 @@
     <ClInclude Include="FunctionStoreTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ExpressionTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DelayerTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ExpressionTokenizerTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StackWatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Profiler.h">
@@ -109,6 +100,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ExpressionTokenSourceTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StackWatcherOld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SafeStringTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

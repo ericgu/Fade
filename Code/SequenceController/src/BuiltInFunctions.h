@@ -51,10 +51,10 @@ class BuiltInFunctions
 			{
 				char argumentName[10];
 
-				sprintf(argumentName, "#A%d", i);
+				snprintf(argumentName, sizeof(argumentName) / sizeof(char), "#A%d", i);
 				Variable* pChannel = pVariableCollection->GetWithoutErrorCheck(argumentName, pStack->GetFrameCount());
 
-				sprintf(argumentName, "#A%d", i + 1);
+				snprintf(argumentName, sizeof(argumentName) / sizeof(char), "#A%d", i + 1);
 				Variable* pBrightness = pVariableCollection->GetWithoutErrorCheck(argumentName, pStack->GetFrameCount());
 
 				pExecutionFlow->GetCommandResult()->AddTarget(LedState(pChannel->GetValueInt(), pBrightness, pCycleCount->GetValueInt()));
@@ -100,7 +100,7 @@ class BuiltInFunctions
 			{
 				char argumentName[10];
 
-				sprintf(argumentName, "#A%d", channel);
+				snprintf(argumentName, sizeof(argumentName) / sizeof(char), "#A%d", channel);
 				Variable* pBrightness = pVariableCollection->GetWithoutErrorCheck(argumentName, pStack->GetFrameCount());
 
 				pExecutionFlow->GetCommandResult()->AddTarget(LedState(channel - 1, pBrightness, pCycleCount->GetValueInt()));
