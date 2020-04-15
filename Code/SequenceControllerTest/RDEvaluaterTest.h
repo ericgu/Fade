@@ -1,4 +1,3 @@
-#include "RDEvaluater.h"
 
 class FunctionCallerSimulator : public IFunctionCaller
 {
@@ -279,12 +278,11 @@ class RDEvaluaterTest
 	{
 		// TODO: Add in correct stack level checking..
 
-		VariableCollection variableCollection;
-		Stack stack;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
-		variableCollection.AddAndSet("MyFirstValue", &Variable(22), 0);
+		executionContext.AddVariableAndSet("MyFirstValue", &Variable(22));
 
-		Variable result = rdEvaluater.Evaluate("MyFirstValue", &variableCollection, &stack);
+		Variable result = rdEvaluater.Evaluate("MyFirstValue", &executionContext);
 
 		Assert::AreEqual(22.0F, result.GetValueFloat(0));
 	}
@@ -293,13 +291,12 @@ class RDEvaluaterTest
 	{
 		// TODO: Add in correct stack level checking..
 
-		VariableCollection variableCollection;
-		Stack stack;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
-		variableCollection.AddAndSet("MyFirstValue", &Variable(20), 0);
-		variableCollection.AddAndSet("MySecondValue", &Variable(5), 0);
+		executionContext.AddVariableAndSet("MyFirstValue", &Variable(20));
+		executionContext.AddVariableAndSet("MySecondValue", &Variable(5));
 
-		Variable result = rdEvaluater.Evaluate("MyFirstValue * 3 + MySecondValue", &variableCollection, &stack);
+		Variable result = rdEvaluater.Evaluate("MyFirstValue * 3 + MySecondValue", &executionContext);
 
 		Assert::AreEqual(65.0F, result.GetValueFloat(0));
 	}
@@ -308,30 +305,28 @@ class RDEvaluaterTest
 	{
 		// TODO: Add in correct stack level checking..
 
-		VariableCollection variableCollection;
-		Stack stack;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
-		variableCollection.AddAndSet("MyFirstValue", &Variable(22), 0);
+		executionContext.AddVariableAndSet("MyFirstValue", &Variable(22));
 
-		Variable result = rdEvaluater.Evaluate("MyFirstValue++", &variableCollection, &stack);
+		Variable result = rdEvaluater.Evaluate("MyFirstValue++", &executionContext);
 
 		Assert::AreEqual(22.0F, result.GetValueFloat(0));
-		Assert::AreEqual(23.0F, variableCollection.GetWithoutErrorCheck("MyFirstValue", 0)->GetValueFloat(0));
+		Assert::AreEqual(23.0F, executionContext.GetVariableWithoutErrorCheck("MyFirstValue")->GetValueFloat(0));
 	}
 
 	static void TestVariableDecrement()
 	{
 		// TODO: Add in correct stack level checking..
 
-		VariableCollection variableCollection;
-		Stack stack;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
-		variableCollection.AddAndSet("MyFirstValue", &Variable(22), 0);
+		executionContext.AddVariableAndSet("MyFirstValue", &Variable(22));
 
-		Variable result = rdEvaluater.Evaluate("MyFirstValue--", &variableCollection, &stack);
+		Variable result = rdEvaluater.Evaluate("MyFirstValue--", &executionContext);
 
 		Assert::AreEqual(22.0F, result.GetValueFloat(0));
-		Assert::AreEqual(21.0F, variableCollection.GetWithoutErrorCheck("MyFirstValue", 0)->GetValueFloat(0));
+		Assert::AreEqual(21.0F, executionContext.GetVariableWithoutErrorCheck("MyFirstValue")->GetValueFloat(0));
 	}
 
 
@@ -340,15 +335,14 @@ class RDEvaluaterTest
 	{
 		// TODO: Add in correct stack level checking..
 
-		VariableCollection variableCollection;
-		Stack stack;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
 
-		Variable result = rdEvaluater.Evaluate("AssignedValue = 15", &variableCollection, &stack);
+		Variable result = rdEvaluater.Evaluate("AssignedValue = 15", &executionContext);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
-		Variable* pAssignedValue = variableCollection.Get("AssignedValue", 0, 0, 1);
+		Assert::AreEqual(1, executionContext.Variables()->GetActiveVariableCount());
+		Variable* pAssignedValue = executionContext.GetVariableWithoutErrorCheck("AssignedValue");
 		Assert::AreEqual(15.0F, pAssignedValue->GetValueFloat(0));
 	}
 
@@ -356,15 +350,14 @@ class RDEvaluaterTest
 	{
 		// TODO: Add in correct stack level checking..
 
-		VariableCollection variableCollection;
-		Stack stack;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
 
-		Variable result = rdEvaluater.Evaluate("AssignedValue = {15, 20, 25}", &variableCollection, &stack);
+		Variable result = rdEvaluater.Evaluate("AssignedValue = {15, 20, 25}", &executionContext);
 
 		Assert::AreEqual(1, result.IsNan());
-		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
-		Variable* pAssignedValue = variableCollection.Get("AssignedValue", 0, 0, 1);
+		Assert::AreEqual(1, executionContext.Variables()->GetActiveVariableCount());
+		Variable* pAssignedValue = executionContext.GetVariableWithoutErrorCheck("AssignedValue");
 
 		Assert::AreEqual(3, pAssignedValue->GetValueCount());
 		Assert::AreEqual(15.0F, pAssignedValue->GetValueFloat(0));
@@ -376,13 +369,12 @@ class RDEvaluaterTest
 
 	static void TestFunctionCallParsing()
 	{
-		VariableCollection variableCollection;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
-		Stack stack;
-		FunctionCallerSimulator functionCaller(&variableCollection, &stack);
+		FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
 		functionCaller.SetReturnValue(129393);
 
-		Variable result = rdEvaluater.Evaluate("MyFunction(15, 20)", &variableCollection, &stack, &functionCaller);
+		Variable result = rdEvaluater.Evaluate("MyFunction(15, 20)", &executionContext, &functionCaller);
 
 		Assert::AreEqual(129393.0F, result.GetValueFloat(0));
 		Assert::AreEqual("MyFunction", functionCaller.GetFunctionCalled());
@@ -390,13 +382,12 @@ class RDEvaluaterTest
 
 	static void TestFunctionCallNoParameters()
 	{
-		VariableCollection variableCollection;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
-		Stack stack;
-		FunctionCallerSimulator functionCaller(&variableCollection, &stack);
+		FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
 		functionCaller.SetReturnValue(129393);
 
-		Variable result = rdEvaluater.Evaluate("MyFunction()", &variableCollection, &stack, &functionCaller);
+		Variable result = rdEvaluater.Evaluate("MyFunction()", &executionContext, &functionCaller);
 
 		Assert::AreEqual(129393.0F, result.GetValueFloat(0));
 		Assert::AreEqual("MyFunction", functionCaller.GetFunctionCalled());
@@ -424,7 +415,7 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("15 + ", 0, 0, 0, &parseErrors, 7);
+		Variable result = rdEvaluater.Evaluate("15 + ", 0, 0, &parseErrors, 7);
 
 		Assert::AreEqual(1, result.IsNan());
 		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 7);
@@ -435,7 +426,7 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("15 + +", 0, 0, 0, &parseErrors, 9);
+		Variable result = rdEvaluater.Evaluate("15 + +", 0, 0, &parseErrors, 9);
 
 		Assert::AreEqual(1, result.IsNan());
 		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 9);
@@ -446,7 +437,7 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("15 $ 12", 0, 0, 0, &parseErrors, 8);
+		Variable result = rdEvaluater.Evaluate("15 $ 12", 0, 0, &parseErrors, 8);
 
 		Assert::AreEqual(1, result.IsNan());
 		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 8);
@@ -457,7 +448,7 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("15 12", 0, 0, 0, &parseErrors, 444);
+		Variable result = rdEvaluater.Evaluate("15 12", 0, 0, &parseErrors, 444);
 
 		Assert::AreEqual(15.0, result.GetValueFloat(0));
 		ValidateParseErrors(&parseErrors, "Unexpected token remaining after parsing: 12", 444);
@@ -468,7 +459,7 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("(15 * 12", 0, 0, 0, &parseErrors, 123);
+		Variable result = rdEvaluater.Evaluate("(15 * 12", 0, 0, &parseErrors, 123);
 
 		Assert::AreEqual(1, result.IsNan());
 		ValidateParseErrors(&parseErrors, "Missing ) in expression", 123);
@@ -479,7 +470,7 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("{15", 0, 0, 0, &parseErrors, 5512);
+		Variable result = rdEvaluater.Evaluate("{15", 0, 0, &parseErrors, 5512);
 
 		Assert::AreEqual(1, result.IsNan());
 		ValidateParseErrors(&parseErrors, "Missing } in expression", 5512);
@@ -487,12 +478,11 @@ class RDEvaluaterTest
 
 	static void TestUndeclaredVariable()
 	{
-		VariableCollection variableCollection;
-		Stack stack;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("MyFirstValue", &variableCollection, &stack, 0, &parseErrors, 122);
+		Variable result = rdEvaluater.Evaluate("MyFirstValue", &executionContext, 0, &parseErrors, 122);
 
 		Assert::AreEqual(1, result.IsNan());
 		ValidateParseErrors(&parseErrors, "Undefined variable: MyFirstValue", 122);
@@ -500,13 +490,12 @@ class RDEvaluaterTest
 
 	static void TestUndeclaredVariable2()
 	{
-		VariableCollection variableCollection;
-		Stack stack;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
-		variableCollection.AddAndSet("MyFirstValue", &Variable(22), 0);
+		executionContext.AddVariableAndSet("MyFirstValue", &Variable(22));
 
-		Variable result = rdEvaluater.Evaluate("13 * (2 + MyFirstValue) * MyMissingValue * 33", &variableCollection, &stack, 0, &parseErrors, 55);
+		Variable result = rdEvaluater.Evaluate("13 * (2 + MyFirstValue) * MyMissingValue * 33", &executionContext, 0, &parseErrors, 55);
 
 		Assert::AreEqual(1, result.IsNan());
 		ValidateParseErrors(&parseErrors, "Undefined variable: MyMissingValue", 55);
@@ -514,14 +503,13 @@ class RDEvaluaterTest
 
 	static void TestFunctionCallNoParametersMissingClosingParen()
 	{
-		VariableCollection variableCollection;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
-		Stack stack;
-		FunctionCallerSimulator functionCaller(&variableCollection, &stack);
+		FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
 		functionCaller.SetReturnValue(129393);
 
-		Variable result = rdEvaluater.Evaluate("MyFunction(", &variableCollection, &stack, &functionCaller, &parseErrors, 55);
+		Variable result = rdEvaluater.Evaluate("MyFunction(", &executionContext, &functionCaller, &parseErrors, 55);
 
 		Assert::AreEqual(1, result.IsNan());
 		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 55);
@@ -529,14 +517,13 @@ class RDEvaluaterTest
 
 	static void TestFunctionCallOneParametersMissingClosingParen()
 	{
-		VariableCollection variableCollection;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
-		Stack stack;
-		FunctionCallerSimulator functionCaller(&variableCollection, &stack);
+		FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
 		functionCaller.SetReturnValue(129393);
 
-		Variable result = rdEvaluater.Evaluate("MyFunction(15", &variableCollection, &stack, &functionCaller, &parseErrors, 59);
+		Variable result = rdEvaluater.Evaluate("MyFunction(15", &executionContext, &functionCaller, &parseErrors, 59);
 
 		Assert::AreEqual(1, result.IsNan());
 		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 59);
@@ -544,14 +531,13 @@ class RDEvaluaterTest
 
 	static void TestFunctionCallTwoParametersEndsAfterComma()
 	{
-		VariableCollection variableCollection;
+		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
-		Stack stack;
-		FunctionCallerSimulator functionCaller(&variableCollection, &stack);
+		FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
 		functionCaller.SetReturnValue(129393);
 
-		Variable result = rdEvaluater.Evaluate("MyFunction(15,", &variableCollection, &stack, &functionCaller, &parseErrors, 99);
+		Variable result = rdEvaluater.Evaluate("MyFunction(15,", &executionContext, &functionCaller, &parseErrors, 99);
 
 		Assert::AreEqual(1, result.IsNan());
 		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 99);

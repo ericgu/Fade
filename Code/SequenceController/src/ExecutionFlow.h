@@ -28,7 +28,7 @@ public:
 	void ResetProgramState()
 	{
 		_pExecutionContext->ResetVariablesAndStack();
-		_pCommandResult->SetStatus(CommandResultStatus::CommandNone);
+		_pCommandResult->Reset();
 	}
 
 	void AbortExecution()
@@ -81,8 +81,8 @@ public:
 		while (true)
 		{
 			Profiler.Start("GetCommand");
-			//Serial.print("IP = "); Serial.println(_pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer());
-			Command* pCommand = GetCommand(_pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer());
+			//Serial.print("IP = "); Serial.println(_pExecutionContext->StackTopFrame()->GetInstructionPointer());
+			Command* pCommand = GetCommand(_pExecutionContext->StackTopFrame()->GetInstructionPointer());
 			StackWatcher::Log("ExecutionFlow::RunProgramb");
 
 			if (_pParseErrors->GetErrorCount() != 0)
@@ -93,7 +93,7 @@ public:
 
 			if (pCommand == 0)
 			{
-				if (_pExecutionContext->_stack.GetFrameCount() > 1)
+				if (_pExecutionContext->GetStack()->GetFrameCount() > 1)
 				{
 					_pParseErrors->AddError("Missing loop end", "", -1);
 					return CommandResultStatus::CommandParseError;
@@ -105,7 +105,7 @@ public:
 					return CommandResultStatus::CommandCompleted;
 				}
 
-				_pExecutionContext->_stack.GetTopFrame()->SetInstructionPointer(0, "RunProgram reset to 0");
+				_pExecutionContext->StackTopFrame()->SetInstructionPointer(0, "RunProgram reset to 0");
 			}
 			else
 			{
@@ -113,7 +113,7 @@ public:
 				StackWatcher::Log("ExecutionFlow::RunProgramc");
 				_pCommandDecoder->Decode(_pExecutionContext, _pParseErrors, pCommand, this);
 
-				//_pExecutionContext->_variables.Dump();
+				//_pExecutionContext->Variables()->Dump();
 
 				if (_pCommandResult->GetAbort())
 				{
@@ -156,7 +156,7 @@ public:
 					return _pCommandResult->GetStatus();
 				}
 
-				_pExecutionContext->_stack.GetTopFrame()->IncrementInstructionPointer("Run program increment");
+				_pExecutionContext->StackTopFrame()->IncrementInstructionPointer("Run program increment");
 			}
 		}
 	}

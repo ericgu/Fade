@@ -184,7 +184,7 @@ class ExpressionTokenSourceTest
 	static void TestUnexpectedCharacter()
 	{
 		ParseErrors parseErrors;
-		ExpressionTokenSource expressionTokenSource("x $ z", &parseErrors);
+		ExpressionTokenSource expressionTokenSource("x $ z", &parseErrors, 15);
 
 		while (expressionTokenSource.GetCurrentNode() != 0)
 		{
@@ -193,12 +193,13 @@ class ExpressionTokenSourceTest
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		Assert::AreEqual("Unrecognized character: $", parseErrors.GetError(0)->_errorText);
+		Assert::AreEqual(15, parseErrors.GetError(0)->_lineNumber);
 	}
 
 	static void TestUnclosedStringConstant()
 	{
 		ParseErrors parseErrors;
-		ExpressionTokenSource expressionTokenSource("\"abcd", &parseErrors);
+		ExpressionTokenSource expressionTokenSource("\"abcd", &parseErrors, 55);
 
 		while (expressionTokenSource.GetCurrentNode() != 0)
 		{
@@ -207,7 +208,9 @@ class ExpressionTokenSourceTest
 
 		Assert::AreEqual(1, parseErrors.GetErrorCount());
 		Assert::AreEqual("Missing closing \" in string", parseErrors.GetError(0)->_errorText);
+		Assert::AreEqual(55, parseErrors.GetError(0)->_lineNumber);
 	}
+
 
 public:
 

@@ -38,6 +38,7 @@
 #include "Stack.h"
 #include "ExpressionNode.h"
 #include "ExpressionTokenSource.h"
+#include "IExecutionContext.h"
 #include "FunctionCaller.h"
 #include "RDEvaluater.h"
 #include "ExecutionContext.h"

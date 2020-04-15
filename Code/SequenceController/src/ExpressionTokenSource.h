@@ -4,6 +4,7 @@ class ExpressionTokenSource
 	ExpressionNode* _pCurrentNode;
 
 	ParseErrors* _pParseErrors;
+	int _lineNumber;
 
 	char _expression[512];
 
@@ -11,13 +12,14 @@ class ExpressionTokenSource
 	char _value[512];
 
 public:
-	ExpressionTokenSource(const char* pExpression, ParseErrors* pParseErrors = 0)
+	ExpressionTokenSource(const char* pExpression, ParseErrors* pParseErrors = 0, int lineNumber = 0)
 	{
         PROLOGUE
 
 		SafeString::StringCopy(_expression, pExpression, sizeof(_expression));
 		_pCurrent = _expression;
 		_pParseErrors = pParseErrors;
+		_lineNumber = lineNumber;
 
 		_pCurrentNode = &_node;
 		_value[0] = '\0';
@@ -107,7 +109,7 @@ public:
 			char c = AdvanceChar();
 			if (c == 0)
 			{
-				_pParseErrors->AddError("Missing closing \" in string", "", -1);
+				_pParseErrors->AddError("Missing closing \" in string", "", 55);
 				return;	
 			}
 
@@ -248,7 +250,7 @@ public:
 				char s[2];
 				s[0] = c;
 				s[1] = 0;
-				_pParseErrors->AddError("Unrecognized character: ", s, -1);
+				_pParseErrors->AddError("Unrecognized character: ", s, _lineNumber);
 			}
 		}
 	}

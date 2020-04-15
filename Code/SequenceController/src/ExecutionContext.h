@@ -1,10 +1,9 @@
-class ExecutionContext
+class ExecutionContext: public IExecutionContext
 {
-public:
 	VariableCollection _variables;
-
 	Stack _stack;
 
+public:
 	FunctionStore _functionStore;
 
 	ExecutionContext()
@@ -12,14 +11,19 @@ public:
 		_stack.CreateFrame();
 	}
 
+	virtual ~ExecutionContext()
+	{
+		
+	}
+
 	Variable Evaluate(const char* pCommand, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
 	{
 		StackWatcher::Log("ExecutionContext::Evaluate");
 
-		FunctionCaller functionCaller(&_functionStore, &_stack, &_variables, pParseErrors, pExecutionFlow);
+		FunctionCaller functionCaller(&_functionStore, this, pParseErrors, pExecutionFlow);
 
 		RDEvaluater rdEvaluator;
-		return rdEvaluator.Evaluate(pCommand, &_variables, &_stack, &functionCaller, pParseErrors, lineNumber);
+		return rdEvaluator.Evaluate(pCommand, this, &functionCaller, pParseErrors, lineNumber);
 	}
 
 	void ResetVariablesAndStack()
@@ -28,4 +32,48 @@ public:
 		_stack.Clear();
 		_stack.CreateFrame();
 	}
+
+	Variable* GetVariableWithoutErrorCheck(const char* pVariableName)
+	{
+		return _variables.GetWithoutErrorCheck(pVariableName, _stack.GetFrameCount());
+	}
+
+	void AddVariableAndSet(const char* pVariableName, Variable* pVariable, int stackLevel = -1)
+	{
+		if (stackLevel == -1)
+		{
+			stackLevel = _stack.GetFrameCount();
+		}
+		_variables.AddAndSet(pVariableName, pVariable, stackLevel);
+	}
+
+	void DeleteVariable(const char* pVariableName, int stackLevel = -1)
+	{
+		if (stackLevel == -1)
+		{
+			stackLevel = _stack.GetFrameCount();
+		}
+		_variables.Delete(pVariableName, stackLevel);
+	}
+
+	VariableCollection* Variables()
+	{
+		return &_variables;
+	}
+
+	Stack* GetStack()
+	{
+		return &_stack;
+	}
+
+	StackFrame* StackTopFrame()
+	{
+		return _stack.GetTopFrame();
+	}
+
+	StackFrame* StackCallingFrame()
+	{
+		return _stack.GetCallingFrame();
+	}
+
 };

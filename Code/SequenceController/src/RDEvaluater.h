@@ -3,8 +3,7 @@
 class RDEvaluater
 {
 	ExpressionTokenSource* _pExpressionTokenSource;
-	VariableCollection* _pVariableCollection;
-	Stack* _pStack;
+	IExecutionContext* _pExecutionContext;
 	IFunctionCaller* _pFunctionCaller;
 	ParseErrors* _pParseErrors;
 	int _lineNumber;
@@ -27,7 +26,7 @@ class RDEvaluater
 		{
 			_pExpressionTokenSource->Advance();
 			Variable argument(argumentNumber);
-			_pVariableCollection->AddAndSet("#A", &argument, _pStack->GetFrameCount() + 1); // put into frame that will be created soon...
+			_pExecutionContext->Variables()->AddAndSet("#A", &argument, _pExecutionContext->GetStack()->GetFrameCount() + 1); // put into frame that will be created soon...
 			return true;
 		}
 
@@ -43,7 +42,7 @@ class RDEvaluater
 			return false;
 		}
 
-		_pVariableCollection->AddAndSet(FunctionCaller::GenerateArgumentName(argumentNumber), &value, _pStack->GetFrameCount() + 1); // put into frame that will be created soon...
+		_pExecutionContext->Variables()->AddAndSet(FunctionCaller::GenerateArgumentName(argumentNumber), &value, _pExecutionContext->GetStack()->GetFrameCount() + 1); // put into frame that will be created soon...
 
 		return true;
 	}
@@ -82,19 +81,19 @@ class RDEvaluater
 
 				if (argumentParseSuccess)
 				{
-					_pStack->CreateFrame();
+					_pExecutionContext->GetStack()->CreateFrame();
 
 					Variable returnValue = _pFunctionCaller->Call(identifier, _lineNumber);
 
-					_pVariableCollection->DeleteStackLevel(_pStack->GetFrameCount());
-					_pStack->DestroyFrame();
+					_pExecutionContext->Variables()->DeleteStackLevel(_pExecutionContext->GetStack()->GetFrameCount());
+					_pExecutionContext->GetStack()->DestroyFrame();
 
 					return returnValue;
 				}
 			}
 			else
 			{
-				Variable *pVariable = _pVariableCollection->GetWithoutErrorCheck(identifier, _pStack->GetFrameCount());
+				Variable *pVariable = _pExecutionContext->GetVariableWithoutErrorCheck(identifier);
 				if (pVariable)
 				{
 					Variable returnValue = *pVariable;
@@ -122,7 +121,7 @@ class RDEvaluater
 					SafeString::StringCopy(_temporaryBuffer, "$", sizeof(_temporaryBuffer));
 					SafeString::StringCat(_temporaryBuffer, identifier, sizeof(_temporaryBuffer));
 					Variable var = Variable::Empty();
-					_pVariableCollection->AddAndSet(_temporaryBuffer, &var, _pStack->GetFrameCount());
+					_pExecutionContext->AddVariableAndSet(_temporaryBuffer, &var);
 
 					Variable returnValue;
 					returnValue.SetToNan();
@@ -391,19 +390,19 @@ class RDEvaluater
 			_pExpressionTokenSource->Advance();
 			Variable right = EvaluateLogicalOr();
 
-			Variable* pDestination = _pVariableCollection->GetWithoutErrorCheck(left.GetVariableName(), 0);  // stack level...
+			Variable* pDestination = _pExecutionContext->GetVariableWithoutErrorCheck(left.GetVariableName());
 			if (!pDestination)
 			{
 				// new variable. 
 				Variable futureValue = Variable::Empty();
-				_pVariableCollection->AddAndSet(left.GetVariableName(), &futureValue, _pStack->GetFrameCount());
-				pDestination = _pVariableCollection->GetWithoutErrorCheck(left.GetVariableName(), _pStack->GetFrameCount());
+				_pExecutionContext->AddVariableAndSet(left.GetVariableName(), &futureValue);
+				pDestination = _pExecutionContext->GetVariableWithoutErrorCheck(left.GetVariableName());
 
 				// Remove "undefined" sentinel...
 				SafeString::StringCopy(_temporaryBuffer, "$", sizeof(_temporaryBuffer));
 				SafeString::StringCat(_temporaryBuffer, left.GetVariableName(), sizeof(_temporaryBuffer));
 
-				_pVariableCollection->Delete(_temporaryBuffer, _pStack->GetFrameCount());
+				_pExecutionContext->DeleteVariable(_temporaryBuffer);
 			}
 
 			for (int i = 0; i < right.GetValueCount(); i++)
@@ -420,7 +419,7 @@ class RDEvaluater
 	Variable EvaluateEmpty()
 	{
 		PROLOGUE
-
+			 
 		RETURN(EvaluateAssignment());
 	}
 
@@ -437,7 +436,7 @@ class RDEvaluater
 	}
 	
 public:
-	Variable Evaluate(const char* pExpression, VariableCollection* pVariableCollection = 0, Stack* pStack = 0, IFunctionCaller* pFunctionCaller = 0, ParseErrors* pParseErrors = 0, int lineNumber = -100)
+	Variable Evaluate(const char* pExpression, IExecutionContext* pExecutionContext = 0, IFunctionCaller* pFunctionCaller = 0, ParseErrors* pParseErrors = 0, int lineNumber = -100)
 	{
 		PROLOGUE
 
@@ -445,11 +444,10 @@ public:
 
 		ExpressionTokenSource expressionTokenSource(pExpression, pParseErrors);
 		_pExpressionTokenSource = &expressionTokenSource;
-		_pStack = pStack;
+		_pExecutionContext = pExecutionContext;
 		_pFunctionCaller = pFunctionCaller;
 		_pParseErrors = pParseErrors;
 		_lineNumber = lineNumber;
-		_pVariableCollection = pVariableCollection;
 
 		Variable value = EvaluateTop();
 
@@ -461,13 +459,14 @@ public:
 		}
 
 		// Check for undefined sentinel variables. 
-		if (pVariableCollection)
+		if (pExecutionContext)
 		{
-			for (int i = 0; i < pVariableCollection->GetActiveVariableCount(); i++)
-			{
-				Variable* pVariable = pVariableCollection->Get(i);
 
-				if (*pVariable->GetVariableName() == '$' && pVariable->GetStackLevel() == pStack->GetFrameCount())
+			for (int i = 0; i <_pExecutionContext->Variables()->GetActiveVariableCount(); i++)
+			{
+				Variable* pVariable = _pExecutionContext->Variables()->Get(i);
+
+				if (*pVariable->GetVariableName() == '$' && pVariable->GetStackLevel() == _pExecutionContext->GetStack()->GetFrameCount())
 				{
 					_pParseErrors->AddError("Undefined variable: ", pVariable->GetVariableName() + 1, _lineNumber); // line number
 				}

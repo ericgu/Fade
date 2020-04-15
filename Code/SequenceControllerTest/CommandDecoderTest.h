@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ExecutionContext.h"
 #include "CommandDecoder.h"
 
 class MockExecutionFlow : public IExecutionFlow
@@ -103,8 +102,8 @@ class CommandDecoderTest
 	static void TestSingleWithVariables()
 	{
 		ExecutionContext executionContext;
-		executionContext._variables.AddAndSet("A", &Variable(3), 1);
-		executionContext._variables.AddAndSet("B", &Variable(1.0F), 1);
+		executionContext.AddVariableAndSet("A", &Variable(3));
+		executionContext.AddVariableAndSet("B", &Variable(1.0F));
 
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
@@ -167,8 +166,8 @@ class CommandDecoderTest
 	static void TestSequentialWithVariables()
 	{
 		ExecutionContext executionContext;
-		executionContext._variables.AddAndSet("A", &Variable(3), 1);
-		executionContext._variables.AddAndSet("B", &Variable(13.33F), 1);
+		executionContext.AddVariableAndSet("A", &Variable(3));
+		executionContext.AddVariableAndSet("B", &Variable(13.33F));
 
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
@@ -200,10 +199,9 @@ class CommandDecoderTest
 		AreEqual(CommandResultStatus::CommandNone, executionFlow.GetCommandResult()->GetStatus());
 	}
 
-	static void ValidateVariable(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, const char *pVariableName, int active, int value)
+	static void ValidateVariable(ExecutionContext* pExecutionContext, const char *pVariableName, int value)
 	{
-		Variable* pVariable = pExecutionContext->_variables.Get(pVariableName, pExecutionContext->_stack.GetFrameCount(), pParseErrors, -1);
-		//Assert::AreEqual(active, pVariable->GetActiveFlag());
+		Variable* pVariable = pExecutionContext->GetVariableWithoutErrorCheck(pVariableName);
 		Assert::AreEqual(value, pVariable->GetValueInt());
 	}
 
@@ -228,7 +226,7 @@ class CommandDecoderTest
 		CommandDecoder commandDecoder;
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("Var = 20", 15), &executionFlow);
 
-		ValidateVariable(&executionContext, &parseErrors, "Var", 1, 20);
+		ValidateVariable(&executionContext, "Var", 20);
 	}
 
 	static void TestAssignmentVariable()
@@ -241,8 +239,8 @@ class CommandDecoderTest
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("Var = 20", 15), &executionFlow);
 
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("Second = Var", 15), &executionFlow);
-		ValidateVariable(&executionContext, &parseErrors, "Var", 1, 20);
-		ValidateVariable(&executionContext, &parseErrors, "Second", 1, 20);
+		ValidateVariable(&executionContext, "Var", 20);
+		ValidateVariable(&executionContext, "Second", 20);
 	}
 
 	static void TestAssignmentOverride()
@@ -255,7 +253,7 @@ class CommandDecoderTest
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("Var = 20", 15), &executionFlow);
 
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("Var = 33", 15), &executionFlow);
-		ValidateVariable(&executionContext, &parseErrors, "Var", 1, 33);
+		ValidateVariable(&executionContext, "Var", 33);
 	}
 
 	static void TestAssignmentNoSpaces()
@@ -267,7 +265,7 @@ class CommandDecoderTest
 		CommandDecoder commandDecoder;
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("Var=20", 15), &executionFlow);
 
-		ValidateVariable(&executionContext, &parseErrors, "Var", 1, 20);
+		ValidateVariable(&executionContext, "Var", 20);
 	}
 
 	static void TestAnimateConstant()
@@ -291,16 +289,16 @@ class CommandDecoderTest
 		MyRandom::SetFirstValue(5);
 		CommandDecoder commandDecoder;
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("Var = RAND(0,10)", 15), &executionFlow);
-		ValidateVariable(&executionContext, &parseErrors, "Var", 1, 5);
+		ValidateVariable(&executionContext, "Var", 5);
 
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("Var = RAND(0,10)", 15), &executionFlow);
-		ValidateVariable(&executionContext, &parseErrors, "Var", 1, 7);
+		ValidateVariable(&executionContext, "Var", 7);
 	}
 
 	static void TestRandomUsage()
 	{
 		ExecutionContext executionContext;
-		executionContext._variables.AddAndSet("B", &Variable(1.0F), 1);
+		executionContext.AddVariableAndSet("B", &Variable(1.0F));
 
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
@@ -346,7 +344,7 @@ class CommandDecoderTest
 	static void TestPrintVariable()
 	{
 		ExecutionContext executionContext;
-		executionContext._variables.AddAndSet("Variable", &Variable(1.0F), 1);
+		executionContext.AddVariableAndSet("Variable", &Variable(1.0F));
 
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
@@ -366,7 +364,7 @@ class CommandDecoderTest
 		value.SetValue(0, 1.0F);
 		value.SetValue(1, 2.0F);
 		value.SetValue(2, 3.0F);
-		executionContext._variables.AddAndSet("Variable", &value, 1);
+		executionContext.AddVariableAndSet("Variable", &value);
 
 		ParseErrors parseErrors;
 		MockExecutionFlow executionFlow;
@@ -544,9 +542,8 @@ class CommandDecoderTest
 		CommandDecoder commandDecoder;
 		commandDecoder.Decode(&executionContext, &parseErrors, &Command("RETURN 15.5", 0), &executionFlow);
 
-		Variable* pVariable = executionContext._variables.GetWithoutErrorCheck("<ReturnValue>", executionContext._stack.GetFrameCount());
+		Variable* pVariable = executionContext.GetVariableWithoutErrorCheck("<ReturnValue>");
 		Assert::AreEqual(15.5, pVariable->GetValueFloat(0));
-		//Assert:AreEqual(2, executionContext._stack.GetFrameCount());
 	}
 
 	static void TestUnrecognizedFunction()

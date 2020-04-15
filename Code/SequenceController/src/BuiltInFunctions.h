@@ -217,8 +217,10 @@ class BuiltInFunctions
 
 
 public:
-	static bool HandleBuiltInFunctions(const char* pFunctionName, VariableCollection* pVariableCollection, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInFunctions(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
+		VariableCollection* pVariableCollection = pExecutionContext->Variables();
+		Stack* pStack = pExecutionContext->GetStack();
 
 		if (HandleBuiltInRand(pFunctionName, pVariableCollection, pStack, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
 		{

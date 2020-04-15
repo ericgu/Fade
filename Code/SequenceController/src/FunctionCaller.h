@@ -11,8 +11,7 @@ class FunctionCaller : public IFunctionCaller
 	static char _argumentNameBuffer[10];
 
 	FunctionStore* _pFunctionStore;
-	Stack* _pStack;
-	VariableCollection* _pVariableCollection;
+	IExecutionContext* _pExecutionContext;
 	ParseErrors* _pParseErrors;
 	IExecutionFlow* _pExecutionFlow;
 
@@ -25,11 +24,10 @@ public:
 		return _argumentNameBuffer;
 	}
 
-	FunctionCaller(FunctionStore* pFunctionStore, Stack* pStack, VariableCollection* pVariableCollection, ParseErrors* pParseErrors, IExecutionFlow* pExecutionFlow)
+	FunctionCaller(FunctionStore* pFunctionStore, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, IExecutionFlow* pExecutionFlow)
 	{
 		_pFunctionStore = pFunctionStore;
-		_pStack = pStack;
-		_pVariableCollection = pVariableCollection;
+		_pExecutionContext = pExecutionContext;
 		_pExecutionFlow = pExecutionFlow;
 		_pParseErrors = pParseErrors;
 	}
@@ -42,7 +40,7 @@ public:
 		FunctionDefinition* pFunctionDefinition = _pFunctionStore->Lookup(pFunctionName);
 		if (pFunctionDefinition != 0)
 		{
-			StackFrame* pStackFrame = _pStack->GetTopFrame();
+			StackFrame* pStackFrame = _pExecutionContext->StackTopFrame();
 			pStackFrame->SerialNumberStart = pFunctionDefinition->SerialNumberStart;
 			pStackFrame->SerialNumberEnd = pFunctionDefinition->SerialNumberEnd;
 			pStackFrame->SetInstructionPointer(pFunctionDefinition->SerialNumberStart, "DoFunctionCall");
@@ -56,7 +54,7 @@ public:
 				return returnValue;
 			}
 
-			Variable* pReturnValue = _pVariableCollection->GetWithoutErrorCheck("<ReturnValue>", _pStack->GetFrameCount());
+			Variable* pReturnValue = _pExecutionContext->GetVariableWithoutErrorCheck("<ReturnValue>");
 			if (pReturnValue)
 			{
 				returnValue = *pReturnValue;
@@ -65,7 +63,7 @@ public:
 			return returnValue;
 		}
 
-		if (!BuiltInFunctions::HandleBuiltInFunctions(pFunctionName, _pVariableCollection, _pStack, _pParseErrors, lineNumber, _pExecutionFlow, &returnValue))
+		if (!BuiltInFunctions::HandleBuiltInFunctions(pFunctionName, _pExecutionContext, _pParseErrors, lineNumber, _pExecutionFlow, &returnValue))
 		{
 			_pParseErrors->AddError("Unrecognized function: ", pFunctionName, lineNumber);
 

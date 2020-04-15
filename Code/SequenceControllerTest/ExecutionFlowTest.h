@@ -657,7 +657,7 @@ class ExecutionFlowTest
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("13.000000\n", Serial.GetLastString());
-		Assert::AreEqual(15.0F, executionFlow.GetExecutionContext()->_variables.GetWithoutErrorCheck("V", 1)->GetValueFloat(0));
+		Assert::AreEqual(15.0F, executionFlow.GetExecutionContext()->GetVariableWithoutErrorCheck("V")->GetValueFloat(0));
 	}
 
 	static void TestMethodCannotAccessParentVariables()

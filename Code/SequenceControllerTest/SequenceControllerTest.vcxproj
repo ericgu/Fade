@@ -159,6 +159,7 @@
     <ClInclude Include="CommandSourceTest.h" />
     <ClInclude Include="CommandTest.h" />
     <ClInclude Include="DelayerTest.h" />
+    <ClInclude Include="ExecutionContextTest.h" />
     <ClInclude Include="ExecutionFlowTest.h" />
     <ClInclude Include="ExpressionTokenSourceTest.h" />
     <ClInclude Include="FunctionCallerTest.h" />

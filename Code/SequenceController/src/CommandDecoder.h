@@ -40,8 +40,8 @@ public:
 		float endValue = _pLoop->GetVariableEnd().GetValueFloat(0);
 
 		float increment = _pLoop->GetVariableInc().GetValueFloat(0);
-		pExecutionContext->_variables.AddAndSet(_pLoop->GetVariableName(), &startValue, pExecutionContext->_stack.GetFrameCount());
-		Variable* pLoopVariable = pExecutionContext->_variables.GetWithoutErrorCheck(_pLoop->GetVariableName(), pExecutionContext->_stack.GetFrameCount());
+		pExecutionContext->AddVariableAndSet(_pLoop->GetVariableName(), &startValue);
+		Variable* pLoopVariable = pExecutionContext->GetVariableWithoutErrorCheck(_pLoop->GetVariableName());
 
 		StackWatcher::Log("CommandDecoder::DecodeFor b");
 
@@ -49,7 +49,7 @@ public:
 
 		while (true)
 		{
-			pExecutionContext->_stack.GetTopFrame()->SetInstructionPointer(forLoopSerialNumber + 1, "DecodeFor");
+			pExecutionContext->StackTopFrame()->SetInstructionPointer(forLoopSerialNumber + 1, "DecodeFor");
 
 			//Serial.print(pLoopVariable->GetVariableName()); Serial.print(" "); Serial.println(pLoopVariable->GetValueFloat(0));
 			CommandResultStatus commandResultStatus = pExecutionFlow->RunProgram(1);
@@ -64,14 +64,14 @@ public:
 				pParseErrors->AddError("Missing loop end", "", -1);
 				return true;
 			}
-			int instructionAfterEnd = pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer();
+			int instructionAfterEnd = pExecutionContext->StackTopFrame()->GetInstructionPointer();
 
 			pLoopVariable->Increment(increment);
 
 			if (!Loop::GetIsInRange(startValue.GetValueFloat(0), endValue, pLoopVariable->GetValueFloat(0)))
 			{
-				pExecutionContext->_variables.Delete(pLoopVariable->GetVariableName(), pExecutionContext->_stack.GetFrameCount());
-				pExecutionContext->_stack.GetTopFrame()->SetInstructionPointer(instructionAfterEnd, "DecodeFor");
+				pExecutionContext->DeleteVariable(pLoopVariable->GetVariableName());
+				pExecutionContext->StackTopFrame()->SetInstructionPointer(instructionAfterEnd, "DecodeFor");
 				pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandNone);
 				return true;
 			}
@@ -85,7 +85,7 @@ public:
 		if (pCommand->StartsWith("ENDFOR"))
 		{
 			StackWatcher::Log("CommandDecoder::DecodeEndFor");
-			pExecutionContext->_stack.GetTopFrame()->SerialNumberEnd = pCommand->GetSerialNumber();
+			pExecutionContext->StackTopFrame()->SerialNumberEnd = pCommand->GetSerialNumber();
 
 			pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandEndOfLoop);
 			return true;
@@ -101,7 +101,7 @@ public:
 	{
 		PROLOGUE
 
-		int statementIndex = pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer();
+		int statementIndex = pExecutionContext->StackTopFrame()->GetInstructionPointer();
 
 		int ifCount = 0;
 
@@ -132,16 +132,6 @@ public:
 						pNextCommand->GetSerialNumber(),
 						pExecutionFlow);
 
-#if fred
-					Variable condition = pExecutionContext->_expression.Evaluate(
-						pNextCommand->GetString() + offset,
-						&pExecutionContext->_variables,
-						&pExecutionContext->_functionStore,
-						&pExecutionContext->_stack,
-						pParseErrors,
-						pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer(),
-						pExecutionFlow);
-#endif
 					if (condition.GetValueInt() != 0)
 					{
 						return statementIndex;
@@ -203,13 +193,13 @@ public:
 		if (pCommand->StartsWith("IF"))
 		{
 			StackWatcher::Log("CommandDecoder::DecodeIf");
-			int ifStatementIndex = pExecutionContext->_stack.GetTopFrame()->GetInstructionPointer();
+			int ifStatementIndex = pExecutionContext->StackTopFrame()->GetInstructionPointer();
 
 			int statementIndex = FindTrueIfClause(pExecutionContext, pParseErrors, pExecutionFlow);
 
 			if (statementIndex != -1)
 			{
-				pExecutionContext->_stack.GetTopFrame()->SetInstructionPointer(statementIndex + 1, "DecodeIf");
+				pExecutionContext->StackTopFrame()->SetInstructionPointer(statementIndex + 1, "DecodeIf");
 				pExecutionFlow->RunProgram(1);
 			}
 
@@ -220,7 +210,7 @@ public:
 				return true;
 			}
 
-			pExecutionContext->_stack.GetTopFrame()->SetInstructionPointer(endIfIndex, "DecodeIf");
+			pExecutionContext->StackTopFrame()->SetInstructionPointer(endIfIndex, "DecodeIf");
 
 			return true;
 		}
@@ -291,7 +281,7 @@ public:
 
 			// Having a #A variable means that this is a function call rather than a function definition...
 
-			Variable* pArgumentCount = pExecutionContext->_variables.GetWithoutErrorCheck("#A", pExecutionContext->_stack.GetFrameCount());
+			Variable* pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 			if (pArgumentCount != 0)
 			{
 				// function call - rename arguments to local variable names...
@@ -302,13 +292,13 @@ public:
 
 					if (_pParameters->GetCount() != pArgumentCount->GetValueInt())
 					{
-						AddFunctionCallError(pParseErrors, _pListParser->GetItem(0), _pParameters->GetCount(), pArgumentCount->GetValueInt(), pExecutionContext->_stack.GetCallingFrame()->GetInstructionPointer());
+						AddFunctionCallError(pParseErrors, _pListParser->GetItem(0), _pParameters->GetCount(), pArgumentCount->GetValueInt(), pExecutionContext->StackCallingFrame()->GetInstructionPointer());
 						return true;
 					}
 
 					for (int i = 0; i < _pParameters->GetCount(); i++)
 					{
-						Variable* pArgument = pExecutionContext->_variables.GetWithoutErrorCheck(FunctionCaller::GenerateArgumentName(i), pExecutionContext->_stack.GetFrameCount());
+						Variable* pArgument = pExecutionContext->GetVariableWithoutErrorCheck(FunctionCaller::GenerateArgumentName(i));
 						if (pArgument != 0)
 						{
 							pArgument->SetVariableName(_pParameters->GetItem(i));
@@ -317,10 +307,10 @@ public:
 				}
 				else if (pArgumentCount->GetValueInt() != 0)
 				{
-					AddFunctionCallError(pParseErrors, _pListParser->GetItem(0), 0, pArgumentCount->GetValueInt(), pExecutionContext->_stack.GetCallingFrame()->GetInstructionPointer());
+					AddFunctionCallError(pParseErrors, _pListParser->GetItem(0), 0, pArgumentCount->GetValueInt(), pExecutionContext->StackCallingFrame()->GetInstructionPointer());
 					return true;
 				}
-				pExecutionContext->_variables.Delete("#A", pExecutionContext->_stack.GetFrameCount());
+				pExecutionContext->DeleteVariable("#A");
 			}
 			else
 			{
@@ -351,7 +341,7 @@ public:
 
 			Variable result = pExecutionContext->Evaluate(pCommandString, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
 
-			pExecutionContext->_variables.AddAndSet("<ReturnValue>", &result, pExecutionContext->_stack.GetFrameCount());
+			pExecutionContext->AddVariableAndSet("<ReturnValue>", &result);
 
 			return true;
 		}

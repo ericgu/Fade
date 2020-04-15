@@ -1,20 +1,18 @@
-#include "FunctionCaller.h"
+
 
 class ExecutionFlowSimulator : public IExecutionFlow
 {
 	bool _called = false;
 	int _serialNumberStart;
-	Stack* _pStack;
-	VariableCollection* _pVariableCollection;
+	IExecutionContext* _pExecutionContext;
 	int _returnValue;
 	float _firstParameter;
 	CommandResult _commandResult;
 
 public:
-	ExecutionFlowSimulator(Stack* pStack, VariableCollection* pVariableCollection, int returnValue)
+	ExecutionFlowSimulator(IExecutionContext* pExecutionContext, int returnValue)
 	{
-		_pStack = pStack;
-		_pVariableCollection = pVariableCollection;
+		_pExecutionContext = pExecutionContext;
 		_returnValue = returnValue;
 	}
 
@@ -23,14 +21,14 @@ public:
 	{
 		_called = true;
 
-		_serialNumberStart = _pStack->GetTopFrame()->SerialNumberStart;
+		_serialNumberStart = _pExecutionContext->StackTopFrame()->SerialNumberStart;
 
-		_pVariableCollection->AddAndSet("<ReturnValue>", &Variable(_returnValue), _pStack->GetFrameCount());
+		_pExecutionContext->AddVariableAndSet("<ReturnValue>", &Variable(_returnValue));
 
-		Variable* pArgumentCount = _pVariableCollection->GetWithoutErrorCheck("#A", _pStack->GetFrameCount());
+		Variable* pArgumentCount = _pExecutionContext->GetVariableWithoutErrorCheck("#A");
 		if (pArgumentCount->GetValueInt() >= 1)
 		{
-			_firstParameter = _pVariableCollection->GetWithoutErrorCheck("#A0", _pStack->GetFrameCount())->GetValueFloat(0);
+			_firstParameter = _pExecutionContext->GetVariableWithoutErrorCheck("#A0")->GetValueFloat(0);
 		}
 
 		_commandResult.ClearAbort();
@@ -68,15 +66,13 @@ class FunctionCallerTest
 
 	static void TestFunctionCall()
 	{
-		VariableCollection variableCollection;
 		ParseErrors parseErrors;
-		Stack stack;
+		ExecutionContext executionContext;
 		FunctionStore functionStore;
-		ExecutionFlowSimulator executionFlow(&stack, &variableCollection, 123456);
-		FunctionCaller functionCaller(&functionStore, &stack, &variableCollection, &parseErrors, &executionFlow);
+		ExecutionFlowSimulator executionFlow(&executionContext, 123456);
+		FunctionCaller functionCaller(&functionStore, &executionContext, &parseErrors, &executionFlow);
 
-		stack.CreateFrame();
-		variableCollection.AddAndSet("#A", &Variable(0), 1);
+		executionContext.AddVariableAndSet("#A", &Variable(0));
 
 		functionStore.DefineStart("MyFunction", &parseErrors, 10);
 
@@ -89,16 +85,14 @@ class FunctionCallerTest
 
 	static void TestFunctionCallWithParameter()
 	{
-		VariableCollection variableCollection;
+		ExecutionContext executionContext;
 		ParseErrors parseErrors;
-		Stack stack;
 		FunctionStore functionStore;
-		ExecutionFlowSimulator executionFlow(&stack, &variableCollection, 123456);
-		FunctionCaller functionCaller(&functionStore, &stack, &variableCollection, &parseErrors, &executionFlow);
+		ExecutionFlowSimulator executionFlow(&executionContext, 123456);
+		FunctionCaller functionCaller(&functionStore, &executionContext, &parseErrors, &executionFlow);
 
-		stack.CreateFrame();
-		variableCollection.AddAndSet("#A", &Variable(1), 1);
-		variableCollection.AddAndSet("#A0", &Variable(15.5F), 1);
+		executionContext.AddVariableAndSet("#A", &Variable(1));
+		executionContext.AddVariableAndSet("#A0", &Variable(15.5F), 1);
 
 		functionStore.DefineStart("MyFunction", &parseErrors, 10);
 
