@@ -37,17 +37,13 @@ public:
 
 class ExecutionFlowTest
 {
-
-	static LedMessageHandlerSimulator RunProgram(CommandSourceSimulator* pCommandSource)
+	static void RunProgram(CommandSourceSimulator* pCommandSource, LedMessageHandlerSimulator* pLedMessageHandlerSimulator)
 	{
 		ParseErrors parseErrors;
-		LedMessageHandlerSimulator ledMessageHandlerSimulator;
-		ExecutionFlow executionFlow(pCommandSource, &parseErrors, &ledMessageHandlerSimulator);
+		ExecutionFlow executionFlow(pCommandSource, &parseErrors, pLedMessageHandlerSimulator);
 
 		executionFlow.RunProgram(1);
 		Assert::AreEqual(0, parseErrors.GetErrorCount());
-
-		return ledMessageHandlerSimulator;
 	}
 
 	static void Test()
@@ -58,7 +54,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(10,0,10.0)");
 		commandSource.AddCommand("A(10)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 		AssertResult(ledMessageHandlerSimulator._commandResults[0], 10, 0, 10.0F);
@@ -105,7 +102,7 @@ class ExecutionFlowTest
 		AssertResult(ledMessageHandlerSimulator._commandResults[1], 5, 0, 10.0F);
 	}
 
-	static void AssertResult(CommandResult commandResult, int cycleCount, int channel, float brightness)
+	static void AssertResult(CommandResult& commandResult, int cycleCount, int channel, float brightness)
 	{
 		Assert::AreEqual(cycleCount, commandResult.GetCycleCount());
 		LedState ledState = commandResult.GetTarget(0);
@@ -132,8 +129,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(9, ledMessageHandlerSimulator._commandResultCount);
 
@@ -159,8 +156,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(5, ledMessageHandlerSimulator._commandResultCount);
 
@@ -184,8 +181,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(4, ledMessageHandlerSimulator._commandResultCount);
 
@@ -208,8 +205,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(3, ledMessageHandlerSimulator._commandResultCount);
 
@@ -234,8 +231,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(9, ledMessageHandlerSimulator._commandResultCount);
 
@@ -260,8 +257,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(4, ledMessageHandlerSimulator._commandResultCount);
 
@@ -287,8 +284,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(15,15,15.0)");
 		commandSource.AddCommand("A(15)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(4, ledMessageHandlerSimulator._commandResultCount);
 
@@ -309,8 +306,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("ENDFOR");
 		commandSource.AddCommand("DI(15,15,15.0)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(4, ledMessageHandlerSimulator._commandResultCount);
 
@@ -349,8 +346,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("D(5,2,1.0)");
 		commandSource.AddCommand("A(5)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(2, ledMessageHandlerSimulator._commandResultCount);
 
@@ -422,8 +419,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("ENDFOR");
 		commandSource.AddCommand("A(1)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 	}
@@ -478,8 +475,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("A=Function()");
 		commandSource.AddCommand("DI(A, 2, 1.0)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -496,7 +493,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("A=Function()");
 		commandSource.AddCommand("DI(1, 2, A)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 		Variable* pBrightness = ledMessageHandlerSimulator._commandResults[0].GetTarget(0).GetBrightness();
@@ -520,8 +518,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("B=FunctionOuter()");
 		commandSource.AddCommand("DI(B, 2, 1.0)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -541,8 +539,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("B=Function2(3, Function(1, 3), 6)");
 		commandSource.AddCommand("DI(B, 2, 1.0)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -561,8 +559,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("B=Function(RAND(0,10))");
 		commandSource.AddCommand("DI(B, 2, 1.0)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -579,8 +577,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("Function()");
 		commandSource.AddCommand("DI(5, 2, 1.0)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -598,8 +596,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("DI(1, 2, 1.0)");
 
 		Serial.SetOutput(false);
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("Hello\n", Serial.GetLastString());
@@ -615,7 +613,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("Function(13)");
 
 		Serial.SetOutput(false);
-		RunProgram(&commandSource);
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("13.000000\n", Serial.GetLastString());
@@ -631,8 +630,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("Function(1, 12)");
 
 		Serial.SetOutput(false);
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("12.000000\n", Serial.GetLastString());
@@ -749,7 +748,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("ENDFUNC");
 		commandSource.AddCommand("DI(F(1), F(2), F(3))");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 		AssertResult(ledMessageHandlerSimulator._commandResults[0], 1, 2, 3.0F);
@@ -770,7 +770,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("P(F(1))");
 
 		Serial.SetOutput(false);
-		RunProgram(&commandSource);
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("13.000000", Serial.GetLastString());
@@ -786,7 +787,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("Function(1, 2, 3)");
 
 		Serial.SetOutput(false);
-		RunProgram(&commandSource);
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("1.000000\n", Serial.GetLastString());
@@ -802,8 +804,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("  ENDIF");
 		commandSource.AddCommand("DI(15,15,15.0)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(2, ledMessageHandlerSimulator._commandResultCount);
 
@@ -821,8 +823,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("ENDIF");
 		commandSource.AddCommand("DI(15,15,15.0)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -840,8 +842,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("DI(15,15,15.0)");
 		commandSource.AddCommand("ENDIF");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -859,8 +861,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("DI(15,15,15.0)");
 		commandSource.AddCommand("ENDIF");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -880,8 +882,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("DI(15,15,15.0)");
 		commandSource.AddCommand("ENDIF");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -901,8 +903,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("DI(15,15,15.0)");
 		commandSource.AddCommand("ENDIF");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -922,8 +924,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("DI(15,15,15.0)");
 		commandSource.AddCommand("ENDIF");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -955,8 +957,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("B=3");
 		AddCommands(commandSource);
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -970,8 +972,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("B=4");
 		AddCommands(commandSource);
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -985,8 +987,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("B=3");
 		AddCommands(commandSource);
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -1000,8 +1002,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("B=2");
 		AddCommands(commandSource);
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 
@@ -1018,8 +1020,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("Value++");
 		commandSource.AddCommand("DI(Value, Value, Value)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(2, ledMessageHandlerSimulator._commandResultCount);
 
@@ -1037,8 +1039,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("Value--");
 		commandSource.AddCommand("DI(Value, Value, Value)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(2, ledMessageHandlerSimulator._commandResultCount);
 
@@ -1055,8 +1057,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("DI(Test, Test, Test)");
 		commandSource.AddCommand("DI(Value, Value, Value)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(2, ledMessageHandlerSimulator._commandResultCount);
 
@@ -1071,7 +1073,8 @@ class ExecutionFlowTest
 
 		commandSource.AddCommand("DI(10, 15, {0.5, 1.0, 0.4})");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(1, ledMessageHandlerSimulator._commandResultCount);
 		LedState ledState = ledMessageHandlerSimulator._commandResults[0].GetTarget(0);
@@ -1099,8 +1102,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("	ENDFUNC");
 		commandSource.AddCommand("	Scan(1, 0, 0)");
 
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
-
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 
 		Assert::AreEqual(28, ledMessageHandlerSimulator._commandResultCount);
 	}
@@ -1118,7 +1121,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("ENDFOR");
 
 		Serial.SetOutput(0);
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 		Serial.SetOutput(1);
 
 		Assert::AreEqual("{1.000000, 0.000000, 2.000000}\n", Serial.GetLastString());
@@ -1209,7 +1213,8 @@ class ExecutionFlowTest
 		commandSource.AddCommand("PL(value)");
 
 		Serial.SetOutput(0);
-		LedMessageHandlerSimulator ledMessageHandlerSimulator = RunProgram(&commandSource);
+		LedMessageHandlerSimulator ledMessageHandlerSimulator;
+		RunProgram(&commandSource, &ledMessageHandlerSimulator);
 		Serial.SetOutput(1);
 
 		Assert::AreEqual("{0.000000, 55.000000, 1.000000}\n", Serial.GetLastString());

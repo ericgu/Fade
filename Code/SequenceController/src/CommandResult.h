@@ -32,6 +32,22 @@ class CommandResult
 			Reset();
 		}
 
+		// Next: add in dynamic allocation...
+
+		CommandResult(const CommandResult& old)
+		{
+			_targetCount = old._targetCount;
+			for (int i = 0; i < TargetMax; i++)
+			{
+				_targets[i] = old._targets[i];
+			}
+			_status = old._status;
+			_cycleCount = old._cycleCount;
+			_targetCountExceeded = old._targetCountExceeded;
+			_aborting = old._aborting;
+		}
+
+
 		void Abort()
 		{
 			_aborting = true;

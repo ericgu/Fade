@@ -1,12 +1,12 @@
 class BuiltInFunctions
 {
-	static bool HandleBuiltInRand(const char* pFunctionName, VariableCollection* pVariableCollection, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInRand(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if (strcmp(pFunctionName, "RAND") == 0)
 		{
 			//Serial.println("    found random: ");
-			Variable* pMinValue = pVariableCollection->GetWithoutErrorCheck("#A0", pStack->GetFrameCount());
-			Variable* pMaxValue = pVariableCollection->GetWithoutErrorCheck("#A1", pStack->GetFrameCount());
+			Variable* pMinValue = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
+			Variable* pMaxValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
 
 			pReturnValue->SetValue((float)MyRandom::GetValue(pMinValue->GetValueInt(), pMaxValue->GetValueInt()));
 			return true;
@@ -15,7 +15,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInDirect(const char* pFunctionName, VariableCollection* pVariableCollection, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInDirect(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if ((strcmp(pFunctionName, "D") == 0 || strcmp(pFunctionName, "DI") == 0))
 		{
@@ -31,9 +31,9 @@ class BuiltInFunctions
 				immediateMode = false;
 			}
 
-			Variable* pArgumentCount = pVariableCollection->GetWithoutErrorCheck("#A", pStack->GetFrameCount());
+			Variable* pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 
-			Variable* pCycleCount = pVariableCollection->GetWithoutErrorCheck("#A0", pStack->GetFrameCount());
+			Variable* pCycleCount = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 
 			if (immediateMode)
 			{
@@ -52,10 +52,10 @@ class BuiltInFunctions
 				char argumentName[10];
 
 				snprintf(argumentName, sizeof(argumentName) / sizeof(char), "#A%d", i);
-				Variable* pChannel = pVariableCollection->GetWithoutErrorCheck(argumentName, pStack->GetFrameCount());
+				Variable* pChannel = pExecutionContext->GetVariableWithoutErrorCheck(argumentName);
 
 				snprintf(argumentName, sizeof(argumentName) / sizeof(char), "#A%d", i + 1);
-				Variable* pBrightness = pVariableCollection->GetWithoutErrorCheck(argumentName, pStack->GetFrameCount());
+				Variable* pBrightness = pExecutionContext->GetVariableWithoutErrorCheck(argumentName);
 
 				pExecutionFlow->GetCommandResult()->AddTarget(LedState(pChannel->GetValueInt(), pBrightness, pCycleCount->GetValueInt()));
 			}
@@ -66,7 +66,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInSequential(const char* pFunctionName, VariableCollection* pVariableCollection, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInSequential(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if ((strcmp(pFunctionName, "S") == 0 || strcmp(pFunctionName, "SI") == 0))
 		{
@@ -82,14 +82,14 @@ class BuiltInFunctions
 				immediateMode = false;
 			}
 
-			Variable* pArgumentCount = pVariableCollection->GetWithoutErrorCheck("#A", pStack->GetFrameCount());
+			Variable* pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 			if (pArgumentCount->GetValueInt() == 0)
 			{
 				pParseErrors->AddError("Invalid S command: ", "expected cycle count after (", lineNumber);
 				return true;
 			}
 
-			Variable* pCycleCount = pVariableCollection->GetWithoutErrorCheck("#A0", pStack->GetFrameCount());
+			Variable* pCycleCount = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 
 			if (immediateMode)
 			{
@@ -101,7 +101,7 @@ class BuiltInFunctions
 				char argumentName[10];
 
 				snprintf(argumentName, sizeof(argumentName) / sizeof(char), "#A%d", channel);
-				Variable* pBrightness = pVariableCollection->GetWithoutErrorCheck(argumentName, pStack->GetFrameCount());
+				Variable* pBrightness = pExecutionContext->GetVariableWithoutErrorCheck(argumentName);
 
 				pExecutionFlow->GetCommandResult()->AddTarget(LedState(channel - 1, pBrightness, pCycleCount->GetValueInt()));
 			}
@@ -112,18 +112,18 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInAnimate(const char* pFunctionName, VariableCollection* pVariableCollection, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInAnimate(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if (strcmp(pFunctionName, "A") == 0)
 		{
-			Variable* pArgumentCount = pVariableCollection->GetWithoutErrorCheck("#A", pStack->GetFrameCount());
+			Variable* pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 			if (pArgumentCount->GetValueInt() == 0)
 			{
 				pParseErrors->AddError("Invalid A command: ", "expected cycle count", lineNumber);
 				return true;
 			}
 
-			Variable* pCycleCount = pVariableCollection->GetWithoutErrorCheck("#A0", pStack->GetFrameCount());
+			Variable* pCycleCount = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 
 			pExecutionFlow->GetCommandResult()->SetCycleCount(pCycleCount->GetValueInt());
 			pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandExecute);
@@ -135,7 +135,7 @@ class BuiltInFunctions
 	}
 
 
-	static bool HandleBuiltInPrint(const char* pFunctionName, VariableCollection* pVariableCollection, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInPrint(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if ((strcmp(pFunctionName, "P") == 0 || strcmp(pFunctionName, "PL") == 0))
 		{
@@ -144,7 +144,7 @@ class BuiltInFunctions
 
 			bool newLine = strcmp(pFunctionName, "PL") == 0;
 
-			Variable* pArgument = pVariableCollection->GetWithoutErrorCheck("#A0", pStack->GetFrameCount());
+			Variable* pArgument = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 
 			if (pArgument->GetValueCount() > 1)
 			{
@@ -184,7 +184,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInAbort(const char* pFunctionName, VariableCollection* pVariableCollection, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInAbort(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if (strcmp(pFunctionName, "ABORT") == 0)
 		{
@@ -195,18 +195,15 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInConfigLed(const char* pFunctionName, VariableCollection* pVariableCollection, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInConfigLed(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if (strcmp(pFunctionName, "CONFIGLED") == 0)
 		{
-			Variable* pLedType = pVariableCollection->GetWithoutErrorCheck("#A0", pStack->GetFrameCount());
-			Variable* pLedCount = pVariableCollection->GetWithoutErrorCheck("#A1", pStack->GetFrameCount());
-			Variable* pLedPin = pVariableCollection->GetWithoutErrorCheck("#A2", pStack->GetFrameCount());
+			Variable* pLedType = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
+			Variable* pLedCount = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+			Variable* pLedPin = pExecutionContext->GetVariableWithoutErrorCheck("#A2");
 
 			pExecutionFlow->ConfigureLeds(pLedType->GetValueString(), pLedCount->GetValueInt(), pLedPin->GetValueInt());
-
-			// strings aren't real variables so they aren't repurposed; we need to delete it explicitly. 
-			pVariableCollection->Delete("#A0", pStack->GetFrameCount());
 
 			return true;
 		}
@@ -222,37 +219,37 @@ public:
 		VariableCollection* pVariableCollection = pExecutionContext->Variables();
 		Stack* pStack = pExecutionContext->GetStack();
 
-		if (HandleBuiltInRand(pFunctionName, pVariableCollection, pStack, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInRand(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInDirect(pFunctionName, pVariableCollection, pStack, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInDirect(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInSequential(pFunctionName, pVariableCollection, pStack, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInSequential(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInAnimate(pFunctionName, pVariableCollection, pStack, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInAnimate(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInPrint(pFunctionName, pVariableCollection, pStack, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInPrint(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInAbort(pFunctionName, pVariableCollection, pStack, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInAbort(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInConfigLed(pFunctionName, pVariableCollection, pStack, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInConfigLed(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}

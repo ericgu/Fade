@@ -53,6 +53,8 @@ public:
 
 	void ConfigureLeds(const char* pLedType, int ledCount, int pin)
 	{
+		//delete _pCommandResult;
+		//_pCommandResult = new CommandResult(ledCount);
 		_pLedMessageHandler->Configure(pLedType, ledCount, pin);
 	}
 
