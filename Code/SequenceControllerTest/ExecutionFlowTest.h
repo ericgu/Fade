@@ -110,14 +110,6 @@ class ExecutionFlowTest
 		Assert::AreEqual(brightness, ledState.GetBrightness()->GetValueFloat(0));
 	}
 
-	static void AssertResult(LedCommand ledCommand, int cycleCount, int channel, float brightness)
-	{
-		Assert::AreEqual(cycleCount, ledCommand._commandResult.GetCycleCount());
-		LedState ledState = ledCommand._commandResult.GetTarget(0);
-		Assert::AreEqual(channel, ledState.GetChannel());
-		Assert::AreEqual(brightness, ledState.GetBrightness()->GetValueFloat(0));
-	}
-
 	static void TestLoop()
 	{
 		CommandSourceSimulator commandSource;

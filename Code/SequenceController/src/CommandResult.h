@@ -15,11 +15,13 @@ enum class CommandResultStatus
 	CommandElseIf = 12
 };
 
-#define TargetMax 16
+//#define TargetMax 16
 
 class CommandResult
 {
-    LedState _targets[TargetMax];
+	//LedState _targets[TargetMax];
+	LedState* _targets = 0;
+	int _targetAllocation;
     int _targetCount = 0;
 	volatile CommandResultStatus _status;
 	int _cycleCount = 0;
@@ -27,17 +29,40 @@ class CommandResult
 	volatile bool _aborting = false;
 
     public:
-		CommandResult()
+		CommandResult(): CommandResult(16)
+		{}
+
+		CommandResult(int targetAllocation)
 		{
+			_targetAllocation = targetAllocation;
+			_targets = new LedState[targetAllocation];
+
 			Reset();
 		}
 
-		// Next: add in dynamic allocation...
-
-		CommandResult(const CommandResult& old)
+		void Cleanup()
 		{
+			if (_targets)
+			{
+				delete _targets;
+				_targets = 0;
+			}
+		}
+
+		~CommandResult()
+		{
+			Cleanup();
+		}
+
+		void DeepCopy(const CommandResult& old)
+		{
+			Cleanup();
+
+			_targetAllocation = old._targetAllocation;
+			_targets = new LedState[_targetAllocation];
+
 			_targetCount = old._targetCount;
-			for (int i = 0; i < TargetMax; i++)
+			for (int i = 0; i < _targetAllocation; i++)
 			{
 				_targets[i] = old._targets[i];
 			}
@@ -47,6 +72,22 @@ class CommandResult
 			_aborting = old._aborting;
 		}
 
+		CommandResult(const CommandResult& old)
+		{
+			DeepCopy(old);
+		}
+
+		CommandResult& operator=(const CommandResult& source)
+		{
+			if (this == &source)
+			{
+				return *this;
+			}
+
+			DeepCopy(source);
+
+			return *this;
+		}
 
 		void Abort()
 		{
@@ -73,7 +114,7 @@ class CommandResult
  
         void AddTarget(LedState ledState)
         {
-			if (_targetCount == TargetMax)
+			if (_targetCount == _targetAllocation)
 			{
 				_targetCountExceeded = true;
 				return;

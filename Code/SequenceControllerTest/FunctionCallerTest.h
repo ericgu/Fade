@@ -10,7 +10,8 @@ class ExecutionFlowSimulator : public IExecutionFlow
 	CommandResult _commandResult;
 
 public:
-	ExecutionFlowSimulator(IExecutionContext* pExecutionContext, int returnValue)
+	ExecutionFlowSimulator(IExecutionContext* pExecutionContext, int returnValue):
+		_commandResult(16)
 	{
 		_pExecutionContext = pExecutionContext;
 		_returnValue = returnValue;

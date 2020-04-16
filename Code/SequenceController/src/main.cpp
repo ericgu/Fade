@@ -27,7 +27,6 @@
 #include "LedState.h"
 #include "CommandResult.h"
 #include "IExecutionFlow.h"
-#include "LedCommand.h"
 #include "ILedDevice.h"
 #include "LedPwmEsp32.h"
 #include "LedRGB.h"
@@ -46,12 +45,11 @@
 #include "ILedMessageHandler.h"
 #include "ExecutionFlow.h"
 #include "Timebase.h"
-
-#include <WiFi.h>          
+#include <WiFi.h>
 
 #include <DNSServer.h>
 #include <WebServer.h>
-#include <WiFiManager.h>     
+#include <WiFiManager.h>
 #include <UdpLogger.h>
 
 #include <ArduinoNvs.h>
@@ -60,121 +58,120 @@
 
 #include "MyWebServer.h"
 
-LedDeviceCreator* _pLedDeviceCreator;
-ILedDevice* _pLedDevice;
-LedManager* _pLedManager;
+LedDeviceCreator *_pLedDeviceCreator;
+ILedDevice *_pLedDevice;
+LedManager *_pLedManager;
 
-Supervisor* _pSupervisor;
-Settings* _pSettings;
+Supervisor *_pSupervisor;
+Settings *_pSettings;
 
-MyWebServer* pMyWebServer;
+MyWebServer *pMyWebServer;
 
 void Callback()
 {
-  //Serial.println("Callback");
-  //pMyWebServer->HandleClient();
+    //Serial.println("Callback");
+    //pMyWebServer->HandleClient();
 
-  //TrackMemory();
-    
-  //delay(10);
+    //TrackMemory();
+
+    //delay(10);
 }
 
-void RunDim( void * parameter )
+void RunDim(void *parameter)
 {
-  Serial.println("RunDim Start");
-  StackWatcher::Init();
-  //StackWatcher::Enable();
+    Serial.println("RunDim Start");
+    StackWatcher::Init();
+    //StackWatcher::Enable();
 
-  StackWatcher::Log("Task Start");
-  _pSupervisor->ExecuteLoop();
+    StackWatcher::Log("Task Start");
+    _pSupervisor->ExecuteLoop();
 }
 
-void HandleWebClient( void * parameter )
+void HandleWebClient(void *parameter)
 {
-  Serial.println("HandleWedClient Start");
-  while (true)
-  {
-      pMyWebServer->HandleClient();
-      delay(25);
-  }
+    Serial.println("HandleWedClient Start");
+    while (true)
+    {
+        pMyWebServer->HandleClient();
+        delay(25);
+    }
 }
 
-void setup() {
+void setup()
+{
 
-  Serial.begin(115200);
-  Serial.println("setup"); Serial.flush();
-  StackWatcher::Log("setup");
-  _pSupervisor = new Supervisor();
-  _pSettings = new Settings();
-  WiFi.setHostname(_pSupervisor->GetNodeName());
+    Serial.begin(115200);
+    Serial.println("setup");
+    Serial.flush();
+    StackWatcher::Log("setup");
+    _pSupervisor = new Supervisor();
+    _pSettings = new Settings();
+    WiFi.setHostname(_pSupervisor->GetNodeName());
 
-  //_pLedPwm = new LedPwmEsp32();
-  //_pLedManager = new LedManager(_pLedPwm, 16);
+    //_pLedPwm = new LedPwmEsp32();
+    //_pLedManager = new LedManager(_pLedPwm, 16);
 
-  _pLedDeviceCreator = new LedDeviceCreator();
-  //_pLedDevice = new LedRGB(33, 13);
-  
-  WiFiManager wifiManager;
-  
-  wifiManager.autoConnect("SequenceController", "12345678");
-  //wifiManager.startConfigPortal("SequenceController", "12345678");
-  Serial.print("after autoconnect: ");
-  Serial.println(WiFi.localIP());
+    _pLedDeviceCreator = new LedDeviceCreator();
+    //_pLedDevice = new LedRGB(33, 13);
 
-  pMyWebServer = new MyWebServer(_pSupervisor, WiFi.localIP());
+    WiFiManager wifiManager;
 
-  _pSettings->Init();
-  _pLedManager = new LedManager(_pLedDeviceCreator);
-  _pSupervisor->Init(_pLedManager, _pSettings, Callback);
+    wifiManager.autoConnect("SequenceController", "12345678");
+    //wifiManager.startConfigPortal("SequenceController", "12345678");
+    Serial.print("after autoconnect: ");
+    Serial.println(WiFi.localIP());
 
-  Serial.println("Setup completed");
+    pMyWebServer = new MyWebServer(_pSupervisor, WiFi.localIP());
+
+    _pSettings->Init();
+    _pLedManager = new LedManager(_pLedDeviceCreator);
+    _pSupervisor->Init(_pLedManager, _pSettings, Callback);
+
+    Serial.println("Setup completed");
 
     xTaskCreate(
-                    RunDim,           /* Task function. */
-                    "Dim",            /* String with name of task. */
-                    40000,            /* Stack size in bytes. */
-                    NULL,             /* Parameter passed as input of the task */
-                    5,                /* Priority of the task. */
-                    NULL);            /* Task handle. */
+        RunDim, /* Task function. */
+        "Dim",  /* String with name of task. */
+        40000,  /* Stack size in bytes. */
+        NULL,   /* Parameter passed as input of the task */
+        5,      /* Priority of the task. */
+        NULL);  /* Task handle. */
 
     xTaskCreate(
-                    HandleWebClient,           /* Task function. */
-                    "HandleWebClient",            /* String with name of task. */
-                    10000,            /* Stack size in bytes. */
-                    NULL,             /* Parameter passed as input of the task */
-                    5,                /* Priority of the task. */
-                    NULL);            /* Task handle. */
-
+        HandleWebClient,   /* Task function. */
+        "HandleWebClient", /* String with name of task. */
+        10000,             /* Stack size in bytes. */
+        NULL,              /* Parameter passed as input of the task */
+        5,                 /* Priority of the task. */
+        NULL);             /* Task handle. */
 }
 
+int iterations = 0;
 
-
- int iterations = 0;
-
- void TrackMemory()
- {
+void TrackMemory()
+{
     if (iterations % 100 == 0)
     {
-      Serial.print(iterations);
-      Serial.print(" = ");
-      Serial.println(ESP.getFreeHeap());
+        Serial.print(iterations);
+        Serial.print(" = ");
+        Serial.println(ESP.getFreeHeap());
     }
     iterations++;
- }
+}
 
-void loop() 
+void loop()
 {
-  //pMyWebServer->HandleClient();
-  vTaskDelay(10);
+    //pMyWebServer->HandleClient();
+    vTaskDelay(10);
 
-  //StackWatcher::Log("loop");
-  //_pSupervisor->ExecuteLoop();
+    //StackWatcher::Log("loop");
+    //_pSupervisor->ExecuteLoop();
 
-  //pMyWebServer->HandleClient();
+    //pMyWebServer->HandleClient();
 
-  //supervisor.Execute();
+    //supervisor.Execute();
 
-  //TrackMemory();
-    
-  //delay(10);
+    //TrackMemory();
+
+    //delay(10);
 }

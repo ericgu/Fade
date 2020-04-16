@@ -9,6 +9,8 @@ public:
 	Command _command;
 	bool _aborting = false;
 
+	MockExecutionFlow() : _commandResult(16) {}
+
 	virtual CommandResultStatus RunProgram(int runCount = -1) 
 	{
 		return CommandResultStatus::CommandNone;

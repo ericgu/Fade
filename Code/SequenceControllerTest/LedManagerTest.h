@@ -87,7 +87,7 @@ class LedManagerTest
 		LedManager ledManager(&ledCreator);
 		ledManager.Configure("", 1, 555);
 
-		CommandResult commandResult;
+		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 1.0, 1));
 		commandResult.SetCycleCount(1);
 
@@ -106,7 +106,7 @@ class LedManagerTest
 		LedManager ledManager(&ledCreator);
 		ledManager.Configure("", 2, 555);
 
-		CommandResult commandResult;
+		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 1.0, 1));
 		commandResult.AddTarget(LedState(1, 2.0, 1));
 		commandResult.SetCycleCount(1);
@@ -136,7 +136,7 @@ class LedManagerTest
 		LedManager ledManager(&ledCreator);
 		ledManager.Configure("", 1, 555);
 
-		CommandResult commandResult;
+		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 20.0, 10));
 		commandResult.SetCycleCount(10);
 
@@ -158,7 +158,7 @@ class LedManagerTest
 		LedManager ledManager(&ledCreator);
 		ledManager.Configure("", 2, 555);
 
-		CommandResult commandResult;
+		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 10.0, 5));
 		commandResult.AddTarget(LedState(1, 20.0, 20));
 		commandResult.SetCycleCount(5);
@@ -187,7 +187,7 @@ class LedManagerTest
 		LedManager ledManager(&ledCreator);
 		ledManager.Configure("", 1, 555);
 
-		CommandResult commandResult;
+		CommandResult commandResult(16);
 		Variable target;
 		target.SetValue(0, 1.0F);
 		target.SetValue(1, 0.5F);
@@ -209,7 +209,7 @@ class LedManagerTest
 		LedManager ledManager(&ledCreator);
 		ledManager.Configure("", 1, 555);
 
-		CommandResult commandResult;
+		CommandResult commandResult(16);
 		Variable target;
 		target.SetValue(0, 1.0F);
 		target.SetValue(1, 2.0F);
@@ -236,7 +236,7 @@ class LedManagerTest
 		LedManager ledManager(&ledCreator);
 		ledManager.Configure("", 1, 555);
 
-		CommandResult commandResult;
+		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(1, 1.0, 1));
 		commandResult.SetCycleCount(1);
 

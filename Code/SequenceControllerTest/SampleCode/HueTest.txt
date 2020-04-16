@@ -1,33 +1,45 @@
 CONFIGLED("RGB", 33, 13)
 FUNC AngleToRGB(angleInDegrees)
-  PL(angleInDegrees)  
+  //PL(angleInDegrees)  
   
+  brightness = 0.25
   IF (angleInDegrees <= 120)    
-    temp = angleInDegrees / 120
-    value = {temp, 0, 1 - temp}    
+    temp = angleInDegrees / 120 * brightness 
+    value = {temp, 0, brightness - temp}    
   ELSEIF (angleInDegrees <= 240)   
-    temp = (angleInDegrees-120) / 120
-    value = {1 - temp, temp, 0}    
+    temp = (angleInDegrees-120) / 120 * brightness 
+    value = {brightness - temp, temp, 0}    
   ELSE    
-    temp = (angleInDegrees-240) / 120
-    value = {0, 1 - temp, temp}    
+    temp = (angleInDegrees-240) / 120 * brightness 
+    value = {0, brightness - temp, temp}    
   ENDIF
   RETURN value
 ENDFUNC
+
 FUNC DoChunk(chunk, offset, angle)
-  PL("DoChunk")
-  rgb = AngleToRGB(angle)
+  //PL("DoChunk")
+  rgb = AngleToRGB((angle + offset) % 360)
   //rgb = {1, 2, 3}
-  PL(rgb)
+  //PL(rgb)
   start = chunk * 3
-  D(10, start, rgb)
-  D(10, start + 1, rgb)
-  D(10, start + 2, rgb)
-  A(10)
+  D(5, start, rgb)
+  D(5, start + 1, rgb)
+  D(5, start + 2, rgb)
+  
 ENDFUNC
 
 PL("hello")
 FOR angle 0:359:5
   PL(angle)
   DoChunk(0, 0, angle)
-ENDFOR        
+  DoChunk(1, 72, angle)
+  DoChunk(2, 144, angle)
+  DoChunk(3, 216, angle)
+  DoChunk(4, 288, angle)
+  DoChunk(5, 252, angle)
+  DoChunk(6, 180, angle)
+  DoChunk(7, 108, angle)
+  DoChunk(8, 36, angle)
+  DoChunk(9, 324, angle)
+  A(5)
+ENDFOR     
