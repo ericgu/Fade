@@ -67,7 +67,7 @@ class Timebase: public ILedMessageHandler
 		void ExecuteLedCommandMember(CommandResult* pCommandResult)
 		{
 			_currentCount = pCommandResult->GetCycleCount();
-			_pLedManager->SetDelta(*pCommandResult);
+			_pLedManager->SetDelta(pCommandResult);
 
 			while (_currentCount > 0)
 			{

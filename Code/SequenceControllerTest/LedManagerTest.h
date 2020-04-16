@@ -91,7 +91,7 @@ class LedManagerTest
 		commandResult.AddTarget(LedState(0, 1.0, 1));
 		commandResult.SetCycleCount(1);
 
-		ledManager.SetDelta(commandResult);
+		ledManager.SetDelta(&commandResult);
 		ledManager.Tick();
 
 		Assert::AreEqual(1, ledDevice.GetUpdateCount());
@@ -111,7 +111,7 @@ class LedManagerTest
 		commandResult.AddTarget(LedState(1, 2.0, 1));
 		commandResult.SetCycleCount(1);
 
-		ledManager.SetDelta(commandResult);
+		ledManager.SetDelta(&commandResult);
 
 		ledManager.Tick();
 
@@ -140,7 +140,7 @@ class LedManagerTest
 		commandResult.AddTarget(LedState(0, 20.0, 10));
 		commandResult.SetCycleCount(10);
 
-		ledManager.SetDelta(commandResult);
+		ledManager.SetDelta(&commandResult);
 
 		for (int i = 1; i < 6; i++)
 		{
@@ -163,7 +163,7 @@ class LedManagerTest
 		commandResult.AddTarget(LedState(1, 20.0, 20));
 		commandResult.SetCycleCount(5);
 
-		ledManager.SetDelta(commandResult);
+		ledManager.SetDelta(&commandResult);
 
 		ledManager.Tick();
 
@@ -195,7 +195,7 @@ class LedManagerTest
 		commandResult.AddTarget(LedState(0, &target, 1));
 		commandResult.SetCycleCount(1);
 
-		ledManager.SetDelta(commandResult);
+		ledManager.SetDelta(&commandResult);
 		ledManager.Tick();
 
 		Assert::AreEqual(1, ledDevice.GetUpdateCount());
@@ -217,7 +217,7 @@ class LedManagerTest
 		commandResult.AddTarget(LedState(0, &target, 2));
 		commandResult.SetCycleCount(2);
 
-		ledManager.SetDelta(commandResult);
+		ledManager.SetDelta(&commandResult);
 		ledManager.Tick();
 
 		Assert::AreEqual(1, ledDevice.GetUpdateCount());
@@ -240,7 +240,7 @@ class LedManagerTest
 		commandResult.AddTarget(LedState(1, 1.0, 1));
 		commandResult.SetCycleCount(1);
 
-		ledManager.SetDelta(commandResult);
+		ledManager.SetDelta(&commandResult);
 		ledManager.Tick();
 
 		Assert::AreEqual(1, ledDevice.GetUpdateCount());

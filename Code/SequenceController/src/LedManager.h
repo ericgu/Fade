@@ -2,7 +2,7 @@
 class ILedManager
 {
 public:
-	virtual void SetDelta(CommandResult commandResult) = 0;
+	virtual void SetDelta(CommandResult* commandResult) = 0;
 
 	virtual void Tick() = 0;
 	virtual void ResetState() = 0;
@@ -76,16 +76,17 @@ class LedManager: public ILedManager
 			}
 		}
 
-		void SetDelta(CommandResult commandResult)
+		void SetDelta(CommandResult* pCommandResult)
 		{
+			//CommandResult commandResult = *pcommandResult;
 			//for (int channel = 0; channel < _channelCount; channel++)
 			//{
 			//	_deltas[channel] = LedState(channel, 0, 0);
 			//}
 
-			for (int item = 0; item < commandResult.GetCount(); item++)
+			for (int item = 0; item < pCommandResult->GetCount(); item++)
 			{
-				LedState ledState = commandResult.GetTarget(item);
+				LedState ledState = pCommandResult->GetTarget(item);
 				Variable* pTargetBrightness = ledState.GetBrightness();
 
 				if (ledState.GetChannel() < _channelCount)

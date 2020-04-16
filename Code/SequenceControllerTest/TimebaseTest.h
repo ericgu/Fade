@@ -12,9 +12,9 @@ public:
 	int _ledCount;
 	int _ledPin;
 
-	void SetDelta(CommandResult commandResult)
+	void SetDelta(CommandResult* pCommandResult)
 	{
-		_commandResult = commandResult;
+		_commandResult = *pCommandResult;
 	}
 
 	void ResetState()
@@ -27,9 +27,9 @@ public:
 		_tickCount++;
 	}
 
-	CommandResult GetCommandResult()
+	CommandResult* GetCommandResult()
 	{
-		return _commandResult;
+		return &_commandResult;
 	}
 
 	int GetTickCount()
@@ -60,11 +60,11 @@ class TimebaseTest
 
 		timebase.RunProgram(1);
 
-		Assert::AreEqual(10, ledManager.GetCommandResult().GetCycleCount());
+		Assert::AreEqual(10, ledManager.GetCommandResult()->GetCycleCount());
 
-		CommandResult commandResult = ledManager.GetCommandResult();
-		Assert::AreEqual(1, commandResult.GetCount());
-		LedState ledState = commandResult.GetTarget(0);
+		CommandResult* pCommandResult = ledManager.GetCommandResult();
+		Assert::AreEqual(1, pCommandResult->GetCount());
+		LedState ledState = pCommandResult->GetTarget(0);
 		Assert::AreEqual(0, ledState.GetChannel());
 		Assert::AreEqual(10.0F, ledState.GetBrightness()->GetValueFloat(0));
 
@@ -90,17 +90,17 @@ class TimebaseTest
 
 		timebase.RunProgram(1);
 
-		CommandResult commandResult = ledManager.GetCommandResult();
-		Assert::AreEqual(1, commandResult.GetCount());
-		LedState ledState = commandResult.GetTarget(0);
+		CommandResult* pCommandResult = ledManager.GetCommandResult();
+		Assert::AreEqual(1, pCommandResult->GetCount());
+		LedState ledState = pCommandResult->GetTarget(0);
 		Assert::AreEqual(0, ledState.GetChannel());
 		Assert::AreEqual(10.0F, ledState.GetBrightness()->GetValueFloat(0));
 
 		timebase.RunProgram(1);
 
-		commandResult = ledManager.GetCommandResult();
-		Assert::AreEqual(1, commandResult.GetCount());
-		ledState = commandResult.GetTarget(0);
+		pCommandResult = ledManager.GetCommandResult();
+		Assert::AreEqual(1, pCommandResult->GetCount());
+		ledState = pCommandResult->GetTarget(0);
 		Assert::AreEqual(0, ledState.GetChannel());
 		Assert::AreEqual(10.0F, ledState.GetBrightness()->GetValueFloat(0));
 
@@ -125,8 +125,8 @@ class TimebaseTest
 
 		timebase.RunProgram(1);
 
-		CommandResult commandResult = ledManager.GetCommandResult();
-		LedState ledState = commandResult.GetTarget(0);
+		CommandResult* pCommandResult = ledManager.GetCommandResult();
+		LedState ledState = pCommandResult->GetTarget(0);
 
 	}
 
