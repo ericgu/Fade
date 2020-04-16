@@ -23,11 +23,52 @@ public:
 		delete _pLoop;
 	}
 
+    void RDDecodeFor(ExecutionContext* pExecutionContext, Command* pCommand, ParseErrors* pParseErrors, IExecutionFlow* pExecutionFlow)
+    {
+        ExpressionTokenSource expressionTokenSource(pCommand->GetString(), pParseErrors);
+
+        if (expressionTokenSource.EqualTo("FOR"))
+        {
+            expressionTokenSource.Advance();
+
+            char identifier[64];
+            SafeString::StringCopy(identifier, expressionTokenSource.GetCurrentNode()->_pItem, sizeof(identifier));
+            expressionTokenSource.Advance();
+            Variable initialValue = pExecutionContext->Evaluate(expressionTokenSource.GetCurrentNode()->_pItem, pParseErrors, pCommand->GetLineNumber(), pExecutionFlow);
+
+            expressionTokenSource.Advance();
+            if (expressionTokenSource.FirstChar() != ':')
+            {
+                int k = 12;
+            }
+            expressionTokenSource.Advance();
+            Variable endValue = pExecutionContext->Evaluate(expressionTokenSource.GetCurrentNode()->_pItem, pParseErrors, pCommand->GetLineNumber(), pExecutionFlow);
+            expressionTokenSource.Advance();
+
+            Variable increment(1.0F);
+            if (expressionTokenSource.FirstChar() == ':')
+            {
+                expressionTokenSource.Advance();
+                increment = pExecutionContext->Evaluate(expressionTokenSource.GetCurrentNode()->_pItem, pParseErrors, pCommand->GetLineNumber(), pExecutionFlow);
+                expressionTokenSource.Advance();
+            }
+
+            if (expressionTokenSource.GetCurrentNode() != 0)
+            {
+                int j = 15; // error - unexpected token at the end of FOR statement
+            }
+
+            int v = 156;
+        }
+    }
+
 	bool DecodeFor(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
+        //RDDecodeFor(pExecutionContext, pCommand, pParseErrors, pExecutionFlow);
+
 		Profiler.Start("DecodeFor");
 
-		if (!_pLoop->Parse(pCommand->GetString(), pExecutionContext, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow))
+		if (!_pLoop->Parse(pCommand->GetString(), pExecutionContext, pParseErrors, pCommand->GetLineNumber(), pExecutionFlow))
 		{
 			return false;
 		}
@@ -45,11 +86,11 @@ public:
 
 		StackWatcher::Log("CommandDecoder::DecodeFor b");
 
-		int forLoopSerialNumber = pCommand->GetSerialNumber();
+		int forLoopLineNumber = pCommand->GetLineNumber();
 
 		while (true)
 		{
-			pExecutionContext->StackTopFrame()->SetInstructionPointer(forLoopSerialNumber + 1, "DecodeFor");
+			pExecutionContext->StackTopFrame()->SetInstructionPointer(forLoopLineNumber + 1, "DecodeFor");
 
 			//Serial.print(pLoopVariable->GetVariableName()); Serial.print(" "); Serial.println(pLoopVariable->GetValueFloat(0));
 			CommandResultStatus commandResultStatus = pExecutionFlow->RunProgram(1);
@@ -85,7 +126,6 @@ public:
 		if (pCommand->StartsWith("ENDFOR"))
 		{
 			StackWatcher::Log("CommandDecoder::DecodeEndFor");
-			pExecutionContext->StackTopFrame()->SerialNumberEnd = pCommand->GetSerialNumber();
 
 			pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandEndOfLoop);
 			return true;
@@ -110,7 +150,7 @@ public:
 			Command* pNextCommand = pExecutionFlow->GetCommand(statementIndex);
 			//Serial.print("Scan => ");
 			//Serial.println(pNextCommand->GetString());
-			if (pNextCommand->GetSerialNumber() == -1)
+			if (pNextCommand->GetLineNumber() == -1)
 			{
 				return -1;
 			}
@@ -129,7 +169,7 @@ public:
 					Variable condition = pExecutionContext->Evaluate(
 						pNextCommand->GetString() + offset,
 						pParseErrors,
-						pNextCommand->GetSerialNumber(),
+						pNextCommand->GetLineNumber(),
 						pExecutionFlow);
 
 					if (condition.GetValueInt() != 0)
@@ -164,7 +204,7 @@ public:
 		while (true)
 		{
 			Command* pNextCommand = pExecutionFlow->GetCommand(statementIndex);
-			if (pNextCommand->GetSerialNumber() == -1)
+			if (pNextCommand->GetLineNumber() == -1)
 			{
 				return -1;
 			}
@@ -206,7 +246,7 @@ public:
 			int endIfIndex = FindEndif(pExecutionContext, pExecutionFlow, ifStatementIndex);
 			if (endIfIndex == -1)
 			{
-				pParseErrors->AddError("Missing ENDIF", "", pCommand->GetSerialNumber());
+				pParseErrors->AddError("Missing ENDIF", "", pCommand->GetLineNumber());
 				return true;
 			}
 
@@ -251,7 +291,7 @@ public:
 		{
 			if (pExecutionContext->_functionStore.GetIsCurrentlyParsingFunction())
 			{
-				pExecutionContext->_functionStore.DefineEnd(pCommand->GetSerialNumber());
+				pExecutionContext->_functionStore.DefineEnd(pCommand->GetLineNumber());
 			}
 			else
 			{
@@ -314,7 +354,7 @@ public:
 			}
 			else
 			{
-				pExecutionContext->_functionStore.DefineStart(_pListParser->GetItem(0), pParseErrors, pCommand->GetSerialNumber());
+				pExecutionContext->_functionStore.DefineStart(_pListParser->GetItem(0), pParseErrors, pCommand->GetLineNumber());
 			}
 
 			return true;
@@ -327,7 +367,7 @@ public:
 	{
 		StackWatcher::Log("CommandDecoder::DecodeExpression");
 		Profiler.Start("DecodeExpression");
-		pExecutionContext->Evaluate(pCommand->GetString(), pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
+		pExecutionContext->Evaluate(pCommand->GetString(), pParseErrors, pCommand->GetLineNumber(), pExecutionFlow);
 
 		return true;
 	}
@@ -339,7 +379,7 @@ public:
 		{
 			const char* pCommandString = pCommand->GetString() + 7;
 
-			Variable result = pExecutionContext->Evaluate(pCommandString, pParseErrors, pCommand->GetSerialNumber(), pExecutionFlow);
+			Variable result = pExecutionContext->Evaluate(pCommandString, pParseErrors, pCommand->GetLineNumber(), pExecutionFlow);
 
 			pExecutionContext->AddVariableAndSet("<ReturnValue>", &result);
 
@@ -376,7 +416,7 @@ public:
 public:
     void Decode(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow = 0)
     {
-		//Serial.print(pCommand->GetSerialNumber()); Serial.print(" "); Serial.println(pCommand->GetString());
+		//Serial.print(pCommand->GetLineNumber()); Serial.print(" "); Serial.println(pCommand->GetString());
 
 		if (DecodeWhitespaceOrCommentCommand(pExecutionContext, pParseErrors, pCommand, pExecutionFlow)) { return; }
 

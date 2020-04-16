@@ -10,8 +10,7 @@ class FunctionStoreTest
 		pFunctionDefinition = functionStore.Lookup(pName);
 
 		Assert::AreEqual(pName, pFunctionDefinition->Name);
-		Assert::AreEqual(serialNumberStart, pFunctionDefinition->SerialNumberStart);
-		Assert::AreEqual(serialNumberend, pFunctionDefinition->SerialNumberEnd);
+		Assert::AreEqual(serialNumberStart, pFunctionDefinition->LineNumberStart);
 	}
 
 	static void TestDefineFunction()

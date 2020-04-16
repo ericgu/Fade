@@ -41,9 +41,8 @@ public:
 		if (pFunctionDefinition != 0)
 		{
 			StackFrame* pStackFrame = _pExecutionContext->StackTopFrame();
-			pStackFrame->SerialNumberStart = pFunctionDefinition->SerialNumberStart;
-			pStackFrame->SerialNumberEnd = pFunctionDefinition->SerialNumberEnd;
-			pStackFrame->SetInstructionPointer(pFunctionDefinition->SerialNumberStart, "DoFunctionCall");
+			pStackFrame->LineNumberStart = pFunctionDefinition->LineNumberStart;
+			pStackFrame->SetInstructionPointer(pFunctionDefinition->LineNumberStart, "DoFunctionCall");
 
     		StackWatcher::Log("FunctionCaller::Call");
 

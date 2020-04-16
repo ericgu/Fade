@@ -24,7 +24,7 @@ public:
 		_pCurrentNode = &_node;
 		_value[0] = '\0';
 		_node._pItem = _value;
-		_node._itemLength = -100;
+		//_node._itemLength = -100;
 
 		Advance();
 	}
@@ -217,7 +217,8 @@ public:
 			case ',': 
 			case '*': 
 			case '/': 
-			case '%': CopyToToken(c); return;
+			case '%': 
+            case ':': CopyToToken(c); return;
 
 			case '-': CopyToToken(Match('-') ? "--" : "-"); return;
 			case '+': CopyToToken(Match('+') ? "++" : "+"); return;

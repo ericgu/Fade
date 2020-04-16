@@ -5,21 +5,18 @@ public:
 
 	FunctionDefinition()
 	{
-		SerialNumberStart = 0;
-		SerialNumberEnd = 0;
+		LineNumberStart = 0;
 		Name[0] = '\0';
 	}
 
-	FunctionDefinition(const char* pName, int serialNumberStart)
+	FunctionDefinition(const char* pName, int lineNumberStart)
 	{
 		SafeString::StringCopy(Name, pName, sizeof(Name));
-		SerialNumberStart = serialNumberStart;
-		SerialNumberEnd = -1;
+        LineNumberStart = lineNumberStart;
 	}
 
 	char Name[FunctionNameMax];
-	int SerialNumberStart;
-	int SerialNumberEnd;
+	int LineNumberStart;
 };
 
 class FunctionStore
@@ -69,8 +66,7 @@ public:
 		}
 
 		SafeString::StringCopy(pCurrent->Name, pFunctionName, sizeof(pCurrent->Name));
-		pCurrent->SerialNumberStart = serialNumberStart;
-		pCurrent->SerialNumberEnd = -1;
+		pCurrent->LineNumberStart = serialNumberStart;
 
 		_functionDefinitionCount++;
 
@@ -86,7 +82,6 @@ public:
 			return;
 		}
 
-		_pCurrentFunctionDefinition->SerialNumberEnd = serialNumberEnd;
 		_pCurrentFunctionDefinition = 0;
 	}
 

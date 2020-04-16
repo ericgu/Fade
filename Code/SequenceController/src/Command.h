@@ -2,23 +2,23 @@ class Command
 {
     private:
 		char _commandString[128];
-		int _serialNumber;
+		int _lineNumber;
 
     public:
 
 		Command(const Command &source)
 		{
 			SafeString::StringCopy(_commandString, source._commandString, sizeof(_commandString));
-			_serialNumber = source._serialNumber;
+            _lineNumber = source._lineNumber;
 		}
 
 		Command()
 		{
 			SafeString::StringCopy(_commandString, "<Unknown command>", sizeof(_commandString));
-			_serialNumber = -1;
+            _lineNumber = -1;
 		}
 
-		Command(const char* pCommand, int serialNumber)
+		Command(const char* pCommand, int lineNumber)
 		{
 			if (strlen(pCommand) >= sizeof(_commandString))
 			{
@@ -35,10 +35,10 @@ class Command
 			{
 				_commandString[0] = '\0';
 			}
-			_serialNumber = serialNumber;
+            _lineNumber = lineNumber;
 		}
 
-		Command(const char* pCommand, int length, int serialNumber)
+		Command(const char* pCommand, int length, int lineNumber)
 		{
 			if (length >= sizeof(_commandString))
 			{
@@ -55,7 +55,7 @@ class Command
 			{
 				_commandString[0] = '\0';
 			}
-			_serialNumber = serialNumber;
+            _lineNumber = lineNumber;
 		}
 
         char* GetString()
@@ -63,14 +63,14 @@ class Command
             return _commandString;
         }
 
-		int GetSerialNumber()
+		int GetLineNumber()
 		{
-			return _serialNumber;
+			return _lineNumber;
 		}
 
-		void SetSerialNumber(int serialNumber)
+		void SetLineNumber(int lineNumber)
 		{
-			_serialNumber = serialNumber;
+            _lineNumber = lineNumber;
 		}
 
 		int StartsWith(const char* pPrefix)

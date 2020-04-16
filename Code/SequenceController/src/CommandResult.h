@@ -15,11 +15,8 @@ enum class CommandResultStatus
 	CommandElseIf = 12
 };
 
-//#define TargetMax 16
-
 class CommandResult
 {
-	//LedState _targets[TargetMax];
 	LedState* _targets = 0;
 	int _targetAllocation;
     int _targetCount = 0;

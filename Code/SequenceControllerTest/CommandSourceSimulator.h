@@ -13,7 +13,7 @@ public:
 
 	//void AddCommand(Command command)
 	//{
-	//	command.SetSerialNumber(_commandCount);
+	//	command.SetLineNumber(_commandCount);
 	//	_commands[_commandCount] = command;
 	//	_commandCount++;
 	//}

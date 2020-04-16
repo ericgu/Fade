@@ -451,8 +451,7 @@ class ExecutionFlowTest
 		Assert::AreEqual(1, executionFlow.GetExecutionContext()->_functionStore.GetCount());
 		FunctionDefinition* pFunction = executionFlow.GetExecutionContext()->_functionStore.Lookup("Function");
 		Assert::AreEqual("Function", pFunction->Name);
-		Assert::AreEqual(0, pFunction->SerialNumberStart);
-		Assert::AreEqual(1, pFunction->SerialNumberEnd);
+		Assert::AreEqual(0, pFunction->LineNumberStart);
 
 		ExecutionContext* pExecutionContext = executionFlow.GetExecutionContext();
 	}

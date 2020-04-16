@@ -3,7 +3,7 @@
 class ExecutionFlowSimulator : public IExecutionFlow
 {
 	bool _called = false;
-	int _serialNumberStart;
+	int _lineNumberStart;
 	IExecutionContext* _pExecutionContext;
 	int _returnValue;
 	float _firstParameter;
@@ -22,7 +22,7 @@ public:
 	{
 		_called = true;
 
-		_serialNumberStart = _pExecutionContext->StackTopFrame()->SerialNumberStart;
+        _lineNumberStart = _pExecutionContext->StackTopFrame()->LineNumberStart;
 
 		_pExecutionContext->AddVariableAndSet("<ReturnValue>", &Variable(_returnValue));
 
@@ -51,9 +51,9 @@ public:
 		return _called;
 	}
 
-	int GetSerialNumberStart()
+	int GetLineNumberStart()
 	{
-		return _serialNumberStart;
+		return _lineNumberStart;
 	}
 
 	float GetFirstParameter()
@@ -81,7 +81,7 @@ class FunctionCallerTest
 
 		Assert::AreEqual(true, executionFlow.GetCalled());
 		Assert::AreEqual(123456.0, returnValue.GetValueFloat(0));
-		Assert::AreEqual(10, executionFlow.GetSerialNumberStart());
+		Assert::AreEqual(10, executionFlow.GetLineNumberStart());
 	}
 
 	static void TestFunctionCallWithParameter()
@@ -101,7 +101,7 @@ class FunctionCallerTest
 
 		Assert::AreEqual(true, executionFlow.GetCalled());
 		Assert::AreEqual(123456.0, returnValue.GetValueFloat(0));
-		Assert::AreEqual(10, executionFlow.GetSerialNumberStart());
+		Assert::AreEqual(10, executionFlow.GetLineNumberStart());
 		Assert::AreEqual(15.5F, executionFlow.GetFirstParameter());
 	}
 
@@ -125,55 +125,3 @@ public:
 	}
 
 };
-
-#if fred
-static Variable FunctionCallHandlerImplementation(FunctionDefinition* pFunctionDefinition, VariableCollection* pVariableCollection, FunctionStore* pFunctionStore, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
-{
-	Assert::AreEqual("MyFunction", pFunctionDefinition->Name);
-	Assert::AreEqual(0, pVariableCollection->GetWithoutErrorCheck("#A", 2)->GetValueInt());
-
-	return Variable(10.0F);
-}
-
-static void TestFunctionCall()
-{
-	Expression expression;
-	VariableCollection variableCollection;
-	ParseErrors parseErrors;
-	Stack stack;
-	FunctionStore functionStore;
-
-	stack.CreateFrame();
-
-	functionStore.DefineStart("MyFunction", &parseErrors, 10);
-
-	Variable value = expression.Evaluate("MyFunction()", &variableCollection, &functionStore, &stack, &parseErrors, 1, FunctionCallHandlerImplementation);
-	Assert::AreEqual(10.0F, value.GetValueFloat(0));
-}
-
-static Variable FunctionCallHandlerImplementation2(FunctionDefinition* pFunctionDefinition, VariableCollection* pVariableCollection, FunctionStore* pFunctionStore, Stack* pStack, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
-{
-	Assert::AreEqual(1, pVariableCollection->GetWithoutErrorCheck("#A", 2)->GetValueInt());
-	Assert::AreEqual(15.3F, pVariableCollection->GetWithoutErrorCheck("#A0", 2)->GetValueFloat(0));
-
-	return *pVariableCollection->GetWithoutErrorCheck("#A0", 2);
-}
-
-static void TestFunctionCallWithParameters()
-{
-	Expression expression;
-	VariableCollection variableCollection;
-	ParseErrors parseErrors;
-	Stack stack;
-	FunctionStore functionStore;
-
-	stack.CreateFrame();
-
-	functionStore.DefineStart("MyFunction", &parseErrors, 10);
-
-	Variable value = expression.Evaluate("MyFunction(15.3)", &variableCollection, &functionStore, &stack, &parseErrors, 1, FunctionCallHandlerImplementation2, 0);
-	Assert::AreEqual(15.3F, value.GetValueFloat(0));
-	Assert::AreEqual(1, stack.GetFrameCount());
-}
-
-#endif

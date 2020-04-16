@@ -3,10 +3,10 @@
 #pragma once
 class CommandSourceTest
 {
-	static void AssertCommand(Command* pCommand, const char* commandString, int serialNumber)
+	static void AssertCommand(Command* pCommand, const char* commandString, int lineNumber)
 	{
 		Assert::AreEqual(commandString, pCommand->GetString());
-		Assert::AreEqual(serialNumber, pCommand->GetSerialNumber());
+		Assert::AreEqual(lineNumber, pCommand->GetLineNumber());
 	}
 	 
 	static void TestSingle()

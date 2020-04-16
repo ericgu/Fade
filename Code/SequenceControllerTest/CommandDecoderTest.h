@@ -531,8 +531,7 @@ class CommandDecoderTest
 		Assert::AreEqual(1, executionContext._functionStore.GetCount());
 		FunctionDefinition* pFunctionDefinition = executionContext._functionStore.Lookup("MyFunction");
 
-		Assert::AreEqual(15, pFunctionDefinition->SerialNumberStart);
-		Assert::AreEqual(17, pFunctionDefinition->SerialNumberEnd);
+		Assert::AreEqual(15, pFunctionDefinition->LineNumberStart);
 	}
 
 	static void TestReturn()

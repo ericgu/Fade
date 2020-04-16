@@ -6,15 +6,11 @@ class StackFrame
 public:
 	StackFrame()
 	{
-		SerialNumberStart = 0;
-		SerialNumberEnd = 0;
+		LineNumberStart = 0;
 		InstructionPointer = 0;
 	}
 
-	int SerialNumberStart;
-	int SerialNumberEnd;
-//	int InstructionPointer;
-
+	int LineNumberStart;
 
 	void IncrementInstructionPointer(const char* tag)
 	{
@@ -62,8 +58,7 @@ public:
 
 		StackFrame* pNewFrame = GetTopFrame();
 		pNewFrame->SetInstructionPointer(0, "CreateFrame");;
-		pNewFrame->SerialNumberStart = 0;
-		pNewFrame->SerialNumberEnd = 0;
+		pNewFrame->LineNumberStart = 0;
 	}
 
 	void DestroyFrame()
