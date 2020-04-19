@@ -2,6 +2,7 @@ class ExpressionTokenSource
 {
 	ExpressionNode _node;
 	ExpressionNode* _pCurrentNode;
+    int _advanceCount;
 
 	ParseErrors* _pParseErrors;
 	int _lineNumber;
@@ -22,9 +23,9 @@ public:
 		_lineNumber = lineNumber;
 
 		_pCurrentNode = &_node;
+        _advanceCount = 0;
 		_value[0] = '\0';
 		_node._pItem = _value;
-		//_node._itemLength = -100;
 
 		Advance();
 	}
@@ -59,6 +60,11 @@ public:
         PROLOGUE
 		return _pCurrentNode;
 	}
+
+    bool AtEnd()
+    {
+        return _pCurrentNode == 0;
+    }
 
 	bool IsIdentifier()
 	{
@@ -198,6 +204,8 @@ public:
 
 	void Advance()
 	{
+        _advanceCount++;
+
 		while (true)
 		{
 			char c = AdvanceChar();
@@ -230,9 +238,20 @@ public:
 			case '&': if (Match('&')) { CopyToToken("&&"); } return;
 			case '|': if (Match('|')) { CopyToToken("||"); } return;
 
-			case ' ':
-			case '\t':
-			case '\r':
+            case '\t':
+                break;
+
+            case '\n':
+            case '\r':
+                while (PeekChar() == '\n' || PeekChar() == '\r')
+                {
+                    AdvanceChar();
+                }
+                _value[0] = '\n';
+                _value[1] = '\0';
+                return;
+            
+            case ' ':
 				// Ignore
 				break;
 
@@ -255,5 +274,38 @@ public:
 			}
 		}
 	}
+
+    void AdvanceToNewLine()
+    {
+        while (true)
+        {
+            if (_pCurrentNode == 0)
+            {
+                return;
+            }
+            if (*_pCurrentNode->_pItem == '\n')
+            {
+                Advance();
+                return;
+            }
+            Advance();
+        }
+    }
+
+    int GetParseLocation()
+    {
+        return _advanceCount;
+    }
+
+    void SetParseLocation(int newParseLocation)
+    {
+        _pCurrent = _expression;
+        _advanceCount = 0;
+
+        for (int i = 0; i < newParseLocation; i++)
+        {
+            Advance();
+        }
+    }
 
 };

@@ -543,9 +543,219 @@ class RDEvaluaterTest
 		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 99);
 	}
 
+    static void DoTestIf(int conditionValue, int expectedValue)
+    {
+        ExecutionContext executionContext;
+        RDEvaluater rdEvaluater;
+        ParseErrors parseErrors;
+        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+        executionContext.AddVariableAndSet("V", &Variable(conditionValue));
+
+        const char* pCode = " \
+IF (V == 1) \n\
+J = 2\n\
+ELSEIF (V == 2)\n\
+J = 3\n\
+ELSEIF (V == 3)\n\
+J = 4\n\
+ELSE\n\
+J = 5\n\
+ENDIF\n\
+J\
+";
+
+        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+
+        Assert::AreEqual(expectedValue, result.GetValueInt());
+    }
+
+    static void TestIf()
+    {
+        DoTestIf(1, 2);
+        DoTestIf(2, 3);
+        DoTestIf(3, 4);
+        DoTestIf(4, 5);
+    }
+
+    static void DoTestNestedIf(int conditionValue1, int conditionValue2, int expectedValue)
+    {
+        ExecutionContext executionContext;
+        RDEvaluater rdEvaluater;
+        ParseErrors parseErrors;
+        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+        executionContext.AddVariableAndSet("V", &Variable(conditionValue1));
+        executionContext.AddVariableAndSet("X", &Variable(conditionValue2));
+
+        const char* pCode = " \
+IF (V == 1) \n\
+IF (X == 1) \n\
+J = 2\n\
+ELSE\n\
+J = 3\n\
+ENDIF\n\
+ELSE\n\
+IF (X == 1) \n\
+J = 4\n\
+ELSE\n\
+J = 5\n\
+ENDIF\n\
+ENDIF\n\
+J\
+";
+
+        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+
+        Assert::AreEqual(expectedValue, result.GetValueInt());
+    }
+
+    static void TestNestedIf()
+    {
+       DoTestNestedIf(1, 1, 2);
+       DoTestNestedIf(1, 2, 3);
+       DoTestNestedIf(4, 1, 4);
+       DoTestNestedIf(4, 5, 5);
+    }
+
+    static void TestMissingEndif()
+    {
+        ExecutionContext executionContext;
+        RDEvaluater rdEvaluater;
+        ParseErrors parseErrors;
+        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+
+        const char* pCode = " \
+IF (V == 1) \n\
+J = 2\
+";
+
+        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+
+        Assert::AreEqual(1, parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing ENDIF", parseErrors.GetError(0)->_errorText);
+    }
+
+
+    static void TestFor()
+    {
+        ExecutionContext executionContext;
+        RDEvaluater rdEvaluater;
+        ParseErrors parseErrors;
+        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+
+        const char* pCode = " \
+FOR loop 0:3\n\
+Q = loop\n\
+ENDFOR\n\
+Q\
+";
+
+
+        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+
+        Assert::AreEqual(0, parseErrors.GetErrorCount());
+        Assert::AreEqual(3, result.GetValueInt());
+    }
+
+    static void TestForDown()
+    {
+        ExecutionContext executionContext;
+        RDEvaluater rdEvaluater;
+        ParseErrors parseErrors;
+        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+
+        const char* pCode = " \
+FOR loop 0:3:-1\n\
+Q = loop\n\
+ENDFOR\n\
+Q\
+";
+
+
+        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+
+        Assert::AreEqual(0, parseErrors.GetErrorCount());
+        Assert::AreEqual(0, result.GetValueInt());
+    }
+
+
+    static void TestMissingEndfor()
+    {
+        ExecutionContext executionContext;
+        RDEvaluater rdEvaluater;
+        ParseErrors parseErrors;
+        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+
+        const char* pCode = " \
+FOR loop 0:3\n\
+Q = loop\
+";
+
+
+        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+
+        Assert::AreEqual(1, parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing ENDFOR", parseErrors.GetError(0)->_errorText);
+    }
+
+
+
+    static void TestFunctionDefinition()
+    {
+        ExecutionContext executionContext;
+        RDEvaluater rdEvaluater;
+        ParseErrors parseErrors;
+        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+
+        const char* pCode = " \
+Q = 12\n\
+FUNC MyFunc\n\
+Q = loop\n\
+ENDFUNC\n\
+FUNC MyFunc2\n\
+Q = loop\n\
+ENDFUNC\n\
+Q\
+";
+
+        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+
+        Assert::AreEqual(0, parseErrors.GetErrorCount());
+        Assert::AreEqual(5, executionContext._functionStore.Lookup("MyFunc")->LineNumberStart);
+        Assert::AreEqual(14, executionContext._functionStore.Lookup("MyFunc2")->LineNumberStart);
+    }
+
+    static void TestMissingEndfunc()
+    {
+        ExecutionContext executionContext;
+        RDEvaluater rdEvaluater;
+        ParseErrors parseErrors;
+        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+
+        const char* pCode = " \
+Q = 12\n\
+FUNC MyFunc\n\
+Q = loop\
+";
+
+        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+
+        Assert::AreEqual(1, parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing ENDFUNC for function: MyFunc", parseErrors.GetError(0)->_errorText);
+    }
+
+
 public:
 	static void Run()
 	{
+        TestIf();
+        TestNestedIf();
+        TestFor();
+        TestForDown();
+        TestFunctionDefinition();
+        TestMissingEndfunc();
+        TestMissingEndif();
+        TestMissingEndfor();
+
 		TestEmptyString();
 
 		TestPrimitiveNumber();

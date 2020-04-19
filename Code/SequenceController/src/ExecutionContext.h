@@ -16,6 +16,16 @@ public:
 		
 	}
 
+    Variable Evaluate(ExpressionTokenSource* pExpressionTokenSource, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
+    {
+        StackWatcher::Log("ExecutionContext::Evaluate");
+
+        FunctionCaller functionCaller(&_functionStore, this, pParseErrors, pExecutionFlow);
+
+        RDEvaluater rdEvaluator;
+        return rdEvaluator.EvaluateInExistingParse(pExpressionTokenSource, this, &functionCaller, pParseErrors, lineNumber);
+    }
+
 	Variable Evaluate(const char* pCommand, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
 	{
 		StackWatcher::Log("ExecutionContext::Evaluate");
@@ -75,5 +85,11 @@ public:
 	{
 		return _stack.GetCallingFrame();
 	}
+
+    FunctionStore* Functions()
+    {
+        return &_functionStore;
+    }
+
 
 };

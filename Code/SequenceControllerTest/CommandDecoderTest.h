@@ -558,6 +558,8 @@ class CommandDecoderTest
 		ValidateError(executionContext, &parseErrors, 1, "Unrecognized function: Orange", 0);
 	}
 
+
+
 public:
 
 	static int Run()

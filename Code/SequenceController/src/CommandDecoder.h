@@ -23,50 +23,14 @@ public:
 		delete _pLoop;
 	}
 
-    void RDDecodeFor(ExecutionContext* pExecutionContext, Command* pCommand, ParseErrors* pParseErrors, IExecutionFlow* pExecutionFlow)
-    {
-        ExpressionTokenSource expressionTokenSource(pCommand->GetString(), pParseErrors);
-
-        if (expressionTokenSource.EqualTo("FOR"))
-        {
-            expressionTokenSource.Advance();
-
-            char identifier[64];
-            SafeString::StringCopy(identifier, expressionTokenSource.GetCurrentNode()->_pItem, sizeof(identifier));
-            expressionTokenSource.Advance();
-            Variable initialValue = pExecutionContext->Evaluate(expressionTokenSource.GetCurrentNode()->_pItem, pParseErrors, pCommand->GetLineNumber(), pExecutionFlow);
-
-            expressionTokenSource.Advance();
-            if (expressionTokenSource.FirstChar() != ':')
-            {
-                int k = 12;
-            }
-            expressionTokenSource.Advance();
-            Variable endValue = pExecutionContext->Evaluate(expressionTokenSource.GetCurrentNode()->_pItem, pParseErrors, pCommand->GetLineNumber(), pExecutionFlow);
-            expressionTokenSource.Advance();
-
-            Variable increment(1.0F);
-            if (expressionTokenSource.FirstChar() == ':')
-            {
-                expressionTokenSource.Advance();
-                increment = pExecutionContext->Evaluate(expressionTokenSource.GetCurrentNode()->_pItem, pParseErrors, pCommand->GetLineNumber(), pExecutionFlow);
-                expressionTokenSource.Advance();
-            }
-
-            if (expressionTokenSource.GetCurrentNode() != 0)
-            {
-                int j = 15; // error - unexpected token at the end of FOR statement
-            }
-
-            int v = 156;
-        }
-    }
+    
 
 	bool DecodeFor(ExecutionContext* pExecutionContext, ParseErrors* pParseErrors, Command* pCommand, IExecutionFlow* pExecutionFlow)
 	{
-        //RDDecodeFor(pExecutionContext, pCommand, pParseErrors, pExecutionFlow);
+        Profiler.Start("DecodeFor");
 
-		Profiler.Start("DecodeFor");
+        //bool result = RDDecodeFor(pExecutionContext, pCommand, pParseErrors, pExecutionFlow);
+        //return result;
 
 		if (!_pLoop->Parse(pCommand->GetString(), pExecutionContext, pParseErrors, pCommand->GetLineNumber(), pExecutionFlow))
 		{

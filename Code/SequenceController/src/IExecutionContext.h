@@ -8,6 +8,7 @@ public:
 	virtual void DeleteVariable(const char* pVariableName, int stackLevel = -1) = 0;
 	virtual VariableCollection* Variables() = 0;
 	virtual Stack* GetStack() = 0;
+    virtual FunctionStore* Functions() = 0;
 	virtual StackFrame* StackTopFrame() = 0;
 	virtual StackFrame* StackCallingFrame() = 0;
 };

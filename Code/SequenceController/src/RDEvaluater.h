@@ -15,7 +15,7 @@ class RDEvaluater
 	{
 		PROLOGUE
 
-		if (_pExpressionTokenSource->GetCurrentNode() == 0)
+		if (_pExpressionTokenSource->AtEnd())
 		{
 			_pParseErrors->AddError("Missing closing ) in expression", "", _lineNumber);
 			return false;
@@ -427,29 +427,286 @@ class RDEvaluater
 	{
 		PROLOGUE
 
-		if (_pExpressionTokenSource->GetCurrentNode() == 0)
+		if (_pExpressionTokenSource->AtEnd())
 		{
 			RETURN(Variable::Empty());
 		}
 
-		RETURN(EvaluateEmpty());
+        Variable value = EvaluateEmpty();
+
+		RETURN(value);
 	}
+
+    void HandleIf()
+    {
+        bool conditionMatched = false;
+        bool executing = false;
+
+        while (!_pExpressionTokenSource->AtEnd())
+        {
+            if (_pExpressionTokenSource->EqualTo("IF") ||
+                _pExpressionTokenSource->EqualTo("ELSEIF"))
+            {
+                if (_pExpressionTokenSource->EqualTo("IF") && executing)
+                {
+                    HandleIf();
+                }
+                else
+                {
+                    _pExpressionTokenSource->Advance();
+
+                    if (conditionMatched == false)
+                    {
+                        executing = false;
+
+                        Variable condition = EvaluateTop();
+
+                        if (condition.GetValueInt() != 0)
+                        {
+                            conditionMatched = true;
+                            executing = true;
+                        }
+                    }
+                    else
+                    {
+                        executing = false;
+                    }
+
+                    _pExpressionTokenSource->AdvanceToNewLine();
+                }
+            }
+            else if (_pExpressionTokenSource->EqualTo("ELSE"))
+            {
+                if (conditionMatched == false)
+                {
+                    conditionMatched = true;
+                    executing = true;
+                }
+                else
+                {
+                    executing = false;
+                }
+                _pExpressionTokenSource->AdvanceToNewLine();
+            }
+            else if (_pExpressionTokenSource->EqualTo("ENDIF"))
+            {
+                _pExpressionTokenSource->AdvanceToNewLine();
+                return;
+            }
+            else
+            {
+                if (executing)
+                {
+                    EvaluateStatement();
+                }
+                else
+                {
+                    _pExpressionTokenSource->AdvanceToNewLine();
+                }
+            }
+        }
+
+        _pParseErrors->AddError("Missing ENDIF", "", _lineNumber);
+
+        return;
+    }
+
+    int GetIsInRange(float variableStart, float variableEnd, float value)
+    {
+        float min = variableStart < variableEnd ? variableStart : variableEnd;
+        float max = variableStart < variableEnd ? variableEnd : variableStart;
+
+        return value >= min && value <= max;
+    }
+
+    bool HandleFor()
+    {
+        if (_pExpressionTokenSource->EqualTo("FOR"))
+        {
+            _pExpressionTokenSource->Advance();
+
+            Variable identifier = EvaluateTop();    // get loop control variable name
+
+            Variable startValue = EvaluateTop();
+
+            //expressionTokenSource.Advance();
+            if (_pExpressionTokenSource->FirstChar() != ':')
+            {
+                int k = 12;     // expected ":" error...
+            }
+            _pExpressionTokenSource->Advance();
+
+            Variable endValue = EvaluateTop();
+
+            Variable increment(1.0F);
+            if (_pExpressionTokenSource->FirstChar() == ':')
+            {
+                _pExpressionTokenSource->Advance();
+                increment = EvaluateTop();
+            }
+
+            if (!_pExpressionTokenSource->AtEnd() && _pExpressionTokenSource->FirstChar() != '\n')
+            {
+                int j = 15; // error - unexpected token at the end of FOR statement
+            }
+
+            int v = 156;
+
+            _pExecutionContext->AddVariableAndSet(identifier.GetVariableName(), &startValue);
+            // Remove "undefined" sentinel...
+            SafeString::StringCopy(_temporaryBuffer, "$", sizeof(_temporaryBuffer));
+            SafeString::StringCat(_temporaryBuffer, identifier.GetVariableName(), sizeof(_temporaryBuffer));
+            _pExecutionContext->DeleteVariable(_temporaryBuffer);
+
+            Variable* pLoopVariable = _pExecutionContext->GetVariableWithoutErrorCheck(identifier.GetVariableName());
+            _pExpressionTokenSource->AdvanceToNewLine();
+
+            int firstLineOfForLoop = _pExpressionTokenSource->GetParseLocation();
+            StackWatcher::Log("CommandDecoder::DecodeFor b");
+
+            while (!_pExpressionTokenSource->AtEnd())
+            {
+                if (_pExpressionTokenSource->EqualTo("ENDFOR"))
+                {
+                    pLoopVariable->Increment(increment);
+
+                    if (!GetIsInRange(startValue.GetValueFloat(0), endValue.GetValueFloat(0), pLoopVariable->GetValueFloat(0)))
+                    {
+                        _pExecutionContext->DeleteVariable(identifier.GetVariableName());
+                        _pExpressionTokenSource->AdvanceToNewLine();
+
+                        return true;
+                    }
+
+                    _pExpressionTokenSource->SetParseLocation(firstLineOfForLoop);
+                }
+                else
+                {
+                    EvaluateStatement();
+                }
+            }
+
+            _pParseErrors->AddError("Missing ENDFOR", "", _lineNumber);
+
+            return true;
+
+        }
+        return false;
+    }
+
+    bool HandleFunctionDefinition()
+    {
+        if (_pExpressionTokenSource->EqualTo("FUNC"))
+        {
+            int startOfFunction = _pExpressionTokenSource->GetParseLocation();
+
+            _pExpressionTokenSource->Advance();
+            Variable identifier = EvaluateTop();    // get function name
+
+            // Remove "undefined" sentinel...
+            SafeString::StringCopy(_temporaryBuffer, "$", sizeof(_temporaryBuffer));
+            SafeString::StringCat(_temporaryBuffer, identifier.GetVariableName(), sizeof(_temporaryBuffer));
+            _pExecutionContext->DeleteVariable(_temporaryBuffer);
+
+            _pExpressionTokenSource->AdvanceToNewLine();
+
+            while (!_pExpressionTokenSource->AtEnd())
+            {
+                if (_pExpressionTokenSource->EqualTo("ENDFUNC"))
+                {
+                    FunctionDefinition* pFunctionDefinition = _pExecutionContext->Functions()->Lookup(identifier.GetVariableName());
+                    
+                    if (pFunctionDefinition == 0)
+                    {
+                        _pExecutionContext->Functions()->DefineStart(identifier.GetVariableName(), _pParseErrors, startOfFunction);
+                    }
+
+                    _pExpressionTokenSource->AdvanceToNewLine();
+
+                    return true;
+                }
+                else
+                {
+                    _pExpressionTokenSource->AdvanceToNewLine();
+                }
+            }
+
+            _pParseErrors->AddError("Missing ENDFUNC for function: ", identifier.GetVariableName(), _lineNumber);
+            return true;
+
+        }
+        return false;
+    }
+
+    Variable EvaluateStatement()
+    {
+        Variable lastValue;
+        lastValue.SetToNan();
+        if (_pExpressionTokenSource->EqualTo("IF"))
+        {
+            HandleIf();
+        }
+        else if (_pExpressionTokenSource->EqualTo("FOR"))
+        {
+            HandleFor();
+        }
+        else if (_pExpressionTokenSource->EqualTo("FUNC"))
+        {
+            HandleFunctionDefinition();
+        }
+        else
+        {
+            lastValue = EvaluateTop();
+
+            if (!_pExpressionTokenSource->AtEnd() != 0 && !_pExpressionTokenSource->EqualTo("\n"))
+            {
+                _pParseErrors->AddError("Unexpected token remaining after parsing: ", _pExpressionTokenSource->GetCurrentNode()->_pItem, _lineNumber);
+                _pExpressionTokenSource->AdvanceToNewLine();
+            }
+        }
+
+        if (_pExpressionTokenSource->EqualTo("\n"))
+        {
+            _pExpressionTokenSource->Advance();
+        }
+
+        return lastValue;
+    }
+
+    Variable EvaluateStatements()
+    {
+        Variable lastValue;
+        lastValue.SetToNan();
+
+        while (!_pExpressionTokenSource->AtEnd())
+        {
+            lastValue = EvaluateStatement();
+        }
+
+        return lastValue;
+    }
 	
 public:
+    Variable EvaluateInExistingParse(ExpressionTokenSource* pExpressionTokenSource, IExecutionContext* pExecutionContext = 0, IFunctionCaller* pFunctionCaller = 0, ParseErrors* pParseErrors = 0, int lineNumber = -100)
+    {
+        PROLOGUE
+
+        _pExpressionTokenSource = pExpressionTokenSource;
+        _pExecutionContext = pExecutionContext;
+        _pFunctionCaller = pFunctionCaller;
+        _pParseErrors = pParseErrors;
+        _lineNumber = lineNumber;
+
+        return EvaluateStatements();
+    }
+
+
 	Variable Evaluate(const char* pExpression, IExecutionContext* pExecutionContext = 0, IFunctionCaller* pFunctionCaller = 0, ParseErrors* pParseErrors = 0, int lineNumber = -100)
 	{
 		PROLOGUE
 
-		//Serial.print("Evaluating: "); Serial.println(pExpression);
-
-		ExpressionTokenSource expressionTokenSource(pExpression, pParseErrors);
-		_pExpressionTokenSource = &expressionTokenSource;
-		_pExecutionContext = pExecutionContext;
-		_pFunctionCaller = pFunctionCaller;
-		_pParseErrors = pParseErrors;
-		_lineNumber = lineNumber;
-
-		Variable value = EvaluateTop();
+        ExpressionTokenSource expressionTokenSource(pExpression, pParseErrors);
+        Variable value = EvaluateInExistingParse(&expressionTokenSource, pExecutionContext, pFunctionCaller, pParseErrors, lineNumber);
 
 		ExpressionNode* pNode = _pExpressionTokenSource->GetCurrentNode();
 
