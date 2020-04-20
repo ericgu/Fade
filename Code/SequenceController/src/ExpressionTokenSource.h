@@ -300,6 +300,7 @@ public:
     void SetParseLocation(int newParseLocation)
     {
         _pCurrent = _expression;
+        _pCurrentNode = &_node;
         _advanceCount = 0;
 
         for (int i = 0; i < newParseLocation; i++)

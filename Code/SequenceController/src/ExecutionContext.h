@@ -23,7 +23,7 @@ public:
         FunctionCaller functionCaller(&_functionStore, this, pParseErrors, pExecutionFlow);
 
         RDEvaluater rdEvaluator;
-        return rdEvaluator.EvaluateInExistingParse(pExpressionTokenSource, this, &functionCaller, pParseErrors, lineNumber);
+        return rdEvaluator.EvaluateInExistingParse(pExpressionTokenSource, this, &functionCaller, pParseErrors, lineNumber, pExecutionFlow);
     }
 
 	Variable Evaluate(const char* pCommand, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow)
@@ -33,7 +33,7 @@ public:
 		FunctionCaller functionCaller(&_functionStore, this, pParseErrors, pExecutionFlow);
 
 		RDEvaluater rdEvaluator;
-		return rdEvaluator.Evaluate(pCommand, this, &functionCaller, pParseErrors, lineNumber);
+		return rdEvaluator.Evaluate(pCommand, this, &functionCaller, pParseErrors, lineNumber, pExecutionFlow);
 	}
 
 	void ResetVariablesAndStack()

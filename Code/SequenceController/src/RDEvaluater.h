@@ -6,6 +6,7 @@ class RDEvaluater
 	IExecutionContext* _pExecutionContext;
 	IFunctionCaller* _pFunctionCaller;
 	ParseErrors* _pParseErrors;
+    IExecutionFlow* _pExecutionFlow;
 	int _lineNumber;
 	char _temporaryBuffer[1024];
 
@@ -47,6 +48,152 @@ class RDEvaluater
 		return true;
 	}
 
+    // recursively evaluate function arguments. On the way out of the function we store the arguments. This prevents collisions when the function
+    // argument evaluation requires function calls themselves. 
+    bool AssignFunctionParameters(int parameterNumber)
+    {
+        PROLOGUE
+
+            if (_pExpressionTokenSource->AtEnd())
+            {
+                _pParseErrors->AddError("Missing closing ) in function call", "", _lineNumber);
+                return false;
+            }
+
+        // if the current token is the closing brace, we are done.
+        if (_pExpressionTokenSource->EqualTo(")"))
+        {
+            _pExpressionTokenSource->Advance();
+            Variable argument(parameterNumber);
+
+            Variable* pArgumentCount = _pExecutionContext->GetVariableWithoutErrorCheck("#A");
+            if (parameterNumber != pArgumentCount->GetValueInt())
+            {
+                _pParseErrors->AddError("Extra arguments passed to function", "", _lineNumber);
+                return false;
+            }
+
+            return true;
+        }
+
+        Variable parameterName = EvaluateTop();
+
+        Variable* pArgument = _pExecutionContext->GetVariableWithoutErrorCheck(FunctionCaller::GenerateArgumentName(parameterNumber));
+        if (pArgument == 0)
+        {
+            // missing argument...
+            _pParseErrors->AddError("Missing argument in function call for parameter: ", parameterName.GetVariableName(), _lineNumber);
+            return false;
+        }
+
+        pArgument->SetVariableName(parameterName.GetVariableName());    // rename argument to parameter
+
+        if (_pExpressionTokenSource->EqualTo(","))
+        {
+            _pExpressionTokenSource->Advance();
+        }
+
+        if (!AssignFunctionParameters(parameterNumber + 1))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    Variable HandleFunctionCall(const char* pFunctionName)
+    {
+        Variable returnValue = Variable::Empty();
+
+        FunctionDefinition* pFunctionDefinition = _pExecutionContext->Functions()->Lookup(pFunctionName);
+        if (pFunctionDefinition != 0)
+        {
+            // save current location to return to it after the function call. 
+            int parseLocation = _pExpressionTokenSource->GetParseLocation();
+            _pExpressionTokenSource->SetParseLocation(pFunctionDefinition->LineNumberStart); // point to function...
+
+            StackFrame* pStackFrame = _pExecutionContext->StackTopFrame();
+
+            // rename variables...
+
+            _pExpressionTokenSource->Advance(); // skip "FUNC"
+            _pExpressionTokenSource->Advance(); // skip name
+            _pExpressionTokenSource->Advance(); // skip intro '('
+
+            if (!AssignFunctionParameters(0))
+            {
+                _pExpressionTokenSource->SetParseLocation(parseLocation);
+                return Variable::Empty();
+            }
+
+            _pExpressionTokenSource->AdvanceToNewLine();
+
+            while (!_pExpressionTokenSource->AtEnd())
+            {
+                if (_pExpressionTokenSource->EqualTo("ENDFUNC"))
+                {
+                    _pExpressionTokenSource->SetParseLocation(parseLocation);
+
+                    Variable* pReturnValue = _pExecutionContext->GetVariableWithoutErrorCheck("<ReturnValue>");
+                    if (pReturnValue)
+                    {
+                        returnValue = *pReturnValue;
+                    }
+
+                    return returnValue;
+                }
+                else
+                {
+                    EvaluateStatement();
+
+                    // handle abort 
+#if fred
+                    if (_pExecutionFlow->GetCommandResult()->GetAbort())
+                    {
+                        return returnValue;
+                    }
+#endif
+                }
+            }
+
+            // error case; missing ENDFUNC
+
+
+        }
+        else if (!BuiltInFunctions::HandleBuiltInFunctions(pFunctionName, _pExecutionContext, _pParseErrors, _lineNumber, _pExecutionFlow, &returnValue))
+        {
+            _pParseErrors->AddError("Unrecognized function: ", pFunctionName, _lineNumber);
+
+            return Variable::Empty();
+        }
+
+        return returnValue;
+    }
+
+
+    Variable EvaluateFunctionCall(const char* functionName)
+    {
+        _pExpressionTokenSource->Advance();
+
+        bool argumentParseSuccess = EvaluateFunctionArguments(0);
+
+        if (argumentParseSuccess)
+        {
+            _pExecutionContext->GetStack()->CreateFrame();
+
+            Variable returnValue = HandleFunctionCall(functionName);
+
+            _pExecutionContext->Variables()->DeleteStackLevel(_pExecutionContext->GetStack()->GetFrameCount());
+            _pExecutionContext->GetStack()->DestroyFrame();
+
+            return returnValue;
+        }
+        else
+        {
+            return Variable::Empty();
+        }
+    }
+
 	Variable EvaluateExpression()
 	{
 		PROLOGUE
@@ -75,21 +222,7 @@ class RDEvaluater
 
 			if (_pExpressionTokenSource->EqualTo("("))	// function call...
 			{
-				_pExpressionTokenSource->Advance();
-
-				bool argumentParseSuccess = EvaluateFunctionArguments(0);
-
-				if (argumentParseSuccess)
-				{
-					_pExecutionContext->GetStack()->CreateFrame();
-
-					Variable returnValue = _pFunctionCaller->Call(identifier, _lineNumber);
-
-					_pExecutionContext->Variables()->DeleteStackLevel(_pExecutionContext->GetStack()->GetFrameCount());
-					_pExecutionContext->GetStack()->DestroyFrame();
-
-					return returnValue;
-				}
+                return(EvaluateFunctionCall(identifier));
 			}
 			else
 			{
@@ -562,7 +695,6 @@ class RDEvaluater
             _pExpressionTokenSource->AdvanceToNewLine();
 
             int firstLineOfForLoop = _pExpressionTokenSource->GetParseLocation();
-            StackWatcher::Log("CommandDecoder::DecodeFor b");
 
             while (!_pExpressionTokenSource->AtEnd())
             {
@@ -601,12 +733,9 @@ class RDEvaluater
             int startOfFunction = _pExpressionTokenSource->GetParseLocation();
 
             _pExpressionTokenSource->Advance();
-            Variable identifier = EvaluateTop();    // get function name
 
-            // Remove "undefined" sentinel...
-            SafeString::StringCopy(_temporaryBuffer, "$", sizeof(_temporaryBuffer));
-            SafeString::StringCat(_temporaryBuffer, identifier.GetVariableName(), sizeof(_temporaryBuffer));
-            _pExecutionContext->DeleteVariable(_temporaryBuffer);
+            char identifier[128];
+            SafeString::StringCopy(identifier, _pExpressionTokenSource->GetCurrentNode()->_pItem, sizeof(identifier));
 
             _pExpressionTokenSource->AdvanceToNewLine();
 
@@ -614,11 +743,11 @@ class RDEvaluater
             {
                 if (_pExpressionTokenSource->EqualTo("ENDFUNC"))
                 {
-                    FunctionDefinition* pFunctionDefinition = _pExecutionContext->Functions()->Lookup(identifier.GetVariableName());
+                    FunctionDefinition* pFunctionDefinition = _pExecutionContext->Functions()->Lookup(identifier);
                     
                     if (pFunctionDefinition == 0)
                     {
-                        _pExecutionContext->Functions()->DefineStart(identifier.GetVariableName(), _pParseErrors, startOfFunction);
+                        _pExecutionContext->Functions()->DefineStart(identifier, _pParseErrors, startOfFunction);
                     }
 
                     _pExpressionTokenSource->AdvanceToNewLine();
@@ -631,9 +760,29 @@ class RDEvaluater
                 }
             }
 
-            _pParseErrors->AddError("Missing ENDFUNC for function: ", identifier.GetVariableName(), _lineNumber);
+            _pParseErrors->AddError("Missing ENDFUNC for function: ", identifier, _lineNumber);
             return true;
 
+        }
+        return false;
+    }
+
+    bool HandleReturn()
+    {
+        if (_pExpressionTokenSource->EqualTo("RETURN"))
+        {
+            _pExpressionTokenSource->Advance();
+            Variable returnValue = EvaluateTop();
+
+            if (returnValue.GetValueCount() == 0)
+            {
+                _pParseErrors->AddError("Missing value in RETURN statement", "", _lineNumber);
+                returnValue = Variable::Empty();
+            }
+
+            _pExecutionContext->AddVariableAndSet("<ReturnValue>", &returnValue);
+
+            return true;
         }
         return false;
     }
@@ -653,6 +802,10 @@ class RDEvaluater
         else if (_pExpressionTokenSource->EqualTo("FUNC"))
         {
             HandleFunctionDefinition();
+        }
+        else if (_pExpressionTokenSource->EqualTo("RETURN"))
+        {
+            HandleReturn();
         }
         else
         {
@@ -687,7 +840,7 @@ class RDEvaluater
     }
 	
 public:
-    Variable EvaluateInExistingParse(ExpressionTokenSource* pExpressionTokenSource, IExecutionContext* pExecutionContext = 0, IFunctionCaller* pFunctionCaller = 0, ParseErrors* pParseErrors = 0, int lineNumber = -100)
+    Variable EvaluateInExistingParse(ExpressionTokenSource* pExpressionTokenSource, IExecutionContext* pExecutionContext = 0, IFunctionCaller* pFunctionCaller = 0, ParseErrors* pParseErrors = 0, int lineNumber = -100, IExecutionFlow* pExecutionFlow = 0)
     {
         PROLOGUE
 
@@ -696,17 +849,18 @@ public:
         _pFunctionCaller = pFunctionCaller;
         _pParseErrors = pParseErrors;
         _lineNumber = lineNumber;
+        _pExecutionFlow = pExecutionFlow;
 
         return EvaluateStatements();
     }
 
 
-	Variable Evaluate(const char* pExpression, IExecutionContext* pExecutionContext = 0, IFunctionCaller* pFunctionCaller = 0, ParseErrors* pParseErrors = 0, int lineNumber = -100)
+	Variable Evaluate(const char* pExpression, IExecutionContext* pExecutionContext = 0, IFunctionCaller* pFunctionCaller = 0, ParseErrors* pParseErrors = 0, int lineNumber = -100, IExecutionFlow* pExecutionFlow = 0)
 	{
 		PROLOGUE
 
         ExpressionTokenSource expressionTokenSource(pExpression, pParseErrors);
-        Variable value = EvaluateInExistingParse(&expressionTokenSource, pExecutionContext, pFunctionCaller, pParseErrors, lineNumber);
+        Variable value = EvaluateInExistingParse(&expressionTokenSource, pExecutionContext, pFunctionCaller, pParseErrors, lineNumber, pExecutionFlow);
 
 		ExpressionNode* pNode = _pExpressionTokenSource->GetCurrentNode();
 

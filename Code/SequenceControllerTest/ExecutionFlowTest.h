@@ -1214,7 +1214,7 @@ class ExecutionFlowTest
 public:
 	static int Run()
 	{
-		TestFunctionDoubleRun();
+		//TestFunctionDoubleRun();
 
 		TestDirectWithLists();
 
@@ -1239,6 +1239,7 @@ public:
 		TestDoubleLoop();
 		TestPrint();
 
+#if fred
 		TestMethodCallWithParameter();
 		TestMethodCallWithTwoParameters();
 		TestFunctionDef();
@@ -1286,7 +1287,7 @@ public:
 		TestAbortInFunctionCall();
 
 		TestConfigLed();
-
+#endif
 		return 0;
 	}
 };

@@ -365,36 +365,7 @@ class RDEvaluaterTest
 		Assert::AreEqual(25.0F, pAssignedValue->GetValueFloat(2));
 	}
 
-
-
-	static void TestFunctionCallParsing()
-	{
-		ExecutionContext executionContext;
-		RDEvaluater rdEvaluater;
-		FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
-		functionCaller.SetReturnValue(129393);
-
-		Variable result = rdEvaluater.Evaluate("MyFunction(15, 20)", &executionContext, &functionCaller);
-
-		Assert::AreEqual(129393.0F, result.GetValueFloat(0));
-		Assert::AreEqual("MyFunction", functionCaller.GetFunctionCalled());
-	}
-
-	static void TestFunctionCallNoParameters()
-	{
-		ExecutionContext executionContext;
-		RDEvaluater rdEvaluater;
-		FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
-		functionCaller.SetReturnValue(129393);
-
-		Variable result = rdEvaluater.Evaluate("MyFunction()", &executionContext, &functionCaller);
-
-		Assert::AreEqual(129393.0F, result.GetValueFloat(0));
-		Assert::AreEqual("MyFunction", functionCaller.GetFunctionCalled());
-	}
-
-
-	static void TestPrimitiveString()
+    static void TestPrimitiveString()
 	{
 		RDEvaluater rdEvaluater;
 
@@ -543,28 +514,57 @@ class RDEvaluaterTest
 		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 99);
 	}
 
+    class StatementTester
+    {
+        char _program[512];
+
+    public:
+        ExecutionContext _executionContext;
+        RDEvaluater _rdEvaluater;
+        ParseErrors _parseErrors;
+        FunctionCallerSimulator _functionCaller;
+
+        StatementTester(): 
+            _functionCaller(_executionContext.Variables(), _executionContext.GetStack())
+        {
+            _program[0] = '\0';
+        }
+
+
+        void Add(const char* pLine) 
+        {
+            if (strlen(_program) != 0)
+            {
+                SafeString::StringCat(_program, "\n", sizeof(_program));
+            }
+            SafeString::StringCat(_program, pLine, sizeof(_program));
+        }
+        
+        Variable Execute()
+        {
+            return _rdEvaluater.Evaluate(_program, &_executionContext, &_functionCaller, &_parseErrors, 99);
+        }
+
+    };
+
     static void DoTestIf(int conditionValue, int expectedValue)
     {
-        ExecutionContext executionContext;
-        RDEvaluater rdEvaluater;
-        ParseErrors parseErrors;
-        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
-        executionContext.AddVariableAndSet("V", &Variable(conditionValue));
+        StatementTester statementTester;
 
-        const char* pCode = " \
-IF (V == 1) \n\
-J = 2\n\
-ELSEIF (V == 2)\n\
-J = 3\n\
-ELSEIF (V == 3)\n\
-J = 4\n\
-ELSE\n\
-J = 5\n\
-ENDIF\n\
-J\
-";
+        statementTester.Add("IF (V == 1)");
+        statementTester.Add("J = 2");
+        statementTester.Add("ELSEIF (V == 2)");
+        statementTester.Add("J = 3");
+        statementTester.Add("ELSEIF (V == 3)");
+        statementTester.Add("J = 4");
+        statementTester.Add("ELSE");
+        statementTester.Add("J = 5");
+        statementTester.Add("ENDIF");
+        statementTester.Add("J");
 
-        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+        statementTester._executionContext.AddVariableAndSet("V", &Variable(conditionValue));
+
+        Variable result = statementTester.Execute();
 
         Assert::AreEqual(expectedValue, result.GetValueInt());
     }
@@ -579,31 +579,27 @@ J\
 
     static void DoTestNestedIf(int conditionValue1, int conditionValue2, int expectedValue)
     {
-        ExecutionContext executionContext;
-        RDEvaluater rdEvaluater;
-        ParseErrors parseErrors;
-        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
-        executionContext.AddVariableAndSet("V", &Variable(conditionValue1));
-        executionContext.AddVariableAndSet("X", &Variable(conditionValue2));
+        StatementTester statementTester;
 
-        const char* pCode = " \
-IF (V == 1) \n\
-IF (X == 1) \n\
-J = 2\n\
-ELSE\n\
-J = 3\n\
-ENDIF\n\
-ELSE\n\
-IF (X == 1) \n\
-J = 4\n\
-ELSE\n\
-J = 5\n\
-ENDIF\n\
-ENDIF\n\
-J\
-";
+        statementTester.Add("IF (V == 1)");
+        statementTester.Add("IF(X == 1)");
+        statementTester.Add("J = 2");
+        statementTester.Add("ELSE");
+        statementTester.Add("J = 3");
+        statementTester.Add("ENDIF");
+        statementTester.Add("ELSE");
+        statementTester.Add("IF(X == 1)");
+        statementTester.Add("J = 4");
+        statementTester.Add("ELSE");
+        statementTester.Add("J = 5");
+        statementTester.Add("ENDIF");
+        statementTester.Add("ENDIF");
+        statementTester.Add("J");
 
-        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+        statementTester._executionContext.AddVariableAndSet("V", &Variable(conditionValue1));
+        statementTester._executionContext.AddVariableAndSet("X", &Variable(conditionValue2));
+
+        Variable result = statementTester.Execute();
 
         Assert::AreEqual(expectedValue, result.GetValueInt());
     }
@@ -618,130 +614,363 @@ J\
 
     static void TestMissingEndif()
     {
-        ExecutionContext executionContext;
-        RDEvaluater rdEvaluater;
-        ParseErrors parseErrors;
-        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+        StatementTester statementTester;
 
-        const char* pCode = " \
-IF (V == 1) \n\
-J = 2\
-";
+        statementTester.Add("IF (V == 1)");
+        statementTester.Add("J = 2");
 
-        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+        Variable result = statementTester.Execute();
 
-        Assert::AreEqual(1, parseErrors.GetErrorCount());
-        Assert::AreEqual("Missing ENDIF", parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing ENDIF", statementTester._parseErrors.GetError(0)->_errorText);
     }
 
 
     static void TestFor()
     {
-        ExecutionContext executionContext;
-        RDEvaluater rdEvaluater;
-        ParseErrors parseErrors;
-        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+        StatementTester statementTester;
 
-        const char* pCode = " \
-FOR loop 0:3\n\
-Q = loop\n\
-ENDFOR\n\
-Q\
-";
+        statementTester.Add("FOR loop 0:3");
+        statementTester.Add("Q = loop");
+        statementTester.Add("ENDFOR");
+        statementTester.Add("Q");
 
+        Variable result = statementTester.Execute();
 
-        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
-
-        Assert::AreEqual(0, parseErrors.GetErrorCount());
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
         Assert::AreEqual(3, result.GetValueInt());
     }
 
     static void TestForDown()
     {
-        ExecutionContext executionContext;
-        RDEvaluater rdEvaluater;
-        ParseErrors parseErrors;
-        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+        StatementTester statementTester;
 
-        const char* pCode = " \
-FOR loop 0:3:-1\n\
-Q = loop\n\
-ENDFOR\n\
-Q\
-";
+        statementTester.Add("FOR loop 0:4:-1");
+        statementTester.Add("Q = loop");
+        statementTester.Add("ENDFOR");
+        statementTester.Add("Q");
 
+        Variable result = statementTester.Execute();
 
-        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
-
-        Assert::AreEqual(0, parseErrors.GetErrorCount());
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
         Assert::AreEqual(0, result.GetValueInt());
     }
 
 
     static void TestMissingEndfor()
     {
-        ExecutionContext executionContext;
-        RDEvaluater rdEvaluater;
-        ParseErrors parseErrors;
-        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+        StatementTester statementTester;
 
-        const char* pCode = " \
-FOR loop 0:3\n\
-Q = loop\
-";
+        statementTester.Add("FOR loop 0:3");
+        statementTester.Add("Q = loop");
 
+        Variable result = statementTester.Execute();
 
-        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
-
-        Assert::AreEqual(1, parseErrors.GetErrorCount());
-        Assert::AreEqual("Missing ENDFOR", parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing ENDFOR", statementTester._parseErrors.GetError(0)->_errorText);
     }
-
-
 
     static void TestFunctionDefinition()
     {
-        ExecutionContext executionContext;
-        RDEvaluater rdEvaluater;
-        ParseErrors parseErrors;
-        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+        StatementTester statementTester;
 
-        const char* pCode = " \
-Q = 12\n\
-FUNC MyFunc\n\
-Q = loop\n\
-ENDFUNC\n\
-FUNC MyFunc2\n\
-Q = loop\n\
-ENDFUNC\n\
-Q\
-";
+        statementTester.Add("Q = 12");
+        statementTester.Add("FUNC MyFunc");
+        statementTester.Add("Q = loop");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("FUNC MyFunc2");
+        statementTester.Add("Q = loop");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("Q");
 
-        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+        Variable result = statementTester.Execute();
 
-        Assert::AreEqual(0, parseErrors.GetErrorCount());
-        Assert::AreEqual(5, executionContext._functionStore.Lookup("MyFunc")->LineNumberStart);
-        Assert::AreEqual(14, executionContext._functionStore.Lookup("MyFunc2")->LineNumberStart);
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual(5, statementTester._executionContext._functionStore.Lookup("MyFunc")->LineNumberStart);
+        Assert::AreEqual(14, statementTester._executionContext._functionStore.Lookup("MyFunc2")->LineNumberStart);
     }
 
     static void TestMissingEndfunc()
     {
-        ExecutionContext executionContext;
-        RDEvaluater rdEvaluater;
-        ParseErrors parseErrors;
-        FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
+        StatementTester statementTester;
 
-        const char* pCode = " \
-Q = 12\n\
-FUNC MyFunc\n\
-Q = loop\
-";
+        statementTester.Add("Q = 12");
+        statementTester.Add("FUNC MyFunc");
+        statementTester.Add("Q = loop");
 
-        Variable result = rdEvaluater.Evaluate(pCode, &executionContext, &functionCaller, &parseErrors, 99);
+        Variable result = statementTester.Execute();
 
-        Assert::AreEqual(1, parseErrors.GetErrorCount());
-        Assert::AreEqual("Missing ENDFUNC for function: MyFunc", parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing ENDFUNC for function: MyFunc", statementTester._parseErrors.GetError(0)->_errorText);
     }
+
+
+    static void TestReturn()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("RETURN 1");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+
+        Assert::AreEqual(1, statementTester._executionContext.GetVariableWithoutErrorCheck("<ReturnValue>")->GetValueInt());
+    }
+
+    static void TestFunctionCallNoParams()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("FUNC Test()");
+        statementTester.Add("RETURN 55");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("Test()");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+
+        Assert::AreEqual(55, result.GetValueInt());
+    }
+
+    static void TestFunctionCallOneParam()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("FUNC Test(q)");
+        statementTester.Add("RETURN 5 * q");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("Test(3)");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+
+        Assert::AreEqual(15, result.GetValueInt());
+    }
+
+    static void TestFunctionCallFuncAsParam()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("FUNC Test(q)");
+        statementTester.Add("RETURN 5 * q");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("FUNC Param()");
+        statementTester.Add("RETURN 3");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("Test(Param())");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+
+        Assert::AreEqual(15, result.GetValueInt());
+    }
+
+    static void TestFunctionCallMultiValueReturn()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("RETURN {1, 2, 3}");
+        statementTester.Add("FUNC Function()");
+        statementTester.Add("RETURN {1, 2, 3}");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("A=Function()");
+        statementTester.Add("A");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+
+        Assert::AreEqual(1.0F, result.GetValueFloat(0));
+        Assert::AreEqual(2.0F, result.GetValueFloat(1));
+        Assert::AreEqual(3.0F, result.GetValueFloat(2));
+    }
+
+    static void TestFunctionCallNested()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("FUNC Function()");
+        statementTester.Add("RETURN 11.0");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("FUNC FunctionOuter()");
+        statementTester.Add("A=Function()");
+        statementTester.Add("RETURN A");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("B=FunctionOuter()");
+        statementTester.Add("B");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(11.0F, result.GetValueFloat(0));
+    }
+
+
+    static void TestFunctionCallAsArgument()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("FUNC Function(A, B)");
+        statementTester.Add("RETURN A");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("FUNC Function2(X, Y, Z)");
+        statementTester.Add("RETURN X + Y + Z");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("B=Function2(3, Function(1, 3), 6)");
+        statementTester.Add("B");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(10.0F, result.GetValueFloat(0));
+    }
+
+    static void TestMethodCallWithParameterDuplicateName()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("V=15.0");
+        statementTester.Add("FUNC Function(V)");
+        statementTester.Add("RETURN V");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("Function(13)");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(13.0F, result.GetValueFloat(0));
+    }
+
+    static void TestMethodCannotAccessParentVariables()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("V=15.0");
+        statementTester.Add("FUNC Function()");
+        statementTester.Add("RETURN V");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("Function()");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing value in RETURN statement", statementTester._parseErrors.GetError(0)->_errorText);
+    }
+
+    static void TestMethodCallWithWrongArgumentCount()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("FUNC Function(X)");
+        statementTester.Add("PL(X)");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("Function()");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing argument in function call for parameter: X", statementTester._parseErrors.GetError(0)->_errorText);
+    }
+
+
+    static void TestMethodCallWithWrongArgumentCount2()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("FUNC Function(X)");
+        statementTester.Add("PL(X)");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("Function(15.0, 35.0)");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Extra arguments passed to function", statementTester._parseErrors.GetError(0)->_errorText);
+    }
+
+    static void TestUndefinedFunctionWithVariableParameter()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("V=15.0");
+        statementTester.Add("XX(V)");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Unrecognized function: XX", statementTester._parseErrors.GetError(0)->_errorText);
+    }
+
+
+#if fred
+    static void TestAbort()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("ABORT()");
+
+        Variable result = statementTester.Execute();
+
+        //Assert::AreEqual(1, statementTester.
+        Assert::AreEqual("Unrecognized function: XX", statementTester._parseErrors.GetError(0)->_errorText);
+
+
+        CommandSourceSimulator commandSource;
+        ParseErrors parseErrors;
+        LedMessageHandlerSimulator ledMessageHandlerSimulator;
+
+        commandSource.AddCommand("ABORT()");
+        commandSource.AddCommand("DI(a,0,10.0)");
+
+        ExecutionFlow executionFlow(&commandSource, &parseErrors, &ledMessageHandlerSimulator);
+
+
+        CommandResultStatus status = executionFlow.RunProgram(1);
+
+        Assert::AreEqual(true, executionFlow.IsAborting());
+    }
+
+    static void TestAbortInForLoop()
+    {
+        CommandSourceSimulator commandSource;
+        ParseErrors parseErrors;
+        LedMessageHandlerSimulator ledMessageHandlerSimulator;
+
+        commandSource.AddCommand("FOR Test 0:1");
+        commandSource.AddCommand("ABORT()");
+        commandSource.AddCommand("DI(a,0,10.0)");
+        commandSource.AddCommand("ENDFOR");
+
+        ExecutionFlow executionFlow(&commandSource, &parseErrors, &ledMessageHandlerSimulator);
+
+
+        CommandResultStatus status = executionFlow.RunProgram(1);
+
+        Assert::AreEqual(true, executionFlow.IsAborting());
+    }
+
+    static void TestAbortInFunctionCall()
+    {
+        CommandSourceSimulator commandSource;
+        ParseErrors parseErrors;
+        LedMessageHandlerSimulator ledMessageHandlerSimulator;
+
+        commandSource.AddCommand("FOR Test 0:1");
+        commandSource.AddCommand("ABORT()");
+        commandSource.AddCommand("DI(a,0,10.0)");
+        commandSource.AddCommand("ENDFOR");
+
+        ExecutionFlow executionFlow(&commandSource, &parseErrors, &ledMessageHandlerSimulator);
+
+
+        CommandResultStatus status = executionFlow.RunProgram(1);
+
+        Assert::AreEqual(true, executionFlow.IsAborting());
+    }
+
+
+#endif
 
 
 public:
@@ -755,6 +984,18 @@ public:
         TestMissingEndfunc();
         TestMissingEndif();
         TestMissingEndfor();
+        TestReturn();
+        TestFunctionCallNoParams();
+        TestFunctionCallOneParam();
+        TestFunctionCallFuncAsParam();
+        TestFunctionCallMultiValueReturn();
+        TestFunctionCallNested();
+        TestFunctionCallAsArgument();
+        TestMethodCallWithParameterDuplicateName();
+        TestMethodCannotAccessParentVariables();
+        TestMethodCallWithWrongArgumentCount();
+        TestMethodCallWithWrongArgumentCount2();
+        TestUndefinedFunctionWithVariableParameter();
 
 		TestEmptyString();
 
@@ -813,9 +1054,6 @@ public:
 
 		TestAssignment();
 		TestAssignmentMultiValue();
-
-		TestFunctionCallParsing();
-		TestFunctionCallNoParameters();
 
 		TestPrimitiveString();
 
