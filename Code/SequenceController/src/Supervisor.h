@@ -147,7 +147,14 @@ public:
 			Serial.println(_executionCount);
 
 			//_pTimebase->RunProgram(1);
-			_pTimebase->RunProgram(_pCurrentCommand);
+			bool keepRunning = _pTimebase->RunProgram(_pCurrentCommand);
+
+			if (!keepRunning)
+			{
+				_shouldExecuteCode = false;
+				return;
+			}
+
 			if (_parseErrors.GetErrorCount() != 0)
 			{
 				_shouldExecuteCode = false;

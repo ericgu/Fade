@@ -958,7 +958,7 @@ class RDEvaluaterTest
 
         statementTester.Add("CONFIGLED(\"RGB\", 33, 13)");
         statementTester.Add("FUNC AngleToRGB(angleInDegrees)");
-        statementTester.Add("//PL(angleInDegrees)  ");
+        statementTester.Add("PL(angleInDegrees)  ");
         statementTester.Add("");
         statementTester.Add("brightness = 0.2");
         statementTester.Add("IF(angleInDegrees <= 120)");
@@ -980,7 +980,6 @@ class RDEvaluaterTest
         statementTester.Add("FUNC DoChunk(chunk, offset, angle)");
         statementTester.Add("//PL(\"DoChunk\")");
         statementTester.Add("rgb = AngleToRGB((angle + offset) % 360)");
-        statementTester.Add("//rgb = {1, 2, 3}");
         statementTester.Add("//PL(rgb)");
         statementTester.Add("start = chunk * 3");
         statementTester.Add("D(5, start, rgb)");
@@ -993,7 +992,7 @@ class RDEvaluaterTest
         statementTester.Add("");
         statementTester.Add("//PL(\"hello\")");
         statementTester.Add("FOR angle 0:359 : 5");
-        statementTester.Add("//PL(angle)");
+        statementTester.Add("PL(angle)");
         statementTester.Add("DoChunk(0, 0, angle)");
         statementTester.Add("DoChunk(1, 72, angle)");
         statementTester.Add("DoChunk(2, 144, angle)");
@@ -1018,7 +1017,6 @@ class RDEvaluaterTest
         Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
     }
 
-#if fred
     static void TestAbort()
     {
         StatementTester statementTester;
@@ -1027,65 +1025,48 @@ class RDEvaluaterTest
 
         Variable result = statementTester.Execute();
 
-        //Assert::AreEqual(1, statementTester.
-        Assert::AreEqual("Unrecognized function: XX", statementTester._parseErrors.GetError(0)->_errorText);
-
-
-        CommandSourceSimulator commandSource;
-        ParseErrors parseErrors;
-        LedMessageHandlerSimulator ledMessageHandlerSimulator;
-
-        commandSource.AddCommand("ABORT()");
-        commandSource.AddCommand("DI(a,0,10.0)");
-
-        ExecutionFlow executionFlow(&commandSource, &parseErrors, &ledMessageHandlerSimulator);
-
-
-        CommandResultStatus status = executionFlow.RunProgram(1);
-
-        Assert::AreEqual(true, executionFlow.IsAborting());
+        Assert::AreEqual(true, statementTester._executionFlow.IsAborting());
+        Assert::AreEqual(2, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Aborting: ABORT", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual("Aborting: STATEMENT", statementTester._parseErrors.GetError(1)->_errorText);
     }
+
 
     static void TestAbortInForLoop()
     {
-        CommandSourceSimulator commandSource;
-        ParseErrors parseErrors;
-        LedMessageHandlerSimulator ledMessageHandlerSimulator;
+        StatementTester statementTester;
 
-        commandSource.AddCommand("FOR Test 0:1");
-        commandSource.AddCommand("ABORT()");
-        commandSource.AddCommand("DI(a,0,10.0)");
-        commandSource.AddCommand("ENDFOR");
+        statementTester.Add("FOR Test 0:2");
+        statementTester.Add("ABORT()");
+        statementTester.Add("x = 5");
+        statementTester.Add("ENDFOR");
 
-        ExecutionFlow executionFlow(&commandSource, &parseErrors, &ledMessageHandlerSimulator);
+        Variable result = statementTester.Execute();
 
-
-        CommandResultStatus status = executionFlow.RunProgram(1);
-
-        Assert::AreEqual(true, executionFlow.IsAborting());
+        Assert::AreEqual(true, statementTester._executionFlow.IsAborting());
+        Assert::AreEqual(3, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Aborting: ABORT", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual("Aborting: FOR", statementTester._parseErrors.GetError(1)->_errorText);
+        Assert::AreEqual("Aborting: STATEMENT", statementTester._parseErrors.GetError(2)->_errorText);
     }
 
-    static void TestAbortInFunctionCall()
+    static void TestAbortInStatementList()
     {
-        CommandSourceSimulator commandSource;
-        ParseErrors parseErrors;
-        LedMessageHandlerSimulator ledMessageHandlerSimulator;
+        StatementTester statementTester;
 
-        commandSource.AddCommand("FOR Test 0:1");
-        commandSource.AddCommand("ABORT()");
-        commandSource.AddCommand("DI(a,0,10.0)");
-        commandSource.AddCommand("ENDFOR");
+        statementTester.Add("ABORT()");
+        statementTester.Add("junk1");
+        statementTester.Add("junk2");
+        statementTester.Add("junk3");
+        statementTester.Add("junk4");
 
-        ExecutionFlow executionFlow(&commandSource, &parseErrors, &ledMessageHandlerSimulator);
+        Variable result = statementTester.Execute();
 
-
-        CommandResultStatus status = executionFlow.RunProgram(1);
-
-        Assert::AreEqual(true, executionFlow.IsAborting());
+        Assert::AreEqual(true, statementTester._executionFlow.IsAborting());
+        Assert::AreEqual(2, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Aborting: ABORT", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual("Aborting: STATEMENT", statementTester._parseErrors.GetError(1)->_errorText);
     }
-
-
-#endif
 
 
 public:
@@ -1184,5 +1165,9 @@ public:
 		TestFunctionCallNoParametersMissingClosingParen();
 		TestFunctionCallOneParametersMissingClosingParen();
 		TestFunctionCallTwoParametersEndsAfterComma();
+
+        TestAbort();
+        TestAbortInForLoop();
+        TestAbortInStatementList();
 	}
 };

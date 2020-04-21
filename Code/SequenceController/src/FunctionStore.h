@@ -43,6 +43,11 @@ public:
 
 	int GetCount() { return _functionDefinitionCount; }
 
+    void Clear()
+    {
+        _functionDefinitionCount = 0;
+    }
+
 	void DefineStart(const char* pFunctionName, ParseErrors* pParseErrors, int serialNumberStart)
 	{
 		if (_functionDefinitionCount == FunctionMaxCount)

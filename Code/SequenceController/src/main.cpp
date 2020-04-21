@@ -104,6 +104,7 @@ void setup()
     Serial.println("setup");
     Serial.flush();
     StackWatcher::Log("setup");
+    //StackWatcher::Enable();
     _pSupervisor = new Supervisor();
     _pSettings = new Settings();
     WiFi.setHostname(_pSupervisor->GetNodeName());

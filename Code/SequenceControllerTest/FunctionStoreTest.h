@@ -86,6 +86,22 @@ class FunctionStoreTest
 		Assert::AreEqual("Function: too many defined", parseErrors.GetError(0)->_errorText);
 	}
 
+    static void TestClear()
+    {
+        FunctionStore functionStore;
+        ParseErrors parseErrors;
+
+        functionStore.DefineStart("Func", &parseErrors, 14);
+        functionStore.DefineEnd(16);
+        functionStore.DefineStart("Func", &parseErrors, 14);
+
+        Assert::AreEqual(1, functionStore.GetCount());
+
+        functionStore.Clear();
+
+        Assert::AreEqual(0, functionStore.GetCount());
+
+    }
 
 public:
 	static void Run()
@@ -95,6 +111,7 @@ public:
 		TestDefineTwoFunctions();
 		TestNameTooLong();
 		TestTooManyFunctions();
+        TestClear();
 	}
 };
 #pragma once

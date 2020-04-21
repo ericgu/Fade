@@ -120,7 +120,7 @@ public:
 		_value[0] = '"';
 		int index = 1;
 
-		while (true)
+		while (index < sizeof(_value) )
 		{
 			char c = AdvanceChar();
 			if (c == 0)
@@ -145,7 +145,7 @@ public:
 		_value[0] = c;
 		int index = 1;
 
-		while (true)
+		while (index < sizeof(_value))
 		{
 			char c = PeekChar();
 
@@ -168,7 +168,7 @@ public:
 		_value[0] = c;
 		int index = 1;
 
-		while (true)
+		while (index < sizeof(_value))
 		{
 			char c = PeekChar();
 
@@ -230,6 +230,8 @@ public:
 
 	void Advance()
 	{
+        //Serial.print("Last token: "); Serial.println(GetCurrentToken());
+
         _pCurrentPreviousValue = _pCurrent;
 
 		while (true)

@@ -201,6 +201,8 @@ class BuiltInFunctions
 		if (strcmp(pFunctionName, "ABORT") == 0)
 		{
 			pExecutionFlow->AbortExecution();
+            pParseErrors->AddError("Aborting: ", "ABORT", lineNumber);
+
 			return true;
 		}
 
@@ -222,8 +224,6 @@ class BuiltInFunctions
 
 		return false;
 	}
-
-
 
 public:
 	static bool HandleBuiltInFunctions(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
