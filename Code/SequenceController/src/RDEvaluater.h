@@ -112,8 +112,6 @@ class RDEvaluater
             int parseLocation = _pExpressionTokenSource->GetParseLocation();
             _pExpressionTokenSource->SetParseLocation(pFunctionDefinition->LineNumberStart); // point to function...
 
-            StackFrame* pStackFrame = _pExecutionContext->StackTopFrame();
-
             // rename variables...
 
             _pExpressionTokenSource->Advance(); // skip "FUNC"
@@ -198,23 +196,22 @@ class RDEvaluater
 	{
 		PROLOGUE
 			
-		ExpressionNode* pNode = _pExpressionTokenSource->GetCurrentNode();
-		if (pNode == 0)
+		if (_pExpressionTokenSource->AtEnd())
 		{
 			_pParseErrors->AddError("Missing value at end of expression", "", _lineNumber);
 			return Variable::Empty();
 		}
 
-		if (pNode->IsNumber())
+        if (_pExpressionTokenSource->IsNumber())
 		{
-			Variable value = Variable::ParseFloat(pNode->_pItem);
+			Variable value = Variable::ParseFloat(_pExpressionTokenSource->GetCurrentToken());
 			_pExpressionTokenSource->Advance();
 			return value;
 		}
-		else if (pNode->IsIdentifier())
+		else if (_pExpressionTokenSource->IsIdentifier())
 		{
 			char identifier[128];
-			SafeString::StringCopy(identifier, pNode->_pItem, sizeof(identifier));
+			SafeString::StringCopy(identifier, _pExpressionTokenSource->GetCurrentToken(), sizeof(identifier));
 
 			_pExpressionTokenSource->Advance();
 
@@ -273,7 +270,7 @@ class RDEvaluater
 		if (_pExpressionTokenSource->FirstChar() == '"')
 		{
 			Variable value;
-			value.SetValue(_pExpressionTokenSource->GetCurrentNode()->_pItem + 1);
+			value.SetValue(_pExpressionTokenSource->GetCurrentToken() + 1);
 
 			_pExpressionTokenSource->Advance();
 
@@ -665,7 +662,7 @@ class RDEvaluater
             //expressionTokenSource.Advance();
             if (_pExpressionTokenSource->FirstChar() != ':')
             {
-                int k = 12;     // expected ":" error...
+                // expected ":" error...
             }
             _pExpressionTokenSource->Advance();
 
@@ -680,10 +677,8 @@ class RDEvaluater
 
             if (!_pExpressionTokenSource->AtEnd() && _pExpressionTokenSource->FirstChar() != '\n')
             {
-                int j = 15; // error - unexpected token at the end of FOR statement
+                // error - unexpected token at the end of FOR statement
             }
-
-            int v = 156;
 
             _pExecutionContext->AddVariableAndSet(identifier.GetVariableName(), &startValue);
             // Remove "undefined" sentinel...
@@ -735,7 +730,7 @@ class RDEvaluater
             _pExpressionTokenSource->Advance();
 
             char identifier[128];
-            SafeString::StringCopy(identifier, _pExpressionTokenSource->GetCurrentNode()->_pItem, sizeof(identifier));
+            SafeString::StringCopy(identifier, _pExpressionTokenSource->GetCurrentToken(), sizeof(identifier));
 
             _pExpressionTokenSource->AdvanceToNewLine();
 
@@ -813,7 +808,7 @@ class RDEvaluater
 
             if (!_pExpressionTokenSource->AtEnd() != 0 && !_pExpressionTokenSource->EqualTo("\n"))
             {
-                _pParseErrors->AddError("Unexpected token remaining after parsing: ", _pExpressionTokenSource->GetCurrentNode()->_pItem, _lineNumber);
+                _pParseErrors->AddError("Unexpected token remaining after parsing: ", _pExpressionTokenSource->GetCurrentToken(), _lineNumber);
                 _pExpressionTokenSource->AdvanceToNewLine();
             }
         }
@@ -862,11 +857,9 @@ public:
         ExpressionTokenSource expressionTokenSource(pExpression, pParseErrors);
         Variable value = EvaluateInExistingParse(&expressionTokenSource, pExecutionContext, pFunctionCaller, pParseErrors, lineNumber, pExecutionFlow);
 
-		ExpressionNode* pNode = _pExpressionTokenSource->GetCurrentNode();
-
-		if (pNode != 0)
+		if (!_pExpressionTokenSource->AtEnd())
 		{
-			_pParseErrors->AddError("Unexpected token remaining after parsing: ", pNode->_pItem, _lineNumber);
+			_pParseErrors->AddError("Unexpected token remaining after parsing: ", _pExpressionTokenSource->GetCurrentToken(), _lineNumber);
 		}
 
 		// Check for undefined sentinel variables. 

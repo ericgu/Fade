@@ -2,22 +2,21 @@
 
 class Supervisor
 {
-    CommandSource _commandSource;
-    ParseErrors _parseErrors;    
+	CommandSource _commandSource;
+	ParseErrors _parseErrors;
 
 	Timebase *_pTimebase = 0;
 
-	char* _pCurrentCommand = 0;
-	char* _pNodeName = 0;
+	char *_pCurrentCommand = 0;
+	char *_pNodeName = 0;
 
-    Settings *_pSettings;
+	Settings *_pSettings;
 
 	volatile bool _shouldExecuteCode;
 	volatile bool _shouldExecuteCodeLoaded;
 	volatile int _executionCount;
 
 public:
-
 	~Supervisor()
 	{
 		if (_pTimebase)
@@ -39,7 +38,7 @@ public:
 	const static int MaxProgramSize = 16636;
 	const static int MaxNodeNameSize = 128;
 
-	void Init(ILedManager* pLedManager, Settings* pSettings, TimebaseCallback timebaseCallback)
+	void Init(ILedManager *pLedManager, Settings *pSettings, TimebaseCallback timebaseCallback)
 	{
 		_pCurrentCommand = new char[MaxProgramSize];
 		*_pCurrentCommand = '\0';
@@ -73,20 +72,20 @@ public:
 		}
 	}
 
-	void UpdateProgram(const char* pProgram)
+	void UpdateProgram(const char *pProgram)
 	{
 		_pTimebase->Abort();
 
 		while (_shouldExecuteCode)
 		{
 			Serial.println("Waiting for abort to finish");
-			TimeServices::TaskDelay(10); 
+			TimeServices::TaskDelay(10);
 		}
 
 		SafeString::StringCopy(_pCurrentCommand, pProgram, MaxProgramSize);
 
 		Serial.print("Program Updated: ");
-		Serial.println((int) strlen(pProgram));
+		Serial.println((int)strlen(pProgram));
 
 		_parseErrors.Clear();
 		_commandSource.SetCommand(_pCurrentCommand);
@@ -102,18 +101,18 @@ public:
 		Serial.println("Starting execution");
 	}
 
-	void UpdateNodeName(const char* pNodeName)
+	void UpdateNodeName(const char *pNodeName)
 	{
 		_pSettings->SaveNodeName(pNodeName);
 		SafeString::StringCopy(_pNodeName, pNodeName, MaxNodeNameSize);
 	}
 
-	const char* GetNodeName()
+	const char *GetNodeName()
 	{
 		return _pNodeName;
 	}
 
-	const char* GetCurrentProgram()
+	const char *GetCurrentProgram()
 	{
 		return _pCurrentCommand;
 	}
@@ -123,12 +122,12 @@ public:
 		return _shouldExecuteCode;
 	}
 
-	const char* GetCurrentErrors()
+	const char *GetCurrentErrors()
 	{
 		return _parseErrors.FormatErrors();
 	}
 
-	CommandSource* GetCommandSource()
+	CommandSource *GetCommandSource()
 	{
 		return &_commandSource;
 	}
@@ -144,13 +143,16 @@ public:
 		if (_shouldExecuteCode)
 		{
 			_executionCount++;
-			//Serial.print("ExecutionCount: "); Serial.println(_executionCount);
+			Serial.print("ExecutionCount: ");
+			Serial.println(_executionCount);
 
-			_pTimebase->RunProgram(1);
+			//_pTimebase->RunProgram(1);
+			_pTimebase->RunProgram(_pCurrentCommand);
 			if (_parseErrors.GetErrorCount() != 0)
 			{
 				_shouldExecuteCode = false;
 				Serial.println("Error detected; disabling execution...");
+				Serial.println(_parseErrors.GetError(0)->_errorText);
 				return;
 			}
 
@@ -172,5 +174,5 @@ public:
 		{
 			Execute();
 		}
-	}	
+	}
 };

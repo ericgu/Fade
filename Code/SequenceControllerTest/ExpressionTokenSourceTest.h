@@ -6,9 +6,7 @@ class ExpressionTokenSourceTest
 	static void Assert(ExpressionTokenSource* pExpressionTokenSource, const char* pNodeString)
 	{
 		int tokenLength = strlen(pNodeString);
-		ExpressionNode* pNode = pExpressionTokenSource->GetCurrentNode();
-
-		Assert::AreEqual(pNodeString, pNode->_pItem);
+        Assert::AreEqual(1, pExpressionTokenSource->EqualTo(pNodeString));
 
 		pExpressionTokenSource->Advance();
 	}
@@ -19,7 +17,7 @@ class ExpressionTokenSourceTest
 
         Assert(&expressionTokenSource, "1");
 
-        Assert::AreEqual(0, (int)expressionTokenSource.GetCurrentNode());
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
     }
 
 	static void Simple()
@@ -28,8 +26,8 @@ class ExpressionTokenSourceTest
 
 		Assert(&expressionTokenSource, "13.0");
 
-		Assert::AreEqual(0, (int) expressionTokenSource.GetCurrentNode());
-	}
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
+    }
 
 	static void BinaryPlus()
 	{
@@ -39,8 +37,8 @@ class ExpressionTokenSourceTest
 		Assert(&expressionTokenSource, "+");
 		Assert(&expressionTokenSource, "10.0");
 
-		Assert::AreEqual(0, (int)expressionTokenSource.GetCurrentNode());
-	}
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
+    }
 
     static void TestNewLine()
     {
@@ -48,7 +46,7 @@ class ExpressionTokenSourceTest
 
         Assert(&expressionTokenSource, "\n");
 
-        Assert::AreEqual(0, (int)expressionTokenSource.GetCurrentNode());
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
     }
 
     static void TestNewLine2()
@@ -57,7 +55,7 @@ class ExpressionTokenSourceTest
 
         Assert(&expressionTokenSource, "\n");
 
-        Assert::AreEqual(0, (int)expressionTokenSource.GetCurrentNode());
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
     }
 
     static void TestAdvanceToNewLine1()
@@ -65,7 +63,7 @@ class ExpressionTokenSourceTest
         ExpressionTokenSource expressionTokenSource("+\n\r*");
         expressionTokenSource.AdvanceToNewLine();
 
-        Assert::AreEqual("*", expressionTokenSource.GetCurrentNode()->_pItem);
+        Assert::AreEqual(1, expressionTokenSource.EqualTo("*"));
     }
 
     static void TestAdvanceToNewLine2()
@@ -73,7 +71,7 @@ class ExpressionTokenSourceTest
         ExpressionTokenSource expressionTokenSource("\n*");
         expressionTokenSource.AdvanceToNewLine();
 
-        Assert::AreEqual("*", expressionTokenSource.GetCurrentNode()->_pItem);
+        Assert::AreEqual(1, expressionTokenSource.EqualTo("*"));
     }
 
     static void TestAdvanceToNewLine3()
@@ -81,7 +79,7 @@ class ExpressionTokenSourceTest
         ExpressionTokenSource expressionTokenSource("*");
         expressionTokenSource.AdvanceToNewLine();
 
-        Assert::AreEqual(0, (int) expressionTokenSource.GetCurrentNode());
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
     }
 
 
@@ -131,7 +129,7 @@ class ExpressionTokenSourceTest
 		Assert(&expressionTokenSource, "}");
 		Assert(&expressionTokenSource, "21");
 
-		Assert::AreEqual(0, (int)expressionTokenSource.GetCurrentNode());
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
 	}
 
 	static void TestParens()
@@ -146,7 +144,7 @@ class ExpressionTokenSourceTest
 		Assert(&expressionTokenSource, "*");
 		Assert(&expressionTokenSource, "3");
 
-		Assert::AreEqual(0, (int)expressionTokenSource.GetCurrentNode());
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
 	}
 
 	static void TestParens2()
@@ -159,7 +157,7 @@ class ExpressionTokenSourceTest
 		Assert(&expressionTokenSource, "2");
 		Assert(&expressionTokenSource, ")");
 
-		Assert::AreEqual(0, (int)expressionTokenSource.GetCurrentNode());
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
 	}
 
 	static void TestWithWhiteSpace()
@@ -172,7 +170,7 @@ class ExpressionTokenSourceTest
 		Assert(&expressionTokenSource, "2");
 		Assert(&expressionTokenSource, ")");
 
-		Assert::AreEqual(0, (int)expressionTokenSource.GetCurrentNode());
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
 	}
 
 	static void TestQuotedString()
@@ -183,7 +181,7 @@ class ExpressionTokenSourceTest
 		Assert(&expressionTokenSource, "\" x + y = z ");
 		Assert(&expressionTokenSource, "*");
 
-		Assert::AreEqual(0, (int)expressionTokenSource.GetCurrentNode());
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
 	}
 
 	static void TestIdentifiers()
@@ -196,27 +194,70 @@ class ExpressionTokenSourceTest
 		Assert(&expressionTokenSource, "*");
 		Assert(&expressionTokenSource, "z");
 
-		Assert::AreEqual(0, (int)expressionTokenSource.GetCurrentNode());
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
 	}
 
-	static void TestNodeIsNumber()
+    static void TestComment()
+    {
+        ExpressionTokenSource expressionTokenSource("x + 7 // add them together\n13 // done");
+
+        Assert(&expressionTokenSource, "x");
+        Assert(&expressionTokenSource, "+");
+        Assert(&expressionTokenSource, "7");
+        Assert(&expressionTokenSource, "\n");
+        Assert(&expressionTokenSource, "13");
+
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
+    }
+
+    static void TestComment2()
+    {
+        ExpressionTokenSource expressionTokenSource("x = 5 // init\n // space\nx  // eval");
+
+        Assert(&expressionTokenSource, "x");
+        Assert(&expressionTokenSource, "=");
+        Assert(&expressionTokenSource, "5");
+        Assert(&expressionTokenSource, "\n");
+        Assert(&expressionTokenSource, "\n");
+        Assert(&expressionTokenSource, "x");
+
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
+    }
+
+    static void TestGetCurrentToken()
+    {
+        ExpressionTokenSource expressionTokenSource("fred + barney");
+
+        Assert::AreEqual("fred", expressionTokenSource.GetCurrentToken());
+        expressionTokenSource.Advance();
+        Assert::AreEqual("+", expressionTokenSource.GetCurrentToken());
+        expressionTokenSource.Advance();
+        Assert::AreEqual("barney", expressionTokenSource.GetCurrentToken());
+        expressionTokenSource.Advance();
+
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
+    }
+
+
+	static void TestIsNumber()
 	{
-		ExpressionNode expressionNode;
-		expressionNode._pItem = "13";
-		Assert::AreEqual(true, expressionNode.IsNumber());
+        ExpressionTokenSource expressionTokenSource("13 Bob");
+		Assert::AreEqual(true, expressionTokenSource.IsNumber());
 
-		expressionNode._pItem = "Bob";
-		Assert::AreEqual(false, expressionNode.IsNumber());
-	}
+        expressionTokenSource.Advance();
 
-	static void TestNodeIsIdentifier()
+        Assert::AreEqual(false, expressionTokenSource.IsNumber());
+    }
+
+	static void TestIsIdentifier()
 	{
-		ExpressionNode expressionNode;
-		expressionNode._pItem = "13";
-		Assert::AreEqual(false, expressionNode.IsIdentifier());
+        ExpressionTokenSource expressionTokenSource("13 Bob");
+        Assert::AreEqual(false, expressionTokenSource.IsIdentifier());
 
-		expressionNode._pItem = "Bob";
-		Assert::AreEqual(true, expressionNode.IsIdentifier());
+        expressionTokenSource.Advance();
+
+        Assert::AreEqual(true, expressionTokenSource.IsIdentifier());
+       
 	}
 
 	static void TestUnexpectedCharacter()
@@ -224,7 +265,7 @@ class ExpressionTokenSourceTest
 		ParseErrors parseErrors;
 		ExpressionTokenSource expressionTokenSource("x $ z", &parseErrors, 15);
 
-		while (expressionTokenSource.GetCurrentNode() != 0)
+		while (!expressionTokenSource.AtEnd())
 		{
 			expressionTokenSource.Advance();
 		}
@@ -239,7 +280,7 @@ class ExpressionTokenSourceTest
 		ParseErrors parseErrors;
 		ExpressionTokenSource expressionTokenSource("\"abcd", &parseErrors, 55);
 
-		while (expressionTokenSource.GetCurrentNode() != 0)
+		while (!expressionTokenSource.AtEnd())
 		{
 			expressionTokenSource.Advance();
 		}
@@ -254,35 +295,74 @@ class ExpressionTokenSourceTest
         ParseErrors parseErrors;
         ExpressionTokenSource expressionTokenSource("a + b * c / d % e", &parseErrors, 55);
 
-        Assert::AreEqual("a", expressionTokenSource.GetCurrentNode()->_pItem);
+        Assert::AreEqual(1, expressionTokenSource.EqualTo("a"));
         int spot = expressionTokenSource.GetParseLocation();
 
         expressionTokenSource.Advance();
         expressionTokenSource.Advance();
 
-        Assert::AreEqual("b", expressionTokenSource.GetCurrentNode()->_pItem);
+        Assert::AreEqual(1, expressionTokenSource.EqualTo("b"));
 
         expressionTokenSource.SetParseLocation(spot);
 
-        Assert::AreEqual("a", expressionTokenSource.GetCurrentNode()->_pItem);
+        Assert::AreEqual(1, expressionTokenSource.EqualTo("a"));
 
         expressionTokenSource.Advance();
         expressionTokenSource.Advance();
         expressionTokenSource.Advance();
         expressionTokenSource.Advance();
 
-        Assert::AreEqual("c", expressionTokenSource.GetCurrentNode()->_pItem);
+        Assert::AreEqual(1, expressionTokenSource.EqualTo("c"));
         spot = expressionTokenSource.GetParseLocation();
 
         expressionTokenSource.Advance();
         expressionTokenSource.Advance();
         expressionTokenSource.Advance();
 
-        Assert::AreEqual("%", expressionTokenSource.GetCurrentNode()->_pItem);
+        Assert::AreEqual(1, expressionTokenSource.EqualTo("%"));
         expressionTokenSource.SetParseLocation(spot);
 
-        Assert::AreEqual("c", expressionTokenSource.GetCurrentNode()->_pItem);
+        Assert::AreEqual(1, expressionTokenSource.EqualTo("c"));
     }
+
+    static void TestGetSet(ExpressionTokenSource* pExpressionTokenSource, const char* pToken)
+    {
+        Assert::AreEqual(pToken, pExpressionTokenSource->GetCurrentToken());
+        pExpressionTokenSource->SetParseLocation(pExpressionTokenSource->GetParseLocation());
+        Assert::AreEqual(pToken, pExpressionTokenSource->GetCurrentToken());
+
+        pExpressionTokenSource->Advance();
+    }
+
+    static void TestGetParseLocationSetParseLocation2()
+    {
+        ParseErrors parseErrors;
+        ExpressionTokenSource expressionTokenSource("x = a + b // free\ny * c / d % e\nz = x * y", &parseErrors, 55);
+
+        TestGetSet(&expressionTokenSource, "x");
+        TestGetSet(&expressionTokenSource, "=");
+        TestGetSet(&expressionTokenSource, "a");
+        TestGetSet(&expressionTokenSource, "+");
+        TestGetSet(&expressionTokenSource, "b");
+        TestGetSet(&expressionTokenSource, "\n");
+
+        TestGetSet(&expressionTokenSource, "y");
+        TestGetSet(&expressionTokenSource, "*");
+        TestGetSet(&expressionTokenSource, "c");
+        TestGetSet(&expressionTokenSource, "/");
+        TestGetSet(&expressionTokenSource, "d");
+        TestGetSet(&expressionTokenSource, "%");
+        TestGetSet(&expressionTokenSource, "e");
+        TestGetSet(&expressionTokenSource, "\n");
+
+        TestGetSet(&expressionTokenSource, "z");
+        TestGetSet(&expressionTokenSource, "=");
+        TestGetSet(&expressionTokenSource, "x");
+        TestGetSet(&expressionTokenSource, "*");
+        TestGetSet(&expressionTokenSource, "y");
+
+    }
+
 
     static void TestAtEnd()
     {
@@ -309,6 +389,8 @@ public:
 		TestWithWhiteSpace();
 		TestQuotedString();
 		TestIdentifiers();
+        TestComment();
+        TestComment2();
 		TestUnexpectedCharacter();
 		TestUnclosedStringConstant();
         TestNewLine();
@@ -317,11 +399,12 @@ public:
         TestAdvanceToNewLine2();
         TestAdvanceToNewLine3();
         TestGetParseLocationSetParseLocation();
+        TestGetParseLocationSetParseLocation2();
         TestAtEnd();
 
-		TestNodeIsNumber();
-		TestNodeIsIdentifier();
-		//TestNodeIs();
+        TestGetCurrentToken();
 
+		TestIsNumber();
+		TestIsIdentifier();
 	}
 };

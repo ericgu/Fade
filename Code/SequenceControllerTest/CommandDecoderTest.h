@@ -2,49 +2,6 @@
 
 #include "CommandDecoder.h"
 
-class MockExecutionFlow : public IExecutionFlow
-{
-public:
-	CommandResult _commandResult;
-	Command _command;
-	bool _aborting = false;
-
-	MockExecutionFlow() : _commandResult(16) {}
-
-	virtual CommandResultStatus RunProgram(int runCount = -1) 
-	{
-		return CommandResultStatus::CommandNone;
-	}
-
-	virtual	void ExecuteLedCommand(CommandResult* pCommandResult)
-	{}
-
-	virtual CommandResult* GetCommandResult()
-	{
-		return &_commandResult;
-	}
-
-	virtual Command* GetCommand(int commandNumber)
-	{
-		return &_command;
-	}
-
-	virtual void AbortExecution()
-	{
-		_aborting = true;
-	}
-
-	virtual bool IsAborting()
-	{
-		return _aborting;
-	}
-
-	void ConfigureLeds(const char* pLedType, int ledTypeLength, int count)
-	{
-
-	}
-};
-
 class CommandDecoderTest
 {
 	static CommandResult* _pCallbackCommandResult;

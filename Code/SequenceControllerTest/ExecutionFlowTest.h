@@ -1216,6 +1216,8 @@ public:
 	{
 		//TestFunctionDoubleRun();
 
+#if fred
+
 		TestDirectWithLists();
 
 		Test();
@@ -1238,9 +1240,10 @@ public:
 
 		TestDoubleLoop();
 		TestPrint();
+#endif
 
 #if fred
-		TestMethodCallWithParameter();
+        TestMethodCallWithParameter();
 		TestMethodCallWithTwoParameters();
 		TestFunctionDef();
 		TestFunctionCall();

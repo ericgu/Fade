@@ -60,6 +60,11 @@ class BuiltInFunctions
 				pExecutionFlow->GetCommandResult()->AddTarget(LedState(pChannel->GetValueInt(), pBrightness, pCycleCount->GetValueInt()));
 			}
 
+            if (immediateMode)
+            {
+                pExecutionFlow->ExecuteLedCommand(pExecutionFlow->GetCommandResult());
+            }
+
 			return true;
 		}
 
@@ -106,6 +111,11 @@ class BuiltInFunctions
 				pExecutionFlow->GetCommandResult()->AddTarget(LedState(channel - 1, pBrightness, pCycleCount->GetValueInt()));
 			}
 
+            if (immediateMode)
+            {
+                pExecutionFlow->ExecuteLedCommand(pExecutionFlow->GetCommandResult());
+            }
+
 			return true;
 		}
 
@@ -127,6 +137,8 @@ class BuiltInFunctions
 
 			pExecutionFlow->GetCommandResult()->SetCycleCount(pCycleCount->GetValueInt());
 			pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandExecute);
+
+            pExecutionFlow->ExecuteLedCommand(pExecutionFlow->GetCommandResult());
 
 			return true;
 		}

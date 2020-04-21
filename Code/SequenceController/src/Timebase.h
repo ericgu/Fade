@@ -93,6 +93,18 @@ class Timebase: public ILedMessageHandler
 			}
 		}
 
+        void RunProgram(const char* pCommand)
+        {
+            if (_pDelayer == 0)
+            {
+                _pDelayer = new Delayer();
+                _pDelayer->Snapshot(_timeServices.GetTicks(), UpdateRateInMicroseconds);
+            }
+
+            _executionFlow.RunProgram(pCommand);
+        }
+
+#if fred
         void RunProgram(int runCount)
         {
 			if (_pDelayer == 0)
@@ -124,6 +136,7 @@ class Timebase: public ILedMessageHandler
 				return;
 			}
         }
+#endif
 
 		void ResetExecutionState()
 		{

@@ -2,28 +2,30 @@ class ExpressionTokenSource
 {
 	ExpressionNode _node;
 	ExpressionNode* _pCurrentNode;
-    int _advanceCount;
 
 	ParseErrors* _pParseErrors;
 	int _lineNumber;
 
-	char _expression[512];
+	const char* _pExpression;
 
 	const char* _pCurrent;
+    const char* _pCurrentPreviousValue;
 	char _value[512];
 
 public:
+
 	ExpressionTokenSource(const char* pExpression, ParseErrors* pParseErrors = 0, int lineNumber = 0)
 	{
         PROLOGUE
 
-		SafeString::StringCopy(_expression, pExpression, sizeof(_expression));
-		_pCurrent = _expression;
+            //		SafeString::StringCopy(_expression, pExpression, sizeof(_expression));
+
+        _pExpression = pExpression;
+		_pCurrent = _pExpression;
 		_pParseErrors = pParseErrors;
 		_lineNumber = lineNumber;
 
 		_pCurrentNode = &_node;
-        _advanceCount = 0;
 		_value[0] = '\0';
 		_node._pItem = _value;
 
@@ -55,15 +57,28 @@ public:
 		return *(_pCurrentNode->_pItem + 1);
 	}
 
-	ExpressionNode * GetCurrentNode()
-	{
-        PROLOGUE
-		return _pCurrentNode;
-	}
+    const char* GetCurrentToken()
+    {
+        return _pCurrentNode->_pItem;
+    }
 
     bool AtEnd()
     {
         return _pCurrentNode == 0;
+    }
+
+    bool IsNumber(char first) { return first >= '0' && first <= '9'; }
+
+    bool IsIdentifier(char first) { return (first >= 'a' && first <= 'z') || (first >= 'A' && first <= 'Z'); }
+
+    bool IsNumber()
+    {
+        if (_pCurrentNode == 0)
+        {
+            return false;
+        }
+
+        return IsNumber(*_pCurrentNode->_pItem);
     }
 
 	bool IsIdentifier()
@@ -73,12 +88,7 @@ public:
 			return false;
 		}
 
-		if (!_pCurrentNode->IsIdentifier())
-		{
-			return false;
-		}
-
-		return true;
+        return IsIdentifier(*_pCurrentNode->_pItem);
 	}
 
 	char PeekChar()
@@ -202,9 +212,25 @@ public:
 		SafeString::StringCopy(_value, pValue, sizeof(_value));
 	}
 
+    void EatComment()
+    {
+        while (*_pCurrent != 0 && *_pCurrent != '\n' && *_pCurrent != '\r')
+        {
+            _pCurrent++;
+        }
+
+        if (*_pCurrent == 0)
+        {
+            _pCurrentNode = 0;
+            return;
+        }
+
+        Advance();
+    }
+
 	void Advance()
 	{
-        _advanceCount++;
+        _pCurrentPreviousValue = _pCurrent;
 
 		while (true)
 		{
@@ -224,7 +250,6 @@ public:
 			case '}': 
 			case ',': 
 			case '*': 
-			case '/': 
 			case '%': 
             case ':': CopyToToken(c); return;
 
@@ -234,6 +259,16 @@ public:
 			case '=': CopyToToken(Match('=') ? "==" : "="); return;
 			case '>': CopyToToken(Match('=') ? ">=" : ">"); return;
 			case '<': CopyToToken(Match('=') ? "<=" : "<"); return;
+
+            case '/': if (Match('/'))
+                      {
+                        EatComment();
+                      }
+                      else
+                      {
+                          CopyToToken("/");
+                      }
+                      return;
 
 			case '&': if (Match('&')) { CopyToToken("&&"); } return;
 			case '|': if (Match('|')) { CopyToToken("||"); } return;
@@ -294,19 +329,15 @@ public:
 
     int GetParseLocation()
     {
-        return _advanceCount;
+        return _pCurrentPreviousValue - _pExpression;
     }
 
     void SetParseLocation(int newParseLocation)
     {
-        _pCurrent = _expression;
         _pCurrentNode = &_node;
-        _advanceCount = 0;
+        _pCurrent = _pExpression + newParseLocation;
 
-        for (int i = 0; i < newParseLocation; i++)
-        {
-            Advance();
-        }
+        Advance();
     }
 
 };

@@ -1,4 +1,49 @@
 
+class MockExecutionFlow : public IExecutionFlow
+{
+public:
+    CommandResult _commandResult;
+    Command _command;
+    bool _aborting = false;
+
+    MockExecutionFlow() : _commandResult(16) {}
+
+    virtual CommandResultStatus RunProgram(int runCount = -1)
+    {
+        return CommandResultStatus::CommandNone;
+    }
+
+    virtual	void ExecuteLedCommand(CommandResult* pCommandResult)
+    {}
+
+    virtual CommandResult* GetCommandResult()
+    {
+        return &_commandResult;
+    }
+
+    virtual Command* GetCommand(int commandNumber)
+    {
+        return &_command;
+    }
+
+    virtual void AbortExecution()
+    {
+        _aborting = true;
+    }
+
+    virtual bool IsAborting()
+    {
+        return _aborting;
+    }
+
+    void ConfigureLeds(const char* pLedType, int ledTypeLength, int count)
+    {
+
+    }
+};
+
+
+
 class FunctionCallerSimulator : public IFunctionCaller
 {
 	float _returnValue;
@@ -29,6 +74,40 @@ public:
 	{
 		return _functionName;
 	}
+};
+
+class StatementTester
+{
+    char _program[2048];
+
+public:
+    ExecutionContext _executionContext;
+    RDEvaluater _rdEvaluater;
+    ParseErrors _parseErrors;
+    FunctionCallerSimulator _functionCaller;
+    MockExecutionFlow _executionFlow;
+
+    StatementTester() :
+        _functionCaller(_executionContext.Variables(), _executionContext.GetStack())
+    {
+        _program[0] = '\0';
+    }
+
+
+    void Add(const char* pLine)
+    {
+        if (strlen(_program) != 0)
+        {
+            SafeString::StringCat(_program, "\n", sizeof(_program));
+        }
+        SafeString::StringCat(_program, pLine, sizeof(_program));
+    }
+
+    Variable Execute()
+    {
+        return _rdEvaluater.Evaluate(_program, &_executionContext, &_functionCaller, &_parseErrors, 99, &_executionFlow);
+    }
+
 };
 
 class RDEvaluaterTest
@@ -514,38 +593,7 @@ class RDEvaluaterTest
 		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 99);
 	}
 
-    class StatementTester
-    {
-        char _program[512];
-
-    public:
-        ExecutionContext _executionContext;
-        RDEvaluater _rdEvaluater;
-        ParseErrors _parseErrors;
-        FunctionCallerSimulator _functionCaller;
-
-        StatementTester(): 
-            _functionCaller(_executionContext.Variables(), _executionContext.GetStack())
-        {
-            _program[0] = '\0';
-        }
-
-
-        void Add(const char* pLine) 
-        {
-            if (strlen(_program) != 0)
-            {
-                SafeString::StringCat(_program, "\n", sizeof(_program));
-            }
-            SafeString::StringCat(_program, pLine, sizeof(_program));
-        }
-        
-        Variable Execute()
-        {
-            return _rdEvaluater.Evaluate(_program, &_executionContext, &_functionCaller, &_parseErrors, 99);
-        }
-
-    };
+ 
 
     static void DoTestIf(int conditionValue, int expectedValue)
     {
@@ -686,8 +734,8 @@ class RDEvaluaterTest
         Variable result = statementTester.Execute();
 
         Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
-        Assert::AreEqual(5, statementTester._executionContext._functionStore.Lookup("MyFunc")->LineNumberStart);
-        Assert::AreEqual(14, statementTester._executionContext._functionStore.Lookup("MyFunc2")->LineNumberStart);
+        Assert::AreEqual(7, statementTester._executionContext._functionStore.Lookup("MyFunc")->LineNumberStart);
+        Assert::AreEqual(36, statementTester._executionContext._functionStore.Lookup("MyFunc2")->LineNumberStart);
     }
 
     static void TestMissingEndfunc()
@@ -902,6 +950,73 @@ class RDEvaluaterTest
         Assert::AreEqual("Unrecognized function: XX", statementTester._parseErrors.GetError(0)->_errorText);
     }
 
+    static void TestRealCode()
+    {
+        return;
+
+        StatementTester statementTester;
+
+        statementTester.Add("CONFIGLED(\"RGB\", 33, 13)");
+        statementTester.Add("FUNC AngleToRGB(angleInDegrees)");
+        statementTester.Add("//PL(angleInDegrees)  ");
+        statementTester.Add("");
+        statementTester.Add("brightness = 0.2");
+        statementTester.Add("IF(angleInDegrees <= 120)");
+        statementTester.Add("temp = angleInDegrees / 120 * brightness");
+        statementTester.Add("value = { temp, 0, brightness - temp }");
+        statementTester.Add("ELSEIF(angleInDegrees <= 240)");
+        statementTester.Add("temp = (angleInDegrees - 120) / 120 * brightness");
+        statementTester.Add("value = { brightness - temp, temp, 0 }");
+        statementTester.Add("ELSE");
+        statementTester.Add("temp = (angleInDegrees - 240) / 120 * brightness");
+        statementTester.Add("value = { 0, brightness - temp, temp }");
+        statementTester.Add("ENDIF");
+        statementTester.Add("RETURN value");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("");
+        statementTester.Add("FUNC Test()");
+        statementTester.Add("ENDFUNC");
+
+        statementTester.Add("FUNC DoChunk(chunk, offset, angle)");
+        statementTester.Add("//PL(\"DoChunk\")");
+        statementTester.Add("rgb = AngleToRGB((angle + offset) % 360)");
+        statementTester.Add("//rgb = {1, 2, 3}");
+        statementTester.Add("//PL(rgb)");
+        statementTester.Add("start = chunk * 3");
+        statementTester.Add("D(5, start, rgb)");
+        statementTester.Add("D(5, start + 1, rgb)");
+        statementTester.Add("D(5, start + 2, rgb)");
+        statementTester.Add("");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("");
+        statementTester.Add("FUNC Main()");
+        statementTester.Add("");
+        statementTester.Add("//PL(\"hello\")");
+        statementTester.Add("FOR angle 0:359 : 5");
+        statementTester.Add("//PL(angle)");
+        statementTester.Add("DoChunk(0, 0, angle)");
+        statementTester.Add("DoChunk(1, 72, angle)");
+        statementTester.Add("DoChunk(2, 144, angle)");
+        statementTester.Add("DoChunk(3, 216, angle)");
+        statementTester.Add("DoChunk(4, 288, angle)");
+        statementTester.Add("DoChunk(5, 252, angle)");
+        statementTester.Add("DoChunk(6, 180, angle)");
+        statementTester.Add("DoChunk(7, 108, angle)");
+        statementTester.Add("DoChunk(8, 36, angle) ");
+        statementTester.Add("DoChunk(9, 324, angle)");
+        statementTester.Add("A(5)");
+        statementTester.Add("ENDFOR");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("");
+        statementTester.Add("FOR count 0:123456789");
+        statementTester.Add("PL(count)");
+        statementTester.Add("Main()");
+        statementTester.Add("ENDFOR");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+    }
 
 #if fred
     static void TestAbort()
@@ -985,6 +1100,7 @@ public:
         TestMissingEndif();
         TestMissingEndfor();
         TestReturn();
+
         TestFunctionCallNoParams();
         TestFunctionCallOneParam();
         TestFunctionCallFuncAsParam();
@@ -996,6 +1112,7 @@ public:
         TestMethodCallWithWrongArgumentCount();
         TestMethodCallWithWrongArgumentCount2();
         TestUndefinedFunctionWithVariableParameter();
+        TestRealCode();
 
 		TestEmptyString();
 

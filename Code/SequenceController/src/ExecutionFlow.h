@@ -73,6 +73,15 @@ public:
         return _pCommandSource->GetCommand(commandNumber);
     }
 
+    bool RunProgram(const char *pCommand)
+    {
+        Serial.println("ExecutinoFlow::RunProgram");
+
+        _pExecutionContext->Evaluate(pCommand, _pParseErrors, 0, this);
+
+        return true;
+    }
+
     CommandResultStatus RunProgram(int runCount)
     {
         Profiler.Start("RunProgram");
