@@ -33,16 +33,10 @@
     <ClInclude Include="LedManagerTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CommandDecoderTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IntegrationTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Serial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LoopTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VariableTest.h">
@@ -58,9 +52,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StackTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ListParserTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CommandTest.h">
@@ -94,9 +85,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RDEvaluaterTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FunctionCallerTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ExpressionTokenSourceTest.h">

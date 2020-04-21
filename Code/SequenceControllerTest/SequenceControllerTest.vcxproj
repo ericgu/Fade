@@ -152,7 +152,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Assert.h" />
-    <ClInclude Include="CommandDecoderTest.h" />
     <ClInclude Include="CommandFormatterTest.h" />
     <ClInclude Include="CommandSourceSimulator.h" />
     <ClInclude Include="CommandSourceSimulatorTest.h" />
@@ -162,12 +161,9 @@
     <ClInclude Include="ExecutionContextTest.h" />
     <ClInclude Include="ExecutionFlowTest.h" />
     <ClInclude Include="ExpressionTokenSourceTest.h" />
-    <ClInclude Include="FunctionCallerTest.h" />
     <ClInclude Include="FunctionStoreTest.h" />
     <ClInclude Include="IntegrationTest.h" />
     <ClInclude Include="LedManagerTest.h" />
-    <ClInclude Include="ListParserTest.h" />
-    <ClInclude Include="LoopTest.h" />
     <ClInclude Include="MyRandom.h" />
     <ClInclude Include="ParseErrorsTest.h" />
     <ClInclude Include="Profiler.h" />

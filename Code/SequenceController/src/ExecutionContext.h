@@ -19,20 +19,20 @@ public:
 	{
 		StackWatcher::Log("ExecutionContext::Evaluate");
 
-		FunctionCaller functionCaller(&_functionStore, this, pParseErrors, pExecutionFlow);
+		//FunctionCaller functionCaller(&_functionStore, this, pParseErrors, pExecutionFlow);
 
 		RDEvaluater rdEvaluator;
-		return rdEvaluator.EvaluateInExistingParse(pExpressionTokenSource, this, &functionCaller, pParseErrors, lineNumber, pExecutionFlow);
+		return rdEvaluator.EvaluateInExistingParse(pExpressionTokenSource, this, pParseErrors, lineNumber, pExecutionFlow);
 	}
 
 	Variable Evaluate(const char *pCommand, ParseErrors *pParseErrors, int lineNumber, IExecutionFlow *pExecutionFlow)
 	{
 		StackWatcher::Log("ExecutionContext::Evaluate");
 
-		FunctionCaller functionCaller(&_functionStore, this, pParseErrors, pExecutionFlow);
+		//FunctionCaller functionCaller(&_functionStore, this, pParseErrors, pExecutionFlow);
 
 		RDEvaluater rdEvaluator;
-		return rdEvaluator.Evaluate(pCommand, this, &functionCaller, pParseErrors, lineNumber, pExecutionFlow);
+		return rdEvaluator.Evaluate(pCommand, this, pParseErrors, lineNumber, pExecutionFlow);
 	}
 
 	void ResetVariablesAndStack()

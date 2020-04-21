@@ -4,11 +4,18 @@ class RDEvaluater
 {
 	ExpressionTokenSource* _pExpressionTokenSource;
 	IExecutionContext* _pExecutionContext;
-	IFunctionCaller* _pFunctionCaller;
+	//IFunctionCaller* _pFunctionCaller;
 	ParseErrors* _pParseErrors;
     IExecutionFlow* _pExecutionFlow;
 	int _lineNumber;
 	char _temporaryBuffer[1024];
+
+    const char* GenerateArgumentName(int argumentNumber)
+    {
+        snprintf(_temporaryBuffer, sizeof(_temporaryBuffer), "#A%d", argumentNumber);
+
+        return _temporaryBuffer;
+    }
 
 
 	// recursively evaluate function arguments. On the way out of the function we store the arguments. This prevents collisions when the function
@@ -44,7 +51,7 @@ class RDEvaluater
 			return false;
 		}
 
-		_pExecutionContext->Variables()->AddAndSet(FunctionCaller::GenerateArgumentName(argumentNumber), &value, _pExecutionContext->GetStack()->GetFrameCount() + 1); // put into frame that will be created soon...
+		_pExecutionContext->Variables()->AddAndSet(GenerateArgumentName(argumentNumber), &value, _pExecutionContext->GetStack()->GetFrameCount() + 1); // put into frame that will be created soon...
 
 		return true;
 	}
@@ -79,11 +86,11 @@ class RDEvaluater
 
         Variable parameterName = EvaluateTop();
 
-        Variable* pArgument = _pExecutionContext->GetVariableWithoutErrorCheck(FunctionCaller::GenerateArgumentName(parameterNumber));
+        Variable* pArgument = _pExecutionContext->GetVariableWithoutErrorCheck(GenerateArgumentName(parameterNumber));
         if (pArgument == 0)
         {
             // missing argument...
-            _pParseErrors->AddError("Missing argument in function call for parameter: ", pFunctionName, /*parameterName.GetVariableName(),*/ _lineNumber);
+            _pParseErrors->AddError("Missing argument in function call for parameter: ", parameterName.GetVariableName(), _lineNumber);
             return false;
         }
 
@@ -732,7 +739,7 @@ class RDEvaluater
                 {
                     if (_pExecutionFlow->IsAborting())
                     {
-                        Serial.println("Abort: for");
+                        //Serial.println("Abort: for");
                         _pParseErrors->AddError("Aborting: ", "FOR", -2);
                         return false;
                     }
@@ -754,7 +761,7 @@ class RDEvaluater
                     EvaluateStatement();
                     if (_pExecutionFlow->IsAborting())
                     {
-                        Serial.println("Abort: for");
+                        //Serial.println("Abort: for");
                         _pParseErrors->AddError("Aborting: ", "FOR", -2);
                         return false;
                     }
@@ -887,7 +894,7 @@ class RDEvaluater
             lastValue = EvaluateStatement();
             if (_pExecutionFlow != 0 && _pExecutionFlow->IsAborting())
             {
-                Serial.println("Abort: statement");
+                //Serial.println("Abort: statement");
                 _pParseErrors->AddError("Aborting: ", "STATEMENT", -3);
                 return false;
             }
@@ -898,13 +905,13 @@ class RDEvaluater
 	
 public:
 
-    Variable EvaluateInExistingParse(ExpressionTokenSource* pExpressionTokenSource, IExecutionContext* pExecutionContext = 0, IFunctionCaller* pFunctionCaller = 0, ParseErrors* pParseErrors = 0, int lineNumber = -100, IExecutionFlow* pExecutionFlow = 0)
+    Variable EvaluateInExistingParse(ExpressionTokenSource* pExpressionTokenSource, IExecutionContext* pExecutionContext = 0, /*IFunctionCaller* pFunctionCaller = 0, */ ParseErrors* pParseErrors = 0, int lineNumber = -100, IExecutionFlow* pExecutionFlow = 0)
     {
         PROLOGUE
 
         _pExpressionTokenSource = pExpressionTokenSource;
         _pExecutionContext = pExecutionContext;
-        _pFunctionCaller = pFunctionCaller;
+        //_pFunctionCaller = pFunctionCaller;
         _pParseErrors = pParseErrors;
         _lineNumber = lineNumber;
         _pExecutionFlow = pExecutionFlow;
@@ -913,12 +920,12 @@ public:
     }
 
 
-	Variable Evaluate(const char* pExpression, IExecutionContext* pExecutionContext = 0, IFunctionCaller* pFunctionCaller = 0, ParseErrors* pParseErrors = 0, int lineNumber = -100, IExecutionFlow* pExecutionFlow = 0)
+	Variable Evaluate(const char* pExpression, IExecutionContext* pExecutionContext = 0, /* IFunctionCaller* pFunctionCaller = 0,*/ ParseErrors* pParseErrors = 0, int lineNumber = -100, IExecutionFlow* pExecutionFlow = 0)
 	{
 		PROLOGUE
 
         ExpressionTokenSource expressionTokenSource(pExpression, pParseErrors);
-        Variable value = EvaluateInExistingParse(&expressionTokenSource, pExecutionContext, pFunctionCaller, pParseErrors, lineNumber, pExecutionFlow);
+        Variable value = EvaluateInExistingParse(&expressionTokenSource, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow);
 
         if (pExecutionFlow != 0 && pExecutionFlow->IsAborting())
         {

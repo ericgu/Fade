@@ -112,40 +112,6 @@ public:
 		return true;
 	}
 
-#if fred
-	void RunProgram(int runCount)
-	{
-		if (_pDelayer == 0)
-		{
-			_pDelayer = new Delayer();
-			_pDelayer->Snapshot(_timeServices.GetTicks(), UpdateRateInMicroseconds);
-		}
-
-		StackWatcher::Log("Timebase::RunProgram");
-		_executionFlow.ResetProgramState();
-
-		CommandResultStatus commandResultStatus = _executionFlow.RunProgram(runCount);
-		if (_executionFlow.IsAborting())
-		{
-			_pParseErrors->AddError(">> Aborted <<", "", 0); // tells supervisor to stop executing...
-			_executionFlow.ResetProgramState();
-			_executionFlow.GetCommandResult()->SetStatus(CommandResultStatus::CommandNone);
-			Serial.println("Timebase::RunProgram -> Abort");
-			return;
-		}
-
-		if (commandResultStatus == CommandResultStatus::CommandTargetCountExceeded)
-		{
-			_pParseErrors->AddError(">> Target count exceeded: Did you forget an animate command? <<", "", 0);
-		}
-
-		if (_pParseErrors->GetErrorCount() != 0)
-		{
-			return;
-		}
-	}
-#endif
-
 	void ResetExecutionState()
 	{
 		_executionFlow.ResetProgramState();

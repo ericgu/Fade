@@ -143,8 +143,8 @@ public:
 		if (_shouldExecuteCode)
 		{
 			_executionCount++;
-			Serial.print("ExecutionCount: ");
-			Serial.println(_executionCount);
+			//Serial.print("ExecutionCount: ");
+			//Serial.println(_executionCount);
 
 			//_pTimebase->RunProgram(1);
 			bool keepRunning = _pTimebase->RunProgram(_pCurrentCommand);
