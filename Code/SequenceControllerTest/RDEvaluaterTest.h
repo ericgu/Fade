@@ -42,41 +42,6 @@ public:
     }
 };
 
-
-#if fred
-class FunctionCallerSimulator : public IFunctionCaller
-{
-	float _returnValue;
-	VariableCollection* _pVariableCollection;
-	Stack* _pStack;
-	char _functionName[64];
-
-public:
-	FunctionCallerSimulator(VariableCollection* pVariableCollection, Stack* pStack)
-	{
-		_pVariableCollection = pVariableCollection;
-		_pStack = pStack;
-	}
-
-	void SetReturnValue(float returnValue)
-	{
-		_returnValue = returnValue;
-	}
-
-	Variable Call(const char* pFunctionName, int lineNumber)
-	{
-		strcpy(_functionName, pFunctionName);
-
-		return Variable(_returnValue);
-	}
-
-	const char* GetFunctionCalled()
-	{
-		return _functionName;
-	}
-};
-#endif
-
 class StatementTester
 {
     char _program[2048];
@@ -106,7 +71,7 @@ public:
 
     Variable Execute()
     {
-        return _rdEvaluater.Evaluate(_program, &_executionContext, &_parseErrors, 99, &_executionFlow);
+        return _rdEvaluater.Evaluate(_program, &_executionContext, &_parseErrors, &_executionFlow);
     }
 
 };
@@ -170,6 +135,11 @@ class RDEvaluaterTest
 		Assert::AreEqual(4.0F, result.GetValueFloat(2));
 	}
 
+    static void TestMultiValueArgumentUndefined()
+    {
+        TestUndefinedVariableInOperation("{x, 1, 3}", "Undefined variable: x");
+        TestUndefinedVariableInOperation("{1, 2, 3, ff}", "Undefined variable: ff");
+    }
 
 	static void TestUnaryMinus()
 	{
@@ -180,6 +150,11 @@ class RDEvaluaterTest
 	{
 		TestEvaluation("+15", 15.0F);
 	}
+
+    static void TestUnaryUndefined()
+    {
+        TestUndefinedVariableInOperation("-x", "Undefined variable: x");
+    }
 
 
 
@@ -208,6 +183,12 @@ class RDEvaluaterTest
 		TestEvaluation("10 * 20 * 5 * 5", 5000.0F);
 	}
 
+    static void TestMultiplicativeUndefined()
+    {
+        TestUndefinedVariableInOperation("x * 3", "Undefined variable: x");
+        TestUndefinedVariableInOperation("3 % a", "Undefined variable: a");
+    }
+
 
 
 	static void TestSingleAddition()
@@ -231,6 +212,12 @@ class RDEvaluaterTest
 	{
 		TestEvaluation("10 * 2 + 20 * 5", 120.0F);
 	}
+
+    static void TestAdditiveUndefined()
+    {
+        TestUndefinedVariableInOperation("x + 3", "Undefined variable: x");
+        TestUndefinedVariableInOperation("3 - a", "Undefined variable: a");
+    }
 
 
 
@@ -274,6 +261,12 @@ class RDEvaluaterTest
 		TestEvaluation("12 >= 13", 0.0F);
 	}
 
+    static void TestRelationalUndefined()
+    {
+        TestUndefinedVariableInOperation("x < 3", "Undefined variable: x");
+        TestUndefinedVariableInOperation("3 > a", "Undefined variable: a");
+    }
+
 
 
 	static void TestEqualityEqual()
@@ -295,6 +288,12 @@ class RDEvaluaterTest
 	{
 		TestEvaluation("12 != 13", 1.0F);
 	}
+
+    static void TestEqualityUndefined()
+    {
+        TestUndefinedVariableInOperation("x == 3", "Undefined variable: x");
+        TestUndefinedVariableInOperation("3 != a", "Undefined variable: a");
+    }
 
 
 
@@ -340,6 +339,13 @@ class RDEvaluaterTest
 		TestEvaluation("1 || 1", 1.0F);
 	}
 
+    static void TestLogicalUndefined()
+    {
+        TestUndefinedVariableInOperation("x && 3", "Undefined variable: x");
+        TestUndefinedVariableInOperation("3 && a", "Undefined variable: a");
+        TestUndefinedVariableInOperation("x || 3", "Undefined variable: x");
+        TestUndefinedVariableInOperation("3 || a", "Undefined variable: a");
+    }
 
 
 	static void TestMultiplyAddWithParens()
@@ -445,6 +451,11 @@ class RDEvaluaterTest
 		Assert::AreEqual(25.0F, pAssignedValue->GetValueFloat(2));
 	}
 
+    static void TestAssignmentUndefined()
+    {
+        TestUndefinedVariableInOperation("x = 5\nx = y", "Undefined variable: y", 1);
+    }
+
     static void TestPrimitiveString()
 	{
 		RDEvaluater rdEvaluater;
@@ -466,10 +477,9 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("15 + ", 0, &parseErrors, 7);
+		Variable result = rdEvaluater.Evaluate("\n15 + ", 0, &parseErrors);
 
-		Assert::AreEqual(1, result.IsNan());
-		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 7);
+		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 1);
 	}
 
 	static void TestAddWithWrongArgument()
@@ -477,10 +487,9 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("15 + +", 0, &parseErrors, 9);
+		Variable result = rdEvaluater.Evaluate("\n15 + +", 0, &parseErrors);
 
-		Assert::AreEqual(1, result.IsNan());
-		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 9);
+		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 1);
 	}
 
 	static void TestUnknownCharacter()
@@ -488,10 +497,9 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("15 $ 12", 0, &parseErrors, 8);
+		Variable result = rdEvaluater.Evaluate("\n15 $ 12", 0, &parseErrors);
 
-		Assert::AreEqual(1, result.IsNan());
-		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 8);
+		ValidateParseErrors(&parseErrors, "Missing value at end of expression", 1);
 	}
 
 	static void TestUnexpectedValueAfterParsing()
@@ -499,10 +507,9 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("15 12", 0, &parseErrors, 444);
+		Variable result = rdEvaluater.Evaluate("\n15 12", 0, &parseErrors);
 
-		Assert::AreEqual(15.0, result.GetValueFloat(0));
-		ValidateParseErrors(&parseErrors, "Unexpected token remaining after parsing: 12", 444);
+		ValidateParseErrors(&parseErrors, "Unexpected token remaining after parsing: 12", 1);
 	}
 
 	static void TestMissingClosingParen()
@@ -510,10 +517,9 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("(15 * 12", 0, &parseErrors, 123);
+		Variable result = rdEvaluater.Evaluate("\n(15 * 12", 0, &parseErrors);
 
-		Assert::AreEqual(1, result.IsNan());
-		ValidateParseErrors(&parseErrors, "Missing ) in expression", 123);
+		ValidateParseErrors(&parseErrors, "Missing ) in expression", 1);
 	}
 
 	static void TestMissingClosingBrace()
@@ -521,10 +527,9 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("{15", 0, &parseErrors, 5512);
+		Variable result = rdEvaluater.Evaluate("\n{15", 0, &parseErrors);
 
-		Assert::AreEqual(1, result.IsNan());
-		ValidateParseErrors(&parseErrors, "Missing } in expression", 5512);
+		ValidateParseErrors(&parseErrors, "Missing } in expression", 1);
 	}
 
 	static void TestUndeclaredVariable()
@@ -533,10 +538,9 @@ class RDEvaluaterTest
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
 
-		Variable result = rdEvaluater.Evaluate("MyFirstValue", &executionContext, &parseErrors, 122);
+		Variable result = rdEvaluater.Evaluate("\nMyFirstValue", &executionContext, &parseErrors);
 
-		Assert::AreEqual(1, result.IsNan());
-		ValidateParseErrors(&parseErrors, "Undefined variable: MyFirstValue", 122);
+		ValidateParseErrors(&parseErrors, "Undefined variable: MyFirstValue", -1);
 	}
 
 	static void TestUndeclaredVariable2()
@@ -546,10 +550,9 @@ class RDEvaluaterTest
 		ParseErrors parseErrors;
 		executionContext.AddVariableAndSet("MyFirstValue", &Variable(22));
 
-		Variable result = rdEvaluater.Evaluate("13 * (2 + MyFirstValue) * MyMissingValue * 33", &executionContext, &parseErrors, 55);
+		Variable result = rdEvaluater.Evaluate("\n13 * (2 + MyFirstValue) * MyMissingValue * 33", &executionContext, &parseErrors);
 
-		Assert::AreEqual(1, result.IsNan());
-		ValidateParseErrors(&parseErrors, "Undefined variable: MyMissingValue", 55);
+		ValidateParseErrors(&parseErrors, "Undefined variable: MyMissingValue", 1);
 	}
 
 	static void TestFunctionCallNoParametersMissingClosingParen()
@@ -557,13 +560,10 @@ class RDEvaluaterTest
 		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
-		//FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
-		//functionCaller.SetReturnValue(129393);
 
-		Variable result = rdEvaluater.Evaluate("MyFunction(", &executionContext, &parseErrors, 55);
+		Variable result = rdEvaluater.Evaluate("\nMyFunction(", &executionContext, &parseErrors);
 
-		Assert::AreEqual(1, result.IsNan());
-		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 55);
+		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 1);
 	}
 
 	static void TestFunctionCallOneParametersMissingClosingParen()
@@ -571,13 +571,10 @@ class RDEvaluaterTest
 		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
-		//FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
-		//functionCaller.SetReturnValue(129393);
 
-		Variable result = rdEvaluater.Evaluate("MyFunction(15", &executionContext, &parseErrors, 59);
+		Variable result = rdEvaluater.Evaluate("\nMyFunction(15", &executionContext, &parseErrors);
 
-		Assert::AreEqual(1, result.IsNan());
-		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 59);
+		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 1);
 	}
 
 	static void TestFunctionCallTwoParametersEndsAfterComma()
@@ -585,13 +582,10 @@ class RDEvaluaterTest
 		ExecutionContext executionContext;
 		RDEvaluater rdEvaluater;
 		ParseErrors parseErrors;
-		//FunctionCallerSimulator functionCaller(executionContext.Variables(), executionContext.GetStack());
-		//functionCaller.SetReturnValue(129393);
 
-		Variable result = rdEvaluater.Evaluate("MyFunction(15,", &executionContext, &parseErrors, 99);
+		Variable result = rdEvaluater.Evaluate("\nMyFunction(15,", &executionContext, &parseErrors);
 
-		Assert::AreEqual(1, result.IsNan());
-		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 99);
+		ValidateParseErrors(&parseErrors, "Missing closing ) in expression", 1);
 	}
 
  
@@ -611,7 +605,7 @@ class RDEvaluaterTest
         statementTester.Add("ENDIF");
         statementTester.Add("J");
 
-        statementTester._executionContext.AddVariableAndSet("V", &Variable(conditionValue));
+        statementTester._executionContext.AddVariableAndSet("V", &Variable(conditionValue), 1);
 
         Variable result = statementTester.Execute();
 
@@ -655,23 +649,25 @@ class RDEvaluaterTest
 
     static void TestNestedIf()
     {
-       DoTestNestedIf(1, 1, 2);
-       DoTestNestedIf(1, 2, 3);
-       DoTestNestedIf(4, 1, 4);
-       DoTestNestedIf(4, 5, 5);
+        DoTestNestedIf(1, 1, 2);
+        DoTestNestedIf(1, 2, 3);
+        DoTestNestedIf(4, 1, 4);
+        DoTestNestedIf(4, 5, 5);
     }
 
     static void TestMissingEndif()
     {
         StatementTester statementTester;
 
-        statementTester.Add("IF (V == 1)");
+        statementTester.Add("q = 3");
+        statementTester.Add("IF (q == 1)");
         statementTester.Add("J = 2");
 
         Variable result = statementTester.Execute();
 
         Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
         Assert::AreEqual("Missing ENDIF", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(2, statementTester._parseErrors.GetError(0)->_lineNumber);
     }
 
 
@@ -717,6 +713,7 @@ class RDEvaluaterTest
 
         Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
         Assert::AreEqual("Missing ENDFOR", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(1, statementTester._parseErrors.GetError(0)->_lineNumber);
     }
 
     static void TestFunctionDefinition()
@@ -739,6 +736,24 @@ class RDEvaluaterTest
         Assert::AreEqual(36, statementTester._executionContext._functionStore.Lookup("MyFunc2")->LineNumberStart);
     }
 
+    static void TestFunctionCallUndefinedVariable()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("Q = 12");
+        statementTester.Add("FUNC MyFunc(X)");
+        statementTester.Add("ENDFUNC");
+        statementTester.Add("MyFunc(z)");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Undefined variable: z", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(3, statementTester._parseErrors.GetError(0)->_lineNumber);
+    }
+
+
+
     static void TestMissingEndfunc()
     {
         StatementTester statementTester;
@@ -751,6 +766,24 @@ class RDEvaluaterTest
 
         Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
         Assert::AreEqual("Missing ENDFUNC for function: MyFunc", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(2, statementTester._parseErrors.GetError(0)->_lineNumber);
+    }
+
+    static void TestMissingEndfunc2()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("Q = 12");
+        statementTester.Add("FUNC MyFunc");
+        statementTester.Add("Q = loop");
+        statementTester.Add("FUNC M2");
+        statementTester.Add("ENDFUNC");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing ENDFUNC for function: MyFunc", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(3, statementTester._parseErrors.GetError(0)->_lineNumber);
     }
 
 
@@ -766,6 +799,28 @@ class RDEvaluaterTest
 
         Assert::AreEqual(1, statementTester._executionContext.GetVariableWithoutErrorCheck("<ReturnValue>")->GetValueInt());
     }
+
+    static void TestBlankLines()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("");
+        statementTester.Add("FOR loop 0:3");
+        statementTester.Add("");
+        statementTester.Add("Q = loop");
+        statementTester.Add("");
+        statementTester.Add("ENDFOR");
+        statementTester.Add("");
+        statementTester.Add("Q");
+        statementTester.Add("");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual(3, result.GetValueInt());
+    }
+
+
 
     static void TestFunctionCallNoParams()
     {
@@ -903,8 +958,10 @@ class RDEvaluaterTest
 
         Variable result = statementTester.Execute();
 
-        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual(2, statementTester._parseErrors.GetErrorCount());
         Assert::AreEqual("Missing value in RETURN statement", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(2, statementTester._parseErrors.GetError(0)->_lineNumber);
+
     }
 
     static void TestMethodCallWithWrongArgumentCount()
@@ -920,6 +977,8 @@ class RDEvaluaterTest
 
         Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
         Assert::AreEqual("Missing argument in function call for parameter: X", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(0, statementTester._parseErrors.GetError(0)->_lineNumber);
+
     }
 
 
@@ -949,17 +1008,18 @@ class RDEvaluaterTest
 
         Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
         Assert::AreEqual("Unrecognized function: XX", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(1, statementTester._parseErrors.GetError(0)->_lineNumber);
     }
 
     static void TestRealCode()
     {
-        return;
+        //return;
 
         StatementTester statementTester;
 
         statementTester.Add("CONFIGLED(\"RGB\", 33, 13)");
         statementTester.Add("FUNC AngleToRGB(angleInDegrees)");
-        statementTester.Add("PL(angleInDegrees)  ");
+        statementTester.Add("//PL(angleInDegrees)  ");
         statementTester.Add("");
         statementTester.Add("brightness = 0.2");
         statementTester.Add("IF(angleInDegrees <= 120)");
@@ -993,7 +1053,7 @@ class RDEvaluaterTest
         statementTester.Add("");
         statementTester.Add("//PL(\"hello\")");
         statementTester.Add("FOR angle 0:359 : 5");
-        statementTester.Add("PL(angle)");
+        statementTester.Add("//PL(angle)");
         statementTester.Add("DoChunk(0, 0, angle)");
         statementTester.Add("DoChunk(1, 72, angle)");
         statementTester.Add("DoChunk(2, 144, angle)");
@@ -1008,12 +1068,15 @@ class RDEvaluaterTest
         statementTester.Add("ENDFOR");
         statementTester.Add("ENDFUNC");
         statementTester.Add("");
-        statementTester.Add("FOR count 0:123456789");
-        statementTester.Add("PL(count)");
+        statementTester.Add("FOR count 0:1");
+        statementTester.Add("P(\".\")");
         statementTester.Add("Main()");
         statementTester.Add("ENDFOR");
 
-        Variable result = statementTester.Execute();
+        for (int i = 0; i < 20; i++)
+        {
+            Variable result = statementTester.Execute();
+        }
 
         Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
     }
@@ -1069,6 +1132,24 @@ class RDEvaluaterTest
         Assert::AreEqual("Aborting: STATEMENT", statementTester._parseErrors.GetError(1)->_errorText);
     }
 
+    static void TestUndefinedVariableInOperation(const char* pExpression, const char* pExpectedError, int lineNumber = 0)
+    {
+        StatementTester statementTester;
+
+        statementTester.Add(pExpression);
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual(pExpectedError, statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(lineNumber, statementTester._parseErrors.GetError(0)->_lineNumber);
+    }
+
+    static void TestRelationalArgumentUndefined()
+    {
+        TestUndefinedVariableInOperation("y > 15", "Undefined variable: y");
+        TestUndefinedVariableInOperation("15 > q", "Undefined variable: q");
+    }
 
 public:
 	static void Run()
@@ -1079,6 +1160,7 @@ public:
         TestForDown();
         TestFunctionDefinition();
         TestMissingEndfunc();
+        TestMissingEndfunc2();
         TestMissingEndif();
         TestMissingEndfor();
         TestReturn();
@@ -1103,19 +1185,23 @@ public:
 		TestMultiValueSingle();
 		TestMultiValueNumber();
 		TestMultiValueExpression();
+        TestMultiValueArgumentUndefined();
 
 		TestUnaryMinus();
 		TestUnaryPlus();
+        TestUnaryUndefined();
 
 		TestSingleMultiplication();
 		TestSingleDivision();
 		TestSingleModulus();
 		TestMultiplyDivide();
 		TestTripleMultiply();
+        TestMultiplicativeUndefined();
 
 		TestSingleAddition();
 		TestSingleSubtraction();
 		TestAddThenSubtract();
+        TestAdditiveUndefined();
 
 		TestMultiplyAdd();
 
@@ -1127,11 +1213,15 @@ public:
 		TestGreaterThanFails();
 		TestGreatherThanOrEqual();
 		TestGreatherThanOrEqualFails();
+        TestRelationalArgumentUndefined();
+        TestRelationalUndefined();
+
 
 		TestEqualityEqual();
 		TestEqualityNotEqual();
 		TestNonEqualityEqual();
 		TestNonEqualityNotEqual();
+        TestEqualityUndefined();
 
 		TestLogicalAndNeither();
 		TestLogicalAndFirst();
@@ -1142,6 +1232,7 @@ public:
 		TestLogicalOrFirst();
 		TestLogicalOrSecond();
 		TestLogicalOrBoth();
+        TestLogicalUndefined();
 
 		TestMultiplyAddWithParens();
 		TestNestedParens();
@@ -1153,8 +1244,11 @@ public:
 
 		TestAssignment();
 		TestAssignmentMultiValue();
+        TestAssignmentUndefined();
 
 		TestPrimitiveString();
+
+        TestBlankLines();
 
 		TestAddWithMissingArgument();
 		TestAddWithWrongArgument();
@@ -1166,6 +1260,7 @@ public:
 		TestFunctionCallNoParametersMissingClosingParen();
 		TestFunctionCallOneParametersMissingClosingParen();
 		TestFunctionCallTwoParametersEndsAfterComma();
+        TestFunctionCallUndefinedVariable();
 
         TestAbort();
         TestAbortInForLoop();

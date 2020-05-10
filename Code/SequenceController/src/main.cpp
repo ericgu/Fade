@@ -1,3 +1,5 @@
+#define configUSE_TRACE_FACILITY 1
+
 #include <Arduino.h>
 #include <arduinonvs.h>
 #include <stdio.h>
@@ -19,11 +21,14 @@
 #include "TimeServices.h"
 #include "Delayer.h"
 #include "Command.h"
-#include "ListParser.h"
 #include "CommandSource.h"
 #include "CommandFormatter.h"
 #include "ParseErrors.h"
+#include "VariableData.h"
+#include "VariableStoreChunk.h"
+#include "VariableStore.h"
 #include "Variable.h"
+#include "VariableCollection.h"
 #include "LedState.h"
 #include "CommandResult.h"
 #include "IExecutionFlow.h"
@@ -36,6 +41,7 @@
 #include "FunctionStore.h"
 #include "Stack.h"
 #include "ExpressionNode.h"
+#include "CharacterClassifier.h"
 #include "ExpressionTokenSource.h"
 #include "IExecutionContext.h"
 #include "BuiltInFunctions.h"
@@ -129,13 +135,14 @@ void setup()
 
     Serial.println("Setup completed");
 
-    xTaskCreate(
+    xTaskCreatePinnedToCore(
         RunDim, /* Task function. */
         "Dim",  /* String with name of task. */
-        40000,  /* Stack size in bytes. */
+        50000,  /* Stack size in bytes. */
         NULL,   /* Parameter passed as input of the task */
         5,      /* Priority of the task. */
-        NULL);  /* Task handle. */
+        NULL,
+        1); /* Task handle. */
 
     xTaskCreate(
         HandleWebClient,   /* Task function. */
@@ -162,7 +169,7 @@ void TrackMemory()
 void loop()
 {
     //pMyWebServer->HandleClient();
-    vTaskDelay(10);
+    vTaskDelay(portMAX_DELAY);
 
     //StackWatcher::Log("loop");
     //_pSupervisor->ExecuteLoop();

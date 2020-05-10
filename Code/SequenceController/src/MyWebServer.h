@@ -1,87 +1,86 @@
 
 class MyWebServer
 {
-    static MyWebServer* pMyWebServerInstance;
+  static MyWebServer *pMyWebServerInstance;
 
-    WebServer* _pWebServer;
+  WebServer *_pWebServer;
 
-    char* _pProgramBuffer;
-    char* _pPageBuffer;
+  char *_pProgramBuffer;
+  char *_pPageBuffer;
 
-    IPAddress _myIPAddress;
+  IPAddress _myIPAddress;
 
-    Supervisor* _pSupervisor;
+  Supervisor *_pSupervisor;
 
-    static void handleRoot()
-    {
-      pMyWebServerInstance->handleRootInstance();
-    }
-
-    static void handleNodeName()
-    {
-      pMyWebServerInstance->handleNodeNameInstance();
-    }
-
-    public:
-
-      MyWebServer(Supervisor* pSupervisor, IPAddress myIPAddress)
-      {
-        _pWebServer = new WebServer(80);
-
-        _pProgramBuffer = new char[16636];
-        _pPageBuffer = new char[16636];
-
-        _pSupervisor = pSupervisor;
-        _myIPAddress = myIPAddress;
-
-        _pWebServer->on ( "/", handleRoot );
-        _pWebServer->on ( "/SetNodeName", handleNodeName );
-        _pWebServer->begin();
-
-        pMyWebServerInstance = this; 
-      }
-
-      void DumpArgs()
-      {
-        Serial.print("Args: ");
-        Serial.println(_pWebServer->args());
-
-        for (int i = 0; i < _pWebServer->args(); i++)
-        {
-         Serial.print(_pWebServer->argName(i));
-         Serial.print(" ");
-          Serial.println(_pWebServer->arg(i));
-        }
-      }
-
-
-void handleRootInstance() 
-{
-  //DumpArgs();
-
-  String Program;
-  Program = _pWebServer->arg("Program");
-  if (Program.length() != 0)
+  static void handleRoot()
   {
-    _pSupervisor->UpdateProgram(Program.c_str());
-
-    snprintf(_pPageBuffer, 16636, 
-        "<meta http-equiv=\"refresh\" content=\"3;url=http://%d.%d.%d.%d/\">\
-        <html><H1>Updating program</H1></html>", 
-        (int)_myIPAddress[0], (int)_myIPAddress[1], (int)_myIPAddress[2], (int)_myIPAddress[3]);
-
-   	_pWebServer->send ( 200, "text/html", _pPageBuffer );
-    Serial.println("Update done - redirecting"); Serial.flush();
+    pMyWebServerInstance->handleRootInstance();
   }
 
-  CommandFormatter::PrettyFormat(_pSupervisor->GetCurrentProgram(), _pProgramBuffer, 16636);
+  static void handleNodeName()
+  {
+    pMyWebServerInstance->handleNodeNameInstance();
+  }
 
-  const char* pRunning = _pSupervisor->GetExecutingProgramState() ? "Program executing" : "<b>Program execution pending</b>";
-  const char* pNodeName = _pSupervisor->GetNodeName();
+public:
+  MyWebServer(Supervisor *pSupervisor, IPAddress myIPAddress)
+  {
+    _pWebServer = new WebServer(80);
 
-	snprintf ( _pPageBuffer, 16636,
+    _pProgramBuffer = new char[16636];
+    _pPageBuffer = new char[16636];
 
-"<html>\
+    _pSupervisor = pSupervisor;
+    _myIPAddress = myIPAddress;
+
+    _pWebServer->on("/", handleRoot);
+    _pWebServer->on("/SetNodeName", handleNodeName);
+    _pWebServer->begin();
+
+    pMyWebServerInstance = this;
+  }
+
+  void DumpArgs()
+  {
+    Serial.print("Args: ");
+    Serial.println(_pWebServer->args());
+
+    for (int i = 0; i < _pWebServer->args(); i++)
+    {
+      Serial.print(_pWebServer->argName(i));
+      Serial.print(" ");
+      Serial.println(_pWebServer->arg(i));
+    }
+  }
+
+  void handleRootInstance()
+  {
+    //DumpArgs();
+
+    String Program;
+    Program = _pWebServer->arg("Program");
+    if (Program.length() != 0)
+    {
+      _pSupervisor->UpdateProgram(Program.c_str());
+
+      snprintf(_pPageBuffer, 16636,
+               "<meta http-equiv=\"refresh\" content=\"3;url=http://%d.%d.%d.%d/\">\
+        <html><H1>Updating program</H1></html>",
+               (int)_myIPAddress[0], (int)_myIPAddress[1], (int)_myIPAddress[2], (int)_myIPAddress[3]);
+
+      _pWebServer->send(200, "text/html", _pPageBuffer);
+      Serial.println("Update done - redirecting");
+      Serial.flush();
+    }
+
+    CommandFormatter::PrettyFormat(_pSupervisor->GetCurrentProgram(), _pProgramBuffer, 16636);
+
+    const char *pRunning = _pSupervisor->GetExecutingProgramState() ? "Program executing" : "<b>Program execution pending</b>";
+    const char *pNodeName = _pSupervisor->GetNodeName();
+
+    snprintf(_pPageBuffer, 16636,
+
+             "<html>\
   <head>\
     <title>%s: EagleDecorations Sequence Controller</title>\
     <style>\
@@ -96,16 +95,16 @@ void handleRootInstance()
     <td style=\"vertical-align: top;\">\
     Code:\
     <FORM action=\"/\" method=\"post\">\
-    <textarea rows = \"50\" cols = \"50\" name=\"Program\">\
+    <textarea rows = \"50\" cols = \"80\" name=\"Program\">\
 %s\
     </textarea><br>\
-    <INPUT type=\"submit\" value=\"Send\">\
+    <INPUT type=\"submit\" spellcheck=\"off\" value=\"Send\">\
     </FORM>\
     </td>\
     <td style=\"vertical-align: top;\">\
     Errors:\
     <FORM action=\"/\" method=\"post\">\
-    <textarea rows = \"50\" cols = \"50\" name=\"Errors\">\
+    <textarea rows = \"50\" cols = \"50\" spellcheck=\"off\" name=\"Errors\">\
     %s\
     </textarea><br>\
     </FORM>\
@@ -113,35 +112,36 @@ void handleRootInstance()
     </tr>\
     </table>\
   </body>\
-</html>", 
-  pNodeName, 
-  pNodeName,
-  pRunning, 
-  _pSupervisor->GetExecutionCount() / 100, 
-  _pProgramBuffer, 
-  _pSupervisor->GetCurrentErrors()	);
+</html>",
+             pNodeName,
+             pNodeName,
+             pRunning,
+             _pSupervisor->GetExecutionCount() / 100,
+             _pProgramBuffer,
+             _pSupervisor->GetCurrentErrors());
 
-	_pWebServer->send ( 200, "text/html", _pPageBuffer );
-}
-
-void handleNodeNameInstance() 
-{
-  // DumpArgs();
-
-  String nodeName;
-  nodeName = _pWebServer->arg("nodename");
-  if (nodeName.length() != 0)
-  {
-    _pSupervisor->UpdateNodeName(nodeName.c_str());
-
-    _pWebServer->sendHeader("Location", String("/"), true);
-    _pWebServer->send ( 302, "text/plain", "");
-    Serial.println("Node name update done - redirecting"); Serial.flush();
+    _pWebServer->send(200, "text/html", _pPageBuffer);
   }
 
-	snprintf ( _pPageBuffer, 16636,
+  void handleNodeNameInstance()
+  {
+    // DumpArgs();
 
-"<html>\
+    String nodeName;
+    nodeName = _pWebServer->arg("nodename");
+    if (nodeName.length() != 0)
+    {
+      _pSupervisor->UpdateNodeName(nodeName.c_str());
+
+      _pWebServer->sendHeader("Location", String("/"), true);
+      _pWebServer->send(302, "text/plain", "");
+      Serial.println("Node name update done - redirecting");
+      Serial.flush();
+    }
+
+    snprintf(_pPageBuffer, 16636,
+
+             "<html>\
   <head>\
     <title>Node name update</title>\
     <style>\
@@ -156,16 +156,16 @@ void handleNodeNameInstance()
     <INPUT type=\"submit\" value=\"Update\">\
     </FORM>\
   </body>\
-</html>", _pSupervisor->GetNodeName());
+</html>",
+             _pSupervisor->GetNodeName());
 
-	_pWebServer->send ( 200, "text/html", _pPageBuffer );
-}
+    _pWebServer->send(200, "text/html", _pPageBuffer);
+  }
 
   void HandleClient()
   {
     _pWebServer->handleClient();
   }
-
 };
 
-MyWebServer* MyWebServer::pMyWebServerInstance;
+MyWebServer *MyWebServer::pMyWebServerInstance;

@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\SequenceController\src\RDEvaluater.h" />
     <ClInclude Include="Assert.h" />
     <ClInclude Include="CommandFormatterTest.h" />
     <ClInclude Include="CommandSourceSimulator.h" />
@@ -178,6 +179,9 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TimeServices.h" />
     <ClInclude Include="TimebaseTest.h" />
+    <ClInclude Include="VariableCollectionTest.h" />
+    <ClInclude Include="VariableStoreChunkTest.h" />
+    <ClInclude Include="VariableStoreTest.h" />
     <ClInclude Include="VariableTest.h" />
   </ItemGroup>
   <ItemGroup>

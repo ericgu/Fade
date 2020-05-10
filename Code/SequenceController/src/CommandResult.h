@@ -41,7 +41,7 @@ class CommandResult
 		{
 			if (_targets)
 			{
-				delete _targets;
+				delete[] _targets;
 				_targets = 0;
 			}
 		}

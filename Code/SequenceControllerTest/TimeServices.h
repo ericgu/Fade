@@ -5,7 +5,7 @@ class TimeServices
 	static unsigned long _ticks;
 
 public:
-	unsigned long GetTicks()
+	static unsigned long GetTicks()
 	{
 		return _ticks;
 	}

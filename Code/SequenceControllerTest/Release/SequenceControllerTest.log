@@ -1,8 +1,6 @@
 ﻿  stdafx.cpp
   SequenceControllerTest.cpp
-d:\data\electronics\sequencecontroller\code\sequencecontroller\src\listparser.h(54): warning C4018: '>': signed/unsigned mismatch
-d:\data\electronics\sequencecontroller\code\sequencecontroller\src\listparser.h(106): warning C4018: '>': signed/unsigned mismatch
   Generating code
-  All 684 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 651 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
   SequenceControllerTest.vcxproj -> D:\data\Electronics\SequenceController\Code\SequenceControllerTest\Release\SequenceControllerTest.exe

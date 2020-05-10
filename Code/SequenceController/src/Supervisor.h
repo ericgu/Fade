@@ -26,12 +26,12 @@ public:
 
 		if (_pCurrentCommand)
 		{
-			delete _pCurrentCommand;
+			delete[] _pCurrentCommand;
 		}
 
 		if (_pNodeName)
 		{
-			delete _pNodeName;
+			delete[] _pNodeName;
 		}
 	}
 

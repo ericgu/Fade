@@ -15,39 +15,6 @@ class IntegrationTest
 	{
 		_callbackCount++;
 	}
-#if fred
-	static void Test()
-	{
-		CommandSourceSimulator commandSource;
-		LedDeviceSimulator ledDevice(1000);
-		LedDeviceCreatorSimulator ledCreator(&ledDevice);
-
-		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 16, 555);
-
-		commandSource.AddCommand("D(10,0,10.0)");
-		commandSource.AddCommand("A(10)");
-
-		ParseErrors parseErrors;
-		_callbackCount = 0;
-		Timebase timebase(&commandSource, &ledManager, &parseErrors, Callback);
-
-		timebase.RunProgram(1);
-		
-		Assert::AreEqual(160, ledDevice.GetUpdateCount());
-		for (int i = 0; i < 10; i++)
-		{
-			int state = i * 16;
-
-			LedState ledState = ledDevice.GetUpdatedState(state);
-			AssertLedState(ledState, 0, (float) (i + 1));
-		}
-
-		Assert::AreEqual(10, _callbackCount);
-
-		timebase.RunProgram(1);
-	}
-#endif
 
     static void Test()
     {

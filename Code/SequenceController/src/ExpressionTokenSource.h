@@ -1,26 +1,27 @@
 class ExpressionTokenSource
 {
 	ExpressionNode _node;
-	ExpressionNode* _pCurrentNode;
+	ExpressionNode *_pCurrentNode;
 
-	ParseErrors* _pParseErrors;
+	ParseErrors *_pParseErrors;
 	int _lineNumber;
 
-	const char* _pExpression;
+	const char *_pExpression;
 
-	const char* _pCurrent;
-    const char* _pCurrentPreviousValue;
+	const char *_pCurrent;
+	const char *_pCurrentPreviousValue;
 	char _value[512];
 
 public:
+    static bool LogTokens;
 
-	ExpressionTokenSource(const char* pExpression, ParseErrors* pParseErrors = 0, int lineNumber = 0)
+    ExpressionTokenSource(const char *pExpression, ParseErrors *pParseErrors = 0, int lineNumber = 0)
 	{
-        PROLOGUE
+		PROLOGUE;
 
-            //		SafeString::StringCopy(_expression, pExpression, sizeof(_expression));
+		//		SafeString::StringCopy(_expression, pExpression, sizeof(_expression));
 
-        _pExpression = pExpression;
+		_pExpression = pExpression;
 		_pCurrent = _pExpression;
 		_pParseErrors = pParseErrors;
 		_lineNumber = lineNumber;
@@ -30,9 +31,11 @@ public:
 		_node._pItem = _value;
 
 		Advance();
+
+		EPILOGUE;
 	}
 
-	bool EqualTo(const char* pString)
+	bool EqualTo(const char *pString)
 	{
 		if (_pCurrentNode == 0)
 		{
@@ -57,29 +60,57 @@ public:
 		return *(_pCurrentNode->_pItem + 1);
 	}
 
-    const char* GetCurrentToken()
-    {
-        return _pCurrentNode->_pItem;
-    }
+	const char *GetCurrentToken()
+	{
+		return _pCurrentNode->_pItem;
+	}
 
-    bool AtEnd()
-    {
-        return _pCurrentNode == 0;
-    }
+	int GetLineNumber()
+	{
+		// save current location, and then walk through from the beginning,
+		// counting newlines until we get to the current location...
 
-    bool IsNumber(char first) { return first >= '0' && first <= '9'; }
+		int currentLocation = GetParseLocation();
 
-    bool IsIdentifier(char first) { return (first >= 'a' && first <= 'z') || (first >= 'A' && first <= 'Z'); }
+		SetParseLocation(0);
 
-    bool IsNumber()
-    {
-        if (_pCurrentNode == 0)
-        {
-            return false;
-        }
+		int lineNumber = 0;
+		while (GetParseLocation() < currentLocation)
+		{
+			if (EqualTo("\n"))
+			{
+				lineNumber++;
+			}
+			Advance();
+		}
 
-        return IsNumber(*_pCurrentNode->_pItem);
-    }
+		SetParseLocation(currentLocation);
+
+		return lineNumber;
+	}
+
+	bool AtEnd()
+	{
+		return _pCurrentNode == 0;
+	}
+
+//	bool IsNumber(char first) { return first >= '0' && first <= '9'; }
+
+//	bool IsIdentifier(char first) { return (first >= 'a' && first <= 'z') || (first >= 'A' && first <= 'Z'); }
+
+    bool IsNumber(char first) { return CharacterClassifier::IsDigit(first); }
+
+    bool IsIdentifier(char first) { return CharacterClassifier::IsAlpha(first); }
+
+	bool IsNumber()
+	{
+		if (_pCurrentNode == 0)
+		{
+			return false;
+		}
+
+		return IsNumber(*_pCurrentNode->_pItem);
+	}
 
 	bool IsIdentifier()
 	{
@@ -88,19 +119,22 @@ public:
 			return false;
 		}
 
-        return IsIdentifier(*_pCurrentNode->_pItem);
+		return IsIdentifier(*_pCurrentNode->_pItem);
 	}
 
 	char PeekChar()
 	{
+		if (_pCurrent == 0)
+		{
+			return 0;
+		}
+
 		return *_pCurrent;
 	}
 
 	char AdvanceChar()
 	{
-		char c = *_pCurrent;
-		_pCurrent++;
-		return c;
+		return *_pCurrent++;
 	}
 
 	bool Match(char c)
@@ -120,18 +154,18 @@ public:
 		_value[0] = '"';
 		int index = 1;
 
-		while (index < sizeof(_value) )
+		while (index < sizeof(_value))
 		{
 			char c = AdvanceChar();
 			if (c == 0)
 			{
 				_pParseErrors->AddError("Missing closing \" in string", "", 55);
-				return;	
+				return;
 			}
 
 			if (c == '"')
 			{
-				_value[index] = '\0';		// string is copied with beginning " but without closing "
+				_value[index] = '\0'; // string is copied with beginning " but without closing "
 				return;
 			}
 
@@ -142,7 +176,9 @@ public:
 
 	void CopyIdentifierToToken(char c)
 	{
-		_value[0] = c;
+		char *pValue = _value;
+		*pValue = c;
+		pValue++;
 		int index = 1;
 
 		while (index < sizeof(_value))
@@ -151,13 +187,16 @@ public:
 
 			if (IsIdentifierCharacter(c))
 			{
-				_value[index] = c;
+				*pValue = c;
+				pValue++;
+				//_value[index] = c;
 				index++;
 				AdvanceChar();
 			}
 			else
 			{
-				_value[index] = '\0';
+				*pValue = '\0';
+				//_value[index] = '\0';
 				return;
 			}
 		}
@@ -172,7 +211,7 @@ public:
 		{
 			char c = PeekChar();
 
-			if (IsDigit(c) || c == '.')
+			if (CharacterClassifier::IsNumber(c))
 			{
 				_value[index] = c;
 				index++;
@@ -188,55 +227,72 @@ public:
 
 	bool IsDigit(char c)
 	{
-		return c >= '0' && c <= '9';
+		return CharacterClassifier::IsDigit(c);
 	}
 
 	bool IsAlpha(char c)
 	{
-		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+		return CharacterClassifier::IsAlpha(c);
 	}
 
 	bool IsIdentifierCharacter(char c)
 	{
-		return IsDigit(c) || IsAlpha(c) || c == '_';
+		return CharacterClassifier::IsIdentifier(c);
 	}
 
 	void CopyToToken(char value)
 	{
-		_value[0] = value;
-		_value[1] = '\0';
+		*_value = value;
+        *(_value + 1) = '\0';
 	}
 
-	void CopyToToken(const char* pValue)
+	void CopyToToken(const char *pValue)
 	{
 		SafeString::StringCopy(_value, pValue, sizeof(_value));
 	}
 
-    void EatComment()
-    {
-        while (*_pCurrent != 0 && *_pCurrent != '\n' && *_pCurrent != '\r')
-        {
-            _pCurrent++;
-        }
+	void EatComment()
+	{
+		while (*_pCurrent != 0 && *_pCurrent != '\n' && *_pCurrent != '\r')
+		{
+			_pCurrent++;
+		}
 
-        if (*_pCurrent == 0)
-        {
-            _pCurrentNode = 0;
-            return;
-        }
+		if (*_pCurrent == 0)
+		{
+			_pCurrentNode = 0;
+			return;
+		}
 
-        Advance();
-    }
+		Advance();
+	}
 
 	void Advance()
 	{
-        //Serial.print("Last token: "); Serial.println(GetCurrentToken());
+        if (LogTokens)
+        {
+            Serial.print("Last token: ");
+            if (*GetCurrentToken() == '\n')
+            {
+                Serial.println("<\\n>");
+            }
+            else if (*GetCurrentToken() == '\r')
+            {
+                Serial.println("<\\r>");
+            }
+            else
+            {
+                Serial.println(GetCurrentToken());
+            }
+        }
 
         _pCurrentPreviousValue = _pCurrent;
 
 		while (true)
 		{
 			char c = AdvanceChar();
+			//Serial.print("  ");
+			//Serial.println((int)c);
 
 			if (c == 0)
 			{
@@ -246,64 +302,101 @@ public:
 
 			switch (c)
 			{
-			case '(': 
-			case ')': 
-			case '{': 
-			case '}': 
-			case ',': 
-			case '*': 
-			case '%': 
-            case ':': CopyToToken(c); return;
+			case '(':
+			case ')':
+			case '{':
+			case '}':
+			case ',':
+			case '*':
+			case '%':
+			case ':':
+				CopyToToken(c);
+				return;
 
-			case '-': CopyToToken(Match('-') ? "--" : "-"); return;
-			case '+': CopyToToken(Match('+') ? "++" : "+"); return;
-			case '!': CopyToToken(Match('=') ? "!=" : "!"); return;
-			case '=': CopyToToken(Match('=') ? "==" : "="); return;
-			case '>': CopyToToken(Match('=') ? ">=" : ">"); return;
-			case '<': CopyToToken(Match('=') ? "<=" : "<"); return;
+			case '-':
+				CopyToToken(Match('-') ? "--" : "-");
+				return;
+			case '+':
+				CopyToToken(Match('+') ? "++" : "+");
+				return;
+			case '!':
+				CopyToToken(Match('=') ? "!=" : "!");
+				return;
+			case '=':
+				CopyToToken(Match('=') ? "==" : "=");
+				return;
+			case '>':
+				CopyToToken(Match('=') ? ">=" : ">");
+				return;
+			case '<':
+				CopyToToken(Match('=') ? "<=" : "<");
+				return;
 
-            case '/': if (Match('/'))
-                      {
-                        EatComment();
-                      }
-                      else
-                      {
-                          CopyToToken("/");
-                      }
-                      return;
+			case '/':
+				if (Match('/'))
+				{
+					EatComment();
+				}
+				else
+				{
+					CopyToToken("/");
+				}
+				return;
 
-			case '&': if (Match('&')) { CopyToToken("&&"); } return;
-			case '|': if (Match('|')) { CopyToToken("||"); } return;
+			case '&':
+				if (Match('&'))
+				{
+					CopyToToken("&&");
+				}
+				return;
+			case '|':
+				if (Match('|'))
+				{
+					CopyToToken("||");
+				}
+				return;
 
-            case '\t':
-                break;
+			case '\t':
+				break;
 
-            case '\n':
-            case '\r':
-                while (PeekChar() == '\n' || PeekChar() == '\r')
-                {
-                    AdvanceChar();
-                }
-                _value[0] = '\n';
-                _value[1] = '\0';
-                return;
-            
-            case ' ':
+			case '\n':
+				if (PeekChar() == '\r')
+				{
+					AdvanceChar();
+				}
+				*_value = '\n';
+				_value[1] = '\0';
+				return;
+
+			case '\r':
+				if (PeekChar() == '\n')
+				{
+					AdvanceChar();
+				}
+				_value[0] = '\n';
+				_value[1] = '\0';
+				return;
+
+			case ' ':
 				// Ignore
 				break;
 
-			case '"': CopyStringToToken(); return;
+			case '"':
+				CopyStringToToken();
+				return;
 
 			default:
-				if (IsDigit(c))
+                if (IsAlpha(c))
+                {
+                    CopyIdentifierToToken(c);
+                    return;
+                }
+                else if (IsDigit(c))
 				{
-					CopyNumberToToken(c); return;
+					CopyNumberToToken(c);
+					return;
 				}
-				else if (IsAlpha(c))
-				{
-					CopyIdentifierToToken(c); return;
-				}
-				
+
 				char s[2];
 				s[0] = c;
 				s[1] = 0;
@@ -312,34 +405,38 @@ public:
 		}
 	}
 
-    void AdvanceToNewLine()
-    {
-        while (true)
-        {
-            if (_pCurrentNode == 0)
-            {
-                return;
-            }
-            if (*_pCurrentNode->_pItem == '\n')
-            {
-                Advance();
-                return;
-            }
-            Advance();
-        }
-    }
+	void AdvanceToNewLine()
+	{
+		while (true)
+		{
+			if (_pCurrentNode == 0)
+			{
+				return;
+			}
+			if (*_pCurrentNode->_pItem == '\n')
+			{
+				while (_pCurrentNode != 0 && *_pCurrentNode->_pItem == '\n')
+				{
+					Advance();
+				}
+				return;
+			}
+			Advance();
+		}
+	}
 
-    int GetParseLocation()
-    {
-        return _pCurrentPreviousValue - _pExpression;
-    }
+	int GetParseLocation()
+	{
+		return _pCurrentPreviousValue - _pExpression;
+	}
 
-    void SetParseLocation(int newParseLocation)
-    {
-        _pCurrentNode = &_node;
-        _pCurrent = _pExpression + newParseLocation;
+	void SetParseLocation(int newParseLocation)
+	{
+		_pCurrentNode = &_node;
+		_pCurrent = _pExpression + newParseLocation;
 
-        Advance();
-    }
-
+		Advance();
+	}
 };
+
+bool ExpressionTokenSource::LogTokens = false;

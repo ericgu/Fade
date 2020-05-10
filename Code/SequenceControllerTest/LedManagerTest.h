@@ -34,7 +34,7 @@ public:
 
 	~LedDeviceSimulator()
 	{
-		delete _pUpdatedStates;
+		delete [] _pUpdatedStates;
 		_pUpdatedStates = 0;
 	}
 

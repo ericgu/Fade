@@ -23,8 +23,8 @@ class LedManager : public ILedManager
 	{
 		if (_pStates != 0)
 		{
-			delete _pStates;
-			delete _pDeltas;
+			delete[] _pStates;
+			delete[] _pDeltas;
 			_pStates = 0;
 			_pDeltas = 0;
 		}
@@ -50,9 +50,14 @@ public:
 
 	void ResetState()
 	{
-		for (int i = 0; i < _channelCount; i++)
+        Variable zero;
+        zero.SetValue(0, 0.0F);
+        zero.SetValue(1, 0.0F);
+        zero.SetValue(2, 0.0F);
+        zero.SetValue(3, 0.0F);
+
+        for (int i = 0; i < _channelCount; i++)
 		{
-			Variable zero;
 			_pStates[i] = LedState(i, &zero, 0);
 			_pDeltas[i] = LedState(i, &zero, 0);
 		}

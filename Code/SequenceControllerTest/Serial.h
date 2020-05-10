@@ -13,6 +13,11 @@ public:
 		_outputOn = true;
 	}
 
+    ~SerialOutput()
+    {
+        delete[] _pLastString;
+    }
+
 	void println(const char* pString)
 	{
 		if (_outputOn)

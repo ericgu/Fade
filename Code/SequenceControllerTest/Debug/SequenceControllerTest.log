@@ -1,2 +1,55 @@
-﻿  SequenceControllerTest.cpp
-  SequenceControllerTest.vcxproj -> D:\data\Electronics\SequenceController\Code\SequenceControllerTest\Debug\SequenceControllerTest.exe
+﻿  stdafx.cpp
+  SequenceControllerTest.cpp
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\serial.h(9): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\instrumentation.h(17): warning C26495: Variable 'FunctionTime::_functionName' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\instrumentation.h(17): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\profiler.h(8): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\delayer.h(8): warning C26495: Variable 'Delayer::_offset' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\delayer.h(8): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\command.h(15): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\command.h(21): warning C26495: Variable 'Command::_lineNumber' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\command.h(41): warning C26495: Variable 'Command::_lineNumber' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\parseerrors.h(6): warning C26495: Variable 'ParseError::_errorText' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\parseerrors.h(6): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\parseerrors.h(56): warning C26495: Variable 'ParseErrors::_bufferUsed' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\parseerrors.h(56): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\commandsource.h(77): warning C26495: Variable 'CommandSource::_pCommandString' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\variablestorechunktest.h(17): warning C6011: Dereferencing NULL pointer 'pVariableData'. 
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\variablestore.h(16): warning C26495: Variable 'VariableStore::_pChunks' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\variablestore.h(16): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\variablestoretest.h(13): warning C6011: Dereferencing NULL pointer 'pVariableData'. 
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\variable.h(10): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\variablecollection.h(13): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\ledstate.h(9): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\commandresult.h(29): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\commandresult.h(32): warning C26495: Variable 'CommandResult::_status' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\commandresult.h(72): warning C26495: Variable 'CommandResult::_status' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\functionstore.h(6): warning C26495: Variable 'FunctionDefinition::Name' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\functionstore.h(6): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\functionstore.h(33): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\stack.h(7): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\expressiontokensource.h(18): warning C26495: Variable 'ExpressionTokenSource::_value' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\rdevaluater.h(207): warning C26444: Avoid unnamed objects with custom construction and destruction (es.84).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\rdevaluater.h(819): warning C26444: Avoid unnamed objects with custom construction and destruction (es.84).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\rdevaluater.h(906): warning C26444: Avoid unnamed objects with custom construction and destruction (es.84).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\executioncontext.h(9): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\rdevaluatertest.h(9): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\rdevaluatertest.h(56): warning C26495: Variable 'StatementTester::_program' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\rdevaluatertest.h(56): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\commandsourcesimulator.h(9): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\executionflow.h(77): warning C26444: Avoid unnamed objects with custom construction and destruction (es.84).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\executionflowtest.h(16): warning C26495: Variable 'LedMessageHandlerSimulator::_ledType' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\executionflowtest.h(16): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\timebase.h(20): warning C26495: Variable 'Timebase::_lastMicros' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\timebasetest.h(46): warning C26495: Variable 'LedManagerSimulator::_ledType' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\settings.h(11): warning C26495: Variable 'Settings::_nodeName' is uninitialized. Always initialize a member variable (type.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\settings.h(11): warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\supervisortest.h(7): warning C6262: Function uses '23204' bytes of stack:  exceeds /analyze:stacksize '16384'.  Consider moving some data to heap.
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\supervisortest.h(36): warning C6262: Function uses '23204' bytes of stack:  exceeds /analyze:stacksize '16384'.  Consider moving some data to heap.
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\supervisortest.h(65): warning C6262: Function uses '23204' bytes of stack:  exceeds /analyze:stacksize '16384'.  Consider moving some data to heap.
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\supervisortest.h(89): warning C6262: Function uses '24228' bytes of stack:  exceeds /analyze:stacksize '16384'.  Consider moving some data to heap.
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\supervisortest.h(131): warning C6262: Function uses '23196' bytes of stack:  exceeds /analyze:stacksize '16384'.  Consider moving some data to heap.
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\supervisortest.h(157): warning C6262: Function uses '23196' bytes of stack:  exceeds /analyze:stacksize '16384'.  Consider moving some data to heap.
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\supervisortest.h(181): warning C6262: Function uses '23200' bytes of stack:  exceeds /analyze:stacksize '16384'.  Consider moving some data to heap.
+d:\data\electronics\sequencecontroller\code\sequencecontrollertest\supervisortest.h(208): warning C6262: Function uses '23324' bytes of stack:  exceeds /analyze:stacksize '16384'.  Consider moving some data to heap.
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\supervisor.h(185): warning C26495: Variable 'Supervisor::_executionCount' is uninitialized. Always initialize a member variable (type.6).

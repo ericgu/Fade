@@ -1,6 +1,6 @@
 class BuiltInFunctions
 {
-	static bool HandleBuiltInRand(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInRand(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, ExpressionTokenSource* pExpressionTokenSource, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if (strcmp(pFunctionName, "RAND") == 0)
 		{
@@ -8,14 +8,14 @@ class BuiltInFunctions
 			Variable* pMinValue = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 			Variable* pMaxValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
 
-			pReturnValue->SetValue((float)MyRandom::GetValue(pMinValue->GetValueInt(), pMaxValue->GetValueInt()));
+			pReturnValue->SetValue(0, (float)MyRandom::GetValue(pMinValue->GetValueInt(), pMaxValue->GetValueInt()));
 			return true;
 		}
 
 		return false;
 	}
 
-	static bool HandleBuiltInDirect(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInDirect(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, ExpressionTokenSource* pExpressionTokenSource, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if ((strcmp(pFunctionName, "D") == 0 || strcmp(pFunctionName, "DI") == 0))
 		{
@@ -43,7 +43,7 @@ class BuiltInFunctions
 			// even number of arguments is a problem...
 			if (pArgumentCount->GetValueInt() % 2 == 0)
 			{
-				pParseErrors->AddError("Invalid D command: ", "missing brightness target", lineNumber);
+				pParseErrors->AddError("Invalid D command: ", "missing brightness target", pExpressionTokenSource->GetLineNumber());
 				return true;
 			}
 
@@ -71,7 +71,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInSequential(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInSequential(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, ExpressionTokenSource* pExpressionTokenSource, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if ((strcmp(pFunctionName, "S") == 0 || strcmp(pFunctionName, "SI") == 0))
 		{
@@ -90,7 +90,7 @@ class BuiltInFunctions
 			Variable* pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 			if (pArgumentCount->GetValueInt() == 0)
 			{
-				pParseErrors->AddError("Invalid S command: ", "expected cycle count after (", lineNumber);
+				pParseErrors->AddError("Invalid S command: ", "expected cycle count after (", pExpressionTokenSource->GetLineNumber());
 				return true;
 			}
 
@@ -122,14 +122,14 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInAnimate(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInAnimate(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, ExpressionTokenSource* pExpressionTokenSource, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if (strcmp(pFunctionName, "A") == 0)
 		{
 			Variable* pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 			if (pArgumentCount->GetValueInt() == 0)
 			{
-				pParseErrors->AddError("Invalid A command: ", "expected cycle count", lineNumber);
+				pParseErrors->AddError("Invalid A command: ", "expected cycle count", pExpressionTokenSource->GetLineNumber());
 				return true;
 			}
 
@@ -147,7 +147,7 @@ class BuiltInFunctions
 	}
 
 
-	static bool HandleBuiltInPrint(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInPrint(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, ExpressionTokenSource* pExpressionTokenSource, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if ((strcmp(pFunctionName, "P") == 0 || strcmp(pFunctionName, "PL") == 0))
 		{
@@ -196,12 +196,12 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInAbort(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInAbort(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, ExpressionTokenSource* pExpressionTokenSource, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if (strcmp(pFunctionName, "ABORT") == 0)
 		{
 			pExecutionFlow->AbortExecution();
-            pParseErrors->AddError("Aborting: ", "ABORT", lineNumber);
+            pParseErrors->AddError("Aborting: ", "ABORT", pExpressionTokenSource->GetLineNumber());
 
 			return true;
 		}
@@ -209,7 +209,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInConfigLed(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInConfigLed(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, ExpressionTokenSource* pExpressionTokenSource, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
 		if (strcmp(pFunctionName, "CONFIGLED") == 0)
 		{
@@ -226,39 +226,39 @@ class BuiltInFunctions
 	}
 
 public:
-	static bool HandleBuiltInFunctions(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, int lineNumber, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+	static bool HandleBuiltInFunctions(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, ExpressionTokenSource* pExpressionTokenSource, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
-		if (HandleBuiltInRand(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInRand(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInDirect(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInDirect(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInSequential(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInSequential(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInAnimate(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInAnimate(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInPrint(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInPrint(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInAbort(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInAbort(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInConfigLed(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInConfigLed(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}

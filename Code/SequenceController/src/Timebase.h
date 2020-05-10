@@ -60,8 +60,24 @@ public:
 		_timeServices.TaskDelay(1);
 	}
 
+	int _lastCycleStart = -1;
+	int _longestCycleTime = -1;
+
 	void ExecuteLedCommandMember(CommandResult *pCommandResult)
 	{
+		//return;
+		if (_lastCycleStart != -1)
+		{
+			int now = _timeServices.GetTicks();
+			int delta = now - _lastCycleStart;
+			if (delta > _longestCycleTime)
+			{
+				_longestCycleTime = delta;
+				//Serial.print("Delta: ");
+				//Serial.println(_longestCycleTime);
+			}
+		}
+
 		_currentCount = pCommandResult->GetCycleCount();
 		_pLedManager->SetDelta(pCommandResult);
 
@@ -89,6 +105,8 @@ public:
 				//_lastMicros = m;
 			}
 		}
+
+		_lastCycleStart = _timeServices.GetTicks();
 	}
 
 	bool RunProgram(const char *pCommand)
@@ -118,6 +136,8 @@ public:
 		_pLedManager->ResetState();
 		_executionCount = 0;
 		_executionFlow.ClearAbort();
+		_lastCycleStart = -1;
+		_longestCycleTime = -1;
 	}
 };
 

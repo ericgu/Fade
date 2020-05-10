@@ -7,7 +7,6 @@ class RDEvaluater
 	//IFunctionCaller* _pFunctionCaller;
 	ParseErrors* _pParseErrors;
     IExecutionFlow* _pExecutionFlow;
-	int _lineNumber;
 	char _temporaryBuffer[1024];
 
     const char* GenerateArgumentName(int argumentNumber)
@@ -17,16 +16,44 @@ class RDEvaluater
         return _temporaryBuffer;
     }
 
+    void ReportError(const char* pString, const char* pValue, int lineNumber = -10)
+    {
+        if (lineNumber == -10)
+        {
+            lineNumber = _pExpressionTokenSource->GetLineNumber();
+        }
+        _pParseErrors->AddError(pString, pValue, lineNumber);
+    }
+
+    bool IsAborting(const char* pAbortingMessage, int lineNumber = -10)
+    {
+        if (_pExecutionFlow != 0 && _pExecutionFlow->IsAborting())
+        {
+            if (pAbortingMessage != 0)
+            {
+                ReportError("Aborting: ", pAbortingMessage, lineNumber);
+            }
+            return true;
+        }
+
+        if (_pParseErrors != 0 &&_pParseErrors->GetErrorCount() != 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
 
 	// recursively evaluate function arguments. On the way out of the function we store the arguments. This prevents collisions when the function
 	// argument evaluation requires function calls themselves. 
 	bool EvaluateFunctionArguments(int argumentNumber)
 	{
-		PROLOGUE
+        PROLOGUE;
 
 		if (_pExpressionTokenSource->AtEnd())
 		{
-			_pParseErrors->AddError("Missing closing ) in expression", "", _lineNumber);
+            ReportError("Missing closing ) in expression", "");
 			return false;
 		}
 
@@ -36,10 +63,14 @@ class RDEvaluater
 			_pExpressionTokenSource->Advance();
 			Variable argument(argumentNumber);
 			_pExecutionContext->Variables()->AddAndSet("#A", &argument, _pExecutionContext->GetStack()->GetFrameCount() + 1); // put into frame that will be created soon...
-			return true;
+            RETURN(true);
 		}
 
 		Variable value = EvaluateTop();
+        if (!(ValidateHasValue(&value)))
+        {
+            return false;
+        }
 
 		if (_pExpressionTokenSource->EqualTo(","))
 		{
@@ -53,18 +84,18 @@ class RDEvaluater
 
 		_pExecutionContext->Variables()->AddAndSet(GenerateArgumentName(argumentNumber), &value, _pExecutionContext->GetStack()->GetFrameCount() + 1); // put into frame that will be created soon...
 
-		return true;
+        RETURN(true);
 	}
 
     // recursively evaluate function arguments. On the way out of the function we store the arguments. This prevents collisions when the function
     // argument evaluation requires function calls themselves. 
     bool AssignFunctionParameters(const char* pFunctionName, int parameterNumber)
     {
-        PROLOGUE
+        PROLOGUE;
 
             if (_pExpressionTokenSource->AtEnd())
             {
-                _pParseErrors->AddError("Missing closing ) in function call ", pFunctionName, _lineNumber);
+                ReportError("Missing closing ) in function call ", pFunctionName);
                 return false;
             }
 
@@ -72,16 +103,14 @@ class RDEvaluater
         if (_pExpressionTokenSource->EqualTo(")"))
         {
             _pExpressionTokenSource->Advance();
-            Variable argument(parameterNumber);
-
             Variable* pArgumentCount = _pExecutionContext->GetVariableWithoutErrorCheck("#A");
             if (parameterNumber != pArgumentCount->GetValueInt())
             {
-                _pParseErrors->AddError("Extra arguments passed to function ", pFunctionName, _lineNumber);
+                ReportError("Extra arguments passed to function ", pFunctionName);
                 return false;
             }
 
-            return true;
+            RETURN(true);
         }
 
         Variable parameterName = EvaluateTop();
@@ -90,7 +119,7 @@ class RDEvaluater
         if (pArgument == 0)
         {
             // missing argument...
-            _pParseErrors->AddError("Missing argument in function call for parameter: ", parameterName.GetVariableName(), _lineNumber);
+            ReportError("Missing argument in function call for parameter: ", parameterName.GetVariableName());
             return false;
         }
 
@@ -106,12 +135,12 @@ class RDEvaluater
             return false;
         }
 
-        return true;
+        RETURN(true);
     }
 
     Variable HandleFunctionCall(const char* pFunctionName)
     {
-        PROLOGUE
+        PROLOGUE;
             
         Variable returnValue = Variable::Empty();
 
@@ -171,15 +200,14 @@ class RDEvaluater
                         returnValue = *pReturnValue;
                     }
 
-                    return returnValue;
+                    RETURN(returnValue);
                 }
                 else
                 {
                     EvaluateStatement();
 
-                    if (_pExecutionFlow->IsAborting())
+                    if (IsAborting("Function"))
                     {
-                        _pParseErrors->AddError("Aborting: ", "Function", -1);
                         return returnValue;
                     }
                 }
@@ -189,9 +217,9 @@ class RDEvaluater
 
 
         }
-        else if (!BuiltInFunctions::HandleBuiltInFunctions(pFunctionName, _pExecutionContext, _pParseErrors, _lineNumber, _pExecutionFlow, &returnValue))
+        else if (!BuiltInFunctions::HandleBuiltInFunctions(pFunctionName, _pExecutionContext, _pParseErrors, _pExpressionTokenSource, _pExecutionFlow, &returnValue))
         {
-            _pParseErrors->AddError("Unrecognized function: ", pFunctionName, _lineNumber);
+            ReportError("Unrecognized function: ", pFunctionName);
 
             return Variable::Empty();
         }
@@ -202,7 +230,7 @@ class RDEvaluater
 
     Variable EvaluateFunctionCall(const char* functionName)
     {
-        PROLOGUE
+        PROLOGUE;
             
         _pExpressionTokenSource->Advance();
 
@@ -217,7 +245,7 @@ class RDEvaluater
             _pExecutionContext->Variables()->DeleteStackLevel(_pExecutionContext->GetStack()->GetFrameCount());
             _pExecutionContext->GetStack()->DestroyFrame();
 
-            return returnValue;
+            RETURN(returnValue);
         }
         else
         {
@@ -227,11 +255,11 @@ class RDEvaluater
 
 	Variable EvaluateExpression()
 	{
-		PROLOGUE
+        PROLOGUE;
 			
 		if (_pExpressionTokenSource->AtEnd())
 		{
-			_pParseErrors->AddError("Missing value at end of expression", "", _lineNumber);
+			ReportError("Missing value at end of expression", "");
 			return Variable::Empty();
 		}
 
@@ -239,7 +267,7 @@ class RDEvaluater
 		{
 			Variable value = Variable::ParseFloat(_pExpressionTokenSource->GetCurrentToken());
 			_pExpressionTokenSource->Advance();
-			return value;
+            RETURN(value);
 		}
 		else if (_pExpressionTokenSource->IsIdentifier())
 		{
@@ -263,16 +291,16 @@ class RDEvaluater
 
 					if (_pExpressionTokenSource->EqualTo("++"))
 					{
-						pVariable->SetValue(pVariable->GetValueFloat(0) + 1);
+						pVariable->SetValue(0, pVariable->GetValueFloat(0) + 1);
 						_pExpressionTokenSource->Advance();
 					}
 					else if (_pExpressionTokenSource->EqualTo("--"))
 					{
-						pVariable->SetValue(pVariable->GetValueFloat(0) - 1);
+						pVariable->SetValue(0, pVariable->GetValueFloat(0) - 1);
 						_pExpressionTokenSource->Advance();
 					}
 
-					return returnValue;
+                    RETURN(returnValue);
 				}
 				else
 				{
@@ -290,7 +318,7 @@ class RDEvaluater
 					returnValue.SetToNan();
 					returnValue.SetVariableName(identifier);
 
-					return returnValue;
+                    RETURN(returnValue);
 				}
 			}
 		}
@@ -300,7 +328,7 @@ class RDEvaluater
 
 	Variable EvaluateString()
 	{
-        PROLOGUE
+        PROLOGUE;
 
         //Serial.println("EvaluateString");
         //Serial.println(_pExpressionTokenSource->GetCurrentToken());
@@ -315,12 +343,13 @@ class RDEvaluater
 			return value;
 		}
 
-		return EvaluateExpression();
+		Variable value = EvaluateExpression();
+        RETURN(value);
 	}
 
 	Variable EvaluateParentheses()
 	{
-		PROLOGUE
+        PROLOGUE;
 			
 		if (_pExpressionTokenSource->EqualTo("("))
 		{
@@ -330,7 +359,7 @@ class RDEvaluater
 
 			if (!_pExpressionTokenSource->EqualTo(")"))
 			{
-				_pParseErrors->AddError("Missing ) in expression", "", _lineNumber);
+				ReportError("Missing ) in expression", "");
 
 				return Variable::Empty();
 			}
@@ -339,31 +368,63 @@ class RDEvaluater
 			return value;
 		}
 
-		return EvaluateString();
+		Variable value = EvaluateString();
+        RETURN(value);
 	}
+
+    void RemoveUndefinedSentinel(const char* pVariableName)
+    {
+        if (strlen(pVariableName) != 0)
+        {
+            SafeString::StringCopy(_temporaryBuffer, "$", sizeof(_temporaryBuffer));
+            SafeString::StringCat(_temporaryBuffer, pVariableName, sizeof(_temporaryBuffer));
+            _pExecutionContext->DeleteVariable(_temporaryBuffer);
+        }
+    }
+
+    bool ValidateHasValue(Variable* pVariable)
+    {
+        if (*pVariable->GetValueString() != '\0' || !pVariable->IsNan())
+        {
+            return true;
+        }
+
+        ReportError("Undefined variable: ", pVariable->GetVariableName());
+        RemoveUndefinedSentinel(pVariable->GetVariableName());
+
+        return false;
+    }
 
 	Variable EvaluateMultiValueNumber()
 	{
-		PROLOGUE
+        PROLOGUE;
 			
 		if (_pExpressionTokenSource->EqualTo("{"))
 		{
 			_pExpressionTokenSource->Advance();
 
 			Variable first = EvaluateTop();
+            if (!(ValidateHasValue(&first)))
+            {
+                return Variable::Empty();
+            }
 
 			while (_pExpressionTokenSource->EqualTo(","))
 			{
 				_pExpressionTokenSource->Advance();
 
 				Variable next = EvaluateTop();
+                if (!(ValidateHasValue(&next)))
+                {
+                    return Variable::Empty();
+                }
 
 				first.SetValue(first.GetValueCount(), next.GetValueFloat(0));	// accumulate to first value
 			}
 
 			if (!_pExpressionTokenSource->EqualTo("}"))
 			{
-				_pParseErrors->AddError("Missing } in expression", "", _lineNumber);
+				ReportError("Missing } in expression", "");
 
 				return Variable::Empty();
 			}
@@ -372,46 +433,65 @@ class RDEvaluater
 			return first;
 		}
 		
-		return EvaluateParentheses();
+		Variable value = EvaluateParentheses();
+        RETURN(value);
 	}
 
 
 	Variable EvaluateUnary()
 	{
-		PROLOGUE
+        PROLOGUE;
 			
-		if (_pExpressionTokenSource->EqualTo("+") || _pExpressionTokenSource->EqualTo("-"))
+        Variable value;
+        if (_pExpressionTokenSource->EqualTo("+") || _pExpressionTokenSource->EqualTo("-"))
 		{
 			char op = _pExpressionTokenSource->FirstChar();
 
 			_pExpressionTokenSource->Advance();
-			Variable value = EvaluateUnary();
+			value = EvaluateUnary();
+            if (!(ValidateHasValue(&value)))
+            {
+                return Variable::Empty();
+            }
 
 			switch (op)
 			{
 			case '-':
-				return -value.GetValueFloat(0);
+                value = -value.GetValueFloat(0);
 
 			case '+':
-				return value;
+                break;
 			}
+            
 		}
-
-		return EvaluateMultiValueNumber();
+        else
+        {
+            value = EvaluateMultiValueNumber();
+        }
+        RETURN(value);
 	}
 
 	Variable EvaluateMultiplicative()
 	{
-		PROLOGUE
+        PROLOGUE;
 
 		Variable left = EvaluateUnary();
 
 		while (_pExpressionTokenSource->EqualTo("*") || _pExpressionTokenSource->EqualTo("/") || _pExpressionTokenSource->EqualTo("%"))
 		{
+            if (!(ValidateHasValue(&left)))
+            {
+                return Variable::Empty();
+            }
+
 			char op = _pExpressionTokenSource->FirstChar();
 
 			_pExpressionTokenSource->Advance();
 			Variable right = EvaluateUnary();
+            if (!(ValidateHasValue(&right)))
+            {
+                return Variable::Empty();
+            }
 
 			switch (op)
 			{
@@ -429,20 +509,29 @@ class RDEvaluater
 			}
 		}
 
-		return left;
+        RETURN(left);
 	}
 
 	Variable EvaluateAdditive()
 	{
-		PROLOGUE
+        PROLOGUE;
 
-		Variable left = EvaluateMultiplicative();
+        Variable left = EvaluateMultiplicative();
 
 		while (_pExpressionTokenSource->EqualTo("+") || _pExpressionTokenSource->EqualTo("-"))
 		{
+            if (!(ValidateHasValue(&left)))
+            {
+                return Variable::Empty();
+            }
+
 			char op = _pExpressionTokenSource->FirstChar();
 			_pExpressionTokenSource->Advance();
 			Variable right = EvaluateMultiplicative();
+            if (!(ValidateHasValue(&right)))
+            {
+                return Variable::Empty();
+            }
 
 			switch (op)
 			{
@@ -456,23 +545,33 @@ class RDEvaluater
 			}
 		}
 
-		return left;
+        RETURN(left);
 	}
+
 
 	Variable EvaluateRelational()
 	{
-		PROLOGUE
+        PROLOGUE;
 
 		Variable left = EvaluateAdditive();
 
 		while (_pExpressionTokenSource->EqualTo("<") || _pExpressionTokenSource->EqualTo("<=") || 
 			   _pExpressionTokenSource->EqualTo(">") || _pExpressionTokenSource->EqualTo(">="))
 		{
+            if (!(ValidateHasValue(&left)))
+            {
+                return Variable::Empty();
+            }
+
 			char op = _pExpressionTokenSource->FirstChar();
 			char andEqual = _pExpressionTokenSource->SecondChar() == '=';
 
 			_pExpressionTokenSource->Advance();
 			Variable right = EvaluateAdditive();
+            if (!(ValidateHasValue(&right)))
+            {
+                return Variable::Empty();
+            }
 
 			if (op == '<')
 			{
@@ -484,21 +583,29 @@ class RDEvaluater
 			}
 		}
 
-		return left;
+        RETURN(left);
 	}
 
 	Variable EvaluateEquality()
 	{
-		PROLOGUE
+        PROLOGUE;
 
 		Variable left = EvaluateRelational();
 
 		while (_pExpressionTokenSource->EqualTo("==") || _pExpressionTokenSource->EqualTo("!="))
 		{
+            if (!(ValidateHasValue(&left)))
+            {
+                return Variable::Empty();
+            }
 			char op = _pExpressionTokenSource->FirstChar();
 
 			_pExpressionTokenSource->Advance();
 			Variable right = EvaluateRelational();
+            if (!(ValidateHasValue(&right)))
+            {
+                return Variable::Empty();
+            }
 
 			if (op == '=')
 			{
@@ -510,46 +617,63 @@ class RDEvaluater
 			}
 		}
 
-		return left;
+        RETURN(left);
 	}
 
 	Variable EvaluateLogicalAnd()
 	{
-		PROLOGUE
+        PROLOGUE;
 
 		Variable left = EvaluateEquality();
 
 		while (_pExpressionTokenSource->EqualTo("&&"))
 		{
+            if (!(ValidateHasValue(&left)))
+            {
+                return Variable::Empty();
+            }
+
 			_pExpressionTokenSource->Advance();
 			Variable right = EvaluateEquality();
+            if (!(ValidateHasValue(&right)))
+            {
+                return Variable::Empty();
+            }
 
 			left = Variable(left.GetValueFloat(0) && right.GetValueFloat(0));
 		}
 
-		return left;
+        RETURN(left);
 	}
 
 	Variable EvaluateLogicalOr()
 	{
-		PROLOGUE
+        PROLOGUE;
 
 		Variable left = EvaluateLogicalAnd();
 
 		while (_pExpressionTokenSource->EqualTo("||"))
 		{
+            if (!(ValidateHasValue(&left)))
+            {
+                return Variable::Empty();
+            }
 			_pExpressionTokenSource->Advance();
 			Variable right = EvaluateLogicalAnd();
+            if (!(ValidateHasValue(&right)))
+            {
+                return Variable::Empty();
+            }
 
 			left = Variable(left.GetValueFloat(0) || right.GetValueFloat(0));
 		}
 
-		return left;
+        RETURN(left);
 	}
 
 	Variable EvaluateAssignment()
 	{
-		PROLOGUE
+        PROLOGUE;
 
 		Variable left = EvaluateLogicalOr();
 
@@ -557,6 +681,10 @@ class RDEvaluater
 		{
 			_pExpressionTokenSource->Advance();
 			Variable right = EvaluateLogicalOr();
+            if (!(ValidateHasValue(&right)))
+            {
+                return Variable::Empty();
+            }
 
 			Variable* pDestination = _pExecutionContext->GetVariableWithoutErrorCheck(left.GetVariableName());
 			if (!pDestination)
@@ -566,11 +694,7 @@ class RDEvaluater
 				_pExecutionContext->AddVariableAndSet(left.GetVariableName(), &futureValue);
 				pDestination = _pExecutionContext->GetVariableWithoutErrorCheck(left.GetVariableName());
 
-				// Remove "undefined" sentinel...
-				SafeString::StringCopy(_temporaryBuffer, "$", sizeof(_temporaryBuffer));
-				SafeString::StringCat(_temporaryBuffer, left.GetVariableName(), sizeof(_temporaryBuffer));
-
-				_pExecutionContext->DeleteVariable(_temporaryBuffer);
+                RemoveUndefinedSentinel(left.GetVariableName());
 			}
 
 			for (int i = 0; i < right.GetValueCount(); i++)
@@ -581,19 +705,19 @@ class RDEvaluater
 			left.SetToNan();	// assignments are not l-values in this language to prevent "IF TEST = 5"
 		}
 
-		return left;
+        RETURN(left);
 	}
 
 	Variable EvaluateEmpty()
 	{
-		PROLOGUE
+        PROLOGUE;
 			 
 		RETURN(EvaluateAssignment());
 	}
 
 	Variable EvaluateTop()
 	{
-		PROLOGUE
+        PROLOGUE;
 
 		if (_pExpressionTokenSource->AtEnd())
 		{
@@ -605,45 +729,69 @@ class RDEvaluater
 		RETURN(value);
 	}
 
-    void HandleIf()
+    void HandleIf(bool active)
     {
-        PROLOGUE
+        PROLOGUE;
 
+        // Just skip until we find endif
+        if (!active)
+        {
+            while (!_pExpressionTokenSource->AtEnd())
+            {
+                _pExpressionTokenSource->AdvanceToNewLine();
+
+                if (_pExpressionTokenSource->EqualTo("IF"))
+                {
+                    HandleIf(false);
+                }
+                else if (_pExpressionTokenSource->EqualTo("ENDIF"))
+                {
+                    _pExpressionTokenSource->AdvanceToNewLine();
+                    return;
+                }
+            }
+
+            ReportError("Missing ENDIF", "");
+        }
+
+        // we are on an if statement that is active. Evaluate it, and decide what to do next...
         bool conditionMatched = false;
         bool executing = false;
 
+        _pExpressionTokenSource->Advance();
+        Variable condition = EvaluateTop();
+
+        if (condition.GetValueInt() != 0)
+        {
+            conditionMatched = true;
+            executing = true;
+        }
+        _pExpressionTokenSource->AdvanceToNewLine();
+
         while (!_pExpressionTokenSource->AtEnd())
         {
-            if (_pExpressionTokenSource->EqualTo("IF") ||
-                _pExpressionTokenSource->EqualTo("ELSEIF"))
+            if (_pExpressionTokenSource->EqualTo("IF"))
             {
-                if (_pExpressionTokenSource->EqualTo("IF") && executing)
+                HandleIf(executing);
+            }
+            else if (_pExpressionTokenSource->EqualTo("ELSEIF"))
+            {
+                executing = false;
+
+                _pExpressionTokenSource->Advance();
+
+                if (conditionMatched == false)
                 {
-                    HandleIf();
-                }
-                else
-                {
-                    _pExpressionTokenSource->Advance();
+                    Variable condition = EvaluateTop();
 
-                    if (conditionMatched == false)
+                    if (condition.GetValueInt() != 0)
                     {
-                        executing = false;
-
-                        Variable condition = EvaluateTop();
-
-                        if (condition.GetValueInt() != 0)
-                        {
-                            conditionMatched = true;
-                            executing = true;
-                        }
+                        conditionMatched = true;
+                        executing = true;
                     }
-                    else
-                    {
-                        executing = false;
-                    }
-
-                    _pExpressionTokenSource->AdvanceToNewLine();
                 }
+
+                _pExpressionTokenSource->AdvanceToNewLine();
             }
             else if (_pExpressionTokenSource->EqualTo("ELSE"))
             {
@@ -661,6 +809,7 @@ class RDEvaluater
             else if (_pExpressionTokenSource->EqualTo("ENDIF"))
             {
                 _pExpressionTokenSource->AdvanceToNewLine();
+                EPILOGUE;
                 return;
             }
             else
@@ -676,7 +825,7 @@ class RDEvaluater
             }
         }
 
-        _pParseErrors->AddError("Missing ENDIF", "", _lineNumber);
+        ReportError("Missing ENDIF", "");
 
         return;
     }
@@ -691,7 +840,7 @@ class RDEvaluater
 
     bool HandleFor()
     {
-        PROLOGUE
+        PROLOGUE;
 
         if (_pExpressionTokenSource->EqualTo("FOR"))
         {
@@ -724,9 +873,7 @@ class RDEvaluater
 
             _pExecutionContext->AddVariableAndSet(identifier.GetVariableName(), &startValue);
             // Remove "undefined" sentinel...
-            SafeString::StringCopy(_temporaryBuffer, "$", sizeof(_temporaryBuffer));
-            SafeString::StringCat(_temporaryBuffer, identifier.GetVariableName(), sizeof(_temporaryBuffer));
-            _pExecutionContext->DeleteVariable(_temporaryBuffer);
+            RemoveUndefinedSentinel(identifier.GetVariableName());
 
             Variable* pLoopVariable = _pExecutionContext->GetVariableWithoutErrorCheck(identifier.GetVariableName());
             _pExpressionTokenSource->AdvanceToNewLine();
@@ -737,10 +884,8 @@ class RDEvaluater
             {
                 if (_pExpressionTokenSource->EqualTo("ENDFOR"))
                 {
-                    if (_pExecutionFlow->IsAborting())
+                    if (IsAborting("FOR", -2))
                     {
-                        //Serial.println("Abort: for");
-                        _pParseErrors->AddError("Aborting: ", "FOR", -2);
                         return false;
                     }
 
@@ -751,7 +896,7 @@ class RDEvaluater
                         _pExecutionContext->DeleteVariable(identifier.GetVariableName());
                         _pExpressionTokenSource->AdvanceToNewLine();
 
-                        return true;
+                        RETURN(true);
                     }
 
                     _pExpressionTokenSource->SetParseLocation(firstLineOfForLoop);
@@ -759,16 +904,14 @@ class RDEvaluater
                 else
                 {
                     EvaluateStatement();
-                    if (_pExecutionFlow->IsAborting())
+                    if (IsAborting("FOR", -2))
                     {
-                        //Serial.println("Abort: for");
-                        _pParseErrors->AddError("Aborting: ", "FOR", -2);
                         return false;
                     }
                 }
             }
 
-            _pParseErrors->AddError("Missing ENDFOR", "", _lineNumber);
+            ReportError("Missing ENDFOR", "");
 
             return true;
 
@@ -778,7 +921,7 @@ class RDEvaluater
 
     bool HandleFunctionDefinition()
     {
-        PROLOGUE
+        PROLOGUE;
 
         if (_pExpressionTokenSource->EqualTo("FUNC"))
         {
@@ -804,6 +947,11 @@ class RDEvaluater
 
                     _pExpressionTokenSource->AdvanceToNewLine();
 
+                    RETURN(true);
+                }
+                else if (_pExpressionTokenSource->EqualTo("FUNC"))
+                {
+                    ReportError("Missing ENDFUNC for function: ", identifier);
                     return true;
                 }
                 else
@@ -812,16 +960,16 @@ class RDEvaluater
                 }
             }
 
-            _pParseErrors->AddError("Missing ENDFUNC for function: ", identifier, _lineNumber);
+            ReportError("Missing ENDFUNC for function: ", identifier);
             return true;
 
         }
-        return false;
+        RETURN(false);
     }
 
     bool HandleReturn()
     {
-        PROLOGUE
+        PROLOGUE;
 
         if (_pExpressionTokenSource->EqualTo("RETURN"))
         {
@@ -830,26 +978,26 @@ class RDEvaluater
 
             if (returnValue.GetValueCount() == 0)
             {
-                _pParseErrors->AddError("Missing value in RETURN statement", "", _lineNumber);
+                ReportError("Missing value in RETURN statement", "");
                 returnValue = Variable::Empty();
             }
 
             _pExecutionContext->AddVariableAndSet("<ReturnValue>", &returnValue);
 
-            return true;
+            RETURN(true);
         }
-        return false;
+        RETURN(false);
     }
 
     Variable EvaluateStatement()
     {
-        PROLOGUE
+        PROLOGUE;
 
         Variable lastValue;
         lastValue.SetToNan();
         if (_pExpressionTokenSource->EqualTo("IF"))
         {
-            HandleIf();
+            HandleIf(true);
         }
         else if (_pExpressionTokenSource->EqualTo("FOR"))
         {
@@ -869,7 +1017,7 @@ class RDEvaluater
 
             if (!_pExpressionTokenSource->AtEnd() != 0 && !_pExpressionTokenSource->EqualTo("\n"))
             {
-                _pParseErrors->AddError("Unexpected token remaining after parsing: ", _pExpressionTokenSource->GetCurrentToken(), _lineNumber);
+                ReportError("Unexpected token remaining after parsing: ", _pExpressionTokenSource->GetCurrentToken());
                 _pExpressionTokenSource->AdvanceToNewLine();
             }
         }
@@ -879,12 +1027,12 @@ class RDEvaluater
             _pExpressionTokenSource->Advance();
         }
 
-        return lastValue;
+        RETURN(lastValue);
     }
 
     Variable EvaluateStatements()
     {
-        PROLOGUE
+        PROLOGUE;
 
         Variable lastValue;
         lastValue.SetToNan();
@@ -892,49 +1040,50 @@ class RDEvaluater
         while (!_pExpressionTokenSource->AtEnd())
         {
             lastValue = EvaluateStatement();
-            if (_pExecutionFlow != 0 && _pExecutionFlow->IsAborting())
+            if (IsAborting("STATEMENT", -3))
             {
-                //Serial.println("Abort: statement");
-                _pParseErrors->AddError("Aborting: ", "STATEMENT", -3);
                 return false;
             }
         }
 
-        return lastValue;
+        RETURN(lastValue);
     }
 	
 public:
 
-    Variable EvaluateInExistingParse(ExpressionTokenSource* pExpressionTokenSource, IExecutionContext* pExecutionContext = 0, /*IFunctionCaller* pFunctionCaller = 0, */ ParseErrors* pParseErrors = 0, int lineNumber = -100, IExecutionFlow* pExecutionFlow = 0)
+    Variable EvaluateInExistingParse(ExpressionTokenSource* pExpressionTokenSource, IExecutionContext* pExecutionContext = 0, ParseErrors* pParseErrors = 0, IExecutionFlow* pExecutionFlow = 0)
     {
-        PROLOGUE
 
         _pExpressionTokenSource = pExpressionTokenSource;
         _pExecutionContext = pExecutionContext;
         //_pFunctionCaller = pFunctionCaller;
         _pParseErrors = pParseErrors;
-        _lineNumber = lineNumber;
         _pExecutionFlow = pExecutionFlow;
 
-        return EvaluateStatements();
+        FunctionTimesInstance.Clear();
+
+        Variable value = EvaluateStatements();
+        FunctionTimesInstance.Dump();
+
+        return value;
     }
 
 
-	Variable Evaluate(const char* pExpression, IExecutionContext* pExecutionContext = 0, /* IFunctionCaller* pFunctionCaller = 0,*/ ParseErrors* pParseErrors = 0, int lineNumber = -100, IExecutionFlow* pExecutionFlow = 0)
+	Variable Evaluate(const char* pExpression, IExecutionContext* pExecutionContext = 0, ParseErrors* pParseErrors = 0, IExecutionFlow* pExecutionFlow = 0)
 	{
-		PROLOGUE
+        PROLOGUE;
 
         ExpressionTokenSource expressionTokenSource(pExpression, pParseErrors);
-        Variable value = EvaluateInExistingParse(&expressionTokenSource, pExecutionContext, pParseErrors, lineNumber, pExecutionFlow);
+        Variable value = EvaluateInExistingParse(&expressionTokenSource, pExecutionContext, pParseErrors, pExecutionFlow);
 
-        if (pExecutionFlow != 0 && pExecutionFlow->IsAborting())
+        if (IsAborting(0))
         {
-            return value;
+            RETURN(value);
         }
 
 		if (!_pExpressionTokenSource->AtEnd())
 		{
-			_pParseErrors->AddError("Unexpected token remaining after parsing: ", _pExpressionTokenSource->GetCurrentToken(), _lineNumber);
+			ReportError("Unexpected token remaining after parsing: ", _pExpressionTokenSource->GetCurrentToken(), -1);
 		}
 
 		// Check for undefined sentinel variables. 
@@ -947,7 +1096,7 @@ public:
 
 				if (*pVariable->GetVariableName() == '$' && pVariable->GetStackLevel() == _pExecutionContext->GetStack()->GetFrameCount())
 				{
-					_pParseErrors->AddError("Undefined variable: ", pVariable->GetVariableName() + 1, _lineNumber); // line number
+					ReportError("Undefined variable: ", pVariable->GetVariableName() + 1, -1);
 				}
 			}
 		}

@@ -4,339 +4,397 @@
 
 class VariableTest
 {
-	static void TestParseInt()
-	{
-		Variable variable = Variable::ParseFloat("15");
-		Assert::AreEqual(15, variable.GetValueInt());
-		Assert::AreEqual(15.0F, variable.GetValueFloat(0));
-	}
+    static void TestParseInt()
+    {
+        Variable variable = Variable::ParseFloat("15");
+        Assert::AreEqual(15, variable.GetValueInt());
+        Assert::AreEqual(15.0F, variable.GetValueFloat(0));
+    }
 
-	static void TestParseFloat()
-	{
-		Variable variable = Variable::ParseFloat("15.88");
-		Assert::AreEqual(15.88F, variable.GetValueFloat(0));
-	}
+    static void TestParseFloat()
+    {
+        Variable variable = Variable::ParseFloat("15.88");
+        Assert::AreEqual(15.88F, variable.GetValueFloat(0));
+    }
 
-	static void TestParseNegative()
-	{
-		Variable variable = Variable::ParseFloat("-2.0");
-		Assert::AreEqual(-2.0F, variable.GetValueFloat(0));
-	}
+    static void TestParseNegative()
+    {
+        Variable variable = Variable::ParseFloat("-2.0");
+        Assert::AreEqual(-2.0F, variable.GetValueFloat(0));
+    }
 
-	static void TestIncrement()
-	{
-		Variable variable = Variable::ParseFloat("15");
-		variable.Increment(1.0F);
-		Assert::AreEqual(16, variable.GetValueInt());
-		Assert::AreEqual(16.0F, variable.GetValueFloat(0));
-	}
+    static void TestIncrement()
+    {
+        Variable variable = Variable::ParseFloat("15");
+        variable.Increment(1.0F);
+        Assert::AreEqual(16, variable.GetValueInt());
+        Assert::AreEqual(16.0F, variable.GetValueFloat(0));
+    }
 
-	static void TestConstructorInt()
-	{
-		Variable variable = Variable(15);
-		Assert::AreEqual(15, variable.GetValueInt());
-		Assert::AreEqual(15.0F, variable.GetValueFloat(0));
-	}
+    static void TestConstructorInt()
+    {
+        Variable variable(15);
+        Assert::AreEqual(15, variable.GetValueInt());
+        Assert::AreEqual(15.0F, variable.GetValueFloat(0));
+    }
 
-	static void TestConstructorFloat()
-	{
-		Variable variable = Variable(15.0F);
-		Assert::AreEqual(15.0F, variable.GetValueFloat(0));
-	}
+    static void TestConstructorFloat()
+    {
+        Variable variable(15.0F);
+        Assert::AreEqual(15.0F, variable.GetValueFloat(0));
+    }
 
-	static void TestSetValueSetsValueCount()
-	{
-		Variable variable;
-		variable.SetValue(0, 15.0F);
-		Assert::AreEqual(15.0F, variable.GetValueFloat(0));
-		Assert::AreEqual(1, variable.GetValueCount());
-	}
+    static void TestSetValueSetsValueCount()
+    {
+        Variable variable;
+        variable.SetValue(0, 15.0F);
+        Assert::AreEqual(15.0F, variable.GetValueFloat(0));
+        Assert::AreEqual(1, variable.GetValueCount());
+    }
 
-	static void TestClear()
-	{
-		Variable variable = Variable(15);
-		variable.SetStackLevel(55);
-		variable.SetVariableName("fred");
-		Assert::AreEqual(15.0F, variable.GetValueFloat(0));
-		Assert::AreEqual(55, variable.GetStackLevel());
-		Assert::AreEqual("fred", variable.GetVariableName());
+    static void TestGetValueReturnsNanIfNotSet()
+    {
+        Variable variable;
+        Assert::AreEqual(1, isnan(variable.GetValueFloat(0)));
+        Assert::AreEqual(1, isnan(variable.GetValueFloat(1)));
+        Assert::AreEqual(1, isnan(variable.GetValueFloat(2)));
+        Assert::AreEqual(1, isnan(variable.GetValueFloat(3)));
 
-		variable.Clear();
+        variable.SetValue(0, 1.0F);
+        variable.SetValue(1, 2.0F);
+        variable.SetValue(2, 4.0F);
+        variable.SetValue(3, 8.0F);
 
-		Assert::AreEqual(0.0F, variable.GetValueFloat(0));
-		Assert::AreEqual(0, variable.GetStackLevel());
-	}
+        Assert::AreEqual(1.0F, variable.GetValueFloat(0));
+        Assert::AreEqual(2.0F, variable.GetValueFloat(1));
+        Assert::AreEqual(4.0F, variable.GetValueFloat(2));
+        Assert::AreEqual(8.0F, variable.GetValueFloat(3));
 
-	static void TestConstructorString()
-	{
-		Variable variable = Variable("MyNewString");
-		Assert::AreEqual("MyNewString", variable.GetValueString());
-		Assert::AreEqual(0, variable.GetValueCount());
-	}
-
-	static void TestFloatList()
-	{
-		Variable variable;
-		
-		variable.SetValue(0, 33.33F);
-		variable.SetValue(1, 15.88F);
-		variable.SetValue(2, 1234.567F);
-
-		Assert::AreEqual(3, variable.GetValueCount());
-		Assert::AreEqual(33.33F, variable.GetValueFloat(0));
-		Assert::AreEqual(15.88F, variable.GetValueFloat(1));
-		Assert::AreEqual(1234.567F, variable.GetValueFloat(2));
-	}
-
-	static void TestFloatListTooMany()
-	{
-		Variable variable;
-
-		variable.SetValue(0, 33.33F);
-		variable.SetValue(1, 15.88F);
-		variable.SetValue(2, 1234.567F);
-		variable.SetValue(3, 12.0F);
-		variable.SetValue(4, 24.0F);
-
-		Assert::AreEqual(4, variable.GetValueCount());
-		Assert::AreEqual(33.33F, variable.GetValueFloat(0));
-		Assert::AreEqual(15.88F, variable.GetValueFloat(1));
-		Assert::AreEqual(1234.567F, variable.GetValueFloat(2));
-		Assert::AreEqual(12.0F, variable.GetValueFloat(3));
-	}
-
-	static void AddAndSetFloat(VariableCollection* pVariableCollection, const char* pName, float value, int stackLevel)
-	{
-		Variable variable(value);
-		pVariableCollection->AddAndSet(pName, &variable, stackLevel);
-	}
-
-	static void TestNameTooLong()
-	{
-		Variable variable;
-
-		Serial.SetOutput(0);
-		variable.SetVariableName("A234567890A234567890A234567890A234567890A234567890A234567890A234567890");
-		Serial.SetOutput(1);
-
-		Assert::AreEqual("", variable.GetVariableName());
-		Assert::AreEqual("Variable too long", Serial.GetLastString());
-	}
-
-	static void TestCollectionWorks()
-	{
-		VariableCollection variableCollection;
-
-		AddAndSetFloat(&variableCollection, "Fred", 55.0F, 1);
-		AddAndSetFloat(&variableCollection, "Barney", 55.0F, 1);
-		AddAndSetFloat(&variableCollection, "Wilma", 55.0F, 1);
-
-		Variable* pVariable = variableCollection.Get(2);
-		pVariable->SetValue(0, 15.0F);
-	}
-
-	static void TestAddVariableTwice()
-	{
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
-
-		AddAndSetFloat(&variableCollection, "Fred", 55.0F, 1);
-		AddAndSetFloat(&variableCollection, "Fred", 55.0F, 1);
-
-		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
-		Variable* pParsed = variableCollection.Lookup("Fred", 1, &parseErrors, 1);
-		Assert::AreEqual(55.0F, pParsed->GetValueFloat(0));
-	}
-
-	static void TestDuplicateNameOnNewLevelAndDelete()
-	{
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
-
-		AddAndSetFloat(&variableCollection, "Fred", 55.0F, 1);
-		AddAndSetFloat(&variableCollection, "Fred", 100.0F, 2);
-
-		Assert::AreEqual(2, variableCollection.GetActiveVariableCount());
-		Variable* pParsed = variableCollection.Lookup("Fred", 2, &parseErrors, 1);
-		Assert::AreEqual(100.0F, pParsed->GetValueFloat(0));
-
-		variableCollection.DeleteStackLevel(2);
-
-		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
-		pParsed = variableCollection.Lookup("Fred", 1, &parseErrors, 1);
-		Assert::AreEqual(55.0F, pParsed->GetValueFloat(0));
-	}
-
-	static void TestGetVariableName()
-	{
-		const char* pCommand = "Test=15";
-
-		char variableName[64];
-		const char *pRemaining = VariableCollection::GetVariableName(pCommand, variableName, sizeof(variableName));
-
-		Assert::AreEqual("Test", variableName);
-		Assert::AreEqual("=15", pRemaining);
-	}
-
-	static void TestGetVariableNameBufferTooSmall()
-	{
-		const char* pCommand = "Test=15";
-
-		char variableName[2];
-		Serial.SetOutput(0);
-		const char *pRemaining = VariableCollection::GetVariableName(pCommand, variableName, sizeof(variableName));
-		Serial.SetOutput(1);
-
-		Assert::AreEqual("Variable name too long", Serial.GetLastString());
-		Assert::AreEqual("", variableName);
-	}
-
-	static void TestMissingVariable()
-	{
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
-
-		Variable* pParsed = variableCollection.Lookup("Fred", 1, &parseErrors, 15);
-		Assert::AreEqual(1, parseErrors.GetErrorCount());
-		Assert::AreEqual("Undeclared variable: Fred", parseErrors.GetError(0)->_errorText);
-		Assert::AreEqual(15, parseErrors.GetError(0)->_lineNumber);
-	}
-
-	static void TestMissingVariableNoErrorCheck()
-	{
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
-
-		Variable* pParsed = variableCollection.GetWithoutErrorCheck("Fred", 1);
-		Assert::AreEqual(0, (int) pParsed);
-	}
+    }
 
 
-	static void TestClearCollection()
-	{
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
 
-		AddAndSetFloat(&variableCollection, "Fred", 55.0F, 1);
-		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
+    static void TestClear()
+    {
+        Variable variable = Variable(15);
+        variable.SetStackLevel(55);
+        variable.SetVariableName("fred");
+        Assert::AreEqual(15.0F, variable.GetValueFloat(0));
+        Assert::AreEqual(55, variable.GetStackLevel());
+        Assert::AreEqual("fred", variable.GetVariableName());
 
-		variableCollection.Clear();
-		Assert::AreEqual(0, variableCollection.GetActiveVariableCount());
-	}
+        variable.Clear();
 
-	static void TestDelete()
-	{
-		VariableCollection variableCollection;
-		AddAndSetFloat(&variableCollection, "Fred", 55.0F, 1);
-		AddAndSetFloat(&variableCollection, "Barney", 15.0F, 1);
-		Assert::AreEqual(2, variableCollection.GetActiveVariableCount());
+        Assert::AreEqual(0, variable.GetValueCount());
+        Assert::AreEqual(0, variable.GetStackLevel());
+    }
 
-		variableCollection.Delete("Fred", 1);
-		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
 
-		Variable* pParsed = variableCollection.GetWithoutErrorCheck("Fred", 1);
-		Assert::AreEqual(0, (int)pParsed);
-	}
+    static void TestConstructorString()
+    {
+        Variable variable("MyNewString");
+        Assert::AreEqual("MyNewString", variable.GetValueString());
+        Assert::AreEqual(0, variable.GetValueCount());
+    }
 
-	static void TestRename()
-	{
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
+    static void TestFloatList()
+    {
+        Variable variable;
 
-		AddAndSetFloat(&variableCollection, "Fred", 55.0F, 1);
+        variable.SetValue(0, 33.33F);
+        variable.SetValue(1, 15.88F);
+        variable.SetValue(2, 1234.567F);
 
-		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
-		Variable* pParsed = variableCollection.Lookup("Fred", 1, &parseErrors, 1);
-		Assert::AreEqual(55.0F, pParsed->GetValueFloat(0));
-	}
+        Assert::AreEqual(3, variable.GetValueCount());
+        Assert::AreEqual(33.33F, variable.GetValueFloat(0));
+        Assert::AreEqual(15.88F, variable.GetValueFloat(1));
+        Assert::AreEqual(1234.567F, variable.GetValueFloat(2));
+    }
 
-	static void TestAddFloatList()
-	{
-		Variable variable;
+    static void TestFloatListTooMany()
+    {
+        Variable variable;
 
-		variable.SetValue(0, 33.33F);
-		variable.SetValue(1, 15.88F);
-		variable.SetValue(2, 1234.567F);
+        variable.SetValue(0, 33.33F);
+        variable.SetValue(1, 15.88F);
+        variable.SetValue(2, 1234.567F);
+        variable.SetValue(3, 12.0F);
+        variable.SetValue(4, 24.0F);
 
-		Assert::AreEqual(3, variable.GetValueCount());
-		Assert::AreEqual(33.33F, variable.GetValueFloat(0));
-		Assert::AreEqual(15.88F, variable.GetValueFloat(1));
-		Assert::AreEqual(1234.567F, variable.GetValueFloat(2));
+        Assert::AreEqual(4, variable.GetValueCount());
+        Assert::AreEqual(33.33F, variable.GetValueFloat(0));
+        Assert::AreEqual(15.88F, variable.GetValueFloat(1));
+        Assert::AreEqual(1234.567F, variable.GetValueFloat(2));
+        Assert::AreEqual(12.0F, variable.GetValueFloat(3));
+    }
 
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
+    static void TestNameTooLong()
+    {
+        Variable variable;
 
-		variableCollection.AddAndSet("Fred", &variable, 1);
+        Serial.SetOutput(0);
+        variable.SetVariableName("A234567890A234567890A234567890A234567890A234567890A234567890A234567890");
+        Serial.SetOutput(1);
 
-		Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
-		Variable* pParsed = variableCollection.Lookup("Fred", 1, &parseErrors, 1);
-		Assert::AreEqual(3, pParsed->GetValueCount());
-		Assert::AreEqual(33.33F, pParsed->GetValueFloat(0));
-		Assert::AreEqual(15.88F, pParsed->GetValueFloat(1));
-		Assert::AreEqual(1234.567F, pParsed->GetValueFloat(2));
-	}
+        Assert::AreEqual("", variable.GetVariableName());
+        Assert::AreEqual("Variable too long", Serial.GetLastString());
+    }
 
-	static void TestTooMany()
-	{
-		VariableCollection variableCollection;
-		ParseErrors parseErrors;
+    static void TestDestructorDecrementsReferenceCount()
+    {
+        VariableData* pVariableData;
+        {
+            Variable variable(15);
+            pVariableData = variable.TestOnlyGetVariableData();
+            Assert::AreEqual(1, pVariableData->_referenceCount);
+        }
 
-		for (int i = 0; i < 30; i++)
-		{
-			char buffer[10];
+        Assert::AreEqual(0, pVariableData->_referenceCount);
+    }
 
-			sprintf(buffer, "Var%d", i);
-			variableCollection.Add(buffer, 0);
-		}
+    static void TestCopyUsesSameVariableData()
+    {
+        Variable variable(15);
 
-		Assert::AreEqual(30, variableCollection.GetActiveVariableCount());
+        Variable copy = variable;
 
-		Serial.SetOutput(0);
-		variableCollection.Add("Var31", 0);
-		Serial.SetOutput(1);
+        Assert::AreEqual((int)variable.TestOnlyGetVariableData(), (int)copy.TestOnlyGetVariableData());
+        Assert::AreEqual(2, variable.TestOnlyGetVariableData()->_referenceCount);
+    }
 
-		Assert::AreEqual(30, variableCollection.GetActiveVariableCount());
+    static void TestCopyConstructorSplitsDataIfSourceStackLevelIsNotZero()
+    {
+        Variable variable(15);
+        variable.TestOnlyGetVariableData()->_stackLevel = 1;
 
-		Assert::AreEqual("Too many variables", Serial.GetLastString());
-	}
+        Variable copy = variable;
+
+        Assert::AreEqual(0, variable.TestOnlyGetVariableData() == copy.TestOnlyGetVariableData());
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(0, copy.TestOnlyGetVariableData()->_stackLevel);
+    }
+
+    static void TestCopyAndSetValuePreservesValues()
+    {
+        Variable variable(15);
+
+        Variable copy = variable;
+
+        variable.SetValue(0, 22.0F);
+
+        Assert::AreEqual(22.0F, variable.GetValueFloat(0));
+        Assert::AreEqual(15.0F, copy.GetValueFloat(0));
+
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+    }
+
+    static void TestCopyAndIncrementSplits()
+    {
+        Variable variable(15);
+
+        Variable copy = variable;
+
+        variable.Increment(6);
+
+        Assert::AreEqual(21.0F, variable.GetValueFloat(0));
+        Assert::AreEqual(15.0F, copy.GetValueFloat(0));
+
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+    }
+
+    static void TestCopyAndSetStringValueSplits()
+    {
+        Variable variable(15);
+
+        Variable copy = variable;
+
+        variable.SetValue("Hello");
+
+        Assert::AreEqual("Hello", variable.GetValueString());
+        Assert::AreEqual(15.0F, copy.GetValueFloat(0));
+
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+    }
+
+    static void TestCopyAndSetVariableNameSplits()
+    {
+        Variable variable(15);
+
+        Variable copy = variable;
+
+        variable.SetVariableName("Barney");
+
+        Assert::AreEqual("Barney", variable.GetVariableName());
+        Assert::AreEqual(15.0F, copy.GetValueFloat(0));
+
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+    }
+
+    static void TestCopyAndSetStackLevelSplits()
+    {
+        Variable variable(15);
+
+        Variable copy = variable;
+
+        variable.SetStackLevel(222);
+
+        Assert::AreEqual(222, variable.GetStackLevel());
+        Assert::AreEqual(15.0F, copy.GetValueFloat(0));
+
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+    }
+
+    static void TestCopyAndSetNaNSplits()
+    {
+        Variable variable(15);
+
+        Variable copy = variable;
+
+        variable.SetToNan();
+
+        Assert::AreEqual(1, variable.IsNan());
+        Assert::AreEqual(15.0F, copy.GetValueFloat(0));
+
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+    }
+
+    static void TestAssignmentOperator()
+    {
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
+        {
+            Variable variable(15);
+            Variable copy(10);
+
+            VariableData* pCopyVariableData = copy.TestOnlyGetVariableData();
+
+            copy = variable;
+
+            Assert::AreEqual(2, variable.TestOnlyGetVariableData()->_referenceCount);
+            Assert::AreEqual(0, pCopyVariableData->_referenceCount);
+
+        }
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
+    }
+
+    static void TestAssignmentOperatorSplitsIfSourceIsAProgramVariable()
+    {
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
+        {
+            Variable variable(15);
+            variable.TestOnlyGetVariableData()->_stackLevel = 1;
+            Variable copy(10);
+
+            copy = variable;
+
+            Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
+            Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+            Assert::AreEqual(0, copy.TestOnlyGetVariableData()->_stackLevel);
+        }
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
+    }
+
+    static void TestCopyConstructor()
+    {
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
+        {
+            Variable variable(15);
+            Variable copy = variable;
+
+            Assert::AreEqual(2, variable.TestOnlyGetVariableData()->_referenceCount);
+
+        }
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
+    }
+
+    static void TestCleanup()
+    {
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
+
+        {
+            Variable variable(15);
+        }
+
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
+    }
+
+    static Variable ReturnValue()
+    {
+        return Variable(333);
+    }
+
+    static void TestReturnValue()
+    {
+        Variable variable = ReturnValue();
+
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
+    }
+
+    static void TestNaN()
+    {
+        Variable variable(15.5F);
+
+        Assert::AreEqual(0, variable.IsNan());
+        variable.SetToNan();
+        Assert::AreEqual(1, variable.IsNan());
+        Assert::AreEqual(0, variable.GetValueCount());
+
+    }
+
+
+    static void TestEmpty()
+    {
+        Variable variable = Variable::Empty();
+
+        Assert::AreEqual(1, variable.IsNan());
+    }
 
 
 public:
+    static void Run()
+    {
+        TestParseInt();
+        TestParseFloat();
+        TestParseNegative();
+        TestIncrement();
 
-	static int Run()
-	{
-		TestParseInt();
-		TestParseFloat();
-		TestParseNegative();
-		TestIncrement();
-		TestConstructorInt();
-		TestConstructorFloat();
-		TestClear();
-		TestSetValueSetsValueCount();
+        TestConstructorInt();
+        TestConstructorFloat();
 
-		TestCollectionWorks();
+        TestSetValueSetsValueCount();
+        TestGetValueReturnsNanIfNotSet();
+        TestClear();
 
-		TestAddVariableTwice();
+        TestConstructorString();
 
-		TestGetVariableName();
-		TestNameTooLong();
+        TestFloatList();
+        TestFloatListTooMany();
 
-		TestMissingVariable();
-		TestMissingVariableNoErrorCheck();
-		TestClearCollection();
-		TestDelete();
-		TestDuplicateNameOnNewLevelAndDelete();
+        TestNameTooLong();
 
-		TestFloatList();
-		TestFloatListTooMany();
-		TestAddFloatList();
+        TestNaN();
+        TestEmpty();
 
-		TestGetVariableNameBufferTooSmall();
+        TestDestructorDecrementsReferenceCount();
+        TestCopyUsesSameVariableData();
+        TestCopyAndSetValuePreservesValues();
+        TestReturnValue();
+        TestCopyAndIncrementSplits();
+        TestCopyAndSetStringValueSplits();
+        TestCopyAndSetVariableNameSplits();
+        TestCopyAndSetStackLevelSplits();
+        TestCopyAndSetNaNSplits();
+        TestCleanup();
 
-		TestTooMany();
-
-		TestConstructorString();
-
-		return 0;
-	}
+        TestCopyConstructor();
+        TestAssignmentOperator();
+        TestCopyConstructorSplitsDataIfSourceStackLevelIsNotZero();
+        TestAssignmentOperatorSplitsIfSourceIsAProgramVariable();
+    }
 };

@@ -1,4 +1,5 @@
 #include "ExpressionNode.h"
+#include "CharacterClassifier.h"
 #include "ExpressionTokenSource.h"
 
 class ExpressionTokenSourceTest
@@ -212,14 +213,28 @@ class ExpressionTokenSourceTest
 
     static void TestComment2()
     {
-        ExpressionTokenSource expressionTokenSource("x = 5 // init\n // space\nx  // eval");
+        ExpressionTokenSource expressionTokenSource("x = 5 // init\n\n // space\nx  // eval");
 
         Assert(&expressionTokenSource, "x");
         Assert(&expressionTokenSource, "=");
         Assert(&expressionTokenSource, "5");
         Assert(&expressionTokenSource, "\n");
         Assert(&expressionTokenSource, "\n");
+        Assert(&expressionTokenSource, "\n");
         Assert(&expressionTokenSource, "x");
+
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
+    }
+
+    static void TestNewlineLinefeed()
+    {
+        ExpressionTokenSource expressionTokenSource("x\n\ry\r\nz");
+
+        Assert(&expressionTokenSource, "x");
+        Assert(&expressionTokenSource, "\n");
+        Assert(&expressionTokenSource, "y");
+        Assert(&expressionTokenSource, "\n");
+        Assert(&expressionTokenSource, "z");
 
         Assert::AreEqual(1, expressionTokenSource.AtEnd());
     }
@@ -363,7 +378,6 @@ class ExpressionTokenSourceTest
 
     }
 
-
     static void TestAtEnd()
     {
         ParseErrors parseErrors;
@@ -375,6 +389,88 @@ class ExpressionTokenSourceTest
         expressionTokenSource.Advance();
         Assert::AreEqual(1, expressionTokenSource.AtEnd());
     }
+
+    static void CheckTokenAndLineNumber(ExpressionTokenSource* pExpressionTokenSource, const char* pExpectedToken, int expectedLineNumber)
+    {
+        Assert::AreEqual(pExpectedToken, pExpressionTokenSource->GetCurrentToken());
+        Assert::AreEqual(expectedLineNumber, pExpressionTokenSource->GetLineNumber());
+    }
+
+    static void TestLineNumbers()
+    {
+        ParseErrors parseErrors;
+        ExpressionTokenSource expressionTokenSource("a\nb * 12\nc\nd++\ne\nf", &parseErrors, 55);
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "a", 0);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "\n", 0);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "b", 1);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "*", 1);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "12", 1);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "\n", 1);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "c", 2);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "\n", 2);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "d", 3);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "++", 3);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "\n", 3);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "e", 4);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "\n", 4);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "f", 5);
+        expressionTokenSource.Advance();
+    }
+
+    static void TestLineNumbersWithBlankLines()
+    {
+        ParseErrors parseErrors;
+        ExpressionTokenSource expressionTokenSource("a\n\n\nb * 12", &parseErrors, 55);
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "a", 0);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "\n", 0);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "\n", 1);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "\n", 2);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "b", 3);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "*", 3);
+        expressionTokenSource.Advance();
+
+        CheckTokenAndLineNumber(&expressionTokenSource, "12", 3);
+        expressionTokenSource.Advance();
+    }
+
 
 public:
 
@@ -403,6 +499,10 @@ public:
         TestAtEnd();
 
         TestGetCurrentToken();
+        TestNewlineLinefeed();
+
+        TestLineNumbers();
+        TestLineNumbersWithBlankLines();
 
 		TestIsNumber();
 		TestIsIdentifier();

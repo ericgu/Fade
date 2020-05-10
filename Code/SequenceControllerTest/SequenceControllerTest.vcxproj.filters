@@ -39,9 +39,6 @@
     <ClInclude Include="Serial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VariableTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CommandSourceSimulatorTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -97,6 +94,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ExecutionContextTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableStoreTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableCollectionTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableStoreChunkTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SequenceController\src\RDEvaluater.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
