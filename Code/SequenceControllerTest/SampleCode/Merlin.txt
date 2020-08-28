@@ -1,0 +1,27 @@
+CONFIGLED("RGB", 33, 13)
+
+IF READBUTTON(0) == 1
+  
+  DI(100, 0, {1, 1, 0})
+  
+  DI(5, 4, {0, 1, 0})
+  DI(5, 4, {0, 0, 0})
+  DI(25, 4, {0, 0, 0})
+  
+  DI(100, 4, {1, 1, 0})
+  
+  FOR Wait 0:100
+    IF READBUTTON(0) == 1
+      BREAK
+    ENDIF
+    A(10)
+  ENDFOR
+  
+  D(100, 4, {0, 0, 0})
+  D(100, 0, {0, 0, 0})
+  A(100)
+ENDIF
+
+
+//PL("Hello, World")                                                                        
+A(1)                   

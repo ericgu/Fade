@@ -1,10 +1,15 @@
 class ExecutionFlow : public IExecutionFlow
 {
+    static const int MaxButtons = 4;
+
     ICommandSource *_pCommandSource;
     ExecutionContext *_pExecutionContext;
     ParseErrors *_pParseErrors;
     ILedMessageHandler *_pLedMessageHandler;
     CommandResult *_pCommandResult;
+    IButton* _pButtons[MaxButtons];
+    int      _buttonCount;
+    bool _breaking;
 
 public:
     ExecutionFlow(ICommandSource *pCommandSource, ParseErrors *pParseErrors, ILedMessageHandler *pLedMessageHandler)
@@ -14,6 +19,8 @@ public:
         _pLedMessageHandler = pLedMessageHandler;
         _pExecutionContext = new ExecutionContext();
         _pCommandResult = new CommandResult(16);
+        _buttonCount = 0;
+        _breaking = false;
     }
 
     ~ExecutionFlow()
@@ -41,6 +48,21 @@ public:
     void ClearAbort()
     {
         _pCommandResult->ClearAbort();
+    }
+
+    void BreakExecution()
+    {
+        _breaking = true;
+    }
+
+    bool IsBreaking()
+    {
+        return _breaking;
+    }
+
+    void ClearBreak()
+    {
+        _breaking = false;
     }
 
     void ExecuteLedCommand(CommandResult *pCommandResult)
@@ -78,4 +100,31 @@ public:
 
         return true;
     }
+
+    void AddButton(IButton* pButton)
+    {
+        if (_buttonCount == 4)
+        {
+            return;
+        }
+
+        _pButtons[_buttonCount] = pButton;
+        _buttonCount++;
+    }
+
+    virtual bool GetButtonState(int buttonNumber)
+    {
+        if (buttonNumber < 0 || buttonNumber >= _buttonCount)
+        {
+            return false;
+        }
+
+        return _pButtons[buttonNumber]->GetButtonStatus();
+    }
+
+    virtual int GetButtonCount()
+    {
+        return _buttonCount;
+    }
+
 };

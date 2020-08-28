@@ -36,6 +36,11 @@ class RDEvaluater
             return true;
         }
 
+        if (_pExecutionFlow != 0 && _pExecutionFlow->IsBreaking())
+        {
+            return true;
+        }
+
         if (_pParseErrors != 0 &&_pParseErrors->GetErrorCount() != 0)
         {
             return true;
@@ -880,19 +885,21 @@ class RDEvaluater
 
             int firstLineOfForLoop = _pExpressionTokenSource->GetParseLocation();
 
+            bool breaking = false; 
             while (!_pExpressionTokenSource->AtEnd())
             {
                 if (_pExpressionTokenSource->EqualTo("ENDFOR"))
                 {
-                    if (IsAborting("FOR", -2))
+                    if (IsAborting("FOR", -2) && !breaking)
                     {
                         return false;
                     }
 
                     pLoopVariable->Increment(increment);
 
-                    if (!GetIsInRange(startValue.GetValueFloat(0), endValue.GetValueFloat(0), pLoopVariable->GetValueFloat(0)))
+                    if (!GetIsInRange(startValue.GetValueFloat(0), endValue.GetValueFloat(0), pLoopVariable->GetValueFloat(0)) || breaking)
                     {
+                        _pExecutionFlow->ClearBreak();
                         _pExecutionContext->DeleteVariable(identifier.GetVariableName());
                         _pExpressionTokenSource->AdvanceToNewLine();
 
@@ -903,10 +910,21 @@ class RDEvaluater
                 }
                 else
                 {
-                    EvaluateStatement();
-                    if (IsAborting("FOR", -2))
+                    if (!breaking)
                     {
-                        return false;
+                        EvaluateStatement();
+                        if (_pExecutionFlow->IsBreaking())
+                        {
+                            breaking = true;
+                        }
+                        else if (IsAborting("FOR", -2))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        _pExpressionTokenSource->AdvanceToNewLine();
                     }
                 }
             }
@@ -1010,6 +1028,11 @@ class RDEvaluater
         else if (_pExpressionTokenSource->EqualTo("RETURN"))
         {
             HandleReturn();
+        }
+        else if (_pExpressionTokenSource->EqualTo("BREAK"))
+        {
+            _pExecutionFlow->BreakExecution();
+            _pExpressionTokenSource->AdvanceToNewLine();
         }
         else
         {

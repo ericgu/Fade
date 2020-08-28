@@ -35,14 +35,48 @@ public:
 	}
 };
 
+class MockButton : public IButton
+{
+    bool _returnValue;
+
+public:
+    MockButton(bool returnValue)
+    {
+        _returnValue = returnValue;
+    }
+
+    virtual bool GetButtonStatus()
+    {
+        return _returnValue;
+    }
+};
 
 class ExecutionFlowTest
 {
+    static void TestButtonRegistration()
+    {
+        ExecutionFlow executionFlow(0, 0, 0);
+        Assert::AreEqual(0, executionFlow.GetButtonCount());
 
+
+        MockButton mockButton(1);
+        executionFlow.AddButton(&mockButton);
+
+        Assert::AreEqual(1, executionFlow.GetButtonCount());
+        Assert::AreEqual(1, executionFlow.GetButtonState(0));
+
+        MockButton mockButton2(0);
+        executionFlow.AddButton(&mockButton2);
+
+        Assert::AreEqual(2, executionFlow.GetButtonCount());
+        Assert::AreEqual(0, executionFlow.GetButtonState(1));
+    }
 
 public:
 	static int Run()
 	{
+        TestButtonRegistration();
+
 
 		return 0;
 	}

@@ -5,6 +5,8 @@ public:
     CommandResult _commandResult;
     Command _command;
     bool _aborting = false;
+    bool _buttonState = false;
+    bool _breaking = false;
 
     MockExecutionFlow() : _commandResult(16) {}
 
@@ -36,10 +38,41 @@ public:
         return _aborting;
     }
 
+    virtual void BreakExecution()
+    {
+        _breaking = true;
+    }
+
+    virtual bool IsBreaking()
+    {
+        return _breaking;
+    }
+
+    virtual void ClearBreak()
+    {
+        _breaking = false;
+    }
+
     void ConfigureLeds(const char* pLedType, int ledTypeLength, int count)
     {
 
     }
+
+    void SetButtonState(bool state)
+    {
+        _buttonState = state;
+    }
+
+    virtual bool GetButtonState(int buttonNumber)
+    {
+        return _buttonState;
+    }
+
+    virtual int GetButtonCount()
+    {
+        return 1;
+    }
+
 };
 
 class StatementTester
@@ -1132,6 +1165,110 @@ class RDEvaluaterTest
         Assert::AreEqual("Aborting: STATEMENT", statementTester._parseErrors.GetError(1)->_errorText);
     }
 
+    static void TestButtonReadTrue()
+    {
+        ExecutionContext _executionContext;
+        RDEvaluater _rdEvaluater;
+        ParseErrors _parseErrors;
+        MockExecutionFlow _executionFlow;
+        _executionFlow.SetButtonState(false);
+
+        Variable result = _rdEvaluater.Evaluate("READBUTTON(0)", &_executionContext, &_parseErrors, &_executionFlow);
+
+        Assert::AreEqual(0, result.GetValueInt());
+    }
+
+    static void TestButtonReadFalse()
+    {
+        ExecutionContext _executionContext;
+        RDEvaluater _rdEvaluater;
+        ParseErrors _parseErrors;
+        MockExecutionFlow _executionFlow;
+        _executionFlow.SetButtonState(true);
+
+        Variable result = _rdEvaluater.Evaluate("READBUTTON(0)", &_executionContext, &_parseErrors, &_executionFlow);
+
+        Assert::AreEqual(1, result.GetValueInt());
+    }
+
+    static void TestButtonReadNegativeButtonNumberGivesError()
+    {
+        ExecutionContext _executionContext;
+        RDEvaluater _rdEvaluater;
+        ParseErrors _parseErrors;
+        MockExecutionFlow _executionFlow;
+        _executionFlow.SetButtonState(true);
+
+        Variable result = _rdEvaluater.Evaluate("READBUTTON(-1)", &_executionContext, &_parseErrors, &_executionFlow);
+
+        Assert::AreEqual(1, _parseErrors.GetErrorCount());
+        Assert::AreEqual("Invalid Button Number: button numbers must positive", _parseErrors.GetError(0)->_errorText);
+    }
+
+    static void TestButtonReadOutOfRangeButtonNumberGivesError()
+    {
+        ExecutionContext _executionContext;
+        RDEvaluater _rdEvaluater;
+        ParseErrors _parseErrors;
+        MockExecutionFlow _executionFlow;
+        _executionFlow.SetButtonState(true);
+
+        Variable result = _rdEvaluater.Evaluate("READBUTTON(1)", &_executionContext, &_parseErrors, &_executionFlow);
+
+        Assert::AreEqual(1, _parseErrors.GetErrorCount());
+        Assert::AreEqual("Invalid Button Number: button number is not defined", _parseErrors.GetError(0)->_errorText);
+    }
+
+    static void TestLoopVariableAfterForLoop()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("SavedValue = 0");
+        statementTester.Add("FOR Test 4:10");
+        statementTester.Add("SavedValue = Test");
+        statementTester.Add("ENDFOR");
+        statementTester.Add("SavedValue");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(10, result.GetValueInt());
+    }
+
+    static void TestBreakInForLoop()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("SavedValue = 0");
+        statementTester.Add("FOR Test 4:10");
+        statementTester.Add("SavedValue = Test");
+        statementTester.Add("BREAK");
+        statementTester.Add("ENDFOR");
+        statementTester.Add("SavedValue");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(4, result.GetValueInt());
+    }
+
+    static void TestBreakInForLoopWithIf()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("SavedValue = 0");
+        statementTester.Add("FOR Test 4:10");
+        statementTester.Add("SavedValue = Test");
+        statementTester.Add("IF Test == 6");
+        statementTester.Add("BREAK");
+        statementTester.Add("ENDIF");
+        statementTester.Add("ENDFOR");
+        statementTester.Add("SavedValue");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(6, result.GetValueInt());
+    }
+
+
     static void TestUndefinedVariableInOperation(const char* pExpression, const char* pExpectedError, int lineNumber = 0)
     {
         StatementTester statementTester;
@@ -1176,7 +1313,8 @@ public:
         TestMethodCallWithWrongArgumentCount();
         TestMethodCallWithWrongArgumentCount2();
         TestUndefinedFunctionWithVariableParameter();
-        TestRealCode();
+
+        //TestRealCode();
 
 		TestEmptyString();
 
@@ -1265,5 +1403,14 @@ public:
         TestAbort();
         TestAbortInForLoop();
         TestAbortInStatementList();
-	}
+
+        TestButtonReadFalse();
+        TestButtonReadTrue();
+        TestButtonReadNegativeButtonNumberGivesError();
+        TestButtonReadOutOfRangeButtonNumberGivesError();
+
+        TestLoopVariableAfterForLoop();
+        TestBreakInForLoop();
+        TestBreakInForLoopWithIf();
+    }
 };

@@ -225,6 +225,32 @@ class BuiltInFunctions
 		return false;
 	}
 
+    static bool HandleBuiltInReadButton(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, ExpressionTokenSource* pExpressionTokenSource, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
+    {
+        if (strcmp(pFunctionName, "READBUTTON") == 0)
+        {
+            Variable* pButtonNumber = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
+
+            int buttonNumber = pButtonNumber->GetValueInt();
+
+            if (buttonNumber < 0)
+            {
+                pParseErrors->AddError("Invalid Button Number: ", "button numbers must positive", pExpressionTokenSource->GetLineNumber());
+            }
+            else if (buttonNumber >= pExecutionFlow->GetButtonCount())
+            {
+                pParseErrors->AddError("Invalid Button Number: ", "button number is not defined", pExpressionTokenSource->GetLineNumber());
+            }
+            else
+            {
+                pReturnValue->SetValue(0, (float)pExecutionFlow->GetButtonState(buttonNumber));
+            }
+            return true;
+        }
+
+        return false;
+    }
+
 public:
 	static bool HandleBuiltInFunctions(const char* pFunctionName, IExecutionContext* pExecutionContext, ParseErrors* pParseErrors, ExpressionTokenSource* pExpressionTokenSource, IExecutionFlow* pExecutionFlow, Variable* pReturnValue)
 	{
@@ -253,16 +279,21 @@ public:
 			return true;
 		}
 
-		if (HandleBuiltInAbort(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
-		{
-			return true;
-		}
-
+        if (HandleBuiltInAbort(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+        {
+            return true;
+        }
+        
 		if (HandleBuiltInConfigLed(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
 		{
 			return true;
 		}
 
+        if (HandleBuiltInReadButton(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+        {
+            return true;
+        }
+        
 		return false;
 	}
 };

@@ -160,6 +160,7 @@ public:
 				_shouldExecuteCode = false;
 				Serial.println("Error detected; disabling execution...");
 				Serial.println(_parseErrors.GetError(0)->_errorText);
+                Serial.println(_parseErrors.GetError(0)->_lineNumber);
 				return;
 			}
 
@@ -180,6 +181,13 @@ public:
 		while (true)
 		{
 			Execute();
+			//Serial.println(VariableStore::VariableStoreInstance.GetInUseCount());
+			//Serial.println(ESP.getFreeHeap());
 		}
 	}
+
+    void AddButton(IButton* pButton)
+    {
+        _pTimebase->AddButton(pButton);
+    }
 };

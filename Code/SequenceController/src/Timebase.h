@@ -139,6 +139,11 @@ public:
 		_lastCycleStart = -1;
 		_longestCycleTime = -1;
 	}
+
+    void AddButton(IButton* pButton)
+    {
+        _executionFlow.AddButton(pButton);
+    }
 };
 
 Timebase *Timebase::_pTimebase;
