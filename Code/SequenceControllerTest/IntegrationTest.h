@@ -23,14 +23,14 @@ class IntegrationTest
         LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
         LedManager ledManager(&ledCreator);
-        ledManager.Configure("", 16, 555);
+        ledManager.Configure(0, "", 16, 555, -1, -1, -1);
 
         commandSource.AddCommand("D(10,0,10.0)");
         commandSource.AddCommand("A(10)");
 
         ParseErrors parseErrors;
         _callbackCount = 0;
-        Timebase timebase(&commandSource, &ledManager, &parseErrors, Callback);
+        Timebase timebase(&commandSource, &ledManager, &parseErrors, Callback, 0);
 
         char command[512];
         command[0] = '\0';
@@ -60,10 +60,10 @@ class IntegrationTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 16, 555);
+		ledManager.Configure(0, "", 16, 555, -1, -1, -1);
 		
 		ParseErrors parseErrors;
-		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0);
+		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0, 0);
 
         timebase.RunProgram("D(10, 0, 10.0)\nA(10)\nD(10, 0, 0.0)\nA(10)");
 
@@ -95,10 +95,10 @@ class IntegrationTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 16, 555);
+		ledManager.Configure(0, "", 16, 555, -1, -1, -1);
 
 		ParseErrors parseErrors;
-		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0);
+		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0, 0);
 
         timebase.RunProgram("FOR A 0:7\nD(2,A,1.0)\nA(2)\nD(2,A,0.0)\nA(2)\nENDFOR");
 

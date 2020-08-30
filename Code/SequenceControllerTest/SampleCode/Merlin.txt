@@ -1,27 +1,42 @@
-CONFIGLED("RGB", 33, 13)
+CONFIGLED(0, "RGB", 33, 13)
+CONFIGBUTTON(0, "TOUCH", 32, 20)
+LampAutoShutoffTimeInSeconds = 10 * 100 // 10 seconds
 
 IF READBUTTON(0) == 1
   
-  DI(100, 0, {1, 1, 0})
+  DI(100, 0, {1, 1, 0.2})
   
-  DI(5, 4, {0, 1, 0})
-  DI(5, 4, {0, 0, 0})
-  DI(25, 4, {0, 0, 0})
+  D(5, 3, {0, 1, 0})
+  D(5, 4, {0, 1, 0})
+  D(5, 5, {0, 1, 0})
+  A(5)
+  D(5, 3, {0, 0, 0})
+  D(5, 4, {0, 0, 0})
+  D(5, 5, {0, 0, 0})
+  A(5)
+  D(25, 3, {0, 0, 0})
+  D(25, 4, {0, 0, 0})
+  D(25, 5, {0, 0, 0})
   
-  DI(100, 4, {1, 1, 0})
+  D(100, 3, {1, 1, 0.2})
+  D(100, 4, {1, 1, 0.2})
+  D(100, 5, {1, 1, 0.2})
+  A(100)
   
-  FOR Wait 0:100
+  FOR Wait 0:LampAutoShutoffTimeInSeconds 
     IF READBUTTON(0) == 1
       BREAK
     ENDIF
-    A(10)
+    A(1)
   ENDFOR
   
+  D(100, 3, {0, 0, 0})
   D(100, 4, {0, 0, 0})
-  D(100, 0, {0, 0, 0})
+  D(100, 5, {0, 0, 0})
+  D(25, 0, {0, 0, 0})
   A(100)
 ENDIF
 
 
 //PL("Hello, World")                                                                        
-A(1)                   
+A(1)                                                                                                    

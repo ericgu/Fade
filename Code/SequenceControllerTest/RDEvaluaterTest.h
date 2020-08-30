@@ -8,6 +8,19 @@ public:
     bool _buttonState = false;
     bool _breaking = false;
 
+    int _ledGroupNumber;
+    const char* _pLedType;
+    int _ledCount;
+    int _pin1;
+    int _pin2;
+    int _pin3;
+    int _pin4;
+
+    int _buttonNumber;
+    const char* _pButtonType;
+    int _pinNumber;
+    int _parameter1; 
+
     MockExecutionFlow() : _commandResult(16) {}
 
     virtual CommandResultStatus RunProgram(int runCount = -1)
@@ -53,10 +66,25 @@ public:
         _breaking = false;
     }
 
-    void ConfigureLeds(const char* pLedType, int ledTypeLength, int count)
+    virtual void ConfigureLeds(int ledGroupNumber, const char* pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
     {
-
+        _ledGroupNumber = ledGroupNumber;
+        _pLedType = pLedType;
+        _ledCount = ledCount;
+        _pin1 = pin1;
+        _pin2 = pin2;
+        _pin3 = pin3;
+        _pin4 = pin4;
     }
+
+    virtual void ConfigureButton(int buttonNumber, const char* pButtonType, int pinNumber, int parameter1)
+    {
+        _buttonNumber = buttonNumber;
+        _pButtonType = pButtonType;
+        _pinNumber = pinNumber;
+        _parameter1 = parameter1;
+    }
+
 
     void SetButtonState(bool state)
     {

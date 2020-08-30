@@ -17,7 +17,8 @@ class Timebase : public ILedMessageHandler
 	volatile long int _executionCount = 0;
 
 public:
-	Timebase(ICommandSource *pCommandSource, ILedManager *pLedManager, ParseErrors *pParseErrors, TimebaseCallback timebaseCallback) : _executionFlow(pCommandSource, pParseErrors, this)
+	Timebase(ICommandSource *pCommandSource, ILedManager *pLedManager, ParseErrors *pParseErrors, TimebaseCallback timebaseCallback, IButtonCreator* pButtonCreator) : 
+        _executionFlow(pCommandSource, pParseErrors, this, pButtonCreator)
 	{
 		_pLedManager = pLedManager;
 		_pParseErrors = pParseErrors;
@@ -50,11 +51,16 @@ public:
 		Profiler.StartBig("Other");
 	}
 
-	void Configure(const char *pLedType, int ledTypeLength, int ledCount)
+	void Configure(int ledGroupNumber, const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
 	{
-		_pLedManager->Configure(pLedType, ledTypeLength, ledCount);
+		_pLedManager->Configure(ledGroupNumber, pLedType, ledCount, pin1, pin2, pin3, pin4);
 	}
 
+    void ConfigureButton(int buttonNumber, const char* pButtonType, int pinNumber, int threshold)
+    {
+
+    }
+    
 	void TaskDelay()
 	{
 		_timeServices.TaskDelay(1);
@@ -139,11 +145,6 @@ public:
 		_lastCycleStart = -1;
 		_longestCycleTime = -1;
 	}
-
-    void AddButton(IButton* pButton)
-    {
-        _executionFlow.AddButton(pButton);
-    }
 };
 
 Timebase *Timebase::_pTimebase;

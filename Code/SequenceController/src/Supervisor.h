@@ -38,7 +38,7 @@ public:
 	const static int MaxProgramSize = 16636;
 	const static int MaxNodeNameSize = 128;
 
-	void Init(ILedManager *pLedManager, Settings *pSettings, TimebaseCallback timebaseCallback)
+	void Init(ILedManager *pLedManager, Settings *pSettings, TimebaseCallback timebaseCallback, IButtonCreator* pButtonCreator)
 	{
 		_pCurrentCommand = new char[MaxProgramSize];
 		*_pCurrentCommand = '\0';
@@ -46,7 +46,7 @@ public:
 		_pNodeName = new char[MaxNodeNameSize];
 		*_pNodeName = '\0';
 
-		_pTimebase = new Timebase(&_commandSource, pLedManager, &_parseErrors, timebaseCallback);
+		_pTimebase = new Timebase(&_commandSource, pLedManager, &_parseErrors, timebaseCallback, pButtonCreator);
 
 		_pSettings = pSettings;
 		_pSettings->LoadProgramText(_pCurrentCommand, MaxProgramSize);
@@ -185,9 +185,4 @@ public:
 			//Serial.println(ESP.getFreeHeap());
 		}
 	}
-
-    void AddButton(IButton* pButton)
-    {
-        _pTimebase->AddButton(pButton);
-    }
 };

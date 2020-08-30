@@ -11,14 +11,14 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 1, 555);
+		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
 		settings.SaveShouldExecuteCode(true);
 
 		Serial.SetOutput(false);
-		supervisor.Init(&ledManager, &settings, 0);
+		supervisor.Init(&ledManager, &settings, 0, 0);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("A(55)", supervisor.GetCurrentProgram());
@@ -40,14 +40,14 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 16, 555);
+		ledManager.Configure(0, "", 16, 555, -1, -1, -1);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
 		settings.SaveShouldExecuteCode(false);
 
 		Serial.SetOutput(false);
-		supervisor.Init(&ledManager, &settings, 0);
+		supervisor.Init(&ledManager, &settings, 0, 0);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("A(55)", supervisor.GetCurrentProgram());
@@ -69,13 +69,13 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 16, 555);
+		ledManager.Configure(0, "", 16, 555, -1, -1, -1);
 
 		Settings settings;
 		settings.SaveShouldExecuteCode(false);
 
 		Serial.SetOutput(false);
-		supervisor.Init(&ledManager, &settings, 0);
+		supervisor.Init(&ledManager, &settings, 0, 0);
 		Serial.SetOutput(true);
 
 		Assert::AreEqual("", supervisor.GetCurrentProgram());
@@ -93,14 +93,14 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 1, 555);
+		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
 		settings.SaveShouldExecuteCode(false);
 
 		Serial.SetOutput(false);
-		supervisor.Init(&ledManager, &settings, 0);
+		supervisor.Init(&ledManager, &settings, 0, 0);
 
 		Assert::AreEqual("A(55)", supervisor.GetCurrentProgram());
 		Assert::AreEqual(0, supervisor.GetExecutingProgramState());
@@ -135,12 +135,12 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 1, 555);
+		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
 
 		Settings settings;
 
 		Serial.SetOutput(false);
-		supervisor.Init(&ledManager, &settings, 0);
+		supervisor.Init(&ledManager, &settings, 0, 0);
 
 		supervisor.UpdateProgram("A(333)");
 
@@ -161,12 +161,12 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 1, 555);
+		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
 
 		Settings settings;
 
 		Serial.SetOutput(false);
-		supervisor.Init(&ledManager, &settings, 0);
+		supervisor.Init(&ledManager, &settings, 0, 0);
 
 		supervisor.UpdateProgram("B(333)");
 		Assert::AreEqual(1, supervisor.GetExecutingProgramState());
@@ -185,14 +185,14 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 1, 555);
+		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
 
 		Settings settings;
 		settings.SaveProgramText("A(3)");
 		settings.SaveShouldExecuteCode(1);
 
 		Serial.SetOutput(false);
-		supervisor.Init(&ledManager, &settings, 0);
+		supervisor.Init(&ledManager, &settings, 0, 0);
 
 		settings.SaveShouldExecuteCode(false);	// change value to ensure no update
 
@@ -212,12 +212,12 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 1, 555);
+		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
 
 		Settings settings;
 
 		Serial.SetOutput(false);
-		supervisor.Init(&ledManager, &settings, 0);
+		supervisor.Init(&ledManager, &settings, 0, 0);
 
 		supervisor.UpdateNodeName("MyNameIsFred");
 

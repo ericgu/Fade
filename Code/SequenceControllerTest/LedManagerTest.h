@@ -12,57 +12,13 @@ public:
 		_pLedDevice = pLedDevice;
 	}
 
-	ILedDevice* Create(const char* pLedType, int ledCount, int pin)
+	ILedDevice* Create(const char* pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
 	{
 		return _pLedDevice;
 	}
 };
 
-class LedDeviceSimulator : public ILedDevice
-{
-	int _updateCount;
-	int _maxUpdates;
-	LedState* _pUpdatedStates;
 
-public:
-	LedDeviceSimulator(int maxUpdates)
-	{
-		_updateCount = 0;
-		_maxUpdates = maxUpdates;
-		_pUpdatedStates = new LedState[_maxUpdates];
-	}
-
-	~LedDeviceSimulator()
-	{
-		delete [] _pUpdatedStates;
-		_pUpdatedStates = 0;
-	}
-
-	void UpdateLed(LedState ledState)
-	{
-		if (_updateCount >= _maxUpdates)
-		{
-			Serial.println("max updates exceeded");
-			return;
-		}
-
-		*(_pUpdatedStates + _updateCount) = ledState;
-
-		_updateCount++;
-	}
-
-	void Show()
-	{
-
-	}
-
-	int GetUpdateCount() { return _updateCount; }
-
-	LedState GetUpdatedState(int index)
-	{
-		return *(_pUpdatedStates + index);
-	}
-};
 
 class LedManagerTest
 {
@@ -85,7 +41,7 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 1, 555);
+		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 1.0, 1));
@@ -104,7 +60,7 @@ class LedManagerTest
 
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 2, 555);
+		ledManager.Configure(0, "", 2, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 1.0, 1));
@@ -134,7 +90,7 @@ class LedManagerTest
 
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 1, 555);
+		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 20.0, 10));
@@ -156,7 +112,7 @@ class LedManagerTest
 
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 2, 555);
+		ledManager.Configure(0, "", 2, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 10.0, 5));
@@ -185,7 +141,7 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 1, 555);
+		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		Variable target;
@@ -207,7 +163,7 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 1, 555);
+		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		Variable target;
@@ -234,7 +190,7 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure("", 1, 555);
+		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(1, 1.0, 1));
@@ -246,6 +202,31 @@ class LedManagerTest
 		Assert::AreEqual(1, ledDevice.GetUpdateCount());
 		AssertLedState(ledDevice.GetUpdatedState(0), 0, 0);
 	}
+
+#if fred
+    static void TestTwoGroups()
+    {
+        LedDeviceSimulator ledDevice(100);
+        LedDeviceCreatorSimulator ledCreator(&ledDevice);
+        LedManager ledManager(&ledCreator);
+
+        Assert::AreEqual(0, ledManager.GetGroupCount());
+        ledManager.AddGroup(0, "", 1, 555);
+        ledManager.AddGroup(1, "", 1, 555);
+
+        Assert::AreEqual(2, ledManager.GetGroupCount());
+
+        CommandResult commandResult(16);
+        commandResult.AddTarget(LedState(0, 1.0, 1));
+        commandResult.SetCycleCount(1);
+
+        ledManager.SetDelta(&commandResult);
+        ledManager.Tick();
+
+        Assert::AreEqual(1, ledDevice.GetUpdateCount());
+        AssertLedState(ledDevice.GetUpdatedState(0), 0, 1);
+    }
+#endif
 
 public:
 
@@ -259,6 +240,8 @@ public:
 		TestMultiValue();
 		TestMultiValueTwoStep();
 		TestInvalidChannel();
+
+        //TestTwoGroups();
 
 		return 0;
 	}

@@ -15,8 +15,8 @@ public:
         int value = touchRead(_pin);
         if (value < _threshold)
         {
-            Serial.print("Button: ");
-            Serial.println(value);
+            //Serial.print("Button: ");
+            //Serial.println(value);
         }
         return touchRead(_pin) < _threshold;
     }

@@ -7,18 +7,20 @@ class ExecutionFlow : public IExecutionFlow
     ParseErrors *_pParseErrors;
     ILedMessageHandler *_pLedMessageHandler;
     CommandResult *_pCommandResult;
-    IButton* _pButtons[MaxButtons];
-    int      _buttonCount;
+    IButton *_pButtons[MaxButtons];
+    int _buttonCount;
     bool _breaking;
+    IButtonCreator *_pButtonCreator;
 
 public:
-    ExecutionFlow(ICommandSource *pCommandSource, ParseErrors *pParseErrors, ILedMessageHandler *pLedMessageHandler)
+    ExecutionFlow(ICommandSource *pCommandSource, ParseErrors *pParseErrors, ILedMessageHandler *pLedMessageHandler, IButtonCreator *pButtonCreator)
     {
         _pCommandSource = pCommandSource;
         _pParseErrors = pParseErrors;
         _pLedMessageHandler = pLedMessageHandler;
         _pExecutionContext = new ExecutionContext();
         _pCommandResult = new CommandResult(16);
+        _pButtonCreator = pButtonCreator;
         _buttonCount = 0;
         _breaking = false;
     }
@@ -70,11 +72,29 @@ public:
         _pLedMessageHandler->ExecuteLedCommandMember(pCommandResult);
     }
 
-    void ConfigureLeds(const char *pLedType, int ledCount, int pin)
+    void ConfigureLeds(int ledGroupNumber, const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
     {
+        _pLedMessageHandler->Configure(ledGroupNumber, pLedType, ledCount, pin1, pin2, pin3, pin4);
+
+        // TODO: get the led count from the message handler...
         delete _pCommandResult;
         _pCommandResult = new CommandResult(ledCount);
-        _pLedMessageHandler->Configure(pLedType, ledCount, pin);
+    }
+
+    void ConfigureButton(int buttonNumber, const char *pButtonType, int pinNumber, int parameter1)
+    {
+        if (buttonNumber != _buttonCount)
+        {
+            return;
+        }
+
+        IButton *pButton = _pButtonCreator->Create(pButtonType, pinNumber, parameter1);
+
+        if (pButton != 0)
+        {
+            _pButtons[_buttonCount] = pButton;
+            _buttonCount++;
+        }
     }
 
     ExecutionContext *GetExecutionContext()
@@ -101,7 +121,7 @@ public:
         return true;
     }
 
-    void AddButton(IButton* pButton)
+    void AddButton(IButton *pButton)
     {
         if (_buttonCount == 4)
         {
@@ -126,5 +146,4 @@ public:
     {
         return _buttonCount;
     }
-
 };

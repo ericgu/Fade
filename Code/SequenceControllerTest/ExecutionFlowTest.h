@@ -51,11 +51,21 @@ public:
     }
 };
 
+class MockButtonCreator : public IButtonCreator
+{
+public:
+    IButton *Create(const char *pButtonType, int pin, int parameter1)
+    {
+        return 0;
+    }
+};
+
+
 class ExecutionFlowTest
 {
     static void TestButtonRegistration()
     {
-        ExecutionFlow executionFlow(0, 0, 0);
+        ExecutionFlow executionFlow(0, 0, 0, 0);
         Assert::AreEqual(0, executionFlow.GetButtonCount());
 
 

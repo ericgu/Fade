@@ -32,6 +32,11 @@ class LedState
             return _channel;
         }
 
+        void SetChannel(int channel)
+        {
+            _channel = channel;
+        }
+
         Variable* GetBrightness()
         {
             return &_brightness;

@@ -25,6 +25,8 @@ LedDeviceCreator *_pLedDeviceCreator;
 ILedDevice *_pLedDevice;
 LedManager *_pLedManager;
 
+ButtonCreator *_pButtonCreator;
+
 Supervisor *_pSupervisor;
 Settings *_pSettings;
 
@@ -89,7 +91,8 @@ void setup()
 
     _pSettings->Init();
     _pLedManager = new LedManager(_pLedDeviceCreator);
-    _pSupervisor->Init(_pLedManager, _pSettings, Callback);
+    _pButtonCreator = new ButtonCreator();
+    _pSupervisor->Init(_pLedManager, _pSettings, Callback, _pButtonCreator);
 
     Serial.println("Setup completed");
 

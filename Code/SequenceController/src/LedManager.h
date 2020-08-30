@@ -7,14 +7,15 @@ public:
 	virtual void Tick() = 0;
 	virtual void ResetState() = 0;
 
-	virtual void Configure(const char *pLedType, int ledCount, int ledPin) = 0;
+	virtual void Configure(int ledGroupNumber, const char *pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4) = 0;
 };
 
 class LedManager : public ILedManager
 {
 	ILedDeviceCreator *_pLedDeviceCreator;
-	ILedDevice *_pLedDevice = 0;
-	int _channelCount;
+    LedGroups _ledGroups;
+	//ILedDevice *_pLedDevice = 0;
+	//int _channelCount;
 
 	LedState *_pStates;
 	LedState *_pDeltas;
@@ -35,12 +36,10 @@ public:
 	{
 		_pLedDeviceCreator = pLedDeviceCreator;
 
-		_channelCount = 0;
 		_pStates = 0;
 		_pDeltas = 0;
-		_pLedDevice = 0;
 
-		Configure("RGB", 1, 13);
+		//Configure("RGB", 1, 13);
 	}
 
 	~LedManager()
@@ -56,26 +55,22 @@ public:
         zero.SetValue(2, 0.0F);
         zero.SetValue(3, 0.0F);
 
-        for (int i = 0; i < _channelCount; i++)
+        for (int i = 0; i < _ledGroups.GetLedTotal(); i++)
 		{
 			_pStates[i] = LedState(i, &zero, 0);
 			_pDeltas[i] = LedState(i, &zero, 0);
 		}
 	}
 
-	void Configure(const char *pLedType, int ledCount, int ledPin)
+	void Configure(int ledGroupNumber, const char *pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4)
 	{
-		ILedDevice *pLedDevice = _pLedDeviceCreator->Create(pLedType, ledCount, ledPin);
+		ILedDevice *pLedDevice = _pLedDeviceCreator->Create(pLedType, ledCount, ledPin1, ledPin2, ledPin3, ledPin4);
 
-		if (pLedDevice != 0)
-		{
-
-			_pLedDevice = pLedDevice;
-			_channelCount = ledCount;
-
+       if (_ledGroups.AddGroup(ledGroupNumber, pLedDevice, ledCount))
+       {
 			Cleanup();
-			_pStates = new LedState[_channelCount];
-			_pDeltas = new LedState[_channelCount];
+			_pStates = new LedState[_ledGroups.GetLedTotal()];
+			_pDeltas = new LedState[_ledGroups.GetLedTotal()];
 
 			ResetState();
 		}
@@ -94,7 +89,7 @@ public:
 			LedState ledState = pCommandResult->GetTarget(item);
 			Variable *pTargetBrightness = ledState.GetBrightness();
 
-			if (ledState.GetChannel() < _channelCount)
+			if (ledState.GetChannel() < _ledGroups.GetLedTotal())
 			{
 				// TODO: save target so that we get to the exact endpoint?
 				Variable delta;
@@ -112,7 +107,7 @@ public:
 
 	void Tick()
 	{
-		for (int i = 0; i < _channelCount; i++)
+		for (int i = 0; i < _ledGroups.GetLedTotal(); i++)
 		{
 			//Serial.print("LedManager::Tick -> ");
 			//Serial.println(i);
@@ -121,9 +116,9 @@ public:
 				_pStates[i].Update(_pDeltas[i]);
 				_pDeltas[i].DecrementCycleCount();
 			}
-			_pLedDevice->UpdateLed(_pStates[i]);
+			_ledGroups.UpdateLed(_pStates[i]);
 		}
 
-		_pLedDevice->Show();
+        _ledGroups.Show();
 	}
 };

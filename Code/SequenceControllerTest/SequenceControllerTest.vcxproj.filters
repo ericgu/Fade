@@ -111,6 +111,12 @@
     <ClInclude Include="..\SequenceController\src\RDEvaluater.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LedGroupsTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BuiltInFunctionsTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -123,5 +129,6 @@
   <ItemGroup>
     <Text Include="SampleCode\HueTest.txt" />
     <Text Include="SampleCode\Larson.txt" />
+    <Text Include="SampleCode\Merlin.txt" />
   </ItemGroup>
 </Project>

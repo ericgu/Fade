@@ -27,6 +27,7 @@
 #include "LedRGB.h"
 #include "ILedDeviceCreator.h"
 #include "LedDeviceCreator.h"
+#include "LedGroups.h"
 #include "LedManager.h"
 #include "FunctionStore.h"
 #include "Stack.h"
@@ -34,6 +35,7 @@
 #include "CharacterClassifier.h"
 #include "ExpressionTokenSource.h"
 #include "IButton.h"
+#include "IButtonCreator.h"
 #include "IExecutionContext.h"
 #include "BuiltInFunctions.h"
 #include "RDEvaluater.h"
@@ -43,3 +45,4 @@
 #include "Timebase.h"
 
 #include "TouchButton.h"
+#include "ButtonCreator.h"

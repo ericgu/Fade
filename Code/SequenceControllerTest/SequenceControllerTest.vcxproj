@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="..\SequenceController\src\RDEvaluater.h" />
     <ClInclude Include="Assert.h" />
+    <ClInclude Include="BuiltInFunctionsTest.h" />
     <ClInclude Include="CommandFormatterTest.h" />
     <ClInclude Include="CommandSourceSimulator.h" />
     <ClInclude Include="CommandSourceSimulatorTest.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="ExpressionTokenSourceTest.h" />
     <ClInclude Include="FunctionStoreTest.h" />
     <ClInclude Include="IntegrationTest.h" />
+    <ClInclude Include="LedGroupsTest.h" />
     <ClInclude Include="LedManagerTest.h" />
     <ClInclude Include="MyRandom.h" />
     <ClInclude Include="ParseErrorsTest.h" />
@@ -196,6 +198,7 @@
   <ItemGroup>
     <Text Include="SampleCode\HueTest.txt" />
     <Text Include="SampleCode\Larson.txt" />
+    <Text Include="SampleCode\Merlin.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
