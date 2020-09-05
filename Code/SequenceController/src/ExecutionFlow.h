@@ -88,6 +88,8 @@ public:
             return;
         }
 
+        Serial.print("ConfigureButton");
+
         IButton *pButton = _pButtonCreator->Create(pButtonType, pinNumber, parameter1);
 
         if (pButton != 0)

@@ -276,7 +276,11 @@ class BuiltInFunctions
 			}
 			else
 			{
-				pReturnValue->SetValue(0, (float)pExecutionFlow->GetButtonState(buttonNumber));
+				bool buttonState = pExecutionFlow->GetButtonState(buttonNumber);
+				//Serial.print("ReadButton: ");
+				//Serial.println(buttonState);
+
+				pReturnValue->SetValue(0, (float)buttonState);
 			}
 			return true;
 		}
