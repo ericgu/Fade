@@ -71,11 +71,28 @@ class BuildInFunctionsTest
         Assert::AreEqual(20, executionFlow._parameter1);
     }
 
+    static void TestDebugLogStatements()
+    {
+        ExecutionContext executionContext;
+        ParseErrors parseErrors;
+        MockExecutionFlow executionFlow;
+        Variable returnValue;
+
+        executionContext.AddVariableAndSet("#A0", &Variable("LogStatements"));
+        executionContext.AddVariableAndSet("#A1", &Variable(1));
+
+        BuiltInFunctions::HandleBuiltInFunctions("DEBUG", &executionContext, &parseErrors, 0, &executionFlow, &returnValue);
+
+        Assert::AreEqual(1, DebugFlags.LogStatements);
+    }
+
+
 public:
     static void Run()
     {
         TestConfigLed();
         TestConfigLedFourPins();
         TestConfigTouchButton();
+        TestDebugLogStatements();
     }
 };

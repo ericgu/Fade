@@ -17,127 +17,128 @@ enum class CommandResultStatus
 
 class CommandResult
 {
-	LedState* _targets = 0;
+	LedState *_targets = 0;
 	int _targetAllocation;
-    int _targetCount = 0;
+	int _targetCount = 0;
 	volatile CommandResultStatus _status;
 	int _cycleCount = 0;
 	bool _targetCountExceeded = false;
 	volatile bool _aborting = false;
 
-    public:
-		CommandResult(): CommandResult(16)
-		{}
+public:
+	CommandResult() : CommandResult(16)
+	{
+	}
 
-		CommandResult(int targetAllocation)
+	CommandResult(int targetAllocation)
+	{
+		_targetAllocation = targetAllocation;
+		_targets = new LedState[targetAllocation];
+
+		Reset();
+	}
+
+	void Cleanup()
+	{
+		if (_targets)
 		{
-			_targetAllocation = targetAllocation;
-			_targets = new LedState[targetAllocation];
-
-			Reset();
+			delete[] _targets;
+			_targets = 0;
 		}
+	}
 
-		void Cleanup()
+	~CommandResult()
+	{
+		Cleanup();
+	}
+
+	void DeepCopy(const CommandResult &old)
+	{
+		Cleanup();
+
+		_targetAllocation = old._targetAllocation;
+		_targets = new LedState[_targetAllocation];
+
+		_targetCount = old._targetCount;
+		for (int i = 0; i < _targetAllocation; i++)
 		{
-			if (_targets)
-			{
-				delete[] _targets;
-				_targets = 0;
-			}
+			_targets[i] = old._targets[i];
 		}
+		_status = old._status;
+		_cycleCount = old._cycleCount;
+		_targetCountExceeded = old._targetCountExceeded;
+		_aborting = old._aborting;
+	}
 
-		~CommandResult()
+	CommandResult(const CommandResult &old)
+	{
+		DeepCopy(old);
+	}
+
+	CommandResult &operator=(const CommandResult &source)
+	{
+		if (this == &source)
 		{
-			Cleanup();
-		}
-
-		void DeepCopy(const CommandResult& old)
-		{
-			Cleanup();
-
-			_targetAllocation = old._targetAllocation;
-			_targets = new LedState[_targetAllocation];
-
-			_targetCount = old._targetCount;
-			for (int i = 0; i < _targetAllocation; i++)
-			{
-				_targets[i] = old._targets[i];
-			}
-			_status = old._status;
-			_cycleCount = old._cycleCount;
-			_targetCountExceeded = old._targetCountExceeded;
-			_aborting = old._aborting;
-		}
-
-		CommandResult(const CommandResult& old)
-		{
-			DeepCopy(old);
-		}
-
-		CommandResult& operator=(const CommandResult& source)
-		{
-			if (this == &source)
-			{
-				return *this;
-			}
-
-			DeepCopy(source);
-
 			return *this;
 		}
 
-		void Abort()
+		DeepCopy(source);
+
+		return *this;
+	}
+
+	void Abort()
+	{
+		_aborting = true;
+	}
+
+	void ClearAbort()
+	{
+		_aborting = false;
+	}
+
+	bool GetAbort()
+	{
+		return _aborting;
+	}
+
+	void Reset()
+	{
+		_status = CommandResultStatus::CommandNone;
+		_targetCount = 0;
+		_cycleCount = 0;
+		_targetCountExceeded = false;
+	}
+
+	void AddTarget(LedState ledState)
+	{
+		if (_targetCount == _targetAllocation)
 		{
-			_aborting = true;
+			_targetCountExceeded = true;
+			Serial.println("Target count exceeded");
+			return;
 		}
 
-		void ClearAbort()
-		{
-			_aborting = false;
-		}
+		_targets[_targetCount] = ledState;
+		_targetCount++;
+	}
 
-		bool GetAbort()
-		{
-			return _aborting;
-		}
+	LedState GetTarget(int index)
+	{
+		return _targets[index];
+	}
 
-		void Reset()
-		{
-			_status = CommandResultStatus::CommandNone;
-			_targetCount = 0;
-			_cycleCount = 0;
-			_targetCountExceeded = false;
-		}
- 
-        void AddTarget(LedState ledState)
-        {
-			if (_targetCount == _targetAllocation)
-			{
-				_targetCountExceeded = true;
-				return;
-			}
-				
-			_targets[_targetCount] = ledState;
-            _targetCount++;
-        }
+	int GetCount() { return _targetCount; }
 
-        LedState GetTarget(int index)
-        {
-            return _targets[index];
-        }
+	CommandResultStatus GetStatus() { return _status; }
+	void SetStatus(CommandResultStatus status) { _status = status; }
 
-        int GetCount() { return _targetCount;}
+	int HasStatus() { return _status != CommandResultStatus::CommandNone; }
 
-		CommandResultStatus GetStatus() { return _status; }
-		void SetStatus(CommandResultStatus status) { _status = status; }
+	int GetCycleCount() { return _cycleCount; }
+	void SetCycleCount(int cycleCount) { _cycleCount = cycleCount; }
 
-		int HasStatus() { return _status != CommandResultStatus::CommandNone; }
-
-		int GetCycleCount() { return _cycleCount; }
-		void SetCycleCount(int cycleCount) { _cycleCount = cycleCount; }
-
-		bool GetTargetCountExceeded() { return _targetCountExceeded; }
+	bool GetTargetCountExceeded() { return _targetCountExceeded; }
 };
 
-typedef void(*CommandResultCallback)(CommandResult* pCommandResult);
-
+typedef void (*CommandResultCallback)(CommandResult *pCommandResult);

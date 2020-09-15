@@ -6,17 +6,10 @@ class LedDeviceCreator : public ILedDeviceCreator
     int _pin2;
     int _pin3;
     int _pin4;
-    ILedDevice *_pCurrentLedDevice = 0;
 
 public:
     ILedDevice *Create(const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
     {
-        if (strcmp(pLedType, _ledType) == 0 && ledCount == _ledCount && pin1 == _pin1 && pin2 == _pin2 && pin3 == _pin3 && pin4 == _pin4)
-        {
-            //Serial.println("Same device");
-            return 0; // same device as before...
-        }
-
         //Serial.print("Creating: "); Serial.flush();
         //Serial.print(pLedType);  Serial.flush();
         //Serial.print(" ");  Serial.flush();
@@ -31,22 +24,15 @@ public:
         _pin3 = pin3;
         _pin4 = pin4;
 
-        if (_pCurrentLedDevice)
-        {
-            //Serial.println("delete"); Serial.flush();
-            delete _pCurrentLedDevice;
-        }
-
         if (strcmp(pLedType, "RGB") == 0)
         {
             Serial.println("Creating RGB device");
-            _pCurrentLedDevice = new LedRGB(ledCount, pin1);
-            return _pCurrentLedDevice;
+            return new LedRGB(ledCount, pin1);
         }
         else if (strcmp(pLedType, "PWM") == 0)
         {
-            _pCurrentLedDevice = new LedPwmEsp32(ledCount, pin1, pin2, pin3, pin4);
-            return _pCurrentLedDevice;
+            Serial.println("Creating PWM device");
+            return new LedPwmEsp32(ledCount, pin1, pin2, pin3, pin4);
         }
 
         return 0;

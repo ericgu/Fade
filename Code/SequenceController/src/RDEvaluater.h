@@ -1011,6 +1011,11 @@ class RDEvaluater
     {
         PROLOGUE;
 
+        if (DebugFlags.LogStatements)
+        {
+            Serial.println(_pExpressionTokenSource->GetCurrentToken());
+        }
+
         Variable lastValue;
         lastValue.SetToNan();
         if (_pExpressionTokenSource->EqualTo("IF"))

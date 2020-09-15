@@ -29,7 +29,7 @@ public:
         return _groupCount;
     }
 
-    bool AddGroup(int groupNumber, ILedDevice* pLedDevice, int ledCount)
+    bool AddGroup(int groupNumber, ILedDevice *pLedDevice, int ledCount)
     {
         if (GetGroup(groupNumber) != 0)
         {
@@ -46,10 +46,20 @@ public:
         _ledGroups[_groupCount]._pLedDevice = pLedDevice;
         _groupCount++;
 
+#if fred
+        Serial.println("LedGroups::AddGroup");
+        Serial.print(ledCount);
+        Serial.print(" ");
+        Serial.print(groupNumber);
+        Serial.print(" ");
+        Serial.println((int)pLedDevice);
+        Serial.println(_groupCount);
+#endif
+
         return true;
     }
 
-    LedGroup* GetGroup(int groupNumber)
+    LedGroup *GetGroup(int groupNumber)
     {
         for (int i = 0; i < MaxLedGroups; i++)
         {
@@ -75,12 +85,22 @@ public:
 
     bool UpdateLed(LedState ledState)
     {
-            // find the group that this belongs to...
+        //Serial.println("LedGroups::UpdateLed");
+        //Serial.println(ledState.GetBrightness()->GetValueFloat(0));
+        //Serial.println(ledState.GetChannel());
+        //Serial.println(ledState.GetCycleCount());
+
+        // find the group that this belongs to...
         for (int i = 0; i < _groupCount; i++)
         {
+            //Serial.println(i);
+            //Serial.println(ledState.GetChannel());
             if (ledState.GetChannel() < _ledGroups[i]._ledCount)
             {
+                //Serial.println(">Found");
+                //Serial.println((int)_ledGroups[i]._pLedDevice);
                 _ledGroups[i]._pLedDevice->UpdateLed(ledState);
+                //Serial.println("<Found");
                 return true;
             }
             else

@@ -41,6 +41,11 @@ public:
 		return _tickCount;
 	}
 
+    int GetLedCount()
+    {
+        return _ledCount;
+    }
+
 	void Configure(int ledGroupNumber, const char* pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4)
 	{
         _ledGroupNumber = ledGroupNumber;

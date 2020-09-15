@@ -3,6 +3,7 @@
 
 #include "SafeString.h"
 
+#include "DebugFlags.h"
 #include "Profiler.h"
 #include "StackWatcher.h"
 #include "Instrumentation.h"

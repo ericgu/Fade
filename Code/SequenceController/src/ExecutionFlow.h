@@ -78,7 +78,7 @@ public:
 
         // TODO: get the led count from the message handler...
         delete _pCommandResult;
-        _pCommandResult = new CommandResult(ledCount);
+        _pCommandResult = new CommandResult(_pLedMessageHandler->GetLedCount());
     }
 
     void ConfigureButton(int buttonNumber, const char *pButtonType, int pinNumber, int parameter1)

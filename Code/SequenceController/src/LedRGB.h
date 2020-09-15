@@ -9,13 +9,13 @@ class LedRGB : public ILedDevice
 public:
     LedRGB(int pixelCount, int pixelPin)
     {
-        Serial.println(">LegRGB constructor");
+        Serial.println(">LedRGB constructor");
         Serial.flush();
         _pixelCount = pixelCount;
         _pixelPin = pixelPin;
         _pStrip = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(_pixelCount, _pixelPin);
         _pStrip->Begin();
-        Serial.println("<LegRGB constructor");
+        Serial.println("<LedRGB constructor");
         Serial.flush();
 
         RgbColor black(0, 0, 0);
@@ -29,6 +29,7 @@ public:
 
     ~LedRGB()
     {
+        Serial.println("LedRGB Free");
         delete _pStrip;
     }
 

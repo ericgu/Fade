@@ -64,7 +64,6 @@ void HandleWebClient(void *parameter)
 
 void setup()
 {
-
     Serial.begin(115200);
     Serial.println("setup");
     Serial.flush();
@@ -81,6 +80,7 @@ void setup()
     //_pLedDevice = new LedRGB(33, 13);
 
     WiFiManager wifiManager;
+    //wifiManager.resetSettings();
 
     wifiManager.autoConnect("SequenceController", "12345678");
     //wifiManager.startConfigPortal("SequenceController", "12345678");

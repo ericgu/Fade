@@ -17,8 +17,7 @@ class Timebase : public ILedMessageHandler
 	volatile long int _executionCount = 0;
 
 public:
-	Timebase(ICommandSource *pCommandSource, ILedManager *pLedManager, ParseErrors *pParseErrors, TimebaseCallback timebaseCallback, IButtonCreator* pButtonCreator) : 
-        _executionFlow(pCommandSource, pParseErrors, this, pButtonCreator)
+	Timebase(ICommandSource *pCommandSource, ILedManager *pLedManager, ParseErrors *pParseErrors, TimebaseCallback timebaseCallback, IButtonCreator *pButtonCreator) : _executionFlow(pCommandSource, pParseErrors, this, pButtonCreator)
 	{
 		_pLedManager = pLedManager;
 		_pParseErrors = pParseErrors;
@@ -56,11 +55,15 @@ public:
 		_pLedManager->Configure(ledGroupNumber, pLedType, ledCount, pin1, pin2, pin3, pin4);
 	}
 
-    void ConfigureButton(int buttonNumber, const char* pButtonType, int pinNumber, int threshold)
-    {
+	void ConfigureButton(int buttonNumber, const char *pButtonType, int pinNumber, int threshold)
+	{
+	}
 
-    }
-    
+	int GetLedCount()
+	{
+		return _pLedManager->GetLedCount();
+	}
+
 	void TaskDelay()
 	{
 		_timeServices.TaskDelay(1);

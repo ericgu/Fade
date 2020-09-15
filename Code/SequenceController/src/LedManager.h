@@ -8,12 +8,14 @@ public:
 	virtual void ResetState() = 0;
 
 	virtual void Configure(int ledGroupNumber, const char *pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4) = 0;
+
+	virtual int GetLedCount() = 0;
 };
 
 class LedManager : public ILedManager
 {
 	ILedDeviceCreator *_pLedDeviceCreator;
-    LedGroups _ledGroups;
+	LedGroups _ledGroups;
 	//ILedDevice *_pLedDevice = 0;
 	//int _channelCount;
 
@@ -47,15 +49,24 @@ public:
 		Cleanup();
 	}
 
+	int GetLedCount()
+	{
+		return _ledGroups.GetLedTotal();
+	}
+
 	void ResetState()
 	{
-        Variable zero;
-        zero.SetValue(0, 0.0F);
-        zero.SetValue(1, 0.0F);
-        zero.SetValue(2, 0.0F);
-        zero.SetValue(3, 0.0F);
+		Variable zero;
+		zero.SetValue(0, 0.0F);
+		zero.SetValue(1, 0.0F);
+		zero.SetValue(2, 0.0F);
+		zero.SetValue(3, 0.0F);
 
-        for (int i = 0; i < _ledGroups.GetLedTotal(); i++)
+		int size = _ledGroups.GetLedTotal();
+		_pStates = new LedState[size];
+		_pDeltas = new LedState[size];
+
+		for (int i = 0; i < _ledGroups.GetLedTotal(); i++)
 		{
 			_pStates[i] = LedState(i, &zero, 0);
 			_pDeltas[i] = LedState(i, &zero, 0);
@@ -64,26 +75,25 @@ public:
 
 	void Configure(int ledGroupNumber, const char *pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4)
 	{
+		// check whether group exists, skip if it doesn't...
+
+		if (_ledGroups.GetGroupCount() > ledGroupNumber)
+		{
+			return;
+		}
+
 		ILedDevice *pLedDevice = _pLedDeviceCreator->Create(pLedType, ledCount, ledPin1, ledPin2, ledPin3, ledPin4);
 
-       if (_ledGroups.AddGroup(ledGroupNumber, pLedDevice, ledCount))
-       {
-			Cleanup();
-			_pStates = new LedState[_ledGroups.GetLedTotal()];
-			_pDeltas = new LedState[_ledGroups.GetLedTotal()];
+		if (_ledGroups.AddGroup(ledGroupNumber, pLedDevice, ledCount))
+		{
 
+			Cleanup();
 			ResetState();
 		}
 	}
 
 	void SetDelta(CommandResult *pCommandResult)
 	{
-		//CommandResult commandResult = *pcommandResult;
-		//for (int channel = 0; channel < _channelCount; channel++)
-		//{
-		//	_deltas[channel] = LedState(channel, 0, 0);
-		//}
-
 		for (int item = 0; item < pCommandResult->GetCount(); item++)
 		{
 			LedState ledState = pCommandResult->GetTarget(item);
@@ -111,14 +121,31 @@ public:
 		{
 			//Serial.print("LedManager::Tick -> ");
 			//Serial.println(i);
+			//Serial.flush();
+			//Serial.println((int)_pDeltas);
 			if (_pDeltas[i].GetCycleCount() > 0)
 			{
+				//Serial.println("A1");
+				//Serial.flush();
 				_pStates[i].Update(_pDeltas[i]);
+				//Serial.println("A2");
+				//Serial.flush();
 				_pDeltas[i].DecrementCycleCount();
+				//Serial.println("A3");
+				//Serial.flush();
 			}
+			//Serial.println("A3.5");
+			//Serial.flush();
+
 			_ledGroups.UpdateLed(_pStates[i]);
+			//Serial.println("A4");
+			//Serial.flush();
 		}
 
-        _ledGroups.Show();
+		//Serial.println("A5");
+		//Serial.flush();
+		_ledGroups.Show();
+		//Serial.println("A6");
+		//Serial.flush();
 	}
 };

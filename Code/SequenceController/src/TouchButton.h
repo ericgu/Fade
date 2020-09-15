@@ -44,12 +44,12 @@ public:
         // If touch count == n, result is true.
         // stay in touch mode until interrupt touch value is false.
 
-        Serial.print("Interrupt: ");
-        Serial.print(_touchTrue);
-        Serial.print(" ");
-        Serial.print(_trueCount);
-        Serial.print(" ");
-        Serial.println(_falseCount);
+        //Serial.print("Interrupt: ");
+        //Serial.print(_touchTrue);
+        //Serial.print(" ");
+        //Serial.print(_trueCount);
+        //Serial.print(" ");
+        //Serial.println(_falseCount);
 
         if (_touchTrue)
         {

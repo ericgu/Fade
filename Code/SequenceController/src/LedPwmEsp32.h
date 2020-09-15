@@ -14,6 +14,8 @@ class LedPwmEsp32 : public ILedDevice
 public:
     LedPwmEsp32(int pinCount, int pin1, int pin2, int pin3, int pin4)
     {
+        Serial.println(">LedPWM constructor");
+
         _pinCount = pinCount;
         _pinNumbers[0] = pin1;
         _pinNumbers[1] = pin2;
@@ -22,13 +24,18 @@ public:
 
         for (int i = 0; i < pinCount; i++)
         {
-            ledcSetup(i, PwmFrequency + i, PwmBits);
-            ledcAttachPin(_pinNumbers[i], i);
+            if (_pinNumbers[i] != -1)
+            {
+                ledcSetup(i, PwmFrequency + i, PwmBits);
+                ledcAttachPin(_pinNumbers[i], i);
+            }
         }
+        Serial.println("<LedPWM constructor");
     }
 
     ~LedPwmEsp32()
     {
+        Serial.println("LedPwm Free");
     }
 
     void UpdateLed(LedState ledState)
