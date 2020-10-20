@@ -1,0 +1,72 @@
+CONFIGLED(0, "RGB", 33, 13)
+
+FUNC AngleToRGB(angleInDegrees)
+  //PL(angleInDegrees)  
+  
+  brightness = 1.0
+  IF (angleInDegrees <= 120)    
+    temp = angleInDegrees / 120 * brightness 
+    value = {temp, 0, brightness - temp}    
+  ELSEIF (angleInDegrees <= 240)   
+    temp = (angleInDegrees-120) / 120 * brightness 
+    value = {brightness - temp, temp, 0}    
+  ELSE    
+    temp = (angleInDegrees-240) / 120 * brightness 
+    value = {0, brightness - temp, temp}    
+  ENDIF
+  RETURN value
+ENDFUNC
+
+FUNC DoChunk(chunk, offset, angle)
+  //PL("DoChunk")
+  angle = angle + offset
+  rgb = AngleToRGB(angle % 360)
+  //rgb = {1, 2, 3}
+  //PL(rgb)
+  start = chunk * 3
+  D(3, start, rgb)
+  D(3, start + 1, rgb)
+  D(3, start + 2, rgb)
+  
+ENDFUNC
+
+FUNC MainHorizontal()
+  
+  //PL("hello")
+  FOR angle 0:359:5
+    PL(angle)
+    DoChunk(0, 30, angle)
+    DoChunk(1, 60, angle)
+    DoChunk(2, 90, angle)
+    DoChunk(3, 120, angle)
+    DoChunk(4, 150, angle)
+    DoChunk(5, 90, angle)
+    DoChunk(6, 45, angle)
+    DoChunk(7, 135, angle)
+    A(3)
+  ENDFOR     
+ENDFUNC
+
+FUNC MainVertical()
+  
+  //PL("hello")
+  FOR angle 0:359:5
+    PL(angle)
+    DoChunk(0, 0, angle)
+    DoChunk(1, 0, angle)
+    DoChunk(2, 0, angle)
+    DoChunk(3, 00, angle)
+    DoChunk(4, 0, angle)
+    DoChunk(5, 30, angle)
+    DoChunk(6, 45, angle)
+    DoChunk(7, 45, angle)
+    A(3)
+  ENDFOR     
+ENDFUNC
+
+
+FOR count 0:1
+  P(".")
+  MainHorizontal()
+  MainVertical()
+ENDFOR            

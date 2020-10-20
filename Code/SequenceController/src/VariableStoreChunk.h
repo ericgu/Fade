@@ -8,9 +8,13 @@ class VariableStoreChunk
 public:
     VariableStoreChunk(int poolSize)
     {
+        Serial.println("VariableStoreChunk::1");
         _poolSize = poolSize;
+        Serial.println("VariableStoreChunk::2");
         _pPool = new VariableData[_poolSize];
+        Serial.println("VariableStoreChunk::3");
         memset(_pPool, 0, sizeof(VariableData) * _poolSize);
+        Serial.println("VariableStoreChunk::4");
     }
 
     ~VariableStoreChunk()

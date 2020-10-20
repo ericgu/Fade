@@ -116,6 +116,8 @@ public:
 		{
 			_targetCountExceeded = true;
 			Serial.println("Target count exceeded");
+			*((int *)0) = 15; // force a crash
+
 			return;
 		}
 

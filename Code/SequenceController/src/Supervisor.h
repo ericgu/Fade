@@ -38,7 +38,7 @@ public:
 	const static int MaxProgramSize = 16636;
 	const static int MaxNodeNameSize = 128;
 
-	void Init(ILedManager *pLedManager, Settings *pSettings, TimebaseCallback timebaseCallback, IButtonCreator* pButtonCreator)
+	void Init(ILedManager *pLedManager, Settings *pSettings, TimebaseCallback timebaseCallback, IButtonCreator *pButtonCreator)
 	{
 		_pCurrentCommand = new char[MaxProgramSize];
 		*_pCurrentCommand = '\0';
@@ -74,25 +74,35 @@ public:
 
 	void UpdateProgram(const char *pProgram)
 	{
-		_pTimebase->Abort();
+		// Initial code had support to abort execution, change the program, and then go off and start executing
+		// with the new program. This has been unreliable; sometimes the abort fails and seems to corrupt saved data.
+		// Current code performs a software reset.
+		//_pTimebase->Abort();
 
-		while (_shouldExecuteCode)
-		{
-			Serial.println("Waiting for abort to finish");
-			TimeServices::TaskDelay(10);
-		}
+		//while (_shouldExecuteCode)
+		//{
+		//Serial.println("Waiting for abort to finish");
+		//TimeServices::TaskDelay(10);
+		//}
 
 		SafeString::StringCopy(_pCurrentCommand, pProgram, MaxProgramSize);
 
 		Serial.print("Program Updated: ");
 		Serial.println((int)strlen(pProgram));
 
-		_parseErrors.Clear();
-		_commandSource.SetCommand(_pCurrentCommand);
-		_pTimebase->ResetExecutionState();
+		//_parseErrors.Clear();
+		//_commandSource.SetCommand(_pCurrentCommand);
+		//_pTimebase->ResetExecutionState();
 
+		// Save the new program, and tell the system to start executing on restart.
+		// If the reboot was because of an exception, program will not be started.
 		_pSettings->SaveProgramText(pProgram);
-		_pSettings->SaveShouldExecuteCode(false);
+		_pSettings->SaveShouldExecuteCode(true); // was false
+
+		esp_restart();
+
+		// this code will not execute; it ran in the old version that did on-the-fly update.
+
 		_shouldExecuteCode = true;
 		_executionCount = 0;
 
@@ -160,7 +170,7 @@ public:
 				_shouldExecuteCode = false;
 				Serial.println("Error detected; disabling execution...");
 				Serial.println(_parseErrors.GetError(0)->_errorText);
-                Serial.println(_parseErrors.GetError(0)->_lineNumber);
+				Serial.println(_parseErrors.GetError(0)->_lineNumber);
 				return;
 			}
 

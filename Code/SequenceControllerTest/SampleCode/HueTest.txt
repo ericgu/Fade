@@ -1,4 +1,4 @@
-CONFIGLED("RGB", 33, 13)
+CONFIGLED(0, "RGB", 33, 13)
 
 FUNC AngleToRGB(angleInDegrees)
   //PL(angleInDegrees)  

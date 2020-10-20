@@ -1,4 +1,4 @@
-CONFIGLED("RGB", 33, 13)
+CONFIGLED(0, "RGB", 33, 13)
 FUNC Scan(red, green, blue)
   FOR channel 0:31
     DI(1,channel,{red, green, blue})

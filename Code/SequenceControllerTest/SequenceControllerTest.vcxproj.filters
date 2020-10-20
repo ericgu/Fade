@@ -130,5 +130,7 @@
     <Text Include="SampleCode\HueTest.txt" />
     <Text Include="SampleCode\Larson.txt" />
     <Text Include="SampleCode\Merlin.txt" />
+    <Text Include="SampleCode\HackOLantern.txt" />
+    <Text Include="SampleCode\BreatheAndFlash.txt" />
   </ItemGroup>
 </Project>

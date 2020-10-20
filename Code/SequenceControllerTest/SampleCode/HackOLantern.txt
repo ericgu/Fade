@@ -1,0 +1,39 @@
+FUNC BreatheAndFlash(count, mainColor, eyeColor)
+  Eye1 = 6
+  Eye2 = 7
+  
+  FOR spot 0:7
+    DSpot(count, spot, mainColor)
+  ENDFOR
+  A(count)
+  
+  FlashWait = 5
+  FOR i 0:4  
+    DSpot(1, Eye1, eyeColor)
+    DSpot(1, Eye2, eyeColor)
+    A(1)
+    A(FlashWait)
+    DSpot(1, Eye1, mainColor)
+    DSpot(1, Eye2, mainColor)
+    A(1)
+    A(FlashWait)
+  ENDFOR
+  DSpot(1, Eye1, eyeColor)
+  DSpot(1, Eye2, eyeColor)
+  A(1)
+  
+  FOR spot2 0:7
+    DSpot(count, spot2, {0, 0, 0})
+  ENDFOR
+  A(count)
+  
+ENDFUNC
+
+count = 100
+
+BreatheAndFlash(count, {1, 0, 0}, {0, 1, 1})
+BreatheAndFlash(count, {0, 1, 0}, {1, 0, 1})
+BreatheAndFlash(count, {0, 0, 1}, {1, 1, 0})       
+BreatheAndFlash(count, {1, 1, 0}, {0, 0, 1})
+BreatheAndFlash(count, {0, 1, 1}, {1, 0, 0})
+BreatheAndFlash(count, {1, 0, 1}, {0, 1, 0})   

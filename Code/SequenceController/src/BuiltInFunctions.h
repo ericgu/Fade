@@ -288,22 +288,28 @@ class BuiltInFunctions
 		return false;
 	}
 
-    static bool HandleBuiltInDebug(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
-    {
-        if (strcmp(pFunctionName, "DEBUG") == 0)
-        {
-            Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
+	static bool HandleBuiltInDebug(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	{
+		if (strcmp(pFunctionName, "DEBUG") == 0)
+		{
+			Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 
-            if (strcmp(pIdentifier->GetValueString(), "LogStatements") == 0)
-            {
-                Variable* pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
-                DebugFlags.LogStatements = pValue->GetValueInt();
-                return true;
-            }
-        }
+			if (strcmp(pIdentifier->GetValueString(), "LogStatements") == 0)
+			{
+				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+				DebugFlags.LogStatements = pValue->GetValueInt();
+				return true;
+			}
+			else if (strcmp(pIdentifier->GetValueString(), "LogHeapFreeOnAllocation") == 0)
+			{
+				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+				DebugFlags.LogHeapFreeOnAllocation = pValue->GetValueInt();
+				return true;
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 
 public:
 	static bool HandleBuiltInFunctions(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
@@ -348,16 +354,16 @@ public:
 			return true;
 		}
 
-        if (HandleBuiltInReadButton(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
-        {
-            return true;
-        }
+		if (HandleBuiltInReadButton(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		{
+			return true;
+		}
 
-        if (HandleBuiltInDebug(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
-        {
-            return true;
-        }
-        
+		if (HandleBuiltInDebug(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		{
+			return true;
+		}
+
 		return false;
 	}
 };

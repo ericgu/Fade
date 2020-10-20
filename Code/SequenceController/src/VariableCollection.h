@@ -2,7 +2,7 @@
 
 class VariableCollection
 {
-    static const int VariableMaxCount = 30;
+    static const int VariableMaxCount = 100;
     static int _serialNumberNext;
     static int _debugVariables;
 

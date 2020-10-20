@@ -8,7 +8,7 @@ class VariableStore
 
     int _chunkCount;
 
-    VariableStoreChunk* _pChunks[MaxChunks];
+    VariableStoreChunk *_pChunks[MaxChunks];
 
 public:
     static VariableStore VariableStoreInstance;
@@ -30,13 +30,37 @@ public:
 
     void AddChunk(int chunkSize)
     {
-        _pChunks[_chunkCount] = new VariableStoreChunk(chunkSize);
-        _chunkCount++;
-    }
+        if (_chunkCount == MaxChunks)
+        {
+            Serial.println("VariableStore::Too many chunks");
+        }
 
+        Serial.println("AddChunk::1");
+        Serial.println(chunkSize);
+        VariableStoreChunk *pChunk = new VariableStoreChunk(chunkSize);
+        Serial.println("AddChunk::2");
+        _pChunks[_chunkCount] = pChunk;
+        Serial.println("AddChunk::3");
+        _chunkCount++;
+        Serial.println("AddChunk::4");
+    }
 
     VariableData *GetFreePoolEntry()
     {
+        if (DebugFlags.LogHeapFreeOnAllocation)
+        {
+            Serial.print("VariableStore::GetFreePoolEntry:: HeapSize ");
+            Serial.print(ESP.getFreeHeap());
+
+            int variableCount = 0;
+            for (int chunk = 0; chunk < _chunkCount; chunk++)
+            {
+                variableCount += _pChunks[chunk]->GetInUseCount();
+            }
+            Serial.print(" ");
+            Serial.println(variableCount);
+        }
+
         VariableData *pVariableData;
 
         int lastSize = 0;
@@ -57,7 +81,7 @@ public:
             return 0;
         }
 
-        AddChunk(lastSize * 2);
+        AddChunk(lastSize);
         return GetFreePoolEntry();
     }
 
@@ -115,4 +139,3 @@ public:
 };
 
 VariableStore VariableStore::VariableStoreInstance;
-

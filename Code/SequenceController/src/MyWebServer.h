@@ -61,16 +61,15 @@ public:
     Program = _pWebServer->arg("Program");
     if (Program.length() != 0)
     {
-      _pSupervisor->UpdateProgram(Program.c_str());
-
       snprintf(_pPageBuffer, 16636,
-               "<meta http-equiv=\"refresh\" content=\"3;url=http://%d.%d.%d.%d/\">\
+               "<meta http-equiv=\"refresh\" content=\"8;url=http://%d.%d.%d.%d/\">\
         <html><H1>Updating program</H1></html>",
                (int)_myIPAddress[0], (int)_myIPAddress[1], (int)_myIPAddress[2], (int)_myIPAddress[3]);
 
+      Serial.println("Updating");
       _pWebServer->send(200, "text/html", _pPageBuffer);
-      Serial.println("Update done - redirecting");
-      Serial.flush();
+
+      _pSupervisor->UpdateProgram(Program.c_str()); // this resets the ESP...
     }
 
     CommandFormatter::PrettyFormat(_pSupervisor->GetCurrentProgram(), _pProgramBuffer, 16636);
@@ -154,9 +153,9 @@ public:
     Node name: \
     <input type=\"text\" name=\"nodename\" value=\"%s\">\
     <INPUT type=\"submit\" value=\"Update\">\
-    </FORM>\
-  </body>\
-</html>",
+    < / FORM >\
+                 < / body >\
+                 </ html> ",
              _pSupervisor->GetNodeName());
 
     _pWebServer->send(200, "text/html", _pPageBuffer);

@@ -1,0 +1,105 @@
+//DEBUG("LogStatements", 1)
+//DEBUG("LogHeapFreeOnAllocation", 1)
+CONFIGLED(0, "RGB", 33, 13)
+
+FUNC DISpot(count, spot, color)
+  index = spot * 3
+  FOR i 0:2
+    DI(count, index + i, color)
+  ENDFOR
+ENDFUNC  
+
+FUNC DSpot(count, spot, color)
+  index = spot * 3
+  FOR i 0:2
+    D(count, index + i, color)
+  ENDFOR
+ENDFUNC    
+
+FUNC SetSpecificLedToColor(count, spot, color, ledNumber)
+  baseLed = spot * 3
+  onLed = baseLed + ledNumber
+  
+  FOR led 0:2
+    IF (led == ledNumber)
+      D(count, baseLed + led , color)
+    ELSE
+      D(count, baseLed + led , {0, 0, 0})
+    ENDIF
+  ENDFOR
+  
+  
+ENDFUNC
+
+FUNC GetColor(colorNumber)
+  
+  IF (colorNumber == 0)
+    RETURN {1, 0, 0}
+  ELSEIF (colorNumber == 1)
+    RETURN  {1, 1, 0}
+  ELSEIF (colorNumber == 2)
+    RETURN  {0, 1, 0}
+  ELSEIF (colorNumber == 3)
+    RETURN  {0, 1, 1}
+  ELSEIF (colorNumber == 4)
+    RETURN  {0, 0, 1}
+  ELSEIF (colorNumber == 5)
+    RETURN  {1, 0, 1}
+  ENDIF
+  
+ENDFUNC
+
+FUNC EyeRotate(color)
+  
+  //DSpot(1, 6, {0, 0, 0})
+  //DSpot(1, 7, {0, 0, 0})
+  //A(1)
+  
+  FOR rotate 0:5
+    SetSpecificLedToColor(5, 6, color, 0)
+    SetSpecificLedToColor(5, 7, color, 2)
+    A(5)
+    
+    SetSpecificLedToColor(5, 6, color, 1)
+    SetSpecificLedToColor(5, 7, color, 1)
+    A(5)
+    
+    SetSpecificLedToColor(5, 6, color, 2)
+    SetSpecificLedToColor(5, 7, color, 0)
+    A(5)
+    
+  ENDFOR  
+  
+  
+ENDFUNC
+
+FUNC BreatheAndEyeSpin(count, mainColorNumber)
+  Eye1 = 6
+  Eye2 = 7
+  
+  FOR spot 0:5
+    DSpot(count, spot, GetColor(mainColorNumber))
+  ENDFOR
+  
+  oldEyeColor = -1
+  FOR rotate 0:5
+    eyeColorNumber = RAND(0, 5)
+    IF (eyeColorNumber != mainColorNumber)
+      EyeRotate(GetColor(eyeColorNumber))
+    ENDIF
+  ENDFOR
+ENDFUNC        
+
+
+oldMainColorNumber = -1
+FOR a 0:25
+  mainColorNumber = RAND(0,5)
+  IF (oldMainColorNumber != mainColorNumber )
+    oldMainColorNumber = mainColorNumber 
+    
+    BreatheAndEyeSpin(100, mainColorNumber )
+    
+  ENDIF
+  
+ENDFOR
+    

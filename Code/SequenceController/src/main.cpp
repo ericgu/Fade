@@ -54,11 +54,55 @@ void RunDim(void *parameter)
 
 void HandleWebClient(void *parameter)
 {
-    Serial.println("HandleWedClient Start");
+    Serial.println("HandleWebClient Start");
     while (true)
     {
         pMyWebServer->HandleClient();
         delay(25);
+    }
+}
+
+void PrintResetReason(esp_reset_reason_t resetReason)
+{
+    Serial.print("Reset Reason: ");
+    Serial.print(resetReason);
+    Serial.print(" ");
+
+    switch (resetReason)
+    {
+    case ESP_RST_UNKNOWN:
+        Serial.println("ESP_RST_UNKNOWN");
+        break;
+    case ESP_RST_POWERON:
+        Serial.println("ESP_RST_POWERON");
+        break;
+    case ESP_RST_EXT:
+        Serial.println("ESP_RST_EXT");
+        break;
+    case ESP_RST_SW:
+        Serial.println("ESP_RST_SW");
+        break;
+    case ESP_RST_PANIC:
+        Serial.println("ESP_RST_PANIC");
+        break;
+    case ESP_RST_INT_WDT:
+        Serial.println("ESP_RST_INT_WDT");
+        break;
+    case ESP_RST_TASK_WDT:
+        Serial.println("ESP_RST_TASK_WDT");
+        break;
+    case ESP_RST_WDT:
+        Serial.println("ESP_RST_WDT");
+        break;
+    case ESP_RST_DEEPSLEEP:
+        Serial.println("ESP_RST_DEEPSLEEP");
+        break;
+    case ESP_RST_BROWNOUT:
+        Serial.println("ESP_RST_BROWNOUT");
+        break;
+    case ESP_RST_SDIO:
+        Serial.println("ESP_RST_SDIO");
+        break;
     }
 }
 
@@ -71,6 +115,27 @@ void setup()
     //StackWatcher::Enable();
     _pSupervisor = new Supervisor();
     _pSettings = new Settings();
+    _pSettings->Init();
+
+    esp_reset_reason_t resetReason = esp_reset_reason();
+
+    PrintResetReason(resetReason);
+
+    switch (resetReason)
+    {
+    case ESP_RST_POWERON:
+    case ESP_RST_SW:
+    case ESP_RST_DEEPSLEEP:
+    case ESP_RST_BROWNOUT:
+        Serial.println("Enabling execution");
+        _pSettings->SaveShouldExecuteCode(true);
+        break;
+
+    default:
+        Serial.println("Disabling execution because of reset");
+        _pSettings->SaveShouldExecuteCode(false);
+    }
+
     WiFi.setHostname(_pSupervisor->GetNodeName());
 
     //_pLedPwm = new LedPwmEsp32();
@@ -80,6 +145,7 @@ void setup()
     //_pLedDevice = new LedRGB(33, 13);
 
     WiFiManager wifiManager;
+    wifiManager.setDebugOutput(true);
     //wifiManager.resetSettings();
 
     wifiManager.autoConnect("SequenceController", "12345678");
@@ -89,7 +155,6 @@ void setup()
 
     pMyWebServer = new MyWebServer(_pSupervisor, WiFi.localIP());
 
-    _pSettings->Init();
     _pLedManager = new LedManager(_pLedDeviceCreator);
     _pButtonCreator = new ButtonCreator();
     _pSupervisor->Init(_pLedManager, _pSettings, Callback, _pButtonCreator);
