@@ -70,7 +70,7 @@ public:
 			pEnd++;
 		}
 
-		_command = Command(pCurrent, pEnd - pCurrent, commandNumber);
+		_command = Command(pCurrent, (int) (pEnd - pCurrent), commandNumber);
 
 		return &_command;
 	}

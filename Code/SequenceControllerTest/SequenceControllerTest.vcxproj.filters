@@ -117,6 +117,15 @@
     <ClInclude Include="BuiltInFunctionsTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SampleCode\InternedStringsTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InternedStringsTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EspFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -132,5 +141,6 @@
     <Text Include="SampleCode\Merlin.txt" />
     <Text Include="SampleCode\HackOLantern.txt" />
     <Text Include="SampleCode\BreatheAndFlash.txt" />
+    <Text Include="SampleCode\PumpkinColorRotate.txt" />
   </ItemGroup>
 </Project>

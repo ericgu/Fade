@@ -213,7 +213,7 @@ public:
             pCommand++;
         }
 
-        int length = pCommand - pStart;
+        int length = (int) (pCommand - pStart);
 
         if (length >= bufferLength)
         {

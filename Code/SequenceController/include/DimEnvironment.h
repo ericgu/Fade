@@ -2,11 +2,13 @@
 #define strncmp_s strncmp
 
 #include "SafeString.h"
+#include "EspFunctions.h"
 
 #include "DebugFlags.h"
 #include "Profiler.h"
 #include "StackWatcher.h"
 #include "Instrumentation.h"
+#include "InternedStrings.h"
 #include "SystemCallback.h"
 #include "MyRandom.h"
 #include "TimeServices.h"

@@ -4,7 +4,7 @@
 
 class VariableStore
 {
-    static const int MaxChunks = 10;
+    static const int MaxChunks = 200;
 
     int _chunkCount;
 
@@ -35,14 +35,9 @@ public:
             Serial.println("VariableStore::Too many chunks");
         }
 
-        Serial.println("AddChunk::1");
-        Serial.println(chunkSize);
         VariableStoreChunk *pChunk = new VariableStoreChunk(chunkSize);
-        Serial.println("AddChunk::2");
         _pChunks[_chunkCount] = pChunk;
-        Serial.println("AddChunk::3");
         _chunkCount++;
-        Serial.println("AddChunk::4");
     }
 
     VariableData *GetFreePoolEntry()
@@ -50,7 +45,7 @@ public:
         if (DebugFlags.LogHeapFreeOnAllocation)
         {
             Serial.print("VariableStore::GetFreePoolEntry:: HeapSize ");
-            Serial.print(ESP.getFreeHeap());
+            Serial.print(EspFunctions::GetFreeHeap());
 
             int variableCount = 0;
             for (int chunk = 0; chunk < _chunkCount; chunk++)

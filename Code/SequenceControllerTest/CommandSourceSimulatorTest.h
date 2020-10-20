@@ -30,7 +30,7 @@ class CommandSourceSimulatorTest
 		Assert::AreEqual(1, pCommand->GetLineNumber());
 
 		pCommand = commandSource.GetCommand(2);
-		Assert::AreEqual(0, (int) pCommand);
+		Assert::AreEqual(0, pCommand);
 	}
 
 	static void TestReset()

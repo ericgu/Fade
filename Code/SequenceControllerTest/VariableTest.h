@@ -158,7 +158,7 @@ class VariableTest
 
         Variable copy = variable;
 
-        Assert::AreEqual((int)variable.TestOnlyGetVariableData(), (int)copy.TestOnlyGetVariableData());
+        Assert::AreEqual(variable.TestOnlyGetVariableData(), copy.TestOnlyGetVariableData());
         Assert::AreEqual(2, variable.TestOnlyGetVariableData()->_referenceCount);
     }
 

@@ -102,7 +102,7 @@ public:
 
 	void AddToBuffer(const char* pString)
 	{
-		int newLength = strlen(pString);
+		size_t newLength = strlen(pString);
 
 		if (_bufferUsed + newLength > TextErrorBufferSize - 1)
 		{

@@ -24,11 +24,13 @@ class VariableCollectionTest
 
     static void TestCollectionCleanup()
     {
+      int maxVariables = 100;
+
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
         {
             VariableCollection variableCollection;
 
-            Assert::AreEqual(30, VariableStore::VariableStoreInstance.GetInUseCount());
+            Assert::AreEqual(maxVariables, VariableStore::VariableStoreInstance.GetInUseCount());
         }
 
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
@@ -107,7 +109,7 @@ class VariableCollectionTest
         ParseErrors parseErrors;
 
         Variable* pParsed = variableCollection.GetWithoutErrorCheck("Fred", 1);
-        Assert::AreEqual(0, (int)pParsed);
+        Assert::AreEqual(0, pParsed);
     }
 
 
@@ -137,7 +139,7 @@ class VariableCollectionTest
         Assert::AreEqual(1, variableCollection.GetActiveVariableCount());
 
         pFred = variableCollection.GetWithoutErrorCheck("Fred", 1);
-        Assert::AreEqual(0, (int)pFred);
+        Assert::AreEqual(0, pFred);
 
         // Add to make sure re-use is a uninitialized variable...
         AddAndSetFloat(&variableCollection, "Wilma", 12, 1);
@@ -188,7 +190,9 @@ class VariableCollectionTest
         VariableCollection variableCollection;
         ParseErrors parseErrors;
 
-        for (int i = 0; i < 30; i++)
+        int maxVariables = 100;
+
+        for (int i = 0; i < maxVariables; i++)
         {
             char buffer[10];
 
@@ -196,13 +200,13 @@ class VariableCollectionTest
             variableCollection.Add(buffer, 0);
         }
 
-        Assert::AreEqual(30, variableCollection.GetActiveVariableCount());
+        Assert::AreEqual(maxVariables, variableCollection.GetActiveVariableCount());
 
         Serial.SetOutput(0);
-        variableCollection.Add("Var31", 0);
+        variableCollection.Add("VarTooMany", 0);
         Serial.SetOutput(1);
 
-        Assert::AreEqual(30, variableCollection.GetActiveVariableCount());
+        Assert::AreEqual(maxVariables, variableCollection.GetActiveVariableCount());
 
         Assert::AreEqual("Too many variables", Serial.GetLastString());
     }

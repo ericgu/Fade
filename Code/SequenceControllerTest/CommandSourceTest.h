@@ -47,7 +47,7 @@ class CommandSourceTest
 		AssertCommand(pCommand, "xxx", 1);
 
 		pCommand = commandSource.GetCommand(2);
-		Assert::AreEqual(0, (int) pCommand);
+		Assert::AreEqual(0, pCommand);
 	}
 
 	static void TestMultipleWithNewline()
@@ -101,7 +101,7 @@ class CommandSourceTest
 
 		Command* pCommand = commandSource.GetCommand(0);
 
-		Assert::AreEqual(0, (int)pCommand);
+		Assert::AreEqual(0, pCommand);
 	}
 
 	static void TestManyLinesForward()
@@ -142,8 +142,8 @@ class CommandSourceTest
 
 		AssertCommand(commandSource.GetCommand(0), "a", 0);
 
-		Assert::AreEqual(0, (int) commandSource.GetCommand(1));
-		Assert::AreEqual(0, (int) commandSource.GetCommand(2));
+		Assert::AreEqual(0, commandSource.GetCommand(1));
+		Assert::AreEqual(0, commandSource.GetCommand(2));
 	}
 
 

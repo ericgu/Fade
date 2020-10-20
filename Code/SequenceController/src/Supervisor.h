@@ -99,7 +99,7 @@ public:
 		_pSettings->SaveProgramText(pProgram);
 		_pSettings->SaveShouldExecuteCode(true); // was false
 
-		esp_restart();
+    EspFunctions::Restart();
 
 		// this code will not execute; it ran in the old version that did on-the-fly update.
 

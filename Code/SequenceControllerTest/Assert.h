@@ -15,6 +15,17 @@ public:
 		puts("\n");
 	}
 
+  static void AreEqual(void* pExpected, void* pActual)
+  {
+    _assertCount++;
+
+    if (pExpected != pActual)
+    {
+      sprintf_s(_buffer, "Expected %p got %p", pExpected, pActual);
+      Failed(_buffer);
+    }
+  }
+
 	static void AreEqual(int expected, int actual)
 	{
 		_assertCount++; 

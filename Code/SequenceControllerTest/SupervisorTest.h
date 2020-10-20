@@ -55,7 +55,7 @@ class SupervisorTest
 
 		CommandSource* pCommandSource = supervisor.GetCommandSource();
 		Command* pCommand = pCommandSource->GetCommand(0);
-		Assert::AreEqual(0, (int) pCommand);
+		Assert::AreEqual(0, pCommand);
 
 		Assert::AreEqual(0, supervisor.GetExecutionCount());
 		supervisor.Execute();
@@ -83,7 +83,7 @@ class SupervisorTest
 
 		CommandSource* pCommandSource = supervisor.GetCommandSource();
 		Command* pCommand = pCommandSource->GetCommand(0);
-		Assert::AreEqual(0, (int) pCommand);
+		Assert::AreEqual(0, pCommand);
 	}
 
 	static void TestUpdatedProgram()
@@ -114,20 +114,10 @@ class SupervisorTest
 		Assert::AreEqual("A(333)", supervisor.GetCurrentProgram());
 		Assert::AreEqual(1, supervisor.GetExecutingProgramState());
 
-		CommandSource* pCommandSource = supervisor.GetCommandSource();
-		Command* pCommand = pCommandSource->GetCommand(0);
-		Assert::AreEqual("A(333)", pCommand->GetString());
-
-		Assert::AreEqual(0, settings.LoadShouldExecuteCode());
-		char buffer[1024];
-		settings.LoadProgramText(buffer, sizeof(buffer));
-		Assert::AreEqual("A(333)", buffer);
-
-		Assert::AreEqual(0, supervisor.GetExecutionCount());
-		supervisor.Execute();
-		Assert::AreEqual(333, supervisor.GetExecutionCount());
+    Assert::AreEqual(1, EspFunctions::RestartCalled);
 	}
 
+  // removed after change to restart on update...
 	static void TestUpdateCodeSavesShouldExecuteAfterSuccessfulLoop()
 	{
 		Supervisor supervisor;
@@ -237,7 +227,6 @@ public:
 		TestNoProgram();
 		TestUpdatedProgram();
 
-		TestUpdateCodeSavesShouldExecuteAfterSuccessfulLoop();
 		TestCodeWithErrorsDisablesExecution();
 		TestSavedRunningProgramDoesNotUpdateSettingsAfter500Loops();
 
