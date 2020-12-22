@@ -62,7 +62,7 @@ public:
     if (Program.length() != 0)
     {
       snprintf(_pPageBuffer, 16636,
-               "<meta http-equiv=\"refresh\" content=\"8;url=http://%d.%d.%d.%d/\">\
+               "<meta http-equiv=\"refresh\" content=\"10;url=http://%d.%d.%d.%d/\">\
         <html><H1>Updating program</H1></html>",
                (int)_myIPAddress[0], (int)_myIPAddress[1], (int)_myIPAddress[2], (int)_myIPAddress[3]);
 

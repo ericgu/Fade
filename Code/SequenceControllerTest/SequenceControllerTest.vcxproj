@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\SequenceController\src\RDEvaluater.h" />
+    <ClInclude Include="..\SequenceController\src\VariableData.h" />
     <ClInclude Include="Assert.h" />
     <ClInclude Include="BuiltInFunctionsTest.h" />
     <ClInclude Include="CommandFormatterTest.h" />
@@ -189,6 +190,7 @@
     <ClInclude Include="VariableStoreChunkTest.h" />
     <ClInclude Include="VariableStoreTest.h" />
     <ClInclude Include="VariableTest.h" />
+    <ClInclude Include="VectorTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SequenceControllerTest.cpp" />

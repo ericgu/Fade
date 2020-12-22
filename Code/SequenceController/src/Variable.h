@@ -10,8 +10,8 @@ public:
     Variable()
     {
         _pVariableData = VariableStore::VariableStoreInstance.GetFreePoolEntry();
-        _pVariableData->_variableName[0] = '\0';
-        _pVariableData->_stringValue[0] = '\0';
+        _pVariableData->SetVariableName("");
+        _pVariableData->SetStringValue("");
         _pVariableData->_valueCount = 0;
     }
 
@@ -111,10 +111,13 @@ public:
 
     const char *GetValueString()
     {
-        return _pVariableData->_stringValue;
+        return _pVariableData->GetStringValue();
     }
 
-    char *GetVariableName() { return _pVariableData->_variableName; }
+    const char *GetVariableName()
+    {
+      return _pVariableData->GetVariableName();
+    }
 
     int GetStackLevel() { return _pVariableData->_stackLevel; }
 
@@ -122,7 +125,8 @@ public:
     {
         _pVariableData->_value[0] = 0.0;
         _pVariableData->_valueCount = 0;
-        _pVariableData->_variableName[0] = '\0';
+        _pVariableData->SetVariableName("");
+        _pVariableData->SetStringValue("");
         _pVariableData->_stackLevel = 0;
     }
 
@@ -178,7 +182,7 @@ public:
 
         _pVariableData->_valueCount = 0;
 
-        SafeString::StringCopy(_pVariableData->_stringValue, pString, sizeof(_pVariableData->_stringValue));
+        _pVariableData->SetStringValue(pString);
     }
 
     void SetVariableName(const char *pVariableName)
@@ -191,7 +195,7 @@ public:
             return;
         }
 
-        strcpy(_pVariableData->_variableName, pVariableName);
+        _pVariableData->SetVariableName(pVariableName);
     }
 
     void SetStackLevel(int stackLevel)

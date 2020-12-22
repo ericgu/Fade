@@ -86,7 +86,31 @@ class SupervisorTest
 		Assert::AreEqual(0, pCommand);
 	}
 
-	static void TestUpdatedProgram()
+  static void TestNoProgramShouldExecute()
+  {
+    Supervisor supervisor;
+    LedDeviceSimulator ledDevice(100);
+    LedDeviceCreatorSimulator ledCreator(&ledDevice);
+
+    LedManager ledManager(&ledCreator);
+    ledManager.Configure(0, "", 16, 555, -1, -1, -1);
+
+    Settings settings;
+    settings.SaveShouldExecuteCode(true);
+
+    Serial.SetOutput(false);
+    supervisor.Init(&ledManager, &settings, 0, 0);
+    Serial.SetOutput(true);
+
+    Assert::AreEqual("", supervisor.GetCurrentProgram());
+    Assert::AreEqual(1, supervisor.GetExecutingProgramState());
+
+    CommandSource* pCommandSource = supervisor.GetCommandSource();
+    Command* pCommand = pCommandSource->GetCommand(0);
+    Assert::AreEqual(0, pCommand);
+  }
+
+  static void TestUpdatedProgram()
 	{
 		Supervisor supervisor;
 		LedDeviceSimulator ledDevice(500);
@@ -225,6 +249,7 @@ public:
 		TestInitRunningCode();
 		TestInitNonRunningCode();
 		TestNoProgram();
+    TestNoProgramShouldExecute();
 		TestUpdatedProgram();
 
 		TestCodeWithErrorsDisablesExecution();

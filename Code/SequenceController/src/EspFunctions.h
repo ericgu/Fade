@@ -6,7 +6,7 @@ public:
         return ESP.getFreeHeap();
     }
 
-    static void restart()
+    static void Restart()
     {
         esp_restart();
     }

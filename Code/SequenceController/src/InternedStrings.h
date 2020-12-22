@@ -21,7 +21,7 @@ public:
     _pStringsBuffer = 0;
   }
 
-  char* LookupOrAdd(char* pString)
+  const char* LookupOrAdd(const char* pString)
   {
     char *pCurrent = _pStringsBuffer;
 
@@ -62,7 +62,7 @@ public:
     _stringChunkCount = 0;
   }
 
-  char* LookupOrAdd(char* pString)
+  const char* LookupOrAdd(const char* pString)
   {
     if (strlen(pString) > StringChunk::StringMaxLength - 1)
     {
@@ -71,7 +71,7 @@ public:
 
     for (int i = 0; i < _stringChunkCount; i++)
     {
-      char* pLookup = _pStringChunks[i]->LookupOrAdd(pString);
+      const char* pLookup = _pStringChunks[i]->LookupOrAdd(pString);
       if (pLookup != 0)
       {
         return pLookup;   // found or added...

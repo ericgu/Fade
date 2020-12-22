@@ -147,10 +147,29 @@ void setup()
     WiFiManager wifiManager;
     wifiManager.setDebugOutput(true);
     //wifiManager.resetSettings();
+    //wifiManager.startConfigPortal();
 
     wifiManager.autoConnect("SequenceController", "12345678");
-    //wifiManager.startConfigPortal("SequenceController", "12345678");
-    Serial.print("after autoconnect: ");
+    //Serial.print("after autoconnect: ");
+
+    Serial.begin(115200);
+
+#if fred
+    //WiFi.begin();
+
+    //WiFi.begin("DozerNet", "Gunnerson");
+
+    Serial.print("Connecting to WiFi..");
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(50);
+        Serial.print(".");
+    }
+    Serial.println();
+
+    Serial.println("Connected to the WiFi network");
+#endif
+
     Serial.println(WiFi.localIP());
 
     pMyWebServer = new MyWebServer(_pSupervisor, WiFi.localIP());
@@ -161,22 +180,34 @@ void setup()
 
     Serial.println("Setup completed");
 
-    xTaskCreatePinnedToCore(
-        RunDim, /* Task function. */
-        "Dim",  /* String with name of task. */
-        50000,  /* Stack size in bytes. */
-        NULL,   /* Parameter passed as input of the task */
-        5,      /* Priority of the task. */
-        NULL,
-        1); /* Task handle. */
+    Serial.print("Setup: priority = ");
+    Serial.println(uxTaskPriorityGet(NULL));
 
-    xTaskCreate(
-        HandleWebClient,   /* Task function. */
-        "HandleWebClient", /* String with name of task. */
-        10000,             /* Stack size in bytes. */
-        NULL,              /* Parameter passed as input of the task */
-        5,                 /* Priority of the task. */
-        NULL);             /* Task handle. */
+    //RunDim(0);
+
+    BaseType_t taskResult =
+        xTaskCreatePinnedToCore(
+            RunDim, /* Task function. */
+            "Dim",  /* String with name of task. */
+            50000,  /* Stack size in bytes. */
+            NULL,   /* Parameter passed as input of the task */
+            5,      /* Priority of the task. */
+            NULL,
+            1); /* Task handle. */
+    Serial.print("RunDim result: ");
+    Serial.println(taskResult);
+
+    taskResult =
+        xTaskCreate(
+            HandleWebClient,   /* Task function. */
+            "HandleWebClient", /* String with name of task. */
+            10000,             /* Stack size in bytes. */
+            NULL,              /* Parameter passed as input of the task */
+            5,                 /* Priority of the task. */
+            NULL);             /* Task handle. */
+
+    Serial.print("HandleWedClient result: ");
+    Serial.println(taskResult);
 }
 
 int iterations = 0;

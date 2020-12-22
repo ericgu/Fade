@@ -99,7 +99,7 @@ public:
 		_pSettings->SaveProgramText(pProgram);
 		_pSettings->SaveShouldExecuteCode(true); // was false
 
-    EspFunctions::Restart();
+		EspFunctions::Restart();
 
 		// this code will not execute; it ran in the old version that did on-the-fly update.
 
@@ -153,8 +153,11 @@ public:
 		if (_shouldExecuteCode)
 		{
 			_executionCount++;
-			//Serial.print("ExecutionCount: ");
-			//Serial.println(_executionCount);
+			if (_executionCount % 1000 == 0)
+			{
+				//Serial.print("ExecutionCount: ");
+				//Serial.println(_executionCount);
+			}
 
 			//_pTimebase->RunProgram(1);
 			bool keepRunning = _pTimebase->RunProgram(_pCurrentCommand);
@@ -191,8 +194,9 @@ public:
 		while (true)
 		{
 			Execute();
-			//Serial.println(VariableStore::VariableStoreInstance.GetInUseCount());
-			//Serial.println(ESP.getFreeHeap());
+			_pTimebase->TaskDelay(); // ensures that we allow other tasks to run if there is a program with no animation keepRunning
+									 //Serial.println(VariableStore::VariableStoreInstance.GetInUseCount());
+									 //Serial.println(ESP.getFreeHeap());
 		}
 	}
 };

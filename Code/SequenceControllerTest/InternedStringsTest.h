@@ -6,7 +6,7 @@ class InternedStringsTest
   {
     StringChunk stringChunk(10);
 
-    char* pString = stringChunk.LookupOrAdd("Testy");
+    const char* pString = stringChunk.LookupOrAdd("Testy");
 
     Assert::AreEqual("Testy", pString);
   }
@@ -21,9 +21,9 @@ class InternedStringsTest
     strcpy(buffer1, "Testy");
     strcpy(buffer2, "Testy");
 
-    char* pString1 = stringChunk.LookupOrAdd(buffer1);
+    const char* pString1 = stringChunk.LookupOrAdd(buffer1);
 
-    char* pString2 = stringChunk.LookupOrAdd(buffer2);
+    const char* pString2 = stringChunk.LookupOrAdd(buffer2);
 
     Assert::AreEqual((void*) pString1, (void*) pString2);
   }
@@ -32,9 +32,9 @@ class InternedStringsTest
   {
     StringChunk stringChunk(1);
 
-    char* pString1 = stringChunk.LookupOrAdd("Testy");
+    const char* pString1 = stringChunk.LookupOrAdd("Testy");
 
-    char* pString2 = stringChunk.LookupOrAdd("Other");
+    const char* pString2 = stringChunk.LookupOrAdd("Other");
 
     Assert::AreEqual(0, (void*)pString2);
   }
@@ -43,7 +43,7 @@ class InternedStringsTest
   {
     InternedStrings internedStrings;
 
-    char* pointers[128];
+    const char* pointers[128];
 
     for (int i = 0; i < 100; i++)
     {
