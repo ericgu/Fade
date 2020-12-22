@@ -83,7 +83,7 @@ class BuildInFunctionsTest
 
         BuiltInFunctions::HandleBuiltInFunctions("DEBUG", &executionContext, &parseErrors, 0, &executionFlow, &returnValue);
 
-        Assert::AreEqual(1, DebugFlags.LogStatements);
+        Assert::AreEqual(1, Environment.DebugLogStatements);
     }
 
 

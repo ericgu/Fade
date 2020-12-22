@@ -42,7 +42,7 @@ public:
 
     VariableData *GetFreePoolEntry()
     {
-        if (DebugFlags.LogHeapFreeOnAllocation)
+        if (Environment.DebugLogHeapFreeOnAllocation)
         {
             Serial.print("VariableStore::GetFreePoolEntry:: HeapSize ");
             Serial.print(EspFunctions::GetFreeHeap());

@@ -92,12 +92,18 @@ public:
   VectorDataItem* _pLastMatch;
   int _lastMatchIndex;
 
+  static void FreeDataProvider()
+  {
+    delete[] _pVectorDataItemProvider;
+    _pVectorDataItemProvider = 0;
+  }
+
   Vector()
   {
     if (_pVectorDataItemProvider == 0)
     {
       _pVectorDataItemProvider = new VectorDataItemProvider();
-      _pVectorDataItemProvider->SetSize(128);
+      _pVectorDataItemProvider->SetSize(Environment.VectorItemDataPoolCount);
     }
 
     _itemCount = 1;
@@ -129,6 +135,7 @@ public:
     VectorDataItem* pItem;
     int i;
 
+    // Forward traversal optimization; we keep track of the index and the pointer of the last get
     if (index >= _lastMatchIndex)
     {
       i = _lastMatchIndex;
@@ -165,11 +172,18 @@ public:
   }
 
 
-  void SetItem(int index, float value)
+  bool SetItem(int index, float value)
   {
     VectorDataItem* pItem = GetItemByIndex(index);
 
+    if (pItem == 0)
+    {
+      Serial.println("VectorItemAddFail: Environment.VectorItemDataPoolCount exceeded");
+      return false;
+    }
+
     pItem->_data = value;
+    return true; 
   }
 
   float GetItem(int index)

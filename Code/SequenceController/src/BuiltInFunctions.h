@@ -297,13 +297,13 @@ class BuiltInFunctions
 			if (strcmp(pIdentifier->GetValueString(), "LogStatements") == 0)
 			{
 				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
-				DebugFlags.LogStatements = pValue->GetValueInt();
+				Environment.DebugLogStatements = pValue->GetValueInt();
 				return true;
 			}
 			else if (strcmp(pIdentifier->GetValueString(), "LogHeapFreeOnAllocation") == 0)
 			{
 				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
-				DebugFlags.LogHeapFreeOnAllocation = pValue->GetValueInt();
+				Environment.DebugLogHeapFreeOnAllocation = pValue->GetValueInt();
 				return true;
 			}
 		}

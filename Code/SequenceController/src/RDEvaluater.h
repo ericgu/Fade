@@ -1011,7 +1011,7 @@ class RDEvaluater
     {
         PROLOGUE;
 
-        if (DebugFlags.LogStatements)
+        if (Environment.DebugLogStatements)
         {
             Serial.println(_pExpressionTokenSource->GetCurrentToken());
         }

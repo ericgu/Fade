@@ -4,7 +4,7 @@
 #include "SafeString.h"
 #include "EspFunctions.h"
 
-#include "DebugFlags.h"
+#include "Environment.h"
 #include "Profiler.h"
 #include "StackWatcher.h"
 #include "Instrumentation.h"
