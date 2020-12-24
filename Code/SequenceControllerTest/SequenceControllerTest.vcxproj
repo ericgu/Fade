@@ -187,6 +187,7 @@
     <ClInclude Include="TimeServices.h" />
     <ClInclude Include="TimebaseTest.h" />
     <ClInclude Include="VariableCollectionTest.h" />
+    <ClInclude Include="VariableDataTest.h" />
     <ClInclude Include="VariableStoreChunkTest.h" />
     <ClInclude Include="VariableStoreTest.h" />
     <ClInclude Include="VariableTest.h" />

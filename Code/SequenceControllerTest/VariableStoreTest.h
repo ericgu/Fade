@@ -10,7 +10,7 @@ class VariableStoreTest
 
         Assert::AreEqual(1, VariableStore::VariableStoreInstance.GetInUseCount());
 
-        pVariableData->_referenceCount--;
+        pVariableData->DecrementReferenceCount();
 
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
     }
@@ -25,18 +25,18 @@ class VariableStoreTest
         Assert::AreEqual(2, VariableStore::VariableStoreInstance.GetInUseCount());
 
         Assert::AreEqual(0, pFirst == pSecond);
-        Assert::AreEqual(1, pFirst->_referenceCount);
+        Assert::AreEqual(1, pFirst->GetReferenceCount());
 
         VariableStore::VariableStoreInstance.IncrementReferenceCount(pFirst);
 
-        Assert::AreEqual(2, pFirst->_referenceCount);
+        Assert::AreEqual(2, pFirst->GetReferenceCount());
 
         VariableStore::VariableStoreInstance.DecrementReferenceCount(pFirst);
         VariableStore::VariableStoreInstance.DecrementReferenceCount(pFirst);
 
-        Assert::AreEqual(0, pFirst->_referenceCount);
+        Assert::AreEqual(0, pFirst->GetReferenceCount());
 
-        pSecond->_referenceCount--;
+        pSecond->DecrementReferenceCount();
 
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
     }
@@ -50,19 +50,19 @@ class VariableStoreTest
 
         VariableStore::VariableStoreInstance.IncrementReferenceCount(pFirst);
         VariableStore::VariableStoreInstance.IncrementReferenceCount(pFirst);
-        Assert::AreEqual(3, pFirst->_referenceCount);
+        Assert::AreEqual(3, pFirst->GetReferenceCount());
 
         VariableData* pSplit = VariableStore::VariableStoreInstance.SplitOffEntry(pFirst);
 
-        Assert::AreEqual(2, pFirst->_referenceCount);
-        Assert::AreEqual(1, pSplit->_referenceCount);
+        Assert::AreEqual(2, pFirst->GetReferenceCount());
+        Assert::AreEqual(1, pSplit->GetReferenceCount());
 
         Assert::AreEqual(15, pFirst->_valueCount);
         Assert::AreEqual(15, pSplit->_valueCount);
 
-        pFirst->_referenceCount--;
-        pFirst->_referenceCount--;
-        pSplit->_referenceCount--;
+        pFirst->DecrementReferenceCount();
+        pFirst->DecrementReferenceCount();
+        pSplit->DecrementReferenceCount();
 
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
     }
@@ -84,7 +84,10 @@ class VariableStoreTest
             for (int i = 0; i < variableCount; i++)
             {
                 Assert::AreEqual(i, variableData[i]->_valueCount);
-                variableData[i]->_referenceCount = 0;
+                while (variableData[i]->GetReferenceCount() > 0)
+                {
+                  variableData[i]->DecrementReferenceCount();
+                }
             }
         }
 

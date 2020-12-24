@@ -14,7 +14,7 @@ class VariableStoreChunkTest
 
         Assert::AreEqual(1, variableStoreChunk.GetInUseCount());
 
-        pVariableData->_referenceCount--;
+        pVariableData->DecrementReferenceCount();
 
         Assert::AreEqual(0, variableStoreChunk.GetInUseCount());
     }
@@ -31,18 +31,18 @@ class VariableStoreChunkTest
         Assert::AreEqual(2, variableStoreChunk.GetInUseCount());
 
         Assert::AreEqual(0, pFirst == pSecond);
-        Assert::AreEqual(1, pFirst->_referenceCount);
+        Assert::AreEqual(1, pFirst->GetReferenceCount());
 
-        variableStoreChunk.IncrementReferenceCount(pFirst);
+        pFirst->IncrementReferenceCount();
 
-        Assert::AreEqual(2, pFirst->_referenceCount);
+        Assert::AreEqual(2, pFirst->GetReferenceCount());
 
-        variableStoreChunk.DecrementReferenceCount(pFirst);
-        variableStoreChunk.DecrementReferenceCount(pFirst);
+        pFirst->DecrementReferenceCount();
+        pFirst->DecrementReferenceCount();
 
-        Assert::AreEqual(0, pFirst->_referenceCount);
+        Assert::AreEqual(0, pFirst->GetReferenceCount());
 
-        pSecond->_referenceCount--;
+        pSecond->DecrementReferenceCount();
 
         Assert::AreEqual(0, variableStoreChunk.GetInUseCount());
     }
@@ -67,7 +67,10 @@ class VariableStoreChunkTest
             for (int i = 0; i < variableCount; i++)
             {
                 Assert::AreEqual(i, variableData[i]->_valueCount);
-                variableData[i]->_referenceCount = 0;
+                while (variableData[i]->GetReferenceCount() > 0)
+                {
+                  variableData[i]->DecrementReferenceCount();
+                }
             }
         }
 

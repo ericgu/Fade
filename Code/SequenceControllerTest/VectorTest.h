@@ -120,13 +120,18 @@ class VectorTest
 
   static void TestDestruct()
   {
+    Vector::RestartVectorDataProvider();
+    {
+      Vector v; // force creation of data provider...
+    }
+
     Assert::AreEqual(0, Vector::_pVectorDataItemProvider->GetInUseCount());
     {
       Vector vector;
 
       for (int i = 0; i < 10; i++)
       {
-        vector.SetItem(i, i * i);
+        vector.SetItem(i, (float) (i * i));
       }
 
       Assert::AreEqual(10, Vector::_pVectorDataItemProvider->GetInUseCount());
@@ -157,7 +162,7 @@ class VectorTest
 
     for (int i = 0; i < 10; i++)
     {
-      vector.SetItem(i, i * i);
+      vector.SetItem(i, (float)(i * i));
     }
 
     Assert::AreEqual(81.0F, vector.GetItem(9));
@@ -169,9 +174,7 @@ class VectorTest
 
   static void TestVectorItemCountExceedsGlobalPoolSize()
   {
-    Vector::FreeDataProvider();
-    int initialPoolSize = Environment.VectorItemDataPoolCount;
-    Environment.VectorItemDataPoolCount = 5; 
+    Vector::RestartVectorDataProvider(5);
 
     // Test in inner scope so the vector is destroyed before we reset the data provider...
     {
@@ -179,7 +182,7 @@ class VectorTest
 
       for (int i = 0; i < 5; i++)
       {
-        Assert::AreEqual(true, vector.SetItem(i, i * i));
+        Assert::AreEqual(true, vector.SetItem(i, (float)(i * i)));
       }
 
       // Fails
@@ -189,8 +192,7 @@ class VectorTest
       Assert::AreEqual("VectorItemAddFail: Environment.VectorItemDataPoolCount exceeded", Serial.GetLastString());
     }
 
-    Vector::FreeDataProvider();
-    Environment.VectorItemDataPoolCount = initialPoolSize;
+    Vector::RestartVectorDataProvider();
   }
 
 public:

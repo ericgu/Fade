@@ -17,14 +17,14 @@ public:
 
     Variable(int value) : Variable()
     {
-        _pVariableData->_value[0] = (float)value;
+        _pVariableData->SetValue(0, (float)value);
         _pVariableData->_valueCount = 1;
         _pVariableData->_stackLevel = 0;
     }
 
     Variable(float value) : Variable()
     {
-        _pVariableData->_value[0] = value;
+        _pVariableData->SetValue(0, value);
         _pVariableData->_valueCount = 1;
         _pVariableData->_stackLevel = 0;
     }
@@ -40,14 +40,14 @@ public:
         // delete stack levels, so we need to split it into a non-program variable.
         if (other._pVariableData->_stackLevel != 0)
         {
-            _pVariableData = VariableStore::VariableStoreInstance.SplitOffEntry(other._pVariableData);
-            other._pVariableData->_referenceCount++; // SplitOffEntry decremented this.
+          other._pVariableData->IncrementReferenceCount(); // SplitOffEntry will decrement this; we pre-increment so that it doesn't get cleaned up
+          _pVariableData = VariableStore::VariableStoreInstance.SplitOffEntry(other._pVariableData);
             _pVariableData->_stackLevel = 0;
             return;
         }
 
         _pVariableData = other._pVariableData;
-        _pVariableData->_referenceCount++;
+        _pVariableData->IncrementReferenceCount();
     }
 
     Variable &operator=(const Variable &other)
@@ -56,19 +56,19 @@ public:
         // delete stack levels, so we need to split it into a non-program variable.
         if (_pVariableData->_stackLevel != other._pVariableData->_stackLevel)
         {
-            _pVariableData->_referenceCount--; // no longer using the current variable...
+            _pVariableData->DecrementReferenceCount(); // no longer using the current variable...
             _pVariableData = VariableStore::VariableStoreInstance.SplitOffEntry(other._pVariableData);
-            other._pVariableData->_referenceCount++; // SplitOffEntry decremented this.
+            other._pVariableData->IncrementReferenceCount(); // SplitOffEntry decremented this.
             _pVariableData->_stackLevel = 0;
             return *this;
         }
 
-        if (_pVariableData->_referenceCount != 0)
+        if (_pVariableData->GetReferenceCount() != 0)
         {
-            _pVariableData->_referenceCount--;
+            _pVariableData->DecrementReferenceCount();
         }
         _pVariableData = other._pVariableData;
-        _pVariableData->_referenceCount++;
+        _pVariableData->IncrementReferenceCount();
 
         return *this;
     }
@@ -77,7 +77,7 @@ public:
     {
         if (_pVariableData != 0)
         {
-            _pVariableData->_referenceCount--;
+            _pVariableData->DecrementReferenceCount();
         }
     }
 
@@ -85,7 +85,7 @@ public:
     {
         Variable variableNew;
 
-        variableNew._pVariableData->_value[0] = (float)atof(pCommand);
+        variableNew._pVariableData->SetValue(0, (float)atof(pCommand));
         variableNew._pVariableData->_valueCount = 1;
         variableNew._pVariableData->_stackLevel = 0;
         ;
@@ -95,7 +95,7 @@ public:
 
     // Getters
 
-    int GetValueInt() { return (int)_pVariableData->_value[0]; }
+    int GetValueInt() { return (int)_pVariableData->GetValue(0); }
 
     int GetValueCount() { return _pVariableData->_valueCount; }
 
@@ -106,7 +106,7 @@ public:
             return NAN;
         }
 
-        return _pVariableData->_value[index]; 
+        return _pVariableData->GetValue(index); 
     }
 
     const char *GetValueString()
@@ -123,7 +123,7 @@ public:
 
     void Clear()
     {
-        _pVariableData->_value[0] = 0.0;
+        _pVariableData->SetValue(0, 0.0);
         _pVariableData->_valueCount = 0;
         _pVariableData->SetVariableName("");
         _pVariableData->SetStringValue("");
@@ -139,12 +139,12 @@ public:
 
     bool IsNan()
     {
-        return isnan(_pVariableData->_value[0]);
+      return isnan(_pVariableData->GetValue(0));
     }
 
     void SplitVariableOnModify()
     {
-        if (_pVariableData->_referenceCount > 1)
+        if (_pVariableData->GetReferenceCount() > 1)
         {
             _pVariableData = VariableStore::VariableStoreInstance.SplitOffEntry(_pVariableData);
         }
@@ -156,7 +156,7 @@ public:
     {
         SplitVariableOnModify();
 
-        _pVariableData->_value[0] += increment.GetValueFloat(0);
+        _pVariableData->SetValue(0, _pVariableData->GetValue(0) + increment.GetValueFloat(0));
     }
 
     void SetValue(int index, float value)
@@ -173,7 +173,7 @@ public:
             _pVariableData->_valueCount = index + 1;
         }
 
-        _pVariableData->_value[index] = value;
+        _pVariableData->SetValue(index, value);
     }
 
     void SetValue(const char *pString)
@@ -209,7 +209,7 @@ public:
     {
         SplitVariableOnModify();
 
-        _pVariableData->_value[0] = NAN;
+        _pVariableData->SetValue(0, NAN);
         _pVariableData->_valueCount = 0;
     }
 

@@ -16,26 +16,32 @@ public:
     VariableStore()
     {
         _chunkCount = 0;
-
-        AddChunk(64);
     }
 
     ~VariableStore()
     {
-        for (int i = 0; i < _chunkCount; i++)
-        {
-            delete _pChunks[i];
-        }
+      ResetCache();
     }
 
-    void AddChunk(int chunkSize)
+    void ResetCache()
+    {
+      for (int i = 0; i < _chunkCount; i++)
+      {
+        delete _pChunks[i];
+        _pChunks[i] = 0;
+      }
+
+      _chunkCount = 0;
+    }
+
+    void AddChunk()
     {
         if (_chunkCount == MaxChunks)
         {
             Serial.println("VariableStore::Too many chunks");
         }
 
-        VariableStoreChunk *pChunk = new VariableStoreChunk(chunkSize);
+        VariableStoreChunk *pChunk = new VariableStoreChunk(Environment.VariableStoreChunkSize);
         _pChunks[_chunkCount] = pChunk;
         _chunkCount++;
     }
@@ -76,7 +82,7 @@ public:
             return 0;
         }
 
-        AddChunk(lastSize);
+        AddChunk();
         return GetFreePoolEntry();
     }
 
@@ -100,21 +106,27 @@ public:
             return 0;
         }
 
-        memcpy(pSplit, pVariableData, sizeof(VariableData));
-        pVariableData->_referenceCount--;
-        pSplit->_referenceCount = 1;
+        *pSplit = *pVariableData;
+
+        pVariableData->DecrementReferenceCount();
+        //pSplit->IncrementReferenceCount();
 
         return pSplit;
     }
 
     void IncrementReferenceCount(VariableData *pVariableData)
     {
-        pVariableData->_referenceCount++;
+      pVariableData->IncrementReferenceCount();
     }
 
     void DecrementReferenceCount(VariableData *pVariableData)
     {
-        pVariableData->_referenceCount--;
+      pVariableData->DecrementReferenceCount();
+
+      if (pVariableData->GetReferenceCount() == 0)
+      {
+        int k = -12;
+      }
     }
 
     VariableData *GetDataByIndex(int index)

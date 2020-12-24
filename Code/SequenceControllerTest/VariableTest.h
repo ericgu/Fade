@@ -146,10 +146,10 @@ class VariableTest
         {
             Variable variable(15);
             pVariableData = variable.TestOnlyGetVariableData();
-            Assert::AreEqual(1, pVariableData->_referenceCount);
+            Assert::AreEqual(1, pVariableData->GetReferenceCount());
         }
 
-        Assert::AreEqual(0, pVariableData->_referenceCount);
+        Assert::AreEqual(0, pVariableData->GetReferenceCount());
     }
 
     static void TestCopyUsesSameVariableData()
@@ -159,7 +159,7 @@ class VariableTest
         Variable copy = variable;
 
         Assert::AreEqual(variable.TestOnlyGetVariableData(), copy.TestOnlyGetVariableData());
-        Assert::AreEqual(2, variable.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(2, variable.TestOnlyGetVariableData()->GetReferenceCount());
     }
 
     static void TestCopyConstructorSplitsDataIfSourceStackLevelIsNotZero()
@@ -170,8 +170,10 @@ class VariableTest
         Variable copy = variable;
 
         Assert::AreEqual(0, variable.TestOnlyGetVariableData() == copy.TestOnlyGetVariableData());
-        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
-        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->GetReferenceCount());
+        Assert::AreEqual(1, variable.GetValueCount());
+        Assert::AreEqual(15.0F, variable.GetValueFloat(0));
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->GetReferenceCount());
         Assert::AreEqual(0, copy.TestOnlyGetVariableData()->_stackLevel);
     }
 
@@ -186,8 +188,8 @@ class VariableTest
         Assert::AreEqual(22.0F, variable.GetValueFloat(0));
         Assert::AreEqual(15.0F, copy.GetValueFloat(0));
 
-        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
-        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->GetReferenceCount());
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->GetReferenceCount());
     }
 
     static void TestCopyAndIncrementSplits()
@@ -201,8 +203,8 @@ class VariableTest
         Assert::AreEqual(21.0F, variable.GetValueFloat(0));
         Assert::AreEqual(15.0F, copy.GetValueFloat(0));
 
-        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
-        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->GetReferenceCount());
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->GetReferenceCount());
     }
 
     static void TestCopyAndSetStringValueSplits()
@@ -216,8 +218,8 @@ class VariableTest
         Assert::AreEqual("Hello", variable.GetValueString());
         Assert::AreEqual(15.0F, copy.GetValueFloat(0));
 
-        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
-        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->GetReferenceCount());
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->GetReferenceCount());
     }
 
     static void TestCopyAndSetVariableNameSplits()
@@ -231,8 +233,8 @@ class VariableTest
         Assert::AreEqual("Barney", variable.GetVariableName());
         Assert::AreEqual(15.0F, copy.GetValueFloat(0));
 
-        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
-        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->GetReferenceCount());
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->GetReferenceCount());
     }
 
     static void TestCopyAndSetStackLevelSplits()
@@ -246,8 +248,8 @@ class VariableTest
         Assert::AreEqual(222, variable.GetStackLevel());
         Assert::AreEqual(15.0F, copy.GetValueFloat(0));
 
-        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
-        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->GetReferenceCount());
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->GetReferenceCount());
     }
 
     static void TestCopyAndSetNaNSplits()
@@ -261,8 +263,8 @@ class VariableTest
         Assert::AreEqual(1, variable.IsNan());
         Assert::AreEqual(15.0F, copy.GetValueFloat(0));
 
-        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
-        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->GetReferenceCount());
+        Assert::AreEqual(1, copy.TestOnlyGetVariableData()->GetReferenceCount());
     }
 
     static void TestAssignmentOperator()
@@ -276,8 +278,8 @@ class VariableTest
 
             copy = variable;
 
-            Assert::AreEqual(2, variable.TestOnlyGetVariableData()->_referenceCount);
-            Assert::AreEqual(0, pCopyVariableData->_referenceCount);
+            Assert::AreEqual(2, variable.TestOnlyGetVariableData()->GetReferenceCount());
+            Assert::AreEqual(0, pCopyVariableData->GetReferenceCount());
 
         }
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
@@ -293,8 +295,8 @@ class VariableTest
 
             copy = variable;
 
-            Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
-            Assert::AreEqual(1, copy.TestOnlyGetVariableData()->_referenceCount);
+            Assert::AreEqual(1, variable.TestOnlyGetVariableData()->GetReferenceCount());
+            Assert::AreEqual(1, copy.TestOnlyGetVariableData()->GetReferenceCount());
             Assert::AreEqual(0, copy.TestOnlyGetVariableData()->_stackLevel);
         }
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
@@ -307,7 +309,7 @@ class VariableTest
             Variable variable(15);
             Variable copy = variable;
 
-            Assert::AreEqual(2, variable.TestOnlyGetVariableData()->_referenceCount);
+            Assert::AreEqual(2, variable.TestOnlyGetVariableData()->GetReferenceCount());
 
         }
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
@@ -333,7 +335,7 @@ class VariableTest
     {
         Variable variable = ReturnValue();
 
-        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->_referenceCount);
+        Assert::AreEqual(1, variable.TestOnlyGetVariableData()->GetReferenceCount());
     }
 
     static void TestNaN()

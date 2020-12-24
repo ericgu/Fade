@@ -18,6 +18,10 @@ class IntegrationTest
 
     static void Test()
     {
+      VariableStore::VariableStoreInstance.ResetCache();
+      Vector::RestartVectorDataProvider(4096);
+      {
+
         CommandSourceSimulator commandSource;
         LedDeviceSimulator ledDevice(1000);
         LedDeviceCreatorSimulator ledCreator(&ledDevice);
@@ -41,81 +45,99 @@ class IntegrationTest
         Assert::AreEqual(160, ledDevice.GetUpdateCount());
         for (int i = 0; i < 10; i++)
         {
-            int state = i * 16;
+          int state = i * 16;
 
-            LedState ledState = ledDevice.GetUpdatedState(state);
-            AssertLedState(ledState, 0, (float)(i + 1));
+          LedState ledState = ledDevice.GetUpdatedState(state);
+          AssertLedState(ledState, 0, (float)(i + 1));
         }
 
         Assert::AreEqual(10, _callbackCount);
-
+      }
         //timebase.RunProgram(1);
+
+      VariableStore::VariableStoreInstance.ResetCache();
+
+      Vector::RestartVectorDataProvider();
     }
 
 	static void Test2()
 	{
-		CommandSourceSimulator commandSource;
-		LedDeviceSimulator ledDevice(1000);
+    VariableStore::VariableStoreInstance.ResetCache();
+    Vector::RestartVectorDataProvider(4096);
+    {
+      CommandSourceSimulator commandSource;
+      LedDeviceSimulator ledDevice(1000);
 
-		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+      LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
-		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 16, 555, -1, -1, -1);
-		
-		ParseErrors parseErrors;
-		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0, 0);
+      LedManager ledManager(&ledCreator);
+      ledManager.Configure(0, "", 16, 555, -1, -1, -1);
 
-        timebase.RunProgram("D(10, 0, 10.0)\nA(10)\nD(10, 0, 0.0)\nA(10)");
+      ParseErrors parseErrors;
+      Timebase timebase(&commandSource, &ledManager, &parseErrors, 0, 0);
 
-		//timebase.RunProgram(1);
+      timebase.RunProgram("D(10, 0, 10.0)\nA(10)\nD(10, 0, 0.0)\nA(10)");
 
-		Assert::AreEqual(320, ledDevice.GetUpdateCount());
-		for (int i = 0; i < 10; i++)
-		{
-			int state = i * 16;
+      //timebase.RunProgram(1);
 
-			LedState ledState = ledDevice.GetUpdatedState(state);
-			AssertLedState(ledState, 0, (float)(i + 1));
-		}
+      Assert::AreEqual(320, ledDevice.GetUpdateCount());
+      for (int i = 0; i < 10; i++)
+      {
+        int state = i * 16;
 
-		for (int i = 9; i >= 0; i--)
-		{
-			int state = i * 16;
+        LedState ledState = ledDevice.GetUpdatedState(state);
+        AssertLedState(ledState, 0, (float)(i + 1));
+      }
 
-			LedState ledState = ledDevice.GetUpdatedState(state);
-			AssertLedState(ledState, 0, (float)(i + 1));
-		}
+      for (int i = 9; i >= 0; i--)
+      {
+        int state = i * 16;
+
+        LedState ledState = ledDevice.GetUpdatedState(state);
+        AssertLedState(ledState, 0, (float)(i + 1));
+      }
+    }
+    VariableStore::VariableStoreInstance.ResetCache();
+
+    Vector::RestartVectorDataProvider();
 	}
 
 	static void Test3()
 	{
-		CommandSourceSimulator commandSource;
-		LedDeviceSimulator ledDevice(10000);
+    VariableStore::VariableStoreInstance.ResetCache();
+    Vector::RestartVectorDataProvider(20000);
+    {
+      CommandSourceSimulator commandSource;
+      LedDeviceSimulator ledDevice(10000);
 
-		LedDeviceCreatorSimulator ledCreator(&ledDevice);
+      LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
-		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 16, 555, -1, -1, -1);
+      LedManager ledManager(&ledCreator);
+      ledManager.Configure(0, "", 16, 555, -1, -1, -1);
 
-		ParseErrors parseErrors;
-		Timebase timebase(&commandSource, &ledManager, &parseErrors, 0, 0);
+      ParseErrors parseErrors;
+      Timebase timebase(&commandSource, &ledManager, &parseErrors, 0, 0);
 
-        timebase.RunProgram("FOR A 0:7\nD(2,A,1.0)\nA(2)\nD(2,A,0.0)\nA(2)\nENDFOR");
+      timebase.RunProgram("FOR A 0:7\nD(2,A,1.0)\nA(2)\nD(2,A,0.0)\nA(2)\nENDFOR");
 
-		//timebase.RunProgram(1);
+      //timebase.RunProgram(1);
 
-		// Validate that after channel one loop is done it stops changing and moves on to channel two. 
-		Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(1.0, ledDevice.GetUpdatedState(16).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.5, ledDevice.GetUpdatedState(32).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.0, ledDevice.GetUpdatedState(48).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.0, ledDevice.GetUpdatedState(64).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.5, ledDevice.GetUpdatedState(65).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(0.0, ledDevice.GetUpdatedState(80).GetBrightness()->GetValueFloat(0));
-		Assert::AreEqual(1.0, ledDevice.GetUpdatedState(81).GetBrightness()->GetValueFloat(0));
-	}
+      // Validate that after channel one loop is done it stops changing and moves on to channel two. 
+      Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+      Assert::AreEqual(1.0, ledDevice.GetUpdatedState(16).GetBrightness()->GetValueFloat(0));
+      Assert::AreEqual(0.5, ledDevice.GetUpdatedState(32).GetBrightness()->GetValueFloat(0));
+      Assert::AreEqual(0.0, ledDevice.GetUpdatedState(48).GetBrightness()->GetValueFloat(0));
+      Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+      Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+      Assert::AreEqual(0.0, ledDevice.GetUpdatedState(64).GetBrightness()->GetValueFloat(0));
+      Assert::AreEqual(0.5, ledDevice.GetUpdatedState(65).GetBrightness()->GetValueFloat(0));
+      Assert::AreEqual(0.0, ledDevice.GetUpdatedState(80).GetBrightness()->GetValueFloat(0));
+      Assert::AreEqual(1.0, ledDevice.GetUpdatedState(81).GetBrightness()->GetValueFloat(0));
+    }
+    VariableStore::VariableStoreInstance.ResetCache();
+
+    Vector::RestartVectorDataProvider();
+  }
 
 public:
 

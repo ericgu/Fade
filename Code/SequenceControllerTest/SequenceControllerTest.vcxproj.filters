@@ -132,6 +132,9 @@
     <ClInclude Include="VectorTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VariableDataTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

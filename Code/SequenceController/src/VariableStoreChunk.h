@@ -10,7 +10,6 @@ public:
     {
         _poolSize = poolSize;
         _pPool = new VariableData[_poolSize];
-        memset(_pPool, 0, sizeof(VariableData) * _poolSize);
     }
 
     ~VariableStoreChunk()
@@ -31,9 +30,9 @@ public:
         {
             pVariableData = _pPool + i;
 
-            if (pVariableData->_referenceCount == 0)
+            if (pVariableData->GetReferenceCount() == 0)
             {
-                pVariableData->_referenceCount = 1;
+              pVariableData->IncrementReferenceCount();
                 return pVariableData;
             }
         }
@@ -49,7 +48,7 @@ public:
 
         for (int i = 0; i < _poolSize; i++)
         {
-            if (pVariableData->_referenceCount != 0)
+            if (pVariableData->GetReferenceCount() != 0)
             {
                 inUse++;
             }
@@ -58,16 +57,6 @@ public:
         }
 
         return inUse;
-    }
-
-    void IncrementReferenceCount(VariableData *pVariableData)
-    {
-        pVariableData->_referenceCount++;
-    }
-
-    void DecrementReferenceCount(VariableData *pVariableData)
-    {
-        pVariableData->_referenceCount--;
     }
 
     VariableData *GetDataByIndex(int index)

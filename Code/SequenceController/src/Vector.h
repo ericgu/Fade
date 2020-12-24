@@ -1,6 +1,6 @@
 #include <math.h>
 
-#define DATAITEMUNUSED (VectorDataItem*) 0xFFFFFFFF
+#define DATAITEMUNUSED ((VectorDataItem*) 0xFFFFFFFFFFFFFFFF)
 
 class VectorDataItem
 {
@@ -85,6 +85,7 @@ class Vector
 {
 public:
   static VectorDataItemProvider* _pVectorDataItemProvider;
+  static int _pVectorDataItemProviderSize;
 
   VectorDataItem* _pFirstItem;
   int _itemCount;
@@ -92,10 +93,20 @@ public:
   VectorDataItem* _pLastMatch;
   int _lastMatchIndex;
 
-  static void FreeDataProvider()
+  static void RestartVectorDataProvider()
   {
-    delete[] _pVectorDataItemProvider;
-    _pVectorDataItemProvider = 0;
+    RestartVectorDataProvider(-1);
+  }
+
+  static void RestartVectorDataProvider(int size)
+  {
+    if (_pVectorDataItemProvider != 0)
+    {
+      delete[] _pVectorDataItemProvider;
+      _pVectorDataItemProvider = 0;
+    }
+
+    _pVectorDataItemProviderSize = size;
   }
 
   Vector()
@@ -103,19 +114,26 @@ public:
     if (_pVectorDataItemProvider == 0)
     {
       _pVectorDataItemProvider = new VectorDataItemProvider();
-      _pVectorDataItemProvider->SetSize(Environment.VectorItemDataPoolCount);
+      int size = _pVectorDataItemProviderSize == -1 ? Environment.VectorItemDataPoolCount : _pVectorDataItemProviderSize;
+      _pVectorDataItemProvider->SetSize(size);
     }
 
-    _itemCount = 1;
-
-    _pFirstItem = _pVectorDataItemProvider->GetDataItem();
-    _pFirstItem->_pNext = 0;
-    _pLastMatch = _pFirstItem;
-    _lastMatchIndex = 0;
+    _itemCount = 0;
+    _pFirstItem = 0;
   }
 
   ~Vector()
   {
+    Cleanup();
+  }
+
+  void Cleanup()
+  {
+    if (_pFirstItem == 0)
+    {
+      return;
+    }
+
     VectorDataItem* pItem = _pFirstItem;
 
     while (pItem->_pNext != 0)
@@ -128,12 +146,25 @@ public:
     }
     _pVectorDataItemProvider->ReleaseDataItem(pItem);
 
+    _pFirstItem = 0;
+    _itemCount = 0;
+    _pLastMatch = 0;
+    _lastMatchIndex = 0;
   }
 
   VectorDataItem* GetItemByIndex(int index)
   {
     VectorDataItem* pItem;
     int i;
+
+    if (_pFirstItem == 0)
+    {
+      _pFirstItem = _pVectorDataItemProvider->GetDataItem();
+      _pFirstItem->_pNext = 0;
+      _pLastMatch = _pFirstItem;
+      _lastMatchIndex = 0;
+      _itemCount = 1;
+    }
 
     // Forward traversal optimization; we keep track of the index and the pointer of the last get
     if (index >= _lastMatchIndex)
@@ -186,9 +217,9 @@ public:
     return true; 
   }
 
-  float GetItem(int index)
+  float GetItem(int index) const
   {
-    VectorDataItem* pItem = GetItemByIndex(index);
+    VectorDataItem* pItem = ((Vector*) this)->GetItemByIndex(index);  // stupid const correctness. 
 
     return pItem->_data;
   }
@@ -200,3 +231,4 @@ public:
 };
 
 VectorDataItemProvider* Vector::_pVectorDataItemProvider = 0;
+int Vector::_pVectorDataItemProviderSize = -1;
