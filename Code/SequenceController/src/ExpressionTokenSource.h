@@ -309,8 +309,10 @@ public:
 			case ',':
 			case '*':
 			case '%':
-			case ':':
-				CopyToToken(c);
+      case ':':
+      case '[':
+      case ']':
+        CopyToToken(c);
 				return;
 
 			case '-':

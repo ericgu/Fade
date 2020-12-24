@@ -293,6 +293,21 @@ class RDEvaluater
 				if (pVariable)
 				{
 					Variable returnValue = *pVariable;
+          Variable index;
+          bool arrayReference = false;
+
+          if (_pExpressionTokenSource->EqualTo("["))
+          {
+            _pExpressionTokenSource->Advance();
+            index = EvaluateTop();
+
+            if (!_pExpressionTokenSource->EqualTo("]"))
+            {
+              // TODO: error: expected "]"
+            }
+            _pExpressionTokenSource->Advance();
+            arrayReference = true;
+          }
 
 					if (_pExpressionTokenSource->EqualTo("++"))
 					{
@@ -304,6 +319,11 @@ class RDEvaluater
 						pVariable->SetValue(0, pVariable->GetValueFloat(0) - 1);
 						_pExpressionTokenSource->Advance();
 					}
+
+          if (arrayReference)
+          {
+            returnValue = returnValue.GetValueFloat(index.GetValueInt());
+          }
 
                     RETURN(returnValue);
 				}

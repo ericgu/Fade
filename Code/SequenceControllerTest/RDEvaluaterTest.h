@@ -1316,9 +1316,37 @@ class RDEvaluaterTest
         TestUndefinedVariableInOperation("15 > q", "Undefined variable: q");
     }
 
+
+    static void TestArrayIndexing()
+    {
+      StatementTester statementTester;
+
+      statementTester.Add("values = {155}");
+      statementTester.Add("values[0]");
+
+      Variable result = statementTester.Execute();
+
+      Assert::AreEqual(155, result.GetValueInt());
+    }
+
+    static void TestArrayIndexing2()
+    {
+      StatementTester statementTester;
+
+      statementTester.Add("values = {155, 25, 55}");
+      statementTester.Add("values[1]");
+
+      Variable result = statementTester.Execute();
+
+      Assert::AreEqual(25, result.GetValueInt());
+    }
+
 public:
 	static void Run()
 	{
+    TestArrayIndexing();
+    TestArrayIndexing2();
+
         TestIf();
         TestNestedIf();
         TestFor();

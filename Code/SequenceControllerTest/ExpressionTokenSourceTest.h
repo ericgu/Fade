@@ -86,7 +86,8 @@ class ExpressionTokenSourceTest
 
 	static void TestAll()
 	{
-		ExpressionTokenSource expressionTokenSource("1+2-3*4/5==6!=7>=8>9<=10<11&&12||13!14%15,16=17++18--19{20}21");
+    ParseErrors parseErrors;
+		ExpressionTokenSource expressionTokenSource("1+2-3*4/5==6!=7>=8>9<=10<11&&12||13!14%15,16=17++18--19{20}21[22]23", &parseErrors);
 
 		Assert(&expressionTokenSource, "1");
 		Assert(&expressionTokenSource, "+");
@@ -127,10 +128,15 @@ class ExpressionTokenSourceTest
 		Assert(&expressionTokenSource, "19");
 		Assert(&expressionTokenSource, "{");
 		Assert(&expressionTokenSource, "20");
-		Assert(&expressionTokenSource, "}");
-		Assert(&expressionTokenSource, "21");
+    Assert(&expressionTokenSource, "}");
+    Assert(&expressionTokenSource, "21");
+    Assert(&expressionTokenSource, "[");
+    Assert(&expressionTokenSource, "22");
+    Assert(&expressionTokenSource, "]");
+    Assert(&expressionTokenSource, "23");
 
-        Assert::AreEqual(1, expressionTokenSource.AtEnd());
+    Assert::AreEqual(1, expressionTokenSource.AtEnd());
+    Assert::AreEqual(0, parseErrors.GetErrorCount());
 	}
 
 	static void TestParens()
