@@ -1,6 +1,5 @@
 class Variable
 {
-    static const int ValuesPerVariable = 4;
     static const int MaxVariableNameLength = 64;
     static const int MaxStringVariableLength = 128;
 
@@ -162,11 +161,6 @@ public:
     void SetValue(int index, float value)
     {
         SplitVariableOnModify();
-
-        if (index >= ValuesPerVariable)
-        {
-            return;
-        }
 
         if (index + 1 > _pVariableData->_valueCount)
         {

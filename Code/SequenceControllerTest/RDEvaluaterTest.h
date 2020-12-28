@@ -1327,6 +1327,8 @@ class RDEvaluaterTest
       Variable result = statementTester.Execute();
 
       Assert::AreEqual(155, result.GetValueInt());
+
+      Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
     }
 
     static void TestArrayIndexing2()
@@ -1339,11 +1341,44 @@ class RDEvaluaterTest
       Variable result = statementTester.Execute();
 
       Assert::AreEqual(25, result.GetValueInt());
+
+      Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+    }
+
+    static void TestArrayAssignment()
+    {
+      StatementTester statementTester;
+
+      statementTester.Add("values[0] = 88");
+      statementTester.Add("values[0]");
+
+      Variable result = statementTester.Execute();
+
+      Assert::AreEqual(88, result.GetValueInt());
+
+      Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+    }
+
+    static void TestArrayAssignment2()
+    {
+      StatementTester statementTester;
+
+      statementTester.Add("values[0] = 88");
+      statementTester.Add("values[1] = 99");
+      statementTester.Add("values[1]");
+
+      Variable result = statementTester.Execute();
+
+      Assert::AreEqual(99, result.GetValueInt());
+
+      Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
     }
 
 public:
 	static void Run()
 	{
+    //TestArrayAssignment2();
+    //TestArrayAssignment();
     TestArrayIndexing();
     TestArrayIndexing2();
 

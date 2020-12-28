@@ -15,17 +15,17 @@ public:
 
     static bool IsAlpha(char c)
     {
-        return _classifications[(int)c] & AlphaBit;
+        return (_classifications[(int)c] & AlphaBit) != 0;
     }
 
     static bool IsIdentifier(char c)
     {
-        return _classifications[(int)c] & (AlphaBit | DigitBit | UnderscoreBit);
+      return (_classifications[(int)c] & (AlphaBit | DigitBit | UnderscoreBit)) != 0;
     }
 
     static bool IsNumber(char c)
     {
-        return _classifications[(int)c] & (DigitBit | DotBit);
+        return (_classifications[(int)c] & (DigitBit | DotBit)) != 0;
     }
 };
 

@@ -30,7 +30,7 @@ public:
         {
             pVariableData = _pPool + i;
 
-            if (pVariableData->GetReferenceCount() == 0)
+            if (pVariableData->_referenceCount == 0)
             {
               pVariableData->IncrementReferenceCount();
                 return pVariableData;

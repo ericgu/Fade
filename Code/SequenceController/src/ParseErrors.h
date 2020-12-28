@@ -50,7 +50,7 @@ class ParseErrors
 	ParseError _parseErrors[MaxErrorCount];
 	int _errorCount;
 	char _buffer[TextErrorBufferSize];
-	int _bufferUsed;
+	size_t _bufferUsed;
 
 public:
 	ParseErrors()

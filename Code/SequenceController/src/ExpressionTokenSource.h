@@ -429,7 +429,7 @@ public:
 
 	int GetParseLocation()
 	{
-		return _pCurrentPreviousValue - _pExpression;
+		return (int) (_pCurrentPreviousValue - _pExpression);
 	}
 
 	void SetParseLocation(int newParseLocation)

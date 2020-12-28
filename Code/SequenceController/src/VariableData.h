@@ -9,7 +9,6 @@ class VariableData
 
     Vector _values;
     //float _value[ValuesPerVariable];
-    int _referenceCount;
 
 public:
     VariableData()
@@ -23,7 +22,8 @@ public:
 
     int _valueCount;
     int _stackLevel;
-    
+    int _referenceCount;
+
     void SetValue(int index, float value)
     {
       _values.SetItem(index, value);

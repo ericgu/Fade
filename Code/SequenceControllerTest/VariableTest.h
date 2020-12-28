@@ -111,23 +111,6 @@ class VariableTest
         Assert::AreEqual(1234.567F, variable.GetValueFloat(2));
     }
 
-    static void TestFloatListTooMany()
-    {
-        Variable variable;
-
-        variable.SetValue(0, 33.33F);
-        variable.SetValue(1, 15.88F);
-        variable.SetValue(2, 1234.567F);
-        variable.SetValue(3, 12.0F);
-        variable.SetValue(4, 24.0F);
-
-        Assert::AreEqual(4, variable.GetValueCount());
-        Assert::AreEqual(33.33F, variable.GetValueFloat(0));
-        Assert::AreEqual(15.88F, variable.GetValueFloat(1));
-        Assert::AreEqual(1234.567F, variable.GetValueFloat(2));
-        Assert::AreEqual(12.0F, variable.GetValueFloat(3));
-    }
-
     static void TestNameTooLong()
     {
         Variable variable;
@@ -376,7 +359,6 @@ public:
         TestConstructorString();
 
         TestFloatList();
-        TestFloatListTooMany();
 
         TestNameTooLong();
 

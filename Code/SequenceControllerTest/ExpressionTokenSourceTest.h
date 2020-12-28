@@ -6,8 +6,8 @@ class ExpressionTokenSourceTest
 {
 	static void Assert(ExpressionTokenSource* pExpressionTokenSource, const char* pNodeString)
 	{
-		int tokenLength = strlen(pNodeString);
-        Assert::AreEqual(1, pExpressionTokenSource->EqualTo(pNodeString));
+		//int tokenLength = strlen(pNodeString);
+    Assert::AreEqual(1, pExpressionTokenSource->EqualTo(pNodeString));
 
 		pExpressionTokenSource->Advance();
 	}
