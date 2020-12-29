@@ -1,6 +1,6 @@
 class BuiltInFunctions
 {
-	static bool HandleBuiltInRand(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	static bool HandleBuiltInRand(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "RAND") == 0)
 		{
@@ -8,14 +8,14 @@ class BuiltInFunctions
 			Variable *pMinValue = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 			Variable *pMaxValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
 
-			pReturnValue->SetValue(0, (float)MyRandom::GetValue(pMinValue->GetValueInt(), pMaxValue->GetValueInt()));
+			pExpressionResult->_variable.SetValue(0, (float)MyRandom::GetValue(pMinValue->GetValueInt(), pMaxValue->GetValueInt()));
 			return true;
 		}
 
 		return false;
 	}
 
-	static bool HandleBuiltInDirect(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	static bool HandleBuiltInDirect(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if ((strcmp(pFunctionName, "D") == 0 || strcmp(pFunctionName, "DI") == 0))
 		{
@@ -71,7 +71,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInSequential(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	static bool HandleBuiltInSequential(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if ((strcmp(pFunctionName, "S") == 0 || strcmp(pFunctionName, "SI") == 0))
 		{
@@ -122,7 +122,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInAnimate(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	static bool HandleBuiltInAnimate(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "A") == 0)
 		{
@@ -146,7 +146,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInPrint(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	static bool HandleBuiltInPrint(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if ((strcmp(pFunctionName, "P") == 0 || strcmp(pFunctionName, "PL") == 0))
 		{
@@ -194,7 +194,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInAbort(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	static bool HandleBuiltInAbort(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "ABORT") == 0)
 		{
@@ -221,7 +221,7 @@ class BuiltInFunctions
 		}
 	}
 
-	static bool HandleBuiltInConfigLed(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	static bool HandleBuiltInConfigLed(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "CONFIGLED") == 0)
 		{
@@ -241,7 +241,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInConfigButton(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	static bool HandleBuiltInConfigButton(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "CONFIGBUTTON") == 0)
 		{
@@ -258,7 +258,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInReadButton(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	static bool HandleBuiltInReadButton(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "READBUTTON") == 0)
 		{
@@ -280,7 +280,7 @@ class BuiltInFunctions
 				//Serial.print("ReadButton: ");
 				//Serial.println(buttonState);
 
-				pReturnValue->SetValue(0, (float)buttonState);
+				pExpressionResult->_variable.SetValue(0, (float)buttonState);
 			}
 			return true;
 		}
@@ -288,7 +288,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInDebug(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	static bool HandleBuiltInDebug(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "DEBUG") == 0)
 		{
@@ -312,54 +312,54 @@ class BuiltInFunctions
 	}
 
 public:
-	static bool HandleBuiltInFunctions(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, Variable *pReturnValue)
+	static bool HandleBuiltInFunctions(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if (HandleBuiltInRand(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInRand(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInDirect(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInDirect(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInSequential(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInSequential(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInAnimate(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInAnimate(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInPrint(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInPrint(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInAbort(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInAbort(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInConfigLed(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInConfigLed(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInConfigButton(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInConfigButton(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInReadButton(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInReadButton(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInDebug(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pReturnValue))
+		if (HandleBuiltInDebug(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
