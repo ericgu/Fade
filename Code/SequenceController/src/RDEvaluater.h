@@ -293,7 +293,7 @@ class RDEvaluater
           Variable *pVariable = _pExecutionContext->GetVariableWithoutErrorCheck(identifier);
           if (pVariable)
           {
-            Variable returnValue = *pVariable;
+            Variable currentValue = *pVariable;
             Variable index;
             bool arrayReference = false;
 
@@ -304,7 +304,8 @@ class RDEvaluater
 
               if (!_pExpressionTokenSource->EqualTo("]"))
               {
-                // TODO: error: expected "]"
+                  ReportError("Missing closing bracket", "");
+                  return ExpressionResult::Empty();
               }
               _pExpressionTokenSource->Advance();
               arrayReference = true;
@@ -321,12 +322,19 @@ class RDEvaluater
               _pExpressionTokenSource->Advance();
             }
 
+            ExpressionResult expressionResult;
+            Variable returnValue;
             if (arrayReference)
             {
-              returnValue = returnValue.GetValueFloat(index.GetValueInt());
+              returnValue = currentValue.GetValueFloat(index.GetValueInt());
+              expressionResult._arrayIndex = index.GetValueInt();
+              returnValue.SetVariableName(currentValue.GetVariableName());
+            }
+            else
+            {
+                returnValue = currentValue;
             }
 
-            ExpressionResult expressionResult;
             expressionResult._variable = returnValue;
             RETURN(expressionResult);
           }
@@ -342,9 +350,32 @@ class RDEvaluater
             Variable var = Variable::Empty();
             _pExecutionContext->AddVariableAndSet(_temporaryBuffer, &var);
 
+            Variable index;
+            bool arrayReference = false;
+
+            if (_pExpressionTokenSource->EqualTo("["))
+            {
+                _pExpressionTokenSource->Advance();
+                index = EvaluateTop()._variable;
+
+                if (!_pExpressionTokenSource->EqualTo("]"))
+                {
+                    ReportError("Missing closing bracket", "");
+                    return ExpressionResult::Empty();
+                }
+                _pExpressionTokenSource->Advance();
+                arrayReference = true;
+            }
+
             ExpressionResult expressionResult;
             expressionResult._variable.SetToNan();
             expressionResult._variable.SetVariableName(identifier);
+
+            if (arrayReference)
+            {
+                expressionResult._arrayIndex = index.GetValueInt();
+            }
+
             RETURN(expressionResult);
           }
         }
@@ -725,9 +756,16 @@ class RDEvaluater
           RemoveUndefinedSentinel(left._variable.GetVariableName());
         }
 
-        for (int i = 0; i < right._variable.GetValueCount(); i++)
+        if (left._arrayIndex != -1)
         {
-          pDestination->SetValue(i, right._variable.GetValueFloat(i));
+            pDestination->SetValue(left._arrayIndex, right._variable.GetValueFloat(0));
+        }
+        else
+        {
+            for (int i = 0; i < right._variable.GetValueCount(); i++)
+            {
+                pDestination->SetValue(i, right._variable.GetValueFloat(i));
+            }
         }
 
         left._variable.SetToNan();	// assignments are not l-values in this language to prevent "IF TEST = 5"

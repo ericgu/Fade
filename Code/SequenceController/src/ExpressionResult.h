@@ -4,6 +4,12 @@ class ExpressionResult
 {
 public:
     Variable _variable;
+    int _arrayIndex;
+
+    ExpressionResult()
+    {
+        _arrayIndex = -1;
+    }
 
     static ExpressionResult Empty()
     {

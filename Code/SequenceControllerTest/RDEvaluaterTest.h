@@ -517,6 +517,20 @@ class RDEvaluaterTest
         TestUndefinedVariableInOperation("x = 5\nx = y", "Undefined variable: y", 1);
     }
 
+    static void TestAssignmentToExpression()
+    {
+        // TODO: Add in correct stack level checking..
+
+        ExecutionContext executionContext;
+        RDEvaluater rdEvaluater;
+        ParseErrors parseErrors;
+
+        Variable result = rdEvaluater.Evaluate("5 * AssignedValue = 15", &executionContext, &parseErrors);
+
+        Assert::AreEqual(1, parseErrors.GetErrorCount());
+        Assert::AreEqual("Undefined variable: AssignedValue", parseErrors.GetError(0)->_errorText);
+    }
+
     static void TestPrimitiveString()
 	{
 		RDEvaluater rdEvaluater;
@@ -1345,6 +1359,20 @@ class RDEvaluaterTest
       Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
     }
 
+    static void TestArrayIndexingExpression()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("values = {155, 25, 55, 66}");
+        statementTester.Add("values[1 * 3]");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(66, result.GetValueInt());
+
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+    }
+
     static void TestArrayAssignment()
     {
       StatementTester statementTester;
@@ -1354,7 +1382,7 @@ class RDEvaluaterTest
 
       Variable result = statementTester.Execute();
 
-      Assert::AreEqual(88, result.GetValueInt());
+      Assert::AreEqual(88, result.GetValueInt()); 
 
       Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
     }
@@ -1374,13 +1402,74 @@ class RDEvaluaterTest
       Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
     }
 
+    static void TestArrayAssignment3()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("x = 0");
+        statementTester.Add("values[x] = 88");
+        statementTester.Add("values[0]");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(88, result.GetValueInt());
+
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+    }
+
+    static void TestArrayReferenceClosingBrace()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("values = {1, 2, 3}");
+        statementTester.Add("values[0");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing closing bracket", statementTester._parseErrors.GetError(0)->_errorText);
+    }
+
+    static void TestArrayAssignmentMissingClosingBrace()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("values[0 = 22");
+        statementTester.Add("values[0]");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing closing bracket", statementTester._parseErrors.GetError(0)->_errorText);
+    }
+
+    static void TestArrayAssignmentMissingClosingBrace2()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("values[0] = 33");
+        statementTester.Add("values[0 = 22");
+        statementTester.Add("values[0]");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing closing bracket", statementTester._parseErrors.GetError(0)->_errorText);
+    }
+
 public:
-	static void Run()
-	{
-    //TestArrayAssignment2();
-    //TestArrayAssignment();
-    TestArrayIndexing();
-    TestArrayIndexing2();
+    static void Run()
+    {
+        TestArrayAssignment();
+        TestArrayAssignment2();
+        TestArrayAssignment3();
+        TestArrayIndexing();
+        TestArrayIndexing2();
+        TestArrayIndexingExpression();
+
+        TestArrayReferenceClosingBrace();
+        TestArrayAssignmentMissingClosingBrace();
+        TestArrayAssignmentMissingClosingBrace2();
 
         TestIf();
         TestNestedIf();
@@ -1407,88 +1496,89 @@ public:
 
         //TestRealCode();
 
-		TestEmptyString();
+        TestEmptyString();
 
-		TestPrimitiveNumber();
+        TestPrimitiveNumber();
 
-		TestMultiValueSingle();
-		TestMultiValueNumber();
-		TestMultiValueExpression();
+        TestMultiValueSingle();
+        TestMultiValueNumber();
+        TestMultiValueExpression();
         TestMultiValueArgumentUndefined();
 
-		TestUnaryMinus();
-		TestUnaryPlus();
+        TestUnaryMinus();
+        TestUnaryPlus();
         TestUnaryUndefined();
 
-		TestSingleMultiplication();
-		TestSingleDivision();
-		TestSingleModulus();
-		TestMultiplyDivide();
-		TestTripleMultiply();
+        TestSingleMultiplication();
+        TestSingleDivision();
+        TestSingleModulus();
+        TestMultiplyDivide();
+        TestTripleMultiply();
         TestMultiplicativeUndefined();
 
-		TestSingleAddition();
-		TestSingleSubtraction();
-		TestAddThenSubtract();
+        TestSingleAddition();
+        TestSingleSubtraction();
+        TestAddThenSubtract();
         TestAdditiveUndefined();
 
-		TestMultiplyAdd();
+        TestMultiplyAdd();
 
-		TestLessThan();
-		TestLessThanFails();
-		TestLessThanOrEqual();
-		TestLessThanOrEqualFails();
-		TestGreaterThan();
-		TestGreaterThanFails();
-		TestGreatherThanOrEqual();
-		TestGreatherThanOrEqualFails();
+        TestLessThan();
+        TestLessThanFails();
+        TestLessThanOrEqual();
+        TestLessThanOrEqualFails();
+        TestGreaterThan();
+        TestGreaterThanFails();
+        TestGreatherThanOrEqual();
+        TestGreatherThanOrEqualFails();
         TestRelationalArgumentUndefined();
         TestRelationalUndefined();
 
 
-		TestEqualityEqual();
-		TestEqualityNotEqual();
-		TestNonEqualityEqual();
-		TestNonEqualityNotEqual();
+        TestEqualityEqual();
+        TestEqualityNotEqual();
+        TestNonEqualityEqual();
+        TestNonEqualityNotEqual();
         TestEqualityUndefined();
 
-		TestLogicalAndNeither();
-		TestLogicalAndFirst();
-		TestLogicalAndSecond();
-		TestLogicalAndBoth();
+        TestLogicalAndNeither();
+        TestLogicalAndFirst();
+        TestLogicalAndSecond();
+        TestLogicalAndBoth();
 
-		TestLogicalOrNeither();
-		TestLogicalOrFirst();
-		TestLogicalOrSecond();
-		TestLogicalOrBoth();
+        TestLogicalOrNeither();
+        TestLogicalOrFirst();
+        TestLogicalOrSecond();
+        TestLogicalOrBoth();
         TestLogicalUndefined();
 
-		TestMultiplyAddWithParens();
-		TestNestedParens();
+        TestMultiplyAddWithParens();
+        TestNestedParens();
 
-		TestVariableReference();
-		TestVariableReferenceInExpressions();
-		TestVariableIncrement();
-		TestVariableDecrement();
+        TestVariableReference();
+        TestVariableReferenceInExpressions();
+        TestVariableIncrement();
+        TestVariableDecrement();
 
-		TestAssignment();
-		TestAssignmentMultiValue();
+        TestAssignment();
+        TestAssignmentMultiValue();
         TestAssignmentUndefined();
+        TestAssignmentToExpression();
 
-		TestPrimitiveString();
+        TestPrimitiveString();
 
         TestBlankLines();
 
-		TestAddWithMissingArgument();
-		TestAddWithWrongArgument();
-		TestUnexpectedValueAfterParsing();
-		TestMissingClosingParen();
-		TestMissingClosingBrace();
-		TestUndeclaredVariable();
-		TestUndeclaredVariable2();
-		TestFunctionCallNoParametersMissingClosingParen();
-		TestFunctionCallOneParametersMissingClosingParen();
-		TestFunctionCallTwoParametersEndsAfterComma();
+        TestAddWithMissingArgument();
+        TestAddWithWrongArgument();
+        TestUnexpectedValueAfterParsing();
+        TestMissingClosingParen();
+        TestMissingClosingBrace();
+        TestUndeclaredVariable();
+        TestUndeclaredVariable2();
+        TestFunctionCallNoParametersMissingClosingParen();
+        TestFunctionCallOneParametersMissingClosingParen();
+        TestFunctionCallTwoParametersEndsAfterComma();
         TestFunctionCallUndefinedVariable();
 
         TestAbort();
