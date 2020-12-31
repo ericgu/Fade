@@ -793,22 +793,37 @@ class RDEvaluaterTest
 
     static void TestFunctionDefinition()
     {
-        StatementTester statementTester;
+      StatementTester statementTester;
 
-        statementTester.Add("Q = 12");
-        statementTester.Add("FUNC MyFunc");
-        statementTester.Add("Q = loop");
-        statementTester.Add("ENDFUNC");
-        statementTester.Add("FUNC MyFunc2");
-        statementTester.Add("Q = loop");
-        statementTester.Add("ENDFUNC");
-        statementTester.Add("Q");
+      statementTester.Add("Q = 12");
+      statementTester.Add("FUNC MyFunc");
+      statementTester.Add("Q = loop");
+      statementTester.Add("ENDFUNC");
+      statementTester.Add("FUNC MyFunc2");
+      statementTester.Add("Q = loop");
+      statementTester.Add("ENDFUNC");
+      statementTester.Add("Q");
 
-        Variable result = statementTester.Execute();
+      Variable result = statementTester.Execute();
 
-        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
-        Assert::AreEqual(7, statementTester._executionContext._functionStore.Lookup("MyFunc")->LineNumberStart);
-        Assert::AreEqual(36, statementTester._executionContext._functionStore.Lookup("MyFunc2")->LineNumberStart);
+      Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+      Assert::AreEqual(7, statementTester._executionContext._functionStore.Lookup("MyFunc")->LineNumberStart);
+      Assert::AreEqual(36, statementTester._executionContext._functionStore.Lookup("MyFunc2")->LineNumberStart);
+    }
+
+    static void TestFunctionDefinitionMissingClosingBrace()
+    {
+      StatementTester statementTester;
+
+      statementTester.Add("q = 12");
+      statementTester.Add("FUNC MyFunc(param");
+      statementTester.Add("ENDFUNC");
+      statementTester.Add("MyFunc(q)");
+
+      Variable result = statementTester.Execute();
+
+      Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+      Assert::AreEqual("Missing closing ) in function call MyFunc", statementTester._parseErrors.GetError(0)->_errorText);
     }
 
     static void TestFunctionCallUndefinedVariable()
@@ -1445,21 +1460,58 @@ class RDEvaluaterTest
 
     static void TestArrayAssignmentMissingClosingBrace2()
     {
-        StatementTester statementTester;
+      StatementTester statementTester;
 
-        statementTester.Add("values[0] = 33");
-        statementTester.Add("values[0 = 22");
-        statementTester.Add("values[0]");
+      statementTester.Add("values[0] = 33");
+      statementTester.Add("values[0 = 22");
+      statementTester.Add("values[0]");
 
-        Variable result = statementTester.Execute();
+      Variable result = statementTester.Execute();
 
-        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
-        Assert::AreEqual("Missing closing bracket", statementTester._parseErrors.GetError(0)->_errorText);
+      Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+      Assert::AreEqual("Missing closing bracket", statementTester._parseErrors.GetError(0)->_errorText);
+    }
+
+    static void TestArrayComplex()
+    {
+      StatementTester statementTester;
+
+      //statementTester.Add("DEBUG(\"LogStatements\", 1)");
+      statementTester.Add("FUNC Create()");
+      statementTester.Add("FOR x 0:10");
+      statementTester.Add("  value[x] = x * x");
+      statementTester.Add("ENDFOR");
+      statementTester.Add("RETURN value");
+      statementTester.Add("ENDFUNC");
+
+	    statementTester.Add("FUNC Test(values, item)");
+      //statementTester.Add("  P(\"Item\")");
+      //statementTester.Add("  PL(item)");
+      statementTester.Add("  IF (values[item] == item * item)");
+      statementTester.Add("    RETURN 1");
+      statementTester.Add("  ENDIF");
+      statementTester.Add("  RETURN 0");
+      statementTester.Add("ENDFUNC");
+
+      statementTester.Add("values = Create()");
+      statementTester.Add("matched = 0");
+      statementTester.Add("FOR x 0:10");
+      statementTester.Add("  IF (Test(values, x) == 0)");
+      statementTester.Add("    matched++");
+      statementTester.Add("  ENDIF");
+      statementTester.Add("ENDFOR");
+      statementTester.Add("matched");
+
+      Variable result = statementTester.Execute();
+
+      Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+      Assert::AreEqual(11, result.GetValueInt());
     }
 
 public:
     static void Run()
     {
+        TestArrayComplex();
         TestArrayAssignment();
         TestArrayAssignment2();
         TestArrayAssignment3();
@@ -1476,6 +1528,8 @@ public:
         TestFor();
         TestForDown();
         TestFunctionDefinition();
+        TestFunctionDefinitionMissingClosingBrace();
+
         TestMissingEndfunc();
         TestMissingEndfunc2();
         TestMissingEndif();
@@ -1567,7 +1621,6 @@ public:
 
         TestPrimitiveString();
 
-        TestBlankLines();
 
         TestAddWithMissingArgument();
         TestAddWithWrongArgument();
@@ -1584,6 +1637,8 @@ public:
         TestAbort();
         TestAbortInForLoop();
         TestAbortInStatementList();
+        TestBlankLines();
+
 
         TestButtonReadFalse();
         TestButtonReadTrue();

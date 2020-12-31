@@ -98,7 +98,7 @@ class RDEvaluater
     {
         PROLOGUE;
 
-            if (_pExpressionTokenSource->AtEnd())
+            if (_pExpressionTokenSource->AtEnd() || _pExpressionTokenSource->FirstChar() == '\n')
             {
                 ReportError("Missing closing ) in function call ", pFunctionName);
                 return false;
@@ -827,7 +827,7 @@ class RDEvaluater
         _pExpressionTokenSource->Advance();
         Variable condition = EvaluateTop()._variable;
 
-        if (condition.GetValueInt() != 0)
+        if (!condition.IsNan() && condition.GetValueInt() != 0)
         {
             conditionMatched = true;
             executing = true;
