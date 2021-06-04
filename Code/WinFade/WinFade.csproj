@@ -49,6 +49,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EditLedSetup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditLedSetup.Designer.cs">
+      <DependentUpon>EditLedSetup.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -56,20 +62,27 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="FadeLibrary.cs" />
-    <Compile Include="LedDevice.cs" />
-    <Compile Include="LedDevices.cs" />
+    <Compile Include="LedConfigurationCustom.cs" />
+    <Compile Include="LedConfigurationMatrix.cs" />
+    <Compile Include="LedConfigurationRing.cs" />
+    <Compile Include="LedConfigurationStrip.cs" />
     <Compile Include="LedForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="LedForm.Designer.cs">
       <DependentUpon>LedForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="LedGroups.cs" />
+    <Compile Include="LedGroupType.cs" />
+    <Compile Include="LedTestBoard.cs" />
     <Compile Include="LedSpot.cs" />
-    <Compile Include="LedGroup.cs" />
+    <Compile Include="LedConfiguration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProgramSettings.cs" />
+    <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="EditLedSetup.resx">
+      <DependentUpon>EditLedSetup.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

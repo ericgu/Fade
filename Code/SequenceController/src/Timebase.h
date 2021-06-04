@@ -74,6 +74,7 @@ public:
 
 	void ExecuteLedCommandMember(CommandResult *pCommandResult)
 	{
+
 		//return;
 		if (_lastCycleStart != -1)
 		{
@@ -82,8 +83,8 @@ public:
 			if (delta > _longestCycleTime)
 			{
 				_longestCycleTime = delta;
-				//Serial.print("Delta: ");
-				//Serial.println(_longestCycleTime);
+				Serial.print("Delta: ");
+				Serial.println(_longestCycleTime);
 			}
 		}
 
@@ -97,7 +98,9 @@ public:
 			_timeServices.TaskDelay(1); // this allows other tasks to run and keeps the watchdog timer happy.
 			_executionCount++;
 			_pLedManager->Tick();
-			_currentCount--;
+      LedRenderCycleDone();
+
+      _currentCount--;
 			if (_timebaseCallback)
 			{
 				(*_timebaseCallback)();

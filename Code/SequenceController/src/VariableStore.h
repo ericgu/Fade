@@ -20,18 +20,18 @@ public:
 
     ~VariableStore()
     {
-      ResetCache();
+        ResetCache();
     }
 
     void ResetCache()
     {
-      for (int i = 0; i < _chunkCount; i++)
-      {
-        delete _pChunks[i];
-        _pChunks[i] = 0;
-      }
+        for (int i = 0; i < _chunkCount; i++)
+        {
+            delete _pChunks[i];
+            _pChunks[i] = 0;
+        }
 
-      _chunkCount = 0;
+        _chunkCount = 0;
     }
 
     void AddChunk()
@@ -64,7 +64,7 @@ public:
 
         VariableData *pVariableData;
 
-        int lastSize = 0;
+        int lastSize;
         for (int chunk = 0; chunk < _chunkCount; chunk++)
         {
             pVariableData = _pChunks[chunk]->GetFreePoolEntry();
@@ -116,17 +116,17 @@ public:
 
     void IncrementReferenceCount(VariableData *pVariableData)
     {
-      pVariableData->IncrementReferenceCount();
+        pVariableData->IncrementReferenceCount();
     }
 
     void DecrementReferenceCount(VariableData *pVariableData)
     {
-      pVariableData->DecrementReferenceCount();
+        pVariableData->DecrementReferenceCount();
 
-      if (pVariableData->GetReferenceCount() == 0)
-      {
-        int k = -12;
-      }
+        if (pVariableData->GetReferenceCount() == 0)
+        {
+            //int k = -12;
+        }
     }
 
     VariableData *GetDataByIndex(int index)

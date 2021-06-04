@@ -72,14 +72,15 @@ public:
             }
         }
 
+        // int v = touchRead(_pin);
+        // int value = touchRead(_pin);
+        // Serial.print("Button: ");
+        // Serial.print(v);
+        // Serial.print(" ");
+        // Serial.println(value);
+
         return false;
 
-        //int v = touchRead(_pin);
-        //int value = touchRead(_pin);
-        //Serial.print("Button: ");
-        //Serial.print(v);
-        //Serial.print(" ");
-        //Serial.println(value);
         //if (value < _threshold)
 
         //if (_interruptCount >= 5)

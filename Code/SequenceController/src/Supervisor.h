@@ -170,6 +170,11 @@ public:
 
 			if (_parseErrors.GetErrorCount() != 0)
 			{
+        for (int i = 0; i < _parseErrors.GetErrorCount(); i++)
+        {
+          ParseErrorFound(_parseErrors.GetError(0)->_errorText, _parseErrors.GetError(0)->_lineNumber);
+        }
+
 				_shouldExecuteCode = false;
 				Serial.println("Error detected; disabling execution...");
 				Serial.println(_parseErrors.GetError(0)->_errorText);

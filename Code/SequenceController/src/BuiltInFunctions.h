@@ -4,7 +4,14 @@ class BuiltInFunctions
 	{
 		if (strcmp(pFunctionName, "RAND") == 0)
 		{
-			//Serial.println("    found random: ");
+      Variable *pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
+      if (pArgumentCount->GetValueInt() != 2)
+      {
+        pParseErrors->AddError("RAND requires two parameters", "", pExpressionTokenSource->GetLineNumber());
+        return true;
+      }
+
+      //Serial.println("    found random: ");
 			Variable *pMinValue = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 			Variable *pMaxValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
 
@@ -306,10 +313,68 @@ class BuiltInFunctions
 				Environment.DebugLogHeapFreeOnAllocation = pValue->GetValueInt();
 				return true;
 			}
+			else if (strcmp(pIdentifier->GetValueString(), "DebugButtonNumber") == 0)
+			{
+				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+				Environment.DebugButtonNumber = pValue->GetValueInt();
+				return true;
+			}
 		}
 
 		return false;
 	}
+
+  static void HSVtoRGB(float h, float s, float v, Variable* pResult)
+  {
+    float C = s * v;
+    float temp = fmod(h / 60, 2.0F) - 1.0F;
+    float tempAbs = temp > 0 ? temp : -temp;
+
+    float X = C * (1 - tempAbs);
+    float m = v - C;
+
+    float r, g, b;
+
+    if (h >= 0 && h < 60) {
+      r = C, g = X, b = 0;
+    }
+    else if (h >= 60 && h < 120) {
+      r = X, g = C, b = 0;
+    }
+    else if (h >= 120 && h < 180) {
+      r = 0, g = C, b = X;
+    }
+    else if (h >= 180 && h < 240) {
+      r = 0, g = X, b = C;
+    }
+    else if (h >= 240 && h < 300) {
+      r = X, g = 0, b = C;
+    }
+    else {
+      r = C, g = 0, b = X;
+    }
+
+    pResult->SetValue(0, r + m);
+    pResult->SetValue(1, g + m);
+    pResult->SetValue(2, b + m);
+  }
+
+  static bool HandleBuiltInHsvToRGB(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+  {
+    if (strcmp(pFunctionName, "HSVTORGB") == 0)
+    {
+      Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
+
+      Variable *pH = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
+      Variable *pS = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+      Variable *pV = pExecutionContext->GetVariableWithoutErrorCheck("#A2");
+
+      HSVtoRGB(pH->GetValueFloat(0), pS->GetValueFloat(0), pV->GetValueFloat(0), &pExpressionResult->_variable);
+      return true;
+    }
+
+    return false;
+  }
 
 public:
 	static bool HandleBuiltInFunctions(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
@@ -359,10 +424,15 @@ public:
 			return true;
 		}
 
-		if (HandleBuiltInDebug(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
-		{
-			return true;
-		}
+    if (HandleBuiltInDebug(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+    {
+      return true;
+    }
+
+    if (HandleBuiltInHsvToRGB(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+    {
+      return true;
+    }
 
 		return false;
 	}

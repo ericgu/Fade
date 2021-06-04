@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
@@ -19,56 +18,56 @@ namespace WinFade
 
         private Thread _fadeThread;
         private int _outputLineCount;
-        private string _programText;
+        //private string _programText;
 
         readonly ProgramSettings _programSettings;
 
         private readonly LedForm _ledForm;
 
-        private List<string> _configFileList;
+        private readonly Project _project;
 
-        private LedDevices _ledDevices;
+        private string _filename;
 
         public Form1()
         {
             InitializeComponent();
 
-            _ledForm = new LedForm();
+            _project = new Project();
+            _ledForm = new LedForm(_project.LedTestBoard);
             _ledForm.Closing += (sender, args) =>
             {
                 args.Cancel = true;
-                c_buttonAbort_Click(null, null);
+                Stop();
             };
 
             _programSettings = new ProgramSettings();
-            c_textBoxProgramText.Text = _programSettings.ProgramText;
+            //c_textBoxProgramText.Text = _programSettings.ProgramText;
+            //_project.ProgramText = _programSettings.ProgramText;
+
+            _project.Filename = _programSettings.Filename;
+            _project.Load();
+            c_textBoxProgramText.Text = _project.ProgramText;
 
             c_labelErrorTag.Visible = false;
             c_labelErrorText.Visible = false;
 
             _fadeThread = null;
 
-            _ledDevices = new LedDevices();
+            //_ledDevices = new LedDevices();
 
             FormClosing += (sender, args) =>
             {
                 if (_fadeThread != null)
                 {
-                    _fadeThread.Abort();
+                    Stop();
                 }
             };
 
             Activated += (sender, args) =>
             {
-                c_comboBoxLedArrangements.Items.Clear();
-                foreach (string arrangementName in LedGroup.ConfigFileList)
-                {
-                    c_comboBoxLedArrangements.Items.Add(arrangementName);
-                }
-                //_pictureBoxManager.Render();
             };
 
-            Closing += (sender, args) => { c_buttonAbort_Click(null, null); };
+            Closing += (sender, args) => { Stop(); };
 
 
         }
@@ -88,9 +87,11 @@ namespace WinFade
             }
         }
 
-        private void CreateNewLedDevice(string ledType, int ledCount, int p1, int p2, int p3, int p4)
+        private void CreateNewLedDevice(int groupNumber, string ledType, int ledCount, int p1, int p2, int p3, int p4)
         {
-            _ledDevices.AddNewDevice(ledType, ledCount, p1, p2, p3, p4);
+            //_ledDevices.AddNewDevice(ledType, ledCount, p1, p2, p3, p4);
+
+            _project.LedTestBoard.AddNewDevice(groupNumber, ledType, ledCount, p1, p2, p3, p4);   
 
             //int k = 12;
 
@@ -166,6 +167,8 @@ namespace WinFade
             }
             else
             {
+                Stop();
+
                 HighlightLine(lineNumber);
                 c_labelErrorTag.Visible = true;
                 c_labelErrorText.Visible = true;
@@ -177,27 +180,41 @@ namespace WinFade
 
         private void DoFade()
         {
-            FadeLibrary.Run(_programText, NewTextAvailable, CreateNewLedDevice, LedUpdated, LedUpdateCycleDone,
+            FadeLibrary.Run(_project.ProgramText, NewTextAvailable, CreateNewLedDevice, LedUpdated, LedUpdateCycleDone,
                 ParseErrorEncountered);
             //FadeLibrary.Run(_programText, null, null, null, null);
         }
 
         private void RunProgram(object sender, EventArgs e)
         {
+            if (_fadeThread == null)
+            {
+                Run();
+            }
+            else
+            {
+                Stop();
+
+            }
+        }
+
+        private void Run()
+        {
             if (_fadeThread != null)
             {
                 _fadeThread.Abort();
             }
+
+            c_buttonRunStop.Text = "Stop";
 
             c_labelErrorTag.Visible = false;
             c_labelErrorText.Visible = false;
 
             c_listBoxSerialOutput.Items.Clear();
             _outputLineCount = 0;
-            _programText = c_textBoxProgramText.Text;
-            _programSettings.ProgramText = _programText;
+            //_programText = c_textBoxProgramText.Text;
+            //_project.ProgramText = _programText;
             ShowErrorOutline(false);
-            _ledDevices.Reset();
 
             _ledForm.Show();
 
@@ -205,9 +222,10 @@ namespace WinFade
             _fadeThread.Start();
         }
 
-        private void c_buttonAbort_Click(object sender, EventArgs e)
+        private void Stop()
         {
             _ledForm.Hide();
+            c_buttonRunStop.Text = "Run";
 
             if (_fadeThread != null)
             {
@@ -251,7 +269,84 @@ namespace WinFade
             }
         }
 
-        private void c_comboBoxLedArrangements_SelectedIndexChanged(object sender, EventArgs e)
+
+
+        private void setupButton_Click(object sender, EventArgs e)
+        {
+            if (_project.LedTestBoard.LedConfigurations.Count != 0)
+            {
+                EditLedSetup editLedSetup = new EditLedSetup(_project.LedTestBoard);
+
+                DialogResult result = editLedSetup.ShowDialog();
+            }
+        }
+        
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = Project.BasePath;
+            openFileDialog.DefaultExt = "fade";
+            openFileDialog.Filter = "fade files (*.fade)";
+            openFileDialog.FilterIndex = 0;
+            openFileDialog.CheckFileExists = true;
+            openFileDialog.CheckPathExists = false;
+
+            DialogResult result = openFileDialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                _filename = openFileDialog.FileName;
+                _programSettings.Filename = _filename;
+                _project.Filename = _filename;
+                _project.Load();
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_project.Filename))
+            {
+                saveAsToolStripMenuItem_Click(sender, e);
+            }
+            else
+            {
+                _project.Save();
+            }
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.InitialDirectory = Project.BasePath;
+            saveFileDialog.DefaultExt = "fade";
+            saveFileDialog.Filter = "fade files (*.fade)|*.fade";
+            saveFileDialog.FilterIndex = 0;
+            saveFileDialog.CheckPathExists = false;
+
+            DialogResult result = saveFileDialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                _filename = saveFileDialog.FileName;
+                _project.Filename = _filename;
+                _project.Save();
+                _programSettings.Filename = _filename;
+            }
+        }
+
+        private void c_textBoxProgramText_TextChanged(object sender, EventArgs e)
+        {
+            _project.ProgramText = c_textBoxProgramText.Text;
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F5)
+            {
+                RunProgram(null, null);
+                e.Handled = true;
+            }
+        }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
         }

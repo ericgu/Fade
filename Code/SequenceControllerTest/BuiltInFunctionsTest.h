@@ -86,6 +86,43 @@ class BuildInFunctionsTest
         Assert::AreEqual(1, Environment.DebugLogStatements);
     }
 
+    //HSVtoRGB
+
+    static void TestHSVtoRGB()
+    {
+      ExecutionContext executionContext;
+      ParseErrors parseErrors;
+      MockExecutionFlow executionFlow;
+      ExpressionResult expressionResult;
+
+      executionContext.AddVariableAndSet("#A0", &Variable(60));
+      executionContext.AddVariableAndSet("#A1", &Variable(1));
+      executionContext.AddVariableAndSet("#A2", &Variable(1));
+
+      BuiltInFunctions::HandleBuiltInFunctions("HSVTORGB", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+
+      Assert::AreEqual(1.0, expressionResult._variable.GetValueFloat(0));
+      Assert::AreEqual(1.0, expressionResult._variable.GetValueFloat(1));
+      Assert::AreEqual(0.0, expressionResult._variable.GetValueFloat(2));
+    }
+
+    static void TestRandWrongArgumentCount()
+    {
+      ExecutionContext executionContext;
+      ParseErrors parseErrors;
+      MockExecutionFlow executionFlow;
+      ExpressionResult expressionResult;
+
+      ExpressionTokenSource expressionTokenSource("RAND(1)");
+
+      executionContext.AddVariableAndSet("#A", &Variable(1));
+      executionContext.AddVariableAndSet("#A0", &Variable(1));
+
+      BuiltInFunctions::HandleBuiltInFunctions("RAND", &executionContext, &parseErrors, &expressionTokenSource, &executionFlow, &expressionResult);
+
+      Assert::AreEqual(1, parseErrors.GetErrorCount());
+      Assert::AreEqual("RAND requires two parameters", parseErrors.GetError(0)->_errorText);
+    }
 
 public:
     static void Run()
@@ -94,5 +131,7 @@ public:
         TestConfigLedFourPins();
         TestConfigTouchButton();
         TestDebugLogStatements();
+        TestHSVtoRGB();
+        TestRandWrongArgumentCount();
     }
 };

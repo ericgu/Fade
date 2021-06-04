@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Win32;
 
 namespace WinFade
@@ -17,7 +13,27 @@ namespace WinFade
       _key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\WinFade");
     }
 
-    public string ProgramText
+
+    public string Filename
+    {
+        get
+        {
+            if (_key != null)
+            {
+                return (string)_key.GetValue("Filename");
+            }
+            else
+            {
+                return String.Empty;
+            }
+        }
+        set
+        {
+            _key.SetValue("Filename", value);
+        }
+    }
+
+        public string ProgramText2
     {
       get
       {

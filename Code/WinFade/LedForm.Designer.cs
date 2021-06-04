@@ -28,31 +28,34 @@
     /// </summary>
     private void InitializeComponent()
     {
-      this.c_pictureBoxLeds = new System.Windows.Forms.PictureBox();
-      ((System.ComponentModel.ISupportInitialize)(this.c_pictureBoxLeds)).BeginInit();
-      this.SuspendLayout();
-      // 
-      // c_pictureBoxLeds
-      // 
-      this.c_pictureBoxLeds.BackColor = System.Drawing.Color.Black;
-      this.c_pictureBoxLeds.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.c_pictureBoxLeds.Location = new System.Drawing.Point(0, 0);
-      this.c_pictureBoxLeds.Name = "c_pictureBoxLeds";
-      this.c_pictureBoxLeds.Size = new System.Drawing.Size(1408, 685);
-      this.c_pictureBoxLeds.TabIndex = 0;
-      this.c_pictureBoxLeds.TabStop = false;
-      // 
-      // LedForm
-      // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(1408, 685);
-      this.Controls.Add(this.c_pictureBoxLeds);
-      this.Name = "LedForm";
-      this.ShowInTaskbar = false;
-      this.Text = "Fade Output";
-      ((System.ComponentModel.ISupportInitialize)(this.c_pictureBoxLeds)).EndInit();
-      this.ResumeLayout(false);
+            this.c_pictureBoxLeds = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.c_pictureBoxLeds)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // c_pictureBoxLeds
+            // 
+            this.c_pictureBoxLeds.BackColor = System.Drawing.Color.Black;
+            this.c_pictureBoxLeds.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.c_pictureBoxLeds.Location = new System.Drawing.Point(0, 0);
+            this.c_pictureBoxLeds.Name = "c_pictureBoxLeds";
+            this.c_pictureBoxLeds.Size = new System.Drawing.Size(1408, 685);
+            this.c_pictureBoxLeds.TabIndex = 0;
+            this.c_pictureBoxLeds.TabStop = false;
+            this.c_pictureBoxLeds.MouseDown += new System.Windows.Forms.MouseEventHandler(this.c_pictureBoxLeds_MouseDown);
+            this.c_pictureBoxLeds.MouseMove += new System.Windows.Forms.MouseEventHandler(this.c_pictureBoxLeds_MouseMove);
+            this.c_pictureBoxLeds.MouseUp += new System.Windows.Forms.MouseEventHandler(this.c_pictureBoxLeds_MouseUp);
+            // 
+            // LedForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(1408, 685);
+            this.Controls.Add(this.c_pictureBoxLeds);
+            this.Name = "LedForm";
+            this.ShowInTaskbar = false;
+            this.Text = "Fade Output";
+            ((System.ComponentModel.ISupportInitialize)(this.c_pictureBoxLeds)).EndInit();
+            this.ResumeLayout(false);
 
     }
 

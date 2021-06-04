@@ -1,36 +1,32 @@
-CONFIGLED(0, "RGB", 6, 13)
-CONFIGLED(1, "PWM", 4, 14, 27, 26, 25)
-CONFIGBUTTON(0, "TOUCH", 32, 20)
+CONFIGLED(0, "RGB", 1, 27)
+CONFIGLED(1, "PWM", 4, 17, 16, 4, 2)
+CONFIGLED(2, "PWM", 1, 14)
+CONFIGBUTTON(0, "TOUCH", 15, 20)
 DEBUG("LogStatements", 0)
 LampAutoShutoffTimeInSeconds = 10 * 100 // 10 seconds
 
+D_GasGenerator = 0
+D_Green = 4
+D_White = 3
+D_Fan = 5
+
+
 IF READBUTTON(0) == 1
   
-  D(100, 1, {0, 0, 0})
-  D(100, 6, 0)
-  D(100, 0, {1, 1, 0.2})
+  PL("ON")
+  D(100, D_Fan, 0.95)
+  
+  // ramp up gas generator RGB led
+  D(100, D_GasGenerator, {1, 1, 0.2})
   A(100)
   
-  D(5, 3, {0, 1, 0})
-  D(5, 4, {0, 1, 0})
-  D(5, 5, {0, 1, 0})
-  D(5, 6, 1)
+  D(5, D_Green, 0.8)
   A(5)
-  D(5, 3, {0, 0, 0})
-  D(5, 4, {0, 0, 0})
-  D(5, 5, {0, 0, 0})
-  D(5, 6, 0)
-  A(5)
-  D(25, 3, {0, 0, 0})
-  D(25, 4, {0, 0, 0})
-  D(25, 5, {0, 0, 0})
-  D(25, 6, 0)
-  A(25)
   
-  D(100, 3, {1, 1, 0.2})
-  D(100, 4, {1, 1, 0.2})
-  D(100, 5, {1, 1, 0.2})
-  D(100, 6, 1)
+  D(5, D_Green, 0)
+  A(5)
+  
+  D(100, D_White, 0.8)
   A(100)
   
   FOR Wait 0:LampAutoShutoffTimeInSeconds 
@@ -40,14 +36,15 @@ IF READBUTTON(0) == 1
     A(1)
   ENDFOR
   
-  D(100, 3, {0, 0, 0})
-  D(100, 4, {0, 0, 0})
-  D(100, 5, {0, 0, 0})
-  D(100, 6, 0)
-  D(50, 0, {0, 0, 0})
+  PL("OFF") 
+  
+  D(100, D_White, 0)
+  D(50, D_GasGenerator, {0, 0, 0})
+  D(1, D_Fan, 0)
   A(100)
 ENDIF
 
+
 A(1)
 //PL("Hello, World")                       
-//PL("Hello, World")                                                                                    
+//PL("Hello, World")                                               

@@ -10,6 +10,13 @@ class VariableCollection
     int _serialNumber;
 
 public:
+  void printf(char* s) {}
+  void printf(char* s, int v) {}
+  void printf(char* s, int v, const char* x) {}
+  void printf(char* s, int v, int x, int y) {}
+  void printf(char* s, int v, const char* x, int y) {}
+  void printf(char* s, int v, int x, const char* y) {}
+
     VariableCollection()
     {
         //if (int count = VariableStore::VariableStoreInstance.GetInUseCount() != 0)
