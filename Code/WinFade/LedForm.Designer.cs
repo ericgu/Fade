@@ -54,6 +54,7 @@
             this.Name = "LedForm";
             this.ShowInTaskbar = false;
             this.Text = "Fade Output";
+            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.LedForm_KeyPress);
             ((System.ComponentModel.ISupportInitialize)(this.c_pictureBoxLeds)).EndInit();
             this.ResumeLayout(false);
 
@@ -62,5 +63,5 @@
     #endregion
 
     private System.Windows.Forms.PictureBox c_pictureBoxLeds;
-  }
+    }
 }

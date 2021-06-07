@@ -32,7 +32,10 @@ namespace WinFade
                 c_listBoxLedGroups.Items.Add(ledGroup.ToString());
             }
 
-            c_listBoxLedGroups.SelectedIndex = selectedIndex;
+            if (selectedIndex < _ledTestBoard.LedConfigurations.Count)
+            {
+                c_listBoxLedGroups.SelectedIndex = selectedIndex;
+            }
         }
 
         LedConfiguration SelectedLedConfiguration
@@ -114,6 +117,11 @@ namespace WinFade
             ChangeGroupType(LedGroupType.Matrix);
         }
 
+        private void c_radioButtonPwm_Click(object sender, EventArgs e)
+        {
+            ChangeGroupType(LedGroupType.Pwm);
+        }
+
         private void c_buttonDeleteClick(object sender, EventArgs e)
         {
             if (c_listBoxLedGroups.SelectedIndex != -1)
@@ -162,5 +170,11 @@ namespace WinFade
         {
             ((LedConfigurationMatrix)SelectedLedConfiguration).ValuesChanged(this);
         }
+
+        private void c_textBoxPwmColorCoding_Leave(object sender, EventArgs e)
+        {
+            ((LedConfigurationPwm)SelectedLedConfiguration).ValuesChanged(this);
+        }
+
     }
 }

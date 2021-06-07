@@ -64,33 +64,7 @@ FADELIBRARY_API int Run(const char* pProgram,
 
   Environment.ResetValues();
 
-#if fred
-  if (_pLedManager)
-  {
-    delete _pLedManager;
-  }
-
-  if (_pButtonCreator)
-  {
-    delete _pButtonCreator;
-  }
-
-  if (_pSupervisor)
-  {
-    delete _pSupervisor;
-  }
-
-  if (_pSettings)
-  {
-    delete _pSettings;
-  }
-
-  if (_pLedDeviceCreator)
-  {
-    delete _pLedDeviceCreator;
-  }
-
-#endif
+  ButtonCreator::ResetButtons();
 
   _pSupervisor = new Supervisor();
   _pSettings = new Settings();
@@ -107,6 +81,14 @@ FADELIBRARY_API int Run(const char* pProgram,
 
   return 0;
 }
+
+FADELIBRARY_API int PressButton(int buttonNumber)
+{
+    ButtonCreator::PushButton(buttonNumber);
+
+    return 0;
+}
+
 
 FADELIBRARY_API int Abort(NewSerialTextAvailableCallback pCallback)
 {

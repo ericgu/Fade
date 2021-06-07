@@ -12,5 +12,6 @@ namespace WinFade
         Custom = 2,
         Ring = 3,
         Matrix = 4,
+        Pwm = 5,
     }
 }

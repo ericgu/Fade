@@ -24,7 +24,7 @@ namespace WinFade
         {
             if (!_ledConfigurations.Exists(ledConfiguration => ledConfiguration.GroupNumber == groupNumber))
             {
-                LedConfiguration ledConfiguration = new LedConfiguration();
+                LedConfiguration ledConfiguration = new LedConfigurationStrip();
                 ledConfiguration.GroupNumber = groupNumber;
                 _ledConfigurations.Add(ledConfiguration);
                 ledConfiguration.LedCount = ledCount;

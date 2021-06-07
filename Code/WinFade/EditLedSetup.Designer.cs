@@ -45,6 +45,9 @@ namespace WinFade
             this.label5 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.c_textBoxPwmColorCoding = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.c_radioButtonPwm = new System.Windows.Forms.RadioButton();
             this.c_textBoxMatrixYCount = new System.Windows.Forms.TextBox();
             this.c_textBoxMatrixYSpacing = new System.Windows.Forms.TextBox();
             this.c_textBoxMatrixXSpacing = new System.Windows.Forms.TextBox();
@@ -186,6 +189,9 @@ namespace WinFade
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.c_textBoxPwmColorCoding);
+            this.groupBox2.Controls.Add(this.label12);
+            this.groupBox2.Controls.Add(this.c_radioButtonPwm);
             this.groupBox2.Controls.Add(this.c_textBoxMatrixYCount);
             this.groupBox2.Controls.Add(this.c_textBoxMatrixYSpacing);
             this.groupBox2.Controls.Add(this.c_textBoxMatrixXSpacing);
@@ -205,10 +211,42 @@ namespace WinFade
             this.groupBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox2.Location = new System.Drawing.Point(519, 311);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(541, 302);
+            this.groupBox2.Size = new System.Drawing.Size(541, 347);
             this.groupBox2.TabIndex = 14;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Group Type";
+            // 
+            // c_textBoxPwmColorCoding
+            // 
+            this.c_textBoxPwmColorCoding.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_textBoxPwmColorCoding.Location = new System.Drawing.Point(251, 224);
+            this.c_textBoxPwmColorCoding.Name = "c_textBoxPwmColorCoding";
+            this.c_textBoxPwmColorCoding.Size = new System.Drawing.Size(94, 30);
+            this.c_textBoxPwmColorCoding.TabIndex = 31;
+            this.c_textBoxPwmColorCoding.Leave += new System.EventHandler(this.c_textBoxPwmColorCoding_Leave);
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(112, 224);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(133, 25);
+            this.label12.TabIndex = 30;
+            this.label12.Text = "Color coding: ";
+            // 
+            // c_radioButtonPwm
+            // 
+            this.c_radioButtonPwm.AutoSize = true;
+            this.c_radioButtonPwm.Location = new System.Drawing.Point(24, 223);
+            this.c_radioButtonPwm.Name = "c_radioButtonPwm";
+            this.c_radioButtonPwm.Size = new System.Drawing.Size(83, 29);
+            this.c_radioButtonPwm.TabIndex = 29;
+            this.c_radioButtonPwm.TabStop = true;
+            this.c_radioButtonPwm.Text = "PWM";
+            this.c_radioButtonPwm.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.c_radioButtonPwm.UseVisualStyleBackColor = true;
+            this.c_radioButtonPwm.Click += new System.EventHandler(this.c_radioButtonPwm_Click);
             // 
             // c_textBoxMatrixYCount
             // 
@@ -343,7 +381,7 @@ namespace WinFade
             // 
             // c_buttonCustomPaste
             // 
-            this.c_buttonCustomPaste.Location = new System.Drawing.Point(130, 226);
+            this.c_buttonCustomPaste.Location = new System.Drawing.Point(130, 259);
             this.c_buttonCustomPaste.Name = "c_buttonCustomPaste";
             this.c_buttonCustomPaste.Size = new System.Drawing.Size(105, 39);
             this.c_buttonCustomPaste.TabIndex = 2;
@@ -354,7 +392,7 @@ namespace WinFade
             // c_radioButtonCustom
             // 
             this.c_radioButtonCustom.AutoSize = true;
-            this.c_radioButtonCustom.Location = new System.Drawing.Point(23, 231);
+            this.c_radioButtonCustom.Location = new System.Drawing.Point(23, 264);
             this.c_radioButtonCustom.Name = "c_radioButtonCustom";
             this.c_radioButtonCustom.Size = new System.Drawing.Size(101, 29);
             this.c_radioButtonCustom.TabIndex = 1;
@@ -516,6 +554,8 @@ namespace WinFade
         private Label label10;
         private Label label9;
         private Label label8;
-
+        internal TextBox c_textBoxPwmColorCoding;
+        private Label label12;
+        internal RadioButton c_radioButtonPwm;
     }
 }

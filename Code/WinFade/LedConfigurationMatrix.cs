@@ -19,6 +19,16 @@ namespace WinFade
 
         internal override void SaveCustom(StreamWriter writer)
         {
+            if (XSpacing == 0)
+            {
+                XSpacing = LedSize;
+            }
+
+            if (YSpacing == 0)
+            {
+                YSpacing = LedSize;
+            }
+
             writer.WriteLine("XCount={0}", XCount);
             writer.WriteLine("YCount={0}", YCount);
             writer.WriteLine("XSpacing={0}", XSpacing);

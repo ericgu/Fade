@@ -24,7 +24,7 @@ namespace WinFade
 
         private readonly LedForm _ledForm;
 
-        private readonly Project _project;
+        private Project _project;
 
         private string _filename;
 
@@ -40,12 +40,15 @@ namespace WinFade
                 Stop();
             };
 
+            _ledForm.ButtonPressed += LedFormOnButtonPressed;
+
             _programSettings = new ProgramSettings();
             //c_textBoxProgramText.Text = _programSettings.ProgramText;
             //_project.ProgramText = _programSettings.ProgramText;
 
             _project.Filename = _programSettings.Filename;
             _project.Load();
+            SetBanner();
             c_textBoxProgramText.Text = _project.ProgramText;
 
             c_labelErrorTag.Visible = false;
@@ -65,11 +68,25 @@ namespace WinFade
 
             Activated += (sender, args) =>
             {
+                if (_fadeThread != null)
+                {
+                    _ledForm.BringToFront();
+                }
             };
 
             Closing += (sender, args) => { Stop(); };
 
 
+        }
+
+        private void LedFormOnButtonPressed(int buttonnumber)
+        {
+            FadeLibrary.PressButton(buttonnumber);
+        }
+
+        void SetBanner()
+        {
+            Text = "WinFade - " + _project.Filename;
         }
 
         private void NewTextAvailable(string text)
@@ -298,6 +315,7 @@ namespace WinFade
                 _programSettings.Filename = _filename;
                 _project.Filename = _filename;
                 _project.Load();
+                SetBanner();
             }
         }
 
@@ -329,6 +347,7 @@ namespace WinFade
                 _project.Filename = _filename;
                 _project.Save();
                 _programSettings.Filename = _filename;
+                SetBanner();
             }
         }
 
@@ -348,7 +367,9 @@ namespace WinFade
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            _project = new Project();
+            SetBanner();
+            c_textBoxProgramText.Text = _project.ProgramText;
         }
     }
 }

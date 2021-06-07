@@ -30,7 +30,7 @@ namespace WinFade
 
 
 
-        public LedConfiguration()
+        protected LedConfiguration()
         {
             _ledSpots = new List<LedSpot>();
 
@@ -51,7 +51,6 @@ namespace WinFade
             set
             {
                 _ledCount = value;
-                Create();
             }
         }
 
@@ -79,7 +78,7 @@ namespace WinFade
 
             SaveCustom(writer);
 
-            writer.WriteLine("LedSpotCount={0}", _ledSpots.Count);
+            writer.WriteLine("LedSpotCount={0}", LedCount);
             writer.WriteLine();
             writer.WriteLine("// X, Y");
 
@@ -87,9 +86,14 @@ namespace WinFade
             {
                 writer.WriteLine("LedSpot={0},{1}", ledSpot.X, ledSpot.Y);
             }
+
+            for (int extra = 0; extra < LedCount - _ledSpots.Count; extra++)
+            {
+                writer.WriteLine("LedSpot={0},{1}", 0, 0);
+            }
         }
 
-        private static string GetAfterName(StreamReader reader, string name)
+        protected static string GetAfterName(StreamReader reader, string name)
         {
             string line = reader.ReadLine();
             if (line.StartsWith(name))
@@ -132,7 +136,10 @@ namespace WinFade
             {
                 string line = GetAfterName(reader, "LedSpot");
 
-                newConfiguration._ledSpots.Add(new LedSpot(line));
+                if (line != null)
+                {
+                    newConfiguration._ledSpots.Add(new LedSpot(line));
+                }
             }
 
             return newConfiguration;
@@ -163,6 +170,11 @@ namespace WinFade
                     newConfiguration = new LedConfigurationCustom();
                     newConfiguration.GroupType = LedGroupType.Custom;
                     break;
+
+                case "Pwm":
+                    newConfiguration = new LedConfigurationPwm();
+                    newConfiguration.GroupType = LedGroupType.Pwm;
+                    break;
             }
 
             return newConfiguration;
@@ -173,7 +185,7 @@ namespace WinFade
 
         }
 
-        public void UpdateLedColor(Graphics graphics, int ledNumber, float red, float green, float blue)
+        public virtual void UpdateLedColor(Graphics graphics, int ledNumber, float red, float green, float blue)
         {
             if (_ledSpots.Count == 0)
             {

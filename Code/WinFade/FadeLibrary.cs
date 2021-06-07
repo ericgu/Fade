@@ -18,17 +18,20 @@ namespace WinFade
   public delegate void ParseErrorDelegate(string message, int lineNumber);
 
   public class FadeLibrary
-    {
+  {
       [DllImport("FadeLibrary.dll", CallingConvention = CallingConvention.Cdecl)]
       public static extern int MyCFunc();
 
       [DllImport("FadeLibrary.dll", CallingConvention = CallingConvention.Cdecl)]
-      public static extern int Run(string programText, 
-                                    SerialNewTextAvailable serialNewTextAvailableCallback,
-                                    CreateNewLedDeviceDelegate createNewLedDeviceCallback,
-                                    LedUpdatedDelegate ledUpdatedDelegate,
-                                    LedUpdateCycleDoneDelegate ledUpdateCycleDoneDelegate,
-                                    ParseErrorDelegate parseErrorDelegate);
+      public static extern int PressButton(int buttonNumber);
 
-    }
+      [DllImport("FadeLibrary.dll", CallingConvention = CallingConvention.Cdecl)]
+      public static extern int Run(string programText,
+          SerialNewTextAvailable serialNewTextAvailableCallback,
+          CreateNewLedDeviceDelegate createNewLedDeviceCallback,
+          LedUpdatedDelegate ledUpdatedDelegate,
+          LedUpdateCycleDoneDelegate ledUpdateCycleDoneDelegate,
+          ParseErrorDelegate parseErrorDelegate);
+
+  }
 }

@@ -64,6 +64,7 @@
     <Compile Include="FadeLibrary.cs" />
     <Compile Include="LedConfigurationCustom.cs" />
     <Compile Include="LedConfigurationMatrix.cs" />
+    <Compile Include="LedConfigurationPwm.cs" />
     <Compile Include="LedConfigurationRing.cs" />
     <Compile Include="LedConfigurationStrip.cs" />
     <Compile Include="LedForm.cs">

@@ -121,6 +121,7 @@ extern "C"
     LedRenderCycleDoneCallback pLedRenderCycleDoneCallback,
     ParseErrorCallback pParseErrorCallback);
 
+  FADELIBRARY_API int PressButton(int buttonNumber);
 
 }
 

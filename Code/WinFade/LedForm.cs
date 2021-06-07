@@ -4,6 +4,8 @@ using System.Windows.Forms;
 
 namespace WinFade
 {
+    public delegate void ButtonPressedDelegate(int buttonNumber);
+
     public partial class LedForm : Form
     {
         readonly Bitmap _bitmap;
@@ -11,6 +13,8 @@ namespace WinFade
         private readonly LedTestBoard _ledTestBoard;
 
         private delegate void RenderDelegate();
+
+        public event ButtonPressedDelegate ButtonPressed;
 
         public LedForm(LedTestBoard ledTestBoard)
         {
@@ -94,6 +98,16 @@ namespace WinFade
             if (_dragLedConfiguration != null)
             {
                 _dragLedConfiguration = null;
+            }
+        }
+
+        private void LedForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            int k = 12;
+
+            if (ButtonPressed != null && e.KeyChar >= '0' && e.KeyChar <= '9')
+            {
+                ButtonPressed(e.KeyChar - '0' - 1);
             }
         }
     }
