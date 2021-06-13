@@ -7,10 +7,10 @@ func AngleToRGB(angleInDegrees)
   if (angleInDegrees <= 120)    
     temp = angleInDegrees / 120 * brightness 
     value = {temp, 0, brightness - temp}    
-  ELSEif (angleInDegrees <= 240)   
+  elseif (angleInDegrees <= 240)   
     temp = (angleInDegrees-120) / 120 * brightness 
     value = {brightness - temp, temp, 0}    
-  ELSE    
+  else    
     temp = (angleInDegrees-240) / 120 * brightness 
     value = {0, brightness - temp, temp}    
   endif

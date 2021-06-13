@@ -23,7 +23,7 @@ func SetSpecificLedToColor(count, spot, color, ledNumber)
   for led 0:2
     if (led == ledNumber)
       D(count, baseLed + led , color)
-    ELSE
+    else
       D(count, baseLed + led , {0, 0, 0})
     endif
   endfor
@@ -35,15 +35,15 @@ func GetColor(colorNumber)
   
   if (colorNumber == 0)
     RETURN {1, 0, 0}
-  ELSEif (colorNumber == 1)
+  elseif (colorNumber == 1)
     RETURN  {1, 1, 0}
-  ELSEif (colorNumber == 2)
+  elseif (colorNumber == 2)
     RETURN  {0, 1, 0}
-  ELSEif (colorNumber == 3)
+  elseif (colorNumber == 3)
     RETURN  {0, 1, 1}
-  ELSEif (colorNumber == 4)
+  elseif (colorNumber == 4)
     RETURN  {0, 0, 1}
-  ELSEif (colorNumber == 5)
+  elseif (colorNumber == 5)
     RETURN  {1, 0, 1}
   endif
   

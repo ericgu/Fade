@@ -100,5 +100,5 @@ public:
 	}
 };
 
-const char* CommandFormatter::preStrings[] = { "endif", "endfor", "endfunc", "ELSEIF", "ELSE" };
-const char* CommandFormatter::postStrings[] = { "if", "for", "func", "ELSEIF", "ELSE" };
+const char* CommandFormatter::preStrings[] = { "endif", "endfor", "endfunc", "elseif", "else" };
+const char* CommandFormatter::postStrings[] = { "if", "for", "func", "elseif", "else" };

@@ -671,11 +671,11 @@ class RDEvaluaterTest
 
         statementTester.Add("if (V == 1)");
         statementTester.Add("J = 2");
-        statementTester.Add("ELSEif (V == 2)");
+        statementTester.Add("elseif (V == 2)");
         statementTester.Add("J = 3");
-        statementTester.Add("ELSEif (V == 3)");
+        statementTester.Add("elseif (V == 3)");
         statementTester.Add("J = 4");
-        statementTester.Add("ELSE");
+        statementTester.Add("else");
         statementTester.Add("J = 5");
         statementTester.Add("endif");
         statementTester.Add("J");
@@ -702,13 +702,13 @@ class RDEvaluaterTest
         statementTester.Add("if (V == 1)");
         statementTester.Add("if(X == 1)");
         statementTester.Add("J = 2");
-        statementTester.Add("ELSE");
+        statementTester.Add("else");
         statementTester.Add("J = 3");
         statementTester.Add("endif");
-        statementTester.Add("ELSE");
+        statementTester.Add("else");
         statementTester.Add("if(X == 1)");
         statementTester.Add("J = 4");
-        statementTester.Add("ELSE");
+        statementTester.Add("else");
         statementTester.Add("J = 5");
         statementTester.Add("endif");
         statementTester.Add("endif");
@@ -1115,10 +1115,10 @@ class RDEvaluaterTest
         statementTester.Add("if(angleInDegrees <= 120)");
         statementTester.Add("temp = angleInDegrees / 120 * brightness");
         statementTester.Add("value = { temp, 0, brightness - temp }");
-        statementTester.Add("ELSEif(angleInDegrees <= 240)");
+        statementTester.Add("elseif(angleInDegrees <= 240)");
         statementTester.Add("temp = (angleInDegrees - 120) / 120 * brightness");
         statementTester.Add("value = { brightness - temp, temp, 0 }");
-        statementTester.Add("ELSE");
+        statementTester.Add("else");
         statementTester.Add("temp = (angleInDegrees - 240) / 120 * brightness");
         statementTester.Add("value = { 0, brightness - temp, temp }");
         statementTester.Add("endif");

@@ -840,7 +840,7 @@ class RDEvaluater
             {
                 HandleIf(executing);
             }
-            else if (_pExpressionTokenSource->EqualTo("ELSEif"))
+            else if (_pExpressionTokenSource->EqualTo("elseif"))
             {
                 executing = false;
 
@@ -859,7 +859,7 @@ class RDEvaluater
 
                 _pExpressionTokenSource->AdvanceToNewLine();
             }
-            else if (_pExpressionTokenSource->EqualTo("ELSE"))
+            else if (_pExpressionTokenSource->EqualTo("else"))
             {
                 if (conditionMatched == false)
                 {
