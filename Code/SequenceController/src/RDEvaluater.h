@@ -1050,14 +1050,14 @@ class RDEvaluater
     {
         PROLOGUE;
 
-        if (_pExpressionTokenSource->EqualTo("RETURN"))
+        if (_pExpressionTokenSource->EqualTo("return"))
         {
             _pExpressionTokenSource->Advance();
             Variable returnValue = EvaluateTop()._variable;
 
             if (returnValue.GetValueCount() == 0)
             {
-                ReportError("Missing value in RETURN statement", "");
+                ReportError("Missing value in return statement", "");
                 returnValue = Variable::Empty();
             }
 
@@ -1091,11 +1091,11 @@ class RDEvaluater
         {
             HandleFunctionDefinition();
         }
-        else if (_pExpressionTokenSource->EqualTo("RETURN"))
+        else if (_pExpressionTokenSource->EqualTo("return"))
         {
             HandleReturn();
         }
-        else if (_pExpressionTokenSource->EqualTo("BREAK"))
+        else if (_pExpressionTokenSource->EqualTo("break"))
         {
             _pExecutionFlow->BreakExecution();
             _pExpressionTokenSource->AdvanceToNewLine();
