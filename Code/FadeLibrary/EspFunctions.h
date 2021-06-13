@@ -10,7 +10,7 @@ public:
 
   static void Restart()
   {
-    Serial.println("Restart called!");
+    //Serial.println("Restart called!");
     RestartCalled = 1;
   }
 

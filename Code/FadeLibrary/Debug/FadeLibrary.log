@@ -1,8 +1,3 @@
-﻿  FadeLibrary.cpp
-d:\data\electronics\sequencecontroller\code\fadelibrary\timeservices.h(17): warning C4244: 'initializing': conversion from 'LONGLONG' to 'int', possible loss of data
-d:\data\electronics\sequencecontroller\code\fadelibrary\timeservices.h(21): warning C4244: 'initializing': conversion from 'LONGLONG' to 'unsigned long', possible loss of data
-d:\data\electronics\sequencecontroller\code\sequencecontroller\src\variablecollection.h(256): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-d:\data\electronics\sequencecontroller\code\sequencecontroller\src\builtinfunctions.h(330): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  FadeLibrary.vcxproj -> D:\data\Electronics\SequenceController\Code\WinFade\Debug\FadeLibrary.dll
+﻿  FadeLibrary.vcxproj -> D:\data\Electronics\SequenceController\Code\WinFade\Debug\FadeLibrary.dll
   FadeLibrary.vcxproj -> D:\data\Electronics\SequenceController\Code\WinFade\Debug\FadeLibrary.pdb (Full PDB)
           1 file(s) copied.

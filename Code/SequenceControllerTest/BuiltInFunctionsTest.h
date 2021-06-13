@@ -124,6 +124,44 @@ class BuildInFunctionsTest
       Assert::AreEqual("RAND requires two parameters", parseErrors.GetError(0)->_errorText);
     }
 
+    static void TestPrintString()
+    {
+        ExecutionContext executionContext;
+        ParseErrors parseErrors;
+        MockExecutionFlow executionFlow;
+        ExpressionResult expressionResult;
+
+        ExpressionTokenSource expressionTokenSource("P(\"Hello\")");
+
+        executionContext.AddVariableAndSet("#A", &Variable(1));
+        executionContext.AddVariableAndSet("#A0", &Variable("Hello"));
+
+        Serial.SetOutput(false);
+        BuiltInFunctions::HandleBuiltInFunctions("P", &executionContext, &parseErrors, &expressionTokenSource, &executionFlow, &expressionResult);
+        Assert::AreEqual("Hello", Serial.GetLastString());
+        Serial.SetOutput(true);
+    }
+
+    static void TestPrintStringThreeParameters()
+    {
+        ExecutionContext executionContext;
+        ParseErrors parseErrors;
+        MockExecutionFlow executionFlow;
+        ExpressionResult expressionResult;
+
+        ExpressionTokenSource expressionTokenSource("P(\"Hello\")");
+
+        executionContext.AddVariableAndSet("#A", &Variable(3));
+        executionContext.AddVariableAndSet("#A0", &Variable("Hello"));
+        executionContext.AddVariableAndSet("#A1", &Variable("There"));
+        executionContext.AddVariableAndSet("#A2", &Variable("Everybody"));
+
+        Serial.SetOutput(false);
+        BuiltInFunctions::HandleBuiltInFunctions("P", &executionContext, &parseErrors, &expressionTokenSource, &executionFlow, &expressionResult);
+        Assert::AreEqual("HelloThereEverybody", Serial.GetLastString());
+        Serial.SetOutput(true);
+    }
+
 public:
     static void Run()
     {
@@ -133,5 +171,8 @@ public:
         TestDebugLogStatements();
         TestHSVtoRGB();
         TestRandWrongArgumentCount();
+
+        TestPrintString();
+        TestPrintStringThreeParameters();
     }
 };

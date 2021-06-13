@@ -10,12 +10,13 @@ class VariableCollection
     int _serialNumber;
 
 public:
-  void printf(char* s) {}
-  void printf(char* s, int v) {}
-  void printf(char* s, int v, const char* x) {}
-  void printf(char* s, int v, int x, int y) {}
-  void printf(char* s, int v, const char* x, int y) {}
-  void printf(char* s, int v, int x, const char* y) {}
+    void printf(char *s) {}
+    void printf(char *s, int v) {}
+    void printf(char *s, float v) {}
+    void printf(char *s, int v, const char *x) {}
+    void printf(char *s, int v, int x, int y) {}
+    void printf(char *s, int v, const char *x, int y) {}
+    void printf(char *s, int v, int x, const char *y) {}
 
     VariableCollection()
     {
@@ -32,7 +33,7 @@ public:
 
         _serialNumber = _serialNumberNext++;
         if (_debugVariables)
-            printf("Create variable collection %d\n", _serialNumber);
+            printf((char *)"Create variable collection %d\n", _serialNumber);
     }
 
     ~VariableCollection()
@@ -90,7 +91,7 @@ public:
         _pVariables[firstFree].SetVariableName(pVariableName);
         _pVariables[firstFree].SetStackLevel(stackLevel);
         if (_debugVariables)
-            printf("%d Add: %s (%d)\n", _serialNumber, pVariableName, stackLevel);
+            printf((char *)"%d Add: %s (%d)\n", _serialNumber, pVariableName, stackLevel);
 
         return _pVariables + firstFree;
     }
@@ -127,7 +128,7 @@ public:
             _pVariables[i].SetStackLevel(-1);
 
             if (_debugVariables)
-                printf("%d Delc: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
+                printf((char *)"%d Delc: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
         }
     }
 
@@ -161,7 +162,7 @@ public:
             if (Matches(_pVariables + i, pVariableName, stackLevel))
             {
                 if (_debugVariables)
-                    printf("%d DelD: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
+                    printf((char *)"%d DelD: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
 
                 _pVariables[i].Clear();
                 _pVariables[i].SetStackLevel(-1);
@@ -177,7 +178,7 @@ public:
             if (_pVariables[i].GetStackLevel() == stackLevel)
             {
                 if (_debugVariables)
-                    printf("%d DelS: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
+                    printf((char *)"%d DelS: %d %s\n", _serialNumber, i, _pVariables[i].GetVariableName());
 
                 _pVariables[i].Clear();
                 _pVariables[i].SetStackLevel(-1);
@@ -220,7 +221,7 @@ public:
             pCommand++;
         }
 
-        int length = (int) (pCommand - pStart);
+        int length = (int)(pCommand - pStart);
 
         if (length >= bufferLength)
         {
@@ -250,12 +251,12 @@ public:
     {
         if (_debugVariables)
         {
-            printf("%d AddAndSet: %s {", _serialNumber, variableName);
+            printf((char *)"%d AddAndSet: %s {", _serialNumber, variableName);
             for (int i = 0; i < pVariable->GetValueCount(); i++)
             {
-                printf("%f, ", pVariable->GetValueFloat(i));
+                printf((char *)"%f, ", pVariable->GetValueFloat(i));
             }
-            printf("} Stack = %d\n", stackLevel);
+            printf((char *)"} Stack = %d\n", stackLevel);
         }
 
         Variable *newVariable = Add(variableName, stackLevel);

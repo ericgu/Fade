@@ -31,23 +31,21 @@ public:
       _ledGroupNumber = ledGroupNumber;
   }
 
-  void UpdateLed(LedState ledState)
+  void UpdateLed(int channel, Variable* pBrightness)
   {
-    Variable* pBrightness = ledState.GetBrightness();
-
-    if (_pLedUpdatedCallback)
-    {
-      _pLedUpdatedCallback(
-        _ledGroupNumber,
-        ledState.GetChannel(),
-        ledState.GetCycleCount(),
-        pBrightness->GetValueCount(),
-        pBrightness->GetValueFloat(0),
-        pBrightness->GetValueFloat(1),
-        pBrightness->GetValueFloat(2),
-        pBrightness->GetValueFloat(3));
-    }
+      if (_pLedUpdatedCallback)
+      {
+          _pLedUpdatedCallback(
+              _ledGroupNumber,
+              channel,
+              pBrightness->GetValueCount(),
+              pBrightness->GetValueFloat(0),
+              pBrightness->GetValueFloat(1),
+              pBrightness->GetValueFloat(2),
+              pBrightness->GetValueFloat(3));
+      }
   }
+
   void Show()
   {
   }

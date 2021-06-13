@@ -137,7 +137,8 @@ public:
 			//Serial.println("A3.5");
 			//Serial.flush();
 
-			_ledGroups.UpdateLed(_pStates[i]);
+			_ledGroups.UpdateLed(_pStates[i].GetChannel(), _pStates[i].GetBrightness());
+			//_ledGroups.UpdateLed(_pStates + i);
 			//Serial.println("A4");
 			//Serial.flush();
 		}

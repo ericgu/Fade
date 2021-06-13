@@ -33,10 +33,24 @@ public:
         delete _pStrip;
     }
 
-    void UpdateLed(LedState ledState)
+    void UpdateLed(int channel, Variable *pBrightness)
     {
-        int channel = ledState.GetChannel();
-        Variable *pBrightness = ledState.GetBrightness();
+        //char temp[128];
+        //sprintf(temp, "%d %f %f %f", channel, pBrightness->GetValueFloat(0), pBrightness->GetValueFloat(1), pBrightness->GetValueFloat(2));
+
+        //Serial.println(temp);
+
+        RgbColor color(pBrightness->GetValueFloat(0) * 255,
+                       pBrightness->GetValueFloat(1) * 255,
+                       pBrightness->GetValueFloat(2) * 255);
+
+        _pStrip->SetPixelColor(channel, color);
+    }
+#if fred
+    void UpdateLed(LedState *pLedState)
+    {
+        int channel = pLedState->GetChannel();
+        Variable *pBrightness = pLedState->GetBrightness();
 
         //char temp[128];
         //sprintf(temp, "%d %f %f %f", channel, pBrightness->GetValueFloat(0), pBrightness->GetValueFloat(1), pBrightness->GetValueFloat(2));
@@ -49,7 +63,7 @@ public:
 
         _pStrip->SetPixelColor(channel, color);
     }
-
+#endif
     void Show()
     {
         //Serial.println("show");

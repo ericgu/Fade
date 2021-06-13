@@ -20,7 +20,7 @@ extern "C"
   typedef void(*CreateNewLedDeviceCallback)(int groupNumber, const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4);
   CreateNewLedDeviceCallback _pCreateNewLedDeviceCallback;
 
-  typedef void(*LedUpdatedCallback)(int ledGroup, int channel, int cycleCount, int brightnessCount, float brightness1, float brightness2, float brightness3, float brightness4);
+  typedef void(*LedUpdatedCallback)(int ledGroup, int channel, int brightnessCount, float brightness1, float brightness2, float brightness3, float brightness4);
   LedUpdatedCallback _pLedUpdatedCallback;
 
   typedef void(*LedRenderCycleDoneCallback)();

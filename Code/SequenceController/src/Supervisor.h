@@ -12,6 +12,8 @@ class Supervisor
 
 	Settings *_pSettings;
 
+    bool _logInformation = true;
+
 	volatile bool _shouldExecuteCode;
 	volatile bool _shouldExecuteCodeLoaded;
 	volatile int _executionCount;
@@ -38,6 +40,11 @@ public:
 	const static int MaxProgramSize = 16636;
 	const static int MaxNodeNameSize = 128;
 
+    void DisableLogInformation()
+    {
+        _logInformation = false;
+    }
+
 	void Init(ILedManager *pLedManager, Settings *pSettings, TimebaseCallback timebaseCallback, IButtonCreator *pButtonCreator)
 	{
 		_pCurrentCommand = new char[MaxProgramSize];
@@ -59,13 +66,15 @@ public:
 		_shouldExecuteCode = _pSettings->LoadShouldExecuteCode();
 		_shouldExecuteCodeLoaded = _shouldExecuteCode;
 
-		Serial.println("Startup state: ");
+        if (_logInformation)
+        {
+            Serial.println("Startup: ");
 
-		Serial.print("Program will execute: ");
-		Serial.println(_shouldExecuteCode);
-		Serial.println("Program:");
-		Serial.println(_pCurrentCommand);
-
+            Serial.print("Program will execute: ");
+            Serial.println(_shouldExecuteCode);
+            Serial.println("Program:");
+            Serial.println(_pCurrentCommand);
+        }
 		if (_shouldExecuteCode)
 		{
 			_commandSource.SetCommand(_pCurrentCommand);
@@ -87,8 +96,11 @@ public:
 
 		SafeString::StringCopy(_pCurrentCommand, pProgram, MaxProgramSize);
 
-		Serial.print("Program Updated: ");
-		Serial.println((int)strlen(pProgram));
+        if (_logInformation)
+        {
+            Serial.print("Program Updated: ");
+            Serial.println((int)strlen(pProgram));
+        }
 
 		//_parseErrors.Clear();
 		//_commandSource.SetCommand(_pCurrentCommand);
@@ -106,9 +118,12 @@ public:
 		_shouldExecuteCode = true;
 		_executionCount = 0;
 
-		Serial.println(_pCurrentCommand);
+        if (_logInformation)
+        {
+            Serial.println(_pCurrentCommand);
 
-		Serial.println("Starting execution");
+            Serial.println("Starting execution");
+        }
 	}
 
 	void UpdateNodeName(const char *pNodeName)
@@ -149,7 +164,7 @@ public:
 
 	void Execute()
 	{
-		// StackWatcher::Log("Supervisor::Execute");
+		StackWatcher::Log("Supervisor::Execute");
 		if (_shouldExecuteCode)
 		{
 			_executionCount++;
@@ -170,10 +185,10 @@ public:
 
 			if (_parseErrors.GetErrorCount() != 0)
 			{
-        for (int i = 0; i < _parseErrors.GetErrorCount(); i++)
-        {
-          ParseErrorFound(_parseErrors.GetError(0)->_errorText, _parseErrors.GetError(0)->_lineNumber);
-        }
+				for (int i = 0; i < _parseErrors.GetErrorCount(); i++)
+				{
+					ParseErrorFound(_parseErrors.GetError(0)->_errorText, _parseErrors.GetError(0)->_lineNumber);
+				}
 
 				_shouldExecuteCode = false;
 				Serial.println("Error detected; disabling execution...");

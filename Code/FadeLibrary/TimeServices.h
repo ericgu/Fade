@@ -14,11 +14,11 @@ public:
     QueryPerformanceFrequency(&frequency);
     QueryPerformanceCounter(&startingTime);
 
-    int countPerMicrosecond = frequency.QuadPart / 1000000;
+    int countPerMicrosecond = (int) (frequency.QuadPart / 1000000);
 
     LARGE_INTEGER bigTicks;
     bigTicks.QuadPart = startingTime.QuadPart / countPerMicrosecond;
-    unsigned long ticks = startingTime.QuadPart / countPerMicrosecond;
+    unsigned long ticks = (unsigned long) (startingTime.QuadPart / countPerMicrosecond);
 
 	  return bigTicks.LowPart;
 	}

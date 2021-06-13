@@ -33,13 +33,13 @@ namespace WinFade
         }
     }
 
-        public string ProgramText2
+    public string Esp32Address
     {
       get
       {
         if (_key != null)
         {
-          return (string) _key.GetValue("ProgramText");
+          return (string) _key.GetValue("Esp32Address");
         }
         else
         {
@@ -48,7 +48,7 @@ namespace WinFade
       }
       set
       {
-        _key.SetValue("ProgramText", value);
+        _key.SetValue("Esp32Address", value);
       }
     }
   }

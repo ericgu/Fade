@@ -85,32 +85,65 @@ public:
 
     bool UpdateLed(LedState ledState)
     {
+        return UpdateLed(ledState.GetChannel(), ledState.GetBrightness());
+    }
+
+    bool UpdateLed(int channel, Variable* pBrightness)
+    {
+        //Serial.println("LedGroups::UpdateLed");
+    //Serial.println(ledState.GetBrightness()->GetValueFloat(0));
+    //Serial.println(ledState.GetChannel());
+    //Serial.println(ledState.GetCycleCount());
+
+        // find the group that this belongs to...
+        for (int i = 0; i < _groupCount; i++)
+        {
+            if (channel < _ledGroups[i]._ledCount)
+            {
+                _ledGroups[i]._pLedDevice->UpdateLed(channel, pBrightness);
+                return true;
+            }
+            else
+            {
+                channel -= _ledGroups[i]._ledCount;
+            }
+        }
+
+        return false;
+    }
+
+#if fred
+    bool UpdateLed(LedState* pLedState)
+    {
         //Serial.println("LedGroups::UpdateLed");
         //Serial.println(ledState.GetBrightness()->GetValueFloat(0));
         //Serial.println(ledState.GetChannel());
         //Serial.println(ledState.GetCycleCount());
+
+        int channel = pLedState->GetChannel();
 
         // find the group that this belongs to...
         for (int i = 0; i < _groupCount; i++)
         {
             //Serial.println(i);
             //Serial.println(ledState.GetChannel());
-            if (ledState.GetChannel() < _ledGroups[i]._ledCount)
+            if (pLedState->GetChannel() < _ledGroups[i]._ledCount)
             {
                 //Serial.println(">Found");
                 //Serial.println((int)_ledGroups[i]._pLedDevice);
-                _ledGroups[i]._pLedDevice->UpdateLed(ledState);
+                _ledGroups[i]._pLedDevice->UpdateLed(pLedState->GetChannel(), pLedState->GetBrightness());
                 //Serial.println("<Found");
                 return true;
             }
             else
             {
-                ledState.SetChannel(ledState.GetChannel() - _ledGroups[i]._ledCount);
+                pLedState->SetChannel(pLedState->GetChannel() - _ledGroups[i]._ledCount);
             }
         }
 
         return false;
     }
+#endif
 
     void Show()
     {

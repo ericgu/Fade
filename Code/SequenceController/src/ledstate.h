@@ -42,6 +42,11 @@ public:
 		return &_brightness;
 	}
 
+    void SetBrightness(Variable brightness)
+	{
+        _brightness = brightness;
+	}
+
 	int GetCycleCount()
 	{
 		return _cycleCount;

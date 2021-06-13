@@ -49,24 +49,43 @@ public:
         Serial.println("LedPwm Free");
     }
 
-    void UpdateLed(LedState ledState)
+    void UpdateLed(int channel, Variable *pBrightness)
     {
-        int brightnessPwmValue = PwmMax * ledState.GetBrightness()->GetValueFloat(0);
+        int brightnessPwmValue = PwmMax * pBrightness->GetValueFloat(0);
 
         // Translate the global channel number to the group channel number...
 
-        ledcWrite(_channelNumbers[ledState.GetChannel()], brightnessPwmValue);
-        if (ledState.GetChannel() == 100)
+        ledcWrite(_channelNumbers[channel], brightnessPwmValue);
+        if (channel == 100)
         {
             Serial.print("PWM: ");
-            Serial.print(_channelNumbers[ledState.GetChannel()]);
+            Serial.print(_channelNumbers[channel]);
             Serial.print(" ");
-            Serial.print(ledState.GetBrightness()->GetValueFloat(0));
+            Serial.print(pBrightness->GetValueFloat(0));
             Serial.print(": ");
             Serial.println(brightnessPwmValue);
         }
     }
 
+#if fred
+    void UpdateLed(LedState *pLedState)
+    {
+        int brightnessPwmValue = PwmMax * pLedState->GetBrightness()->GetValueFloat(0);
+
+        // Translate the global channel number to the group channel number...
+
+        ledcWrite(_channelNumbers[pLedState->GetChannel()], brightnessPwmValue);
+        if (pLedState->GetChannel() == 100)
+        {
+            Serial.print("PWM: ");
+            Serial.print(_channelNumbers[pLedState->GetChannel()]);
+            Serial.print(" ");
+            Serial.print(pLedState->GetBrightness()->GetValueFloat(0));
+            Serial.print(": ");
+            Serial.println(brightnessPwmValue);
+        }
+    }
+#endif
     void Show()
     {
     }

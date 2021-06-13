@@ -67,6 +67,7 @@ FADELIBRARY_API int Run(const char* pProgram,
   ButtonCreator::ResetButtons();
 
   _pSupervisor = new Supervisor();
+  _pSupervisor->DisableLogInformation();
   _pSettings = new Settings();
 
   _pLedDeviceCreator = new LedDeviceCreator();

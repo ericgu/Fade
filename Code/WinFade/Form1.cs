@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Net;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-
+using Timer = System.Threading.Timer;
 
 
 namespace WinFade
@@ -51,10 +54,14 @@ namespace WinFade
             SetBanner();
             c_textBoxProgramText.Text = _project.ProgramText;
 
+            c_textBoxIPAddress.Text = _programSettings.Esp32Address;
+
             c_labelErrorTag.Visible = false;
             c_labelErrorText.Visible = false;
 
             _fadeThread = null;
+
+
 
             //_ledDevices = new LedDevices();
 
@@ -91,14 +98,22 @@ namespace WinFade
 
         private void NewTextAvailable(string text)
         {
-            if (c_listBoxSerialOutput.InvokeRequired)
+            var d = new CreateLedDeviceDelegate(AddOutputToListbox);
+            c_listBoxSerialOutput.Invoke(d, new object[] {text});
+        }
+
+        private void AddOutputToListbox(string text)
+        {
+            if (c_listBoxSerialOutput.Items.Count == 0)
             {
-                var d = new CreateLedDeviceDelegate(NewTextAvailable);
-                c_listBoxSerialOutput.Invoke(d, new object[] {text});
+                c_listBoxSerialOutput.Items.Add("");
             }
-            else
+
+            c_listBoxSerialOutput.Items[c_listBoxSerialOutput.Items.Count - 1] += text;
+
+            if (text.EndsWith("\n"))
             {
-                c_listBoxSerialOutput.Items.Add(text);
+                c_listBoxSerialOutput.Items.Add("");
                 _outputLineCount++;
                 c_labelOutputLineCount.Text = _outputLineCount.ToString();
             }
@@ -116,7 +131,7 @@ namespace WinFade
 
 
 
-        private void LedUpdated(int ledGroupNumber, int channel, int cycleCount, int brightnessCount, float brightness1, float brightness2,
+        private void LedUpdated(int ledGroupNumber, int channel, int brightnessCount, float brightness1, float brightness2,
             float brightness3, float brightness4)
         {
             var d = new UpdateLedDelegate(_ledForm.UpdateLedColor);
@@ -282,7 +297,7 @@ namespace WinFade
         {
             for (int channel = 0; channel < 32; channel++)
             {
-                LedUpdated(0, channel, 1, 3, brightness, brightness, 0, 0);
+                LedUpdated(0, channel, 3, brightness, brightness, 0, 0);
             }
         }
 
@@ -370,6 +385,180 @@ namespace WinFade
             _project = new Project();
             SetBanner();
             c_textBoxProgramText.Text = _project.ProgramText;
+        }
+
+        private void c_buttonUpload_Click(object sender, EventArgs e)
+        {
+            c_labelWorking.Text = "Working...";
+
+            WebRequest req = WebRequest.Create("http://" + c_textBoxIPAddress.Text);
+            string postData = "Program=" + _project.ProgramText;
+
+            byte[] send = Encoding.Default.GetBytes(postData);
+            req.Method = "POST";
+            req.ContentType = "application/x-www-form-urlencoded";
+            req.ContentLength = send.Length;
+
+            try
+            {
+                Stream sout = req.GetRequestStream();
+                sout.Write(send, 0, send.Length);
+                sout.Flush();
+                sout.Close();
+
+                WebResponse res = req.GetResponse();
+                StreamReader sr = new StreamReader(res.GetResponseStream());
+                string returnvalue = sr.ReadToEnd();
+                c_labelWorking.Text = "Done";
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message);
+                c_labelWorking.Text = "Error";
+            }
+
+        }
+
+        private void c_textBoxIPAddress_TextChanged(object sender, EventArgs e)
+        {
+            _programSettings.Esp32Address = c_textBoxIPAddress.Text;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private Point _textBoxMouseLocation;
+
+        private void c_textBoxProgramText_MouseMove(object sender, MouseEventArgs e)
+        {
+            _textBoxMouseLocation = e.Location;
+
+            c_timerProgramTextHover.Stop();
+            c_timerProgramTextHover.Enabled = true;
+            c_timerProgramTextHover.Interval = 500;
+            c_timerProgramTextHover.Start();
+        }
+
+        private void c_timerProgramTextHover_Tick(object sender, EventArgs e)
+        {
+            DisableMouseHoverTimer();
+            int index = c_textBoxProgramText.GetCharIndexFromPosition(_textBoxMouseLocation);
+
+            int start = index;
+            char current = _project.ProgramText[start];
+            while (IsIdentifier(current))
+            {
+                start--;
+                if (start == -1)
+                {
+                    break;
+                }
+                current = _project.ProgramText[start];
+            }
+
+            int end = index;
+            current = _project.ProgramText[end];
+            while (IsIdentifier(current))
+            {
+                end++;
+                current = _project.ProgramText[end];
+            }
+
+            try
+            {
+                string identifier = _project.ProgramText.Substring(start + 1, end - start - 1);
+
+                string helpText = GetHelpText(identifier);
+
+                if (helpText != null)
+                {
+                    c_labelErrorText.Text = helpText;
+                    c_labelErrorText.Visible = true;
+                }
+                else
+                {
+                    c_labelErrorText.Text = String.Empty;
+                }
+
+                Debug.WriteLine(index.ToString() + " " + identifier);
+            }
+            catch (Exception)
+            {
+                c_labelErrorText.Text = String.Empty;
+            }
+        }
+
+        private static bool IsIdentifier(char current)
+        {
+            return (current >= 'A' && current <= 'Z') ||
+                   (current >= 'a' && current <= 'z') ||
+                   (current >= '0' && current <= '9') ||
+                   (current == '_');
+        }
+
+        private string GetHelpText(string word)
+        {
+            switch (word)
+            {
+                case "A":
+                    return "A(cycles) - animate the currently-defined fades for a given number of cycles";
+
+                case "CONFIGBUTTON":
+                    return "CONFIGBUTTON(<buttonNumber>, <buttonType>, <buttonPin>, <params>) - configure a button";
+
+                case "CONFIGLED":
+                    return "CONFIGLED(<ledStringNumber>, <ledStringType>, <ledCount>, <params>) - configure an LED string";
+
+                case "D":
+                    return "D(<cycleCount>, <ledIndex>, <targetBrightness>) - define a fade for a specific LED to a specific color over a number of cycles";
+
+                case "DI":
+                    return "DI(<cycleCount>, <ledIndex>, <targetBrightness>) - define and execute a fade for a specific LED to a specific color over a number of cycles";
+
+                case "DEBUG":
+                    return "DEBUG (<debugFlag>, <value>) - sets a debug flag to a specific value";
+
+                case "P":
+                    return "P(<value>,...) - print one or more values to the serial system.";
+
+                case "PL":
+                    return "PL(<value>,...) - print one or more values followed by a newline to the serial system.";
+
+                case "RAND":
+                    return "float RAND(minimum, maximum) - return a random number between minimum and maximum";
+
+                case "READBUTTON":
+                    return "int READBUTTON(<buttonNumber>) - returns the current value of a button";
+
+                case "S":
+                    return "S(<cycleCount>, <firstLedTargetBrightness>, ..., <lastLedTargetBrightness>) - define a fade on multiple LEDs";
+
+                case "SI":
+                    return "SI(<cycleCount>, <firstLedTargetBrightness>, ..., <lastLedTargetBrightness>) - define and execute a fade on multiple LEDs";
+            }
+
+            return null;
+        }
+
+
+        private void c_textBoxProgramText_MouseLeave(object sender, EventArgs e)
+        {
+            DisableMouseHoverTimer();
+        }
+
+        private void DisableMouseHoverTimer()
+        {
+            c_timerProgramTextHover.Stop();
+            c_timerProgramTextHover.Enabled = false;
+        }
+
+        private void c_buttonReformat_Click(object sender, EventArgs e)
+        {
+            // call reformat function, change reformat function to modify uppercase keywords and function to lower/pascal cased ones. 
+
+            // Make language changes one keyword at a time first. 
         }
     }
 }

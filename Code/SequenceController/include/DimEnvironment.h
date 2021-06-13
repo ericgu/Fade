@@ -4,6 +4,11 @@
 #include "SafeString.h"
 #include "EspFunctions.h"
 
+// functions used by WinFade
+
+void LedRenderCycleDone() {}
+void ParseErrorFound(const char *pMessage, int lineNumber) {}
+
 #include "Environment.h"
 #include "Profiler.h"
 #include "StackWatcher.h"

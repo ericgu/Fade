@@ -103,8 +103,6 @@ namespace WinFade
 
         private void LedForm_KeyPress(object sender, KeyPressEventArgs e)
         {
-            int k = 12;
-
             if (ButtonPressed != null && e.KeyChar >= '0' && e.KeyChar <= '9')
             {
                 ButtonPressed(e.KeyChar - '0' - 1);

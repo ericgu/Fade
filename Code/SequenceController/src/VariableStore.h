@@ -64,7 +64,7 @@ public:
 
         VariableData *pVariableData;
 
-        int lastSize;
+        //int lastSize;
         for (int chunk = 0; chunk < _chunkCount; chunk++)
         {
             pVariableData = _pChunks[chunk]->GetFreePoolEntry();
@@ -73,7 +73,7 @@ public:
                 return pVariableData;
             }
 
-            lastSize = _pChunks[chunk]->GetSize();
+            //lastSize = _pChunks[chunk]->GetSize();
         }
 
         if (_chunkCount == MaxChunks)

@@ -68,6 +68,9 @@ public:
 
       Serial.println("Updating");
       _pWebServer->send(200, "text/html", _pPageBuffer);
+      delay(1000); // wait for the response to be sent...
+
+      Serial.println("Response sent");
 
       _pSupervisor->UpdateProgram(Program.c_str()); // this resets the ESP...
     }

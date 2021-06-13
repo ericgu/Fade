@@ -7,12 +7,20 @@ class LedDeviceSimulator : public ILedDevice
     LedState* _pUpdatedStates;
     bool _showCalled = false;
 
+    int* _pChannels;
+    Variable* _pBrightnesses;
+
+
+
 public:
     LedDeviceSimulator(int maxUpdates)
     {
         _updateCount = 0;
         _maxUpdates = maxUpdates;
         _pUpdatedStates = new LedState[_maxUpdates];
+//        _pChannels = new int[_maxUpdates];
+//        _pBrightnesses = new Variable[_maxUpdates];
+
     }
 
     ~LedDeviceSimulator()
@@ -20,6 +28,16 @@ public:
         delete[] _pUpdatedStates;
         _pUpdatedStates = 0;
     }
+
+    virtual void UpdateLed(int channel, Variable *pBrightness)
+    {
+        LedState ledState;
+        ledState.SetChannel(channel);
+        ledState.SetBrightness(*pBrightness);
+
+        UpdateLed(ledState);
+    }
+
 
     void UpdateLed(LedState ledState)
     {
@@ -90,41 +108,30 @@ class LedGroupsTest
         LedState ledState(0, 1.0, 15);
         ledGroups.UpdateLed(ledState);
 
-        Assert::AreEqual(1, led1.GetUpdateCount());
-        Assert::AreEqual(15, led1.GetUpdatedState(0).GetCycleCount());
         Assert::AreEqual(0, led1.GetUpdatedState(0).GetChannel());
 
         LedState ledState2(3, 0.8F, 11);
         ledGroups.UpdateLed(ledState2);
 
-        Assert::AreEqual(2, led1.GetUpdateCount());
-        Assert::AreEqual(11, led1.GetUpdatedState(1).GetCycleCount());
         Assert::AreEqual(3, led1.GetUpdatedState(1).GetChannel());
 
         // second group...
 
         LedState ledState3(7, 0.8F, 22);
         ledGroups.UpdateLed(ledState3);
-        Assert::AreEqual(1, led2.GetUpdateCount());
-        Assert::AreEqual(22, led2.GetUpdatedState(0).GetCycleCount());
         Assert::AreEqual(2, led2.GetUpdatedState(0).GetChannel());
 
         LedState ledState4(12, 0.8F, 23);
         ledGroups.UpdateLed(ledState4);
-        Assert::AreEqual(2, led2.GetUpdateCount());
-        Assert::AreEqual(23, led2.GetUpdatedState(1).GetCycleCount());
         Assert::AreEqual(7, led2.GetUpdatedState(1).GetChannel());
 
         LedState ledState5(14, 0.8F, 28);
         ledGroups.UpdateLed(ledState5);
-        Assert::AreEqual(3, led2.GetUpdateCount());
-        Assert::AreEqual(28, led2.GetUpdatedState(2).GetCycleCount());
         Assert::AreEqual(9, led2.GetUpdatedState(2).GetChannel());
 
             // out of range...
         LedState ledState6(15, 0.8F, 22);
         Assert::AreEqual(0, ledGroups.UpdateLed(ledState6));
-        Assert::AreEqual(3, led2.GetUpdateCount());
 
     }
 
