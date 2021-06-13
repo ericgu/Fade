@@ -1,7 +1,7 @@
-CONFIGLED(0, "RGB", 33, 13)
+ConfigLed(0, "RGB", 33, 13)
 
 FUNC AngleToRGB(angleInDegrees)
-  //PL(angleInDegrees)  
+  //Pl(angleInDegrees)  
   
   brightness = 1.0
   IF (angleInDegrees <= 120)    
@@ -18,11 +18,11 @@ FUNC AngleToRGB(angleInDegrees)
 ENDFUNC
 
 FUNC DoChunk(chunk, offset, angle)
-  //PL("DoChunk")
+  //Pl("DoChunk")
   angle = angle + offset
   rgb = AngleToRGB(angle % 360)
   //rgb = {1, 2, 3}
-  //PL(rgb)
+  //Pl(rgb)
   start = chunk * 3
   D(5, start, rgb)
   D(5, start + 1, rgb)
@@ -32,9 +32,9 @@ ENDFUNC
 
 FUNC Main()
   
-  //PL("hello")
+  //Pl("hello")
   FOR angle 0:359:5
-    PL(angle)
+    Pl(angle)
     DoChunk(0, 0, angle)
     DoChunk(1, 72, angle)
     DoChunk(2, 144, angle)

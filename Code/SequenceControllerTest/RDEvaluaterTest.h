@@ -1059,7 +1059,7 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("FUNC Function(X)");
-        statementTester.Add("PL(X)");
+        statementTester.Add("Pl(X)");
         statementTester.Add("ENDFUNC");
         statementTester.Add("Function()");
 
@@ -1077,7 +1077,7 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("FUNC Function(X)");
-        statementTester.Add("PL(X)");
+        statementTester.Add("Pl(X)");
         statementTester.Add("ENDFUNC");
         statementTester.Add("Function(15.0, 35.0)");
 
@@ -1107,9 +1107,9 @@ class RDEvaluaterTest
 
         StatementTester statementTester;
 
-        statementTester.Add("CONFIGLED(\"RGB\", 33, 13)");
+        statementTester.Add("ConfigLed(\"RGB\", 33, 13)");
         statementTester.Add("FUNC AngleToRGB(angleInDegrees)");
-        statementTester.Add("//PL(angleInDegrees)  ");
+        statementTester.Add("//Pl(angleInDegrees)  ");
         statementTester.Add("");
         statementTester.Add("brightness = 0.2");
         statementTester.Add("IF(angleInDegrees <= 120)");
@@ -1129,9 +1129,9 @@ class RDEvaluaterTest
         statementTester.Add("ENDFUNC");
 
         statementTester.Add("FUNC DoChunk(chunk, offset, angle)");
-        statementTester.Add("//PL(\"DoChunk\")");
+        statementTester.Add("//Pl(\"DoChunk\")");
         statementTester.Add("rgb = AngleToRGB((angle + offset) % 360)");
-        statementTester.Add("//PL(rgb)");
+        statementTester.Add("//Pl(rgb)");
         statementTester.Add("start = chunk * 3");
         statementTester.Add("D(5, start, rgb)");
         statementTester.Add("D(5, start + 1, rgb)");
@@ -1141,9 +1141,9 @@ class RDEvaluaterTest
         statementTester.Add("");
         statementTester.Add("FUNC Main()");
         statementTester.Add("");
-        statementTester.Add("//PL(\"hello\")");
+        statementTester.Add("//Pl(\"hello\")");
         statementTester.Add("FOR angle 0:359 : 5");
-        statementTester.Add("//PL(angle)");
+        statementTester.Add("//Pl(angle)");
         statementTester.Add("DoChunk(0, 0, angle)");
         statementTester.Add("DoChunk(1, 72, angle)");
         statementTester.Add("DoChunk(2, 144, angle)");
@@ -1175,13 +1175,13 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("ABORT()");
+        statementTester.Add("Abort()");
 
         Variable result = statementTester.Execute();
 
         Assert::AreEqual(true, statementTester._executionFlow.IsAborting());
         Assert::AreEqual(2, statementTester._parseErrors.GetErrorCount());
-        Assert::AreEqual("Aborting: ABORT", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual("Aborting: Abort", statementTester._parseErrors.GetError(0)->_errorText);
         Assert::AreEqual("Aborting: STATEMENT", statementTester._parseErrors.GetError(1)->_errorText);
     }
 
@@ -1191,7 +1191,7 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("FOR Test 0:2");
-        statementTester.Add("ABORT()");
+        statementTester.Add("Abort()");
         statementTester.Add("x = 5");
         statementTester.Add("ENDFOR");
 
@@ -1199,7 +1199,7 @@ class RDEvaluaterTest
 
         Assert::AreEqual(true, statementTester._executionFlow.IsAborting());
         Assert::AreEqual(3, statementTester._parseErrors.GetErrorCount());
-        Assert::AreEqual("Aborting: ABORT", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual("Aborting: Abort", statementTester._parseErrors.GetError(0)->_errorText);
         Assert::AreEqual("Aborting: FOR", statementTester._parseErrors.GetError(1)->_errorText);
         Assert::AreEqual("Aborting: STATEMENT", statementTester._parseErrors.GetError(2)->_errorText);
     }
@@ -1208,7 +1208,7 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("ABORT()");
+        statementTester.Add("Abort()");
         statementTester.Add("junk1");
         statementTester.Add("junk2");
         statementTester.Add("junk3");
@@ -1218,7 +1218,7 @@ class RDEvaluaterTest
 
         Assert::AreEqual(true, statementTester._executionFlow.IsAborting());
         Assert::AreEqual(2, statementTester._parseErrors.GetErrorCount());
-        Assert::AreEqual("Aborting: ABORT", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual("Aborting: Abort", statementTester._parseErrors.GetError(0)->_errorText);
         Assert::AreEqual("Aborting: STATEMENT", statementTester._parseErrors.GetError(1)->_errorText);
     }
 
@@ -1476,7 +1476,7 @@ class RDEvaluaterTest
     {
       StatementTester statementTester;
 
-      //statementTester.Add("DEBUG(\"LogStatements\", 1)");
+      //statementTester.Add("Debug(\"LogStatements\", 1)");
       statementTester.Add("FUNC Create()");
       statementTester.Add("FOR x 0:10");
       statementTester.Add("  value[x] = x * x");
@@ -1486,7 +1486,7 @@ class RDEvaluaterTest
 
 	    statementTester.Add("FUNC Test(values, item)");
       //statementTester.Add("  P(\"Item\")");
-      //statementTester.Add("  PL(item)");
+      //statementTester.Add("  Pl(item)");
       statementTester.Add("  IF (values[item] == item * item)");
       statementTester.Add("    RETURN 1");
       statementTester.Add("  ENDIF");

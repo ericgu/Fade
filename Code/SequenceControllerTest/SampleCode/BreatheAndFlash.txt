@@ -1,11 +1,11 @@
-//DEBUG("LogStatements", 1)
-//DEBUG("LogHeapFreeOnAllocation", 1)
-CONFIGLED(0, "RGB", 33, 13)
+//Debug("LogStatements", 1)
+//Debug("LogHeapFreeOnAllocation", 1)
+ConfigLed(0, "RGB", 33, 13)
 
-FUNC DISpot(count, spot, color)
+FUNC DiSpot(count, spot, color)
   index = spot * 3
   FOR i 0:2
-    DI(count, index + i, color)
+    Di(count, index + i, color)
   ENDFOR
 ENDFUNC  
 
@@ -83,7 +83,7 @@ FUNC BreatheAndEyeSpin(count, mainColorNumber)
   
   oldEyeColor = -1
   FOR rotate 0:5
-    eyeColorNumber = RAND(0, 5)
+    eyeColorNumber = Rand(0, 5)
     IF (eyeColorNumber != mainColorNumber)
       EyeRotate(GetColor(eyeColorNumber))
     ENDIF
@@ -93,7 +93,7 @@ ENDFUNC
 
 oldMainColorNumber = -1
 FOR a 0:25
-  mainColorNumber = RAND(0,5)
+  mainColorNumber = Rand(0,5)
   IF (oldMainColorNumber != mainColorNumber )
     oldMainColorNumber = mainColorNumber 
     

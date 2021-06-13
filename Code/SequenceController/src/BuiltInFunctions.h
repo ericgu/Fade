@@ -2,12 +2,12 @@ class BuiltInFunctions
 {
 	static bool HandleBuiltInRand(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if (strcmp(pFunctionName, "RAND") == 0)
+		if (strcmp(pFunctionName, "Rand") == 0)
 		{
 			Variable *pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 			if (pArgumentCount->GetValueInt() != 2)
 			{
-				pParseErrors->AddError("RAND requires two parameters", "", pExpressionTokenSource->GetLineNumber());
+				pParseErrors->AddError("Rand requires two parameters", "", pExpressionTokenSource->GetLineNumber());
 				return true;
 			}
 
@@ -24,10 +24,10 @@ class BuiltInFunctions
 
 	static bool HandleBuiltInDirect(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if ((strcmp(pFunctionName, "D") == 0 || strcmp(pFunctionName, "DI") == 0))
+		if ((strcmp(pFunctionName, "D") == 0 || strcmp(pFunctionName, "Di") == 0))
 		{
 			bool immediateMode;
-			if (*(pFunctionName + 1) == 'I')
+			if (*(pFunctionName + 1) == 'i')
 			{
 				pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandExecute);
 				immediateMode = true;
@@ -80,10 +80,10 @@ class BuiltInFunctions
 
 	static bool HandleBuiltInSequential(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if ((strcmp(pFunctionName, "S") == 0 || strcmp(pFunctionName, "SI") == 0))
+		if ((strcmp(pFunctionName, "S") == 0 || strcmp(pFunctionName, "Si") == 0))
 		{
 			bool immediateMode;
-			if (*(pFunctionName + 1) == 'I')
+			if (*(pFunctionName + 1) == 'i')
 			{
 				pExecutionFlow->GetCommandResult()->SetStatus(CommandResultStatus::CommandExecute);
 				immediateMode = true;
@@ -155,12 +155,12 @@ class BuiltInFunctions
 
 	static bool HandleBuiltInPrint(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if ((strcmp(pFunctionName, "P") == 0 || strcmp(pFunctionName, "PL") == 0))
+		if ((strcmp(pFunctionName, "P") == 0 || strcmp(pFunctionName, "Pl") == 0))
 		{
 			char outputString[64];
 			outputString[0] = '\0';
 
-			bool newLine = strcmp(pFunctionName, "PL") == 0;
+			bool newLine = strcmp(pFunctionName, "Pl") == 0;
 
             Variable *pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 
@@ -210,10 +210,10 @@ class BuiltInFunctions
 
 	static bool HandleBuiltInAbort(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if (strcmp(pFunctionName, "ABORT") == 0)
+		if (strcmp(pFunctionName, "Abort") == 0)
 		{
 			pExecutionFlow->AbortExecution();
-			pParseErrors->AddError("Aborting: ", "ABORT", pExpressionTokenSource->GetLineNumber());
+			pParseErrors->AddError("Aborting: ", "Abort", pExpressionTokenSource->GetLineNumber());
 
 			return true;
 		}
@@ -237,7 +237,7 @@ class BuiltInFunctions
 
 	static bool HandleBuiltInConfigLed(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if (strcmp(pFunctionName, "CONFIGLED") == 0)
+		if (strcmp(pFunctionName, "ConfigLed") == 0)
 		{
 			Variable *pLedGroupNumber = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 			Variable *pLedType = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
@@ -257,7 +257,7 @@ class BuiltInFunctions
 
 	static bool HandleBuiltInConfigButton(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if (strcmp(pFunctionName, "CONFIGBUTTON") == 0)
+		if (strcmp(pFunctionName, "ConfigButton") == 0)
 		{
 			Variable *pButtonNumber = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 			Variable *pButtonType = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
@@ -304,7 +304,7 @@ class BuiltInFunctions
 
 	static bool HandleBuiltInDebug(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if (strcmp(pFunctionName, "DEBUG") == 0)
+		if (strcmp(pFunctionName, "Debug") == 0)
 		{
 			Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 
@@ -374,7 +374,7 @@ class BuiltInFunctions
 
 	static bool HandleBuiltInHsvToRGB(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if (strcmp(pFunctionName, "HSVTORGB") == 0)
+		if (strcmp(pFunctionName, "HsvToRgb") == 0)
 		{
 			//Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 
