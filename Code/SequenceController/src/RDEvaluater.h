@@ -908,7 +908,7 @@ class RDEvaluater
     {
         PROLOGUE;
 
-        if (_pExpressionTokenSource->EqualTo("FOR"))
+        if (_pExpressionTokenSource->EqualTo("for"))
         {
             _pExpressionTokenSource->Advance();
 
@@ -934,7 +934,7 @@ class RDEvaluater
 
             if (!_pExpressionTokenSource->AtEnd() && _pExpressionTokenSource->FirstChar() != '\n')
             {
-                // error - unexpected token at the end of FOR statement
+                // error - unexpected token at the end of for statement
             }
 
             _pExecutionContext->AddVariableAndSet(identifier.GetVariableName(), &startValue);
@@ -949,9 +949,9 @@ class RDEvaluater
             bool breaking = false; 
             while (!_pExpressionTokenSource->AtEnd())
             {
-                if (_pExpressionTokenSource->EqualTo("ENDFOR"))
+                if (_pExpressionTokenSource->EqualTo("endfor"))
                 {
-                    if (IsAborting("FOR", -2) && !breaking)
+                    if (IsAborting("for", -2) && !breaking)
                     {
                         return false;
                     }
@@ -978,7 +978,7 @@ class RDEvaluater
                         {
                             breaking = true;
                         }
-                        else if (IsAborting("FOR", -2))
+                        else if (IsAborting("for", -2))
                         {
                             return false;
                         }
@@ -990,7 +990,7 @@ class RDEvaluater
                 }
             }
 
-            ReportError("Missing ENDFOR", "");
+            ReportError("Missing endfor", "");
 
             return true;
 
@@ -1083,7 +1083,7 @@ class RDEvaluater
         {
             HandleIf(true);
         }
-        else if (_pExpressionTokenSource->EqualTo("FOR"))
+        else if (_pExpressionTokenSource->EqualTo("for"))
         {
             HandleFor();
         }

@@ -20,9 +20,9 @@ class CommandTest
 
 	static void TestStartsWithMatch2()
 	{
-		Command command("FOR %D", 0);
+		Command command("for %D", 0);
 
-		Assert::AreEqual(1, command.StartsWith("FOR"));
+		Assert::AreEqual(1, command.StartsWith("for"));
 	}
 
 	static void TestTooBig()

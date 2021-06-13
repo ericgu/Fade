@@ -274,7 +274,7 @@ class BuiltInFunctions
 
 	static bool HandleBuiltInReadButton(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if (strcmp(pFunctionName, "READBUTTON") == 0)
+		if (strcmp(pFunctionName, "ReadButton") == 0)
 		{
 			Variable *pButtonNumber = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 

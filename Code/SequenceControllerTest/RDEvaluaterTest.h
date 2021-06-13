@@ -750,9 +750,9 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("FOR loop 0:3");
+        statementTester.Add("for loop 0:3");
         statementTester.Add("Q = loop");
-        statementTester.Add("ENDFOR");
+        statementTester.Add("endfor");
         statementTester.Add("Q");
 
         Variable result = statementTester.Execute();
@@ -765,9 +765,9 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("FOR loop 0:4:-1");
+        statementTester.Add("for loop 0:4:-1");
         statementTester.Add("Q = loop");
-        statementTester.Add("ENDFOR");
+        statementTester.Add("endfor");
         statementTester.Add("Q");
 
         Variable result = statementTester.Execute();
@@ -781,13 +781,13 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("FOR loop 0:3");
+        statementTester.Add("for loop 0:3");
         statementTester.Add("Q = loop");
 
         Variable result = statementTester.Execute();
 
         Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
-        Assert::AreEqual("Missing ENDFOR", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual("Missing endfor", statementTester._parseErrors.GetError(0)->_errorText);
         Assert::AreEqual(1, statementTester._parseErrors.GetError(0)->_lineNumber);
     }
 
@@ -895,11 +895,11 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("");
-        statementTester.Add("FOR loop 0:3");
+        statementTester.Add("for loop 0:3");
         statementTester.Add("");
         statementTester.Add("Q = loop");
         statementTester.Add("");
-        statementTester.Add("ENDFOR");
+        statementTester.Add("endfor");
         statementTester.Add("");
         statementTester.Add("Q");
         statementTester.Add("");
@@ -1142,7 +1142,7 @@ class RDEvaluaterTest
         statementTester.Add("FUNC Main()");
         statementTester.Add("");
         statementTester.Add("//Pl(\"hello\")");
-        statementTester.Add("FOR angle 0:359 : 5");
+        statementTester.Add("for angle 0:359 : 5");
         statementTester.Add("//Pl(angle)");
         statementTester.Add("DoChunk(0, 0, angle)");
         statementTester.Add("DoChunk(1, 72, angle)");
@@ -1155,13 +1155,13 @@ class RDEvaluaterTest
         statementTester.Add("DoChunk(8, 36, angle) ");
         statementTester.Add("DoChunk(9, 324, angle)");
         statementTester.Add("A(5)");
-        statementTester.Add("ENDFOR");
+        statementTester.Add("endfor");
         statementTester.Add("ENDFUNC");
         statementTester.Add("");
-        statementTester.Add("FOR count 0:1");
+        statementTester.Add("for count 0:1");
         statementTester.Add("P(\".\")");
         statementTester.Add("Main()");
-        statementTester.Add("ENDFOR");
+        statementTester.Add("endfor");
 
         for (int i = 0; i < 20; i++)
         {
@@ -1190,17 +1190,17 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("FOR Test 0:2");
+        statementTester.Add("for Test 0:2");
         statementTester.Add("Abort()");
         statementTester.Add("x = 5");
-        statementTester.Add("ENDFOR");
+        statementTester.Add("endfor");
 
         Variable result = statementTester.Execute();
 
         Assert::AreEqual(true, statementTester._executionFlow.IsAborting());
         Assert::AreEqual(3, statementTester._parseErrors.GetErrorCount());
         Assert::AreEqual("Aborting: Abort", statementTester._parseErrors.GetError(0)->_errorText);
-        Assert::AreEqual("Aborting: FOR", statementTester._parseErrors.GetError(1)->_errorText);
+        Assert::AreEqual("Aborting: for", statementTester._parseErrors.GetError(1)->_errorText);
         Assert::AreEqual("Aborting: STATEMENT", statementTester._parseErrors.GetError(2)->_errorText);
     }
 
@@ -1230,7 +1230,7 @@ class RDEvaluaterTest
         MockExecutionFlow _executionFlow;
         _executionFlow.SetButtonState(false);
 
-        Variable result = _rdEvaluater.Evaluate("READBUTTON(0)", &_executionContext, &_parseErrors, &_executionFlow);
+        Variable result = _rdEvaluater.Evaluate("ReadButton(0)", &_executionContext, &_parseErrors, &_executionFlow);
 
         Assert::AreEqual(0, result.GetValueInt());
     }
@@ -1243,7 +1243,7 @@ class RDEvaluaterTest
         MockExecutionFlow _executionFlow;
         _executionFlow.SetButtonState(true);
 
-        Variable result = _rdEvaluater.Evaluate("READBUTTON(0)", &_executionContext, &_parseErrors, &_executionFlow);
+        Variable result = _rdEvaluater.Evaluate("ReadButton(0)", &_executionContext, &_parseErrors, &_executionFlow);
 
         Assert::AreEqual(1, result.GetValueInt());
     }
@@ -1256,7 +1256,7 @@ class RDEvaluaterTest
         MockExecutionFlow _executionFlow;
         _executionFlow.SetButtonState(true);
 
-        Variable result = _rdEvaluater.Evaluate("READBUTTON(-1)", &_executionContext, &_parseErrors, &_executionFlow);
+        Variable result = _rdEvaluater.Evaluate("ReadButton(-1)", &_executionContext, &_parseErrors, &_executionFlow);
 
         Assert::AreEqual(1, _parseErrors.GetErrorCount());
         Assert::AreEqual("Invalid Button Number: button numbers must positive", _parseErrors.GetError(0)->_errorText);
@@ -1270,7 +1270,7 @@ class RDEvaluaterTest
         MockExecutionFlow _executionFlow;
         _executionFlow.SetButtonState(true);
 
-        Variable result = _rdEvaluater.Evaluate("READBUTTON(1)", &_executionContext, &_parseErrors, &_executionFlow);
+        Variable result = _rdEvaluater.Evaluate("ReadButton(1)", &_executionContext, &_parseErrors, &_executionFlow);
 
         Assert::AreEqual(1, _parseErrors.GetErrorCount());
         Assert::AreEqual("Invalid Button Number: button number is not defined", _parseErrors.GetError(0)->_errorText);
@@ -1281,9 +1281,9 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("SavedValue = 0");
-        statementTester.Add("FOR Test 4:10");
+        statementTester.Add("for Test 4:10");
         statementTester.Add("SavedValue = Test");
-        statementTester.Add("ENDFOR");
+        statementTester.Add("endfor");
         statementTester.Add("SavedValue");
 
         Variable result = statementTester.Execute();
@@ -1296,10 +1296,10 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("SavedValue = 0");
-        statementTester.Add("FOR Test 4:10");
+        statementTester.Add("for Test 4:10");
         statementTester.Add("SavedValue = Test");
         statementTester.Add("BREAK");
-        statementTester.Add("ENDFOR");
+        statementTester.Add("endfor");
         statementTester.Add("SavedValue");
 
         Variable result = statementTester.Execute();
@@ -1312,12 +1312,12 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("SavedValue = 0");
-        statementTester.Add("FOR Test 4:10");
+        statementTester.Add("for Test 4:10");
         statementTester.Add("SavedValue = Test");
         statementTester.Add("IF Test == 6");
         statementTester.Add("BREAK");
         statementTester.Add("ENDIF");
-        statementTester.Add("ENDFOR");
+        statementTester.Add("endfor");
         statementTester.Add("SavedValue");
 
         Variable result = statementTester.Execute();
@@ -1478,9 +1478,9 @@ class RDEvaluaterTest
 
       //statementTester.Add("Debug(\"LogStatements\", 1)");
       statementTester.Add("FUNC Create()");
-      statementTester.Add("FOR x 0:10");
+      statementTester.Add("for x 0:10");
       statementTester.Add("  value[x] = x * x");
-      statementTester.Add("ENDFOR");
+      statementTester.Add("endfor");
       statementTester.Add("RETURN value");
       statementTester.Add("ENDFUNC");
 
@@ -1495,11 +1495,11 @@ class RDEvaluaterTest
 
       statementTester.Add("values = Create()");
       statementTester.Add("matched = 0");
-      statementTester.Add("FOR x 0:10");
+      statementTester.Add("for x 0:10");
       statementTester.Add("  IF (Test(values, x) == 0)");
       statementTester.Add("    matched++");
       statementTester.Add("  ENDIF");
-      statementTester.Add("ENDFOR");
+      statementTester.Add("endfor");
       statementTester.Add("matched");
 
       Variable result = statementTester.Execute();

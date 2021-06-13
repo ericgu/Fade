@@ -9,23 +9,23 @@ class CommandFormatterTest
 
 	static void TestIndent()
 	{
-		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("FOR", 0)));
+		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("for", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("FUNC", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("IF", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("D 15 1,15", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPre(&Command("S 15 1,2,3,4,5", 0)));
-		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("ENDFOR", 0)));
+		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("endfor", 0)));
 		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("ENDFUNC", 0)));
 		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("ENDIF", 0)));
 		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("ELSEIF", 0)));
 		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("ELSE", 0)));
 
-		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("FOR", 0)));
+		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("for", 0)));
 		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("FUNC", 0)));
 		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("IF", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("D 15 1,15", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("S 15 1,2,3,4,5", 0)));
-		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("ENDFOR", 0)));
+		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("endfor", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("ENDFUNC", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("ENDIF", 0)));
 		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("ELSEIF", 0)));
@@ -42,35 +42,35 @@ class CommandFormatterTest
 	static void TestFormatLoop()
 	{
 		char buffer[1024];
-		CommandFormatter::PrettyFormat("FOR %D 0:1\nD1,2,3,4,5,6,7,8\nENDFOR", buffer, 1024);
-		Assert::AreEqual("FOR %D 0:1\n  D1,2,3,4,5,6,7,8\nENDFOR", buffer);
+		CommandFormatter::PrettyFormat("for %D 0:1\nD1,2,3,4,5,6,7,8\nendfor", buffer, 1024);
+		Assert::AreEqual("for %D 0:1\n  D1,2,3,4,5,6,7,8\nendfor", buffer);
 	}
 
 	static void TestFormatLoop2()
 	{
 		char buffer[1024];
-		CommandFormatter::PrettyFormat("FOR %B 100:10 : -10\nFOR %A 0 : 7\nD %B %A, 1.0\nD %B %A, 0.0\nENDFOR\nENDFOR", buffer, 1024);
-		Assert::AreEqual("FOR %B 100:10 : -10\n  FOR %A 0 : 7\n    D %B %A, 1.0\n    D %B %A, 0.0\n  ENDFOR\nENDFOR", buffer);
+		CommandFormatter::PrettyFormat("for %B 100:10 : -10\nfor %A 0 : 7\nD %B %A, 1.0\nD %B %A, 0.0\nendfor\nendfor", buffer, 1024);
+		Assert::AreEqual("for %B 100:10 : -10\n  for %A 0 : 7\n    D %B %A, 1.0\n    D %B %A, 0.0\n  endfor\nendfor", buffer);
 	}
 
 	static void TestFormatLoopRepeat()
 	{
 		char buffer[1024];
-		CommandFormatter::PrettyFormat("FOR %B 100:10 : -10\nFOR %A 0 : 7\nD %B %A, 1.0\nD %B %A, 0.0\nENDFOR\nENDFOR", buffer, 1024);
-		Assert::AreEqual("FOR %B 100:10 : -10\n  FOR %A 0 : 7\n    D %B %A, 1.0\n    D %B %A, 0.0\n  ENDFOR\nENDFOR", buffer);
+		CommandFormatter::PrettyFormat("for %B 100:10 : -10\nfor %A 0 : 7\nD %B %A, 1.0\nD %B %A, 0.0\nendfor\nendfor", buffer, 1024);
+		Assert::AreEqual("for %B 100:10 : -10\n  for %A 0 : 7\n    D %B %A, 1.0\n    D %B %A, 0.0\n  endfor\nendfor", buffer);
 
 		char buffer2[1024];
 		CommandFormatter::PrettyFormat(buffer, buffer2, 1024);
-		Assert::AreEqual("FOR %B 100:10 : -10\n  FOR %A 0 : 7\n    D %B %A, 1.0\n    D %B %A, 0.0\n  ENDFOR\nENDFOR", buffer2);
+		Assert::AreEqual("for %B 100:10 : -10\n  for %A 0 : 7\n    D %B %A, 1.0\n    D %B %A, 0.0\n  endfor\nendfor", buffer2);
 	}
 
 	static void TestPreserveWhitespace()
 	{
-		const char* pProgram = "FOR A 1:10\n\r\n\rENDFOR";
+		const char* pProgram = "for A 1:10\n\r\n\rendfor";
 
 		char buffer[1024];
 		CommandFormatter::PrettyFormat(pProgram, buffer, 1024);
-		Assert::AreEqual("FOR A 1:10\n  \nENDFOR", buffer);
+		Assert::AreEqual("for A 1:10\n  \nendfor", buffer);
 	}
 
 public:

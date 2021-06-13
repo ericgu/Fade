@@ -33,7 +33,7 @@ ENDFUNC
 FUNC MainHorizontal()
   
   //Pl("hello")
-  FOR angle 0:359:5
+  for angle 0:359:5
     Pl(angle)
     DoChunk(0, 30, angle)
     DoChunk(1, 60, angle)
@@ -44,13 +44,13 @@ FUNC MainHorizontal()
     DoChunk(6, 45, angle)
     DoChunk(7, 135, angle)
     A(3)
-  ENDFOR     
+  endfor     
 ENDFUNC
 
 FUNC MainVertical()
   
   //Pl("hello")
-  FOR angle 0:359:5
+  for angle 0:359:5
     Pl(angle)
     DoChunk(0, 0, angle)
     DoChunk(1, 0, angle)
@@ -61,12 +61,12 @@ FUNC MainVertical()
     DoChunk(6, 45, angle)
     DoChunk(7, 45, angle)
     A(3)
-  ENDFOR     
+  endfor     
 ENDFUNC
 
 
-FOR count 0:1
+for count 0:1
   P(".")
   MainHorizontal()
   MainVertical()
-ENDFOR            
+endfor            

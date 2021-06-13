@@ -118,7 +118,7 @@ class IntegrationTest
       ParseErrors parseErrors;
       Timebase timebase(&commandSource, &ledManager, &parseErrors, 0, 0);
 
-      timebase.RunProgram("FOR A 0:7\nD(2,A,1.0)\nA(2)\nD(2,A,0.0)\nA(2)\nENDFOR");
+      timebase.RunProgram("for A 0:7\nD(2,A,1.0)\nA(2)\nD(2,A,0.0)\nA(2)\nendfor");
 
       //timebase.RunProgram(1);
 

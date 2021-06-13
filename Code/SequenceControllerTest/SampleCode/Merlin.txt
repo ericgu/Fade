@@ -29,12 +29,12 @@ IF ReadButton(0) == 1
   D(100, D_White, 0.8)
   A(100)
   
-  FOR Wait 0:LampAutoShutoffTimeInSeconds 
+  for Wait 0:LampAutoShutoffTimeInSeconds 
     IF ReadButton(0) == 1
       BREAK
     ENDIF
     A(1)
-  ENDFOR
+  endfor
   
   Pl("OFF") 
   

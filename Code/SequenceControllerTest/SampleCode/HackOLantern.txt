@@ -2,13 +2,13 @@ FUNC BreatheAndFlash(count, mainColor, eyeColor)
   Eye1 = 6
   Eye2 = 7
   
-  FOR spot 0:7
+  for spot 0:7
     DSpot(count, spot, mainColor)
-  ENDFOR
+  endfor
   A(count)
   
   FlashWait = 5
-  FOR i 0:4  
+  for i 0:4  
     DSpot(1, Eye1, eyeColor)
     DSpot(1, Eye2, eyeColor)
     A(1)
@@ -17,14 +17,14 @@ FUNC BreatheAndFlash(count, mainColor, eyeColor)
     DSpot(1, Eye2, mainColor)
     A(1)
     A(FlashWait)
-  ENDFOR
+  endfor
   DSpot(1, Eye1, eyeColor)
   DSpot(1, Eye2, eyeColor)
   A(1)
   
-  FOR spot2 0:7
+  for spot2 0:7
     DSpot(count, spot2, {0, 0, 0})
-  ENDFOR
+  endfor
   A(count)
   
 ENDFUNC

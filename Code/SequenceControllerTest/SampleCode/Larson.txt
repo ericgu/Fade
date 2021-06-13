@@ -1,15 +1,15 @@
 ConfigLed(0, "RGB", 33, 13)
 FUNC Scan(red, green, blue)
-  FOR channel 0:31
+  for channel 0:31
     Di(1,channel,{red, green, blue})
     D(10,channel,{0, 0, 0})
     A(3)
-  ENDFOR
-  FOR channel 32:1:-1
+  endfor
+  for channel 32:1:-1
     Di(1,channel,{red, green, blue})
     D(10,channel,{0, 0, 0})
     A(3)
-  ENDFOR          
+  endfor          
 ENDFUNC
 
 Scan(1, 0, 0)

@@ -33,7 +33,7 @@ ENDFUNC
 FUNC Main()
   
   //Pl("hello")
-  FOR angle 0:359:5
+  for angle 0:359:5
     Pl(angle)
     DoChunk(0, 0, angle)
     DoChunk(1, 72, angle)
@@ -46,10 +46,10 @@ FUNC Main()
     DoChunk(8, 36, angle)
     DoChunk(9, 324, angle)
     A(5)
-  ENDFOR     
+  endfor     
 ENDFUNC
 
-FOR count 0:1
+for count 0:1
   P(".")
   Main()                                             
-ENDFOR
+endfor
