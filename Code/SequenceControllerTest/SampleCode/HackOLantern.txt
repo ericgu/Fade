@@ -1,4 +1,4 @@
-FUNC BreatheAndFlash(count, mainColor, eyeColor)
+func BreatheAndFlash(count, mainColor, eyeColor)
   Eye1 = 6
   Eye2 = 7
   
@@ -27,7 +27,7 @@ FUNC BreatheAndFlash(count, mainColor, eyeColor)
   endfor
   A(count)
   
-ENDFUNC
+endfunc
 
 count = 100
 

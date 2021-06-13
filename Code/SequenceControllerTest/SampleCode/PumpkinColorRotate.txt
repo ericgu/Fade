@@ -1,6 +1,6 @@
 ConfigLed(0, "RGB", 33, 13)
 
-FUNC AngleToRGB(angleInDegrees)
+func AngleToRGB(angleInDegrees)
   //Pl(angleInDegrees)  
   
   brightness = 1.0
@@ -15,9 +15,9 @@ FUNC AngleToRGB(angleInDegrees)
     value = {0, brightness - temp, temp}    
   endif
   RETURN value
-ENDFUNC
+endfunc
 
-FUNC DoChunk(chunk, offset, angle)
+func DoChunk(chunk, offset, angle)
   //Pl("DoChunk")
   angle = angle + offset
   rgb = AngleToRGB(angle % 360)
@@ -28,9 +28,9 @@ FUNC DoChunk(chunk, offset, angle)
   D(3, start + 1, rgb)
   D(3, start + 2, rgb)
   
-ENDFUNC
+endfunc
 
-FUNC MainHorizontal()
+func MainHorizontal()
   
   //Pl("hello")
   for angle 0:359:5
@@ -45,9 +45,9 @@ FUNC MainHorizontal()
     DoChunk(7, 135, angle)
     A(3)
   endfor     
-ENDFUNC
+endfunc
 
-FUNC MainVertical()
+func MainVertical()
   
   //Pl("hello")
   for angle 0:359:5
@@ -62,7 +62,7 @@ FUNC MainVertical()
     DoChunk(7, 45, angle)
     A(3)
   endfor     
-ENDFUNC
+endfunc
 
 
 for count 0:1

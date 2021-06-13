@@ -158,7 +158,7 @@ class RDEvaluater
 
             // rename variables...
 
-            if (_pExpressionTokenSource->EqualTo("FUNC"))
+            if (_pExpressionTokenSource->EqualTo("func"))
             {
                 _pExpressionTokenSource->Advance();
             }
@@ -195,7 +195,7 @@ class RDEvaluater
 
             while (!_pExpressionTokenSource->AtEnd())
             {
-                if (_pExpressionTokenSource->EqualTo("ENDFUNC"))
+                if (_pExpressionTokenSource->EqualTo("endfunc"))
                 {
                     _pExpressionTokenSource->SetParseLocation(parseLocation);
 
@@ -218,7 +218,7 @@ class RDEvaluater
                 }
             }
 
-            // error case; missing ENDFUNC
+            // error case; missing endfunc
 
 
         }
@@ -1002,7 +1002,7 @@ class RDEvaluater
     {
         PROLOGUE;
 
-        if (_pExpressionTokenSource->EqualTo("FUNC"))
+        if (_pExpressionTokenSource->EqualTo("func"))
         {
             int startOfFunction = _pExpressionTokenSource->GetParseLocation();
 
@@ -1015,7 +1015,7 @@ class RDEvaluater
 
             while (!_pExpressionTokenSource->AtEnd())
             {
-                if (_pExpressionTokenSource->EqualTo("ENDFUNC"))
+                if (_pExpressionTokenSource->EqualTo("endfunc"))
                 {
                     FunctionDefinition* pFunctionDefinition = _pExecutionContext->Functions()->Lookup(identifier);
                     
@@ -1028,9 +1028,9 @@ class RDEvaluater
 
                     RETURN(true);
                 }
-                else if (_pExpressionTokenSource->EqualTo("FUNC"))
+                else if (_pExpressionTokenSource->EqualTo("func"))
                 {
-                    ReportError("Missing ENDFUNC for function: ", identifier);
+                    ReportError("Missing endfunc for function: ", identifier);
                     return true;
                 }
                 else
@@ -1039,7 +1039,7 @@ class RDEvaluater
                 }
             }
 
-            ReportError("Missing ENDFUNC for function: ", identifier);
+            ReportError("Missing endfunc for function: ", identifier);
             return true;
 
         }
@@ -1087,7 +1087,7 @@ class RDEvaluater
         {
             HandleFor();
         }
-        else if (_pExpressionTokenSource->EqualTo("FUNC"))
+        else if (_pExpressionTokenSource->EqualTo("func"))
         {
             HandleFunctionDefinition();
         }

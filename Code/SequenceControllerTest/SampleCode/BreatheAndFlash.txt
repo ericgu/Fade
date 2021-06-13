@@ -2,21 +2,21 @@
 //Debug("LogHeapFreeOnAllocation", 1)
 ConfigLed(0, "RGB", 33, 13)
 
-FUNC DiSpot(count, spot, color)
+func DiSpot(count, spot, color)
   index = spot * 3
   for i 0:2
     Di(count, index + i, color)
   endfor
-ENDFUNC  
+endfunc  
 
-FUNC DSpot(count, spot, color)
+func DSpot(count, spot, color)
   index = spot * 3
   for i 0:2
     D(count, index + i, color)
   endfor
-ENDFUNC    
+endfunc    
 
-FUNC SetSpecificLedToColor(count, spot, color, ledNumber)
+func SetSpecificLedToColor(count, spot, color, ledNumber)
   baseLed = spot * 3
   onLed = baseLed + ledNumber
   
@@ -29,9 +29,9 @@ FUNC SetSpecificLedToColor(count, spot, color, ledNumber)
   endfor
   
   
-ENDFUNC
+endfunc
 
-FUNC GetColor(colorNumber)
+func GetColor(colorNumber)
   
   if (colorNumber == 0)
     RETURN {1, 0, 0}
@@ -47,9 +47,9 @@ FUNC GetColor(colorNumber)
     RETURN  {1, 0, 1}
   endif
   
-ENDFUNC
+endfunc
 
-FUNC EyeRotate(color)
+func EyeRotate(color)
   
   //DSpot(1, 6, {0, 0, 0})
   //DSpot(1, 7, {0, 0, 0})
@@ -71,9 +71,9 @@ FUNC EyeRotate(color)
   endfor  
   
   
-ENDFUNC
+endfunc
 
-FUNC BreatheAndEyeSpin(count, mainColorNumber)
+func BreatheAndEyeSpin(count, mainColorNumber)
   Eye1 = 6
   Eye2 = 7
   
@@ -88,7 +88,7 @@ FUNC BreatheAndEyeSpin(count, mainColorNumber)
       EyeRotate(GetColor(eyeColorNumber))
     endif
   endfor
-ENDFUNC        
+endfunc        
 
 
 oldMainColorNumber = -1

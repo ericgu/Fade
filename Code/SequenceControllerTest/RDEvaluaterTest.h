@@ -796,12 +796,12 @@ class RDEvaluaterTest
       StatementTester statementTester;
 
       statementTester.Add("Q = 12");
-      statementTester.Add("FUNC MyFunc");
+      statementTester.Add("func MyFunc");
       statementTester.Add("Q = loop");
-      statementTester.Add("ENDFUNC");
-      statementTester.Add("FUNC MyFunc2");
+      statementTester.Add("endfunc");
+      statementTester.Add("func MyFunc2");
       statementTester.Add("Q = loop");
-      statementTester.Add("ENDFUNC");
+      statementTester.Add("endfunc");
       statementTester.Add("Q");
 
       Variable result = statementTester.Execute();
@@ -816,8 +816,8 @@ class RDEvaluaterTest
       StatementTester statementTester;
 
       statementTester.Add("q = 12");
-      statementTester.Add("FUNC MyFunc(param");
-      statementTester.Add("ENDFUNC");
+      statementTester.Add("func MyFunc(param");
+      statementTester.Add("endfunc");
       statementTester.Add("MyFunc(q)");
 
       Variable result = statementTester.Execute();
@@ -831,8 +831,8 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("Q = 12");
-        statementTester.Add("FUNC MyFunc(X)");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("func MyFunc(X)");
+        statementTester.Add("endfunc");
         statementTester.Add("MyFunc(z)");
 
         Variable result = statementTester.Execute();
@@ -849,13 +849,13 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("Q = 12");
-        statementTester.Add("FUNC MyFunc");
+        statementTester.Add("func MyFunc");
         statementTester.Add("Q = loop");
 
         Variable result = statementTester.Execute();
 
         Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
-        Assert::AreEqual("Missing ENDFUNC for function: MyFunc", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual("Missing endfunc for function: MyFunc", statementTester._parseErrors.GetError(0)->_errorText);
         Assert::AreEqual(2, statementTester._parseErrors.GetError(0)->_lineNumber);
     }
 
@@ -864,15 +864,15 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("Q = 12");
-        statementTester.Add("FUNC MyFunc");
+        statementTester.Add("func MyFunc");
         statementTester.Add("Q = loop");
-        statementTester.Add("FUNC M2");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("func M2");
+        statementTester.Add("endfunc");
 
         Variable result = statementTester.Execute();
 
         Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
-        Assert::AreEqual("Missing ENDFUNC for function: MyFunc", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual("Missing endfunc for function: MyFunc", statementTester._parseErrors.GetError(0)->_errorText);
         Assert::AreEqual(3, statementTester._parseErrors.GetError(0)->_lineNumber);
     }
 
@@ -916,9 +916,9 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("FUNC Test()");
+        statementTester.Add("func Test()");
         statementTester.Add("RETURN 55");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("Test()");
 
         Variable result = statementTester.Execute();
@@ -932,9 +932,9 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("FUNC Test(q)");
+        statementTester.Add("func Test(q)");
         statementTester.Add("RETURN 5 * q");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("Test(3)");
 
         Variable result = statementTester.Execute();
@@ -948,12 +948,12 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("FUNC Test(q)");
+        statementTester.Add("func Test(q)");
         statementTester.Add("RETURN 5 * q");
-        statementTester.Add("ENDFUNC");
-        statementTester.Add("FUNC Param()");
+        statementTester.Add("endfunc");
+        statementTester.Add("func Param()");
         statementTester.Add("RETURN 3");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("Test(Param())");
 
         Variable result = statementTester.Execute();
@@ -968,9 +968,9 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("RETURN {1, 2, 3}");
-        statementTester.Add("FUNC Function()");
+        statementTester.Add("func Function()");
         statementTester.Add("RETURN {1, 2, 3}");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("A=Function()");
         statementTester.Add("A");
 
@@ -987,13 +987,13 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("FUNC Function()");
+        statementTester.Add("func Function()");
         statementTester.Add("RETURN 11.0");
-        statementTester.Add("ENDFUNC");
-        statementTester.Add("FUNC FunctionOuter()");
+        statementTester.Add("endfunc");
+        statementTester.Add("func FunctionOuter()");
         statementTester.Add("A=Function()");
         statementTester.Add("RETURN A");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("B=FunctionOuter()");
         statementTester.Add("B");
 
@@ -1007,12 +1007,12 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("FUNC Function(A, B)");
+        statementTester.Add("func Function(A, B)");
         statementTester.Add("RETURN A");
-        statementTester.Add("ENDFUNC");
-        statementTester.Add("FUNC Function2(X, Y, Z)");
+        statementTester.Add("endfunc");
+        statementTester.Add("func Function2(X, Y, Z)");
         statementTester.Add("RETURN X + Y + Z");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("B=Function2(3, Function(1, 3), 6)");
         statementTester.Add("B");
 
@@ -1026,9 +1026,9 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("V=15.0");
-        statementTester.Add("FUNC Function(V)");
+        statementTester.Add("func Function(V)");
         statementTester.Add("RETURN V");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("Function(13)");
 
         Variable result = statementTester.Execute();
@@ -1041,9 +1041,9 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("V=15.0");
-        statementTester.Add("FUNC Function()");
+        statementTester.Add("func Function()");
         statementTester.Add("RETURN V");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("Function()");
 
         Variable result = statementTester.Execute();
@@ -1058,9 +1058,9 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("FUNC Function(X)");
+        statementTester.Add("func Function(X)");
         statementTester.Add("Pl(X)");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("Function()");
 
         Variable result = statementTester.Execute();
@@ -1076,9 +1076,9 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("FUNC Function(X)");
+        statementTester.Add("func Function(X)");
         statementTester.Add("Pl(X)");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("Function(15.0, 35.0)");
 
         Variable result = statementTester.Execute();
@@ -1108,7 +1108,7 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("ConfigLed(\"RGB\", 33, 13)");
-        statementTester.Add("FUNC AngleToRGB(angleInDegrees)");
+        statementTester.Add("func AngleToRGB(angleInDegrees)");
         statementTester.Add("//Pl(angleInDegrees)  ");
         statementTester.Add("");
         statementTester.Add("brightness = 0.2");
@@ -1123,12 +1123,12 @@ class RDEvaluaterTest
         statementTester.Add("value = { 0, brightness - temp, temp }");
         statementTester.Add("endif");
         statementTester.Add("RETURN value");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("");
-        statementTester.Add("FUNC Test()");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("func Test()");
+        statementTester.Add("endfunc");
 
-        statementTester.Add("FUNC DoChunk(chunk, offset, angle)");
+        statementTester.Add("func DoChunk(chunk, offset, angle)");
         statementTester.Add("//Pl(\"DoChunk\")");
         statementTester.Add("rgb = AngleToRGB((angle + offset) % 360)");
         statementTester.Add("//Pl(rgb)");
@@ -1137,9 +1137,9 @@ class RDEvaluaterTest
         statementTester.Add("D(5, start + 1, rgb)");
         statementTester.Add("D(5, start + 2, rgb)");
         statementTester.Add("");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("");
-        statementTester.Add("FUNC Main()");
+        statementTester.Add("func Main()");
         statementTester.Add("");
         statementTester.Add("//Pl(\"hello\")");
         statementTester.Add("for angle 0:359 : 5");
@@ -1156,7 +1156,7 @@ class RDEvaluaterTest
         statementTester.Add("DoChunk(9, 324, angle)");
         statementTester.Add("A(5)");
         statementTester.Add("endfor");
-        statementTester.Add("ENDFUNC");
+        statementTester.Add("endfunc");
         statementTester.Add("");
         statementTester.Add("for count 0:1");
         statementTester.Add("P(\".\")");
@@ -1477,21 +1477,21 @@ class RDEvaluaterTest
       StatementTester statementTester;
 
       //statementTester.Add("Debug(\"LogStatements\", 1)");
-      statementTester.Add("FUNC Create()");
+      statementTester.Add("func Create()");
       statementTester.Add("for x 0:10");
       statementTester.Add("  value[x] = x * x");
       statementTester.Add("endfor");
       statementTester.Add("RETURN value");
-      statementTester.Add("ENDFUNC");
+      statementTester.Add("endfunc");
 
-	    statementTester.Add("FUNC Test(values, item)");
+	    statementTester.Add("func Test(values, item)");
       //statementTester.Add("  P(\"Item\")");
       //statementTester.Add("  Pl(item)");
       statementTester.Add("  if (values[item] == item * item)");
       statementTester.Add("    RETURN 1");
       statementTester.Add("  endif");
       statementTester.Add("  RETURN 0");
-      statementTester.Add("ENDFUNC");
+      statementTester.Add("endfunc");
 
       statementTester.Add("values = Create()");
       statementTester.Add("matched = 0");
