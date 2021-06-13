@@ -4,7 +4,7 @@ class RDEvaluater
 {
 	ExpressionTokenSource* _pExpressionTokenSource;
 	IExecutionContext* _pExecutionContext;
-	//IFunctionCaller* _pFunctionCaller;
+	//ifunctionCaller* _pFunctionCaller;
 	ParseErrors* _pParseErrors;
     IExecutionFlow* _pExecutionFlow;
 	char _temporaryBuffer[1024];
@@ -768,7 +768,7 @@ class RDEvaluater
             }
         }
 
-        left._variable.SetToNan();	// assignments are not l-values in this language to prevent "IF TEST = 5"
+        left._variable.SetToNan();	// assignments are not l-values in this language to prevent "if TEST = 5"
       }
 
       RETURN(left);
@@ -806,18 +806,18 @@ class RDEvaluater
             {
                 _pExpressionTokenSource->AdvanceToNewLine();
 
-                if (_pExpressionTokenSource->EqualTo("IF"))
+                if (_pExpressionTokenSource->EqualTo("if"))
                 {
                     HandleIf(false);
                 }
-                else if (_pExpressionTokenSource->EqualTo("ENDIF"))
+                else if (_pExpressionTokenSource->EqualTo("endif"))
                 {
                     _pExpressionTokenSource->AdvanceToNewLine();
                     return;
                 }
             }
 
-            ReportError("Missing ENDIF", "");
+            ReportError("Missing endif", "");
         }
 
         // we are on an if statement that is active. Evaluate it, and decide what to do next...
@@ -836,11 +836,11 @@ class RDEvaluater
 
         while (!_pExpressionTokenSource->AtEnd())
         {
-            if (_pExpressionTokenSource->EqualTo("IF"))
+            if (_pExpressionTokenSource->EqualTo("if"))
             {
                 HandleIf(executing);
             }
-            else if (_pExpressionTokenSource->EqualTo("ELSEIF"))
+            else if (_pExpressionTokenSource->EqualTo("ELSEif"))
             {
                 executing = false;
 
@@ -872,7 +872,7 @@ class RDEvaluater
                 }
                 _pExpressionTokenSource->AdvanceToNewLine();
             }
-            else if (_pExpressionTokenSource->EqualTo("ENDIF"))
+            else if (_pExpressionTokenSource->EqualTo("endif"))
             {
                 _pExpressionTokenSource->AdvanceToNewLine();
                 EPILOGUE;
@@ -891,7 +891,7 @@ class RDEvaluater
             }
         }
 
-        ReportError("Missing ENDIF", "");
+        ReportError("Missing endif", "");
 
         return;
     }
@@ -1079,7 +1079,7 @@ class RDEvaluater
 
         Variable lastValue;
         lastValue.SetToNan();
-        if (_pExpressionTokenSource->EqualTo("IF"))
+        if (_pExpressionTokenSource->EqualTo("if"))
         {
             HandleIf(true);
         }

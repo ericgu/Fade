@@ -4,16 +4,16 @@ FUNC AngleToRGB(angleInDegrees)
   //Pl(angleInDegrees)  
   
   brightness = 1.0
-  IF (angleInDegrees <= 120)    
+  if (angleInDegrees <= 120)    
     temp = angleInDegrees / 120 * brightness 
     value = {temp, 0, brightness - temp}    
-  ELSEIF (angleInDegrees <= 240)   
+  ELSEif (angleInDegrees <= 240)   
     temp = (angleInDegrees-120) / 120 * brightness 
     value = {brightness - temp, temp, 0}    
   ELSE    
     temp = (angleInDegrees-240) / 120 * brightness 
     value = {0, brightness - temp, temp}    
-  ENDIF
+  endif
   RETURN value
 ENDFUNC
 

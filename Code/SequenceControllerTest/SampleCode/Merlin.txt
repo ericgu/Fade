@@ -11,7 +11,7 @@ D_White = 3
 D_Fan = 5
 
 
-IF ReadButton(0) == 1
+if ReadButton(0) == 1
   
   Pl("ON")
   D(100, D_Fan, 0.95)
@@ -30,9 +30,9 @@ IF ReadButton(0) == 1
   A(100)
   
   for Wait 0:LampAutoShutoffTimeInSeconds 
-    IF ReadButton(0) == 1
+    if ReadButton(0) == 1
       BREAK
-    ENDIF
+    endif
     A(1)
   endfor
   
@@ -42,7 +42,7 @@ IF ReadButton(0) == 1
   D(50, D_GasGenerator, {0, 0, 0})
   D(1, D_Fan, 0)
   A(100)
-ENDIF
+endif
 
 
 A(1)

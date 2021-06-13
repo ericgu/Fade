@@ -669,15 +669,15 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("IF (V == 1)");
+        statementTester.Add("if (V == 1)");
         statementTester.Add("J = 2");
-        statementTester.Add("ELSEIF (V == 2)");
+        statementTester.Add("ELSEif (V == 2)");
         statementTester.Add("J = 3");
-        statementTester.Add("ELSEIF (V == 3)");
+        statementTester.Add("ELSEif (V == 3)");
         statementTester.Add("J = 4");
         statementTester.Add("ELSE");
         statementTester.Add("J = 5");
-        statementTester.Add("ENDIF");
+        statementTester.Add("endif");
         statementTester.Add("J");
 
         statementTester._executionContext.AddVariableAndSet("V", &Variable(conditionValue), 1);
@@ -699,19 +699,19 @@ class RDEvaluaterTest
     {
         StatementTester statementTester;
 
-        statementTester.Add("IF (V == 1)");
-        statementTester.Add("IF(X == 1)");
+        statementTester.Add("if (V == 1)");
+        statementTester.Add("if(X == 1)");
         statementTester.Add("J = 2");
         statementTester.Add("ELSE");
         statementTester.Add("J = 3");
-        statementTester.Add("ENDIF");
+        statementTester.Add("endif");
         statementTester.Add("ELSE");
-        statementTester.Add("IF(X == 1)");
+        statementTester.Add("if(X == 1)");
         statementTester.Add("J = 4");
         statementTester.Add("ELSE");
         statementTester.Add("J = 5");
-        statementTester.Add("ENDIF");
-        statementTester.Add("ENDIF");
+        statementTester.Add("endif");
+        statementTester.Add("endif");
         statementTester.Add("J");
 
         statementTester._executionContext.AddVariableAndSet("V", &Variable(conditionValue1));
@@ -735,13 +735,13 @@ class RDEvaluaterTest
         StatementTester statementTester;
 
         statementTester.Add("q = 3");
-        statementTester.Add("IF (q == 1)");
+        statementTester.Add("if (q == 1)");
         statementTester.Add("J = 2");
 
         Variable result = statementTester.Execute();
 
         Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
-        Assert::AreEqual("Missing ENDIF", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual("Missing endif", statementTester._parseErrors.GetError(0)->_errorText);
         Assert::AreEqual(2, statementTester._parseErrors.GetError(0)->_lineNumber);
     }
 
@@ -1112,16 +1112,16 @@ class RDEvaluaterTest
         statementTester.Add("//Pl(angleInDegrees)  ");
         statementTester.Add("");
         statementTester.Add("brightness = 0.2");
-        statementTester.Add("IF(angleInDegrees <= 120)");
+        statementTester.Add("if(angleInDegrees <= 120)");
         statementTester.Add("temp = angleInDegrees / 120 * brightness");
         statementTester.Add("value = { temp, 0, brightness - temp }");
-        statementTester.Add("ELSEIF(angleInDegrees <= 240)");
+        statementTester.Add("ELSEif(angleInDegrees <= 240)");
         statementTester.Add("temp = (angleInDegrees - 120) / 120 * brightness");
         statementTester.Add("value = { brightness - temp, temp, 0 }");
         statementTester.Add("ELSE");
         statementTester.Add("temp = (angleInDegrees - 240) / 120 * brightness");
         statementTester.Add("value = { 0, brightness - temp, temp }");
-        statementTester.Add("ENDIF");
+        statementTester.Add("endif");
         statementTester.Add("RETURN value");
         statementTester.Add("ENDFUNC");
         statementTester.Add("");
@@ -1314,9 +1314,9 @@ class RDEvaluaterTest
         statementTester.Add("SavedValue = 0");
         statementTester.Add("for Test 4:10");
         statementTester.Add("SavedValue = Test");
-        statementTester.Add("IF Test == 6");
+        statementTester.Add("if Test == 6");
         statementTester.Add("BREAK");
-        statementTester.Add("ENDIF");
+        statementTester.Add("endif");
         statementTester.Add("endfor");
         statementTester.Add("SavedValue");
 
@@ -1487,18 +1487,18 @@ class RDEvaluaterTest
 	    statementTester.Add("FUNC Test(values, item)");
       //statementTester.Add("  P(\"Item\")");
       //statementTester.Add("  Pl(item)");
-      statementTester.Add("  IF (values[item] == item * item)");
+      statementTester.Add("  if (values[item] == item * item)");
       statementTester.Add("    RETURN 1");
-      statementTester.Add("  ENDIF");
+      statementTester.Add("  endif");
       statementTester.Add("  RETURN 0");
       statementTester.Add("ENDFUNC");
 
       statementTester.Add("values = Create()");
       statementTester.Add("matched = 0");
       statementTester.Add("for x 0:10");
-      statementTester.Add("  IF (Test(values, x) == 0)");
+      statementTester.Add("  if (Test(values, x) == 0)");
       statementTester.Add("    matched++");
-      statementTester.Add("  ENDIF");
+      statementTester.Add("  endif");
       statementTester.Add("endfor");
       statementTester.Add("matched");
 

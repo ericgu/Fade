@@ -21,11 +21,11 @@ FUNC SetSpecificLedToColor(count, spot, color, ledNumber)
   onLed = baseLed + ledNumber
   
   for led 0:2
-    IF (led == ledNumber)
+    if (led == ledNumber)
       D(count, baseLed + led , color)
     ELSE
       D(count, baseLed + led , {0, 0, 0})
-    ENDIF
+    endif
   endfor
   
   
@@ -33,19 +33,19 @@ ENDFUNC
 
 FUNC GetColor(colorNumber)
   
-  IF (colorNumber == 0)
+  if (colorNumber == 0)
     RETURN {1, 0, 0}
-  ELSEIF (colorNumber == 1)
+  ELSEif (colorNumber == 1)
     RETURN  {1, 1, 0}
-  ELSEIF (colorNumber == 2)
+  ELSEif (colorNumber == 2)
     RETURN  {0, 1, 0}
-  ELSEIF (colorNumber == 3)
+  ELSEif (colorNumber == 3)
     RETURN  {0, 1, 1}
-  ELSEIF (colorNumber == 4)
+  ELSEif (colorNumber == 4)
     RETURN  {0, 0, 1}
-  ELSEIF (colorNumber == 5)
+  ELSEif (colorNumber == 5)
     RETURN  {1, 0, 1}
-  ENDIF
+  endif
   
 ENDFUNC
 
@@ -84,9 +84,9 @@ FUNC BreatheAndEyeSpin(count, mainColorNumber)
   oldEyeColor = -1
   for rotate 0:5
     eyeColorNumber = Rand(0, 5)
-    IF (eyeColorNumber != mainColorNumber)
+    if (eyeColorNumber != mainColorNumber)
       EyeRotate(GetColor(eyeColorNumber))
-    ENDIF
+    endif
   endfor
 ENDFUNC        
 
@@ -94,12 +94,12 @@ ENDFUNC
 oldMainColorNumber = -1
 for a 0:25
   mainColorNumber = Rand(0,5)
-  IF (oldMainColorNumber != mainColorNumber )
+  if (oldMainColorNumber != mainColorNumber )
     oldMainColorNumber = mainColorNumber 
     
     BreatheAndEyeSpin(100, mainColorNumber )
     
-  ENDIF
+  endif
   
 endfor
     
