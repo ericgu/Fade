@@ -31,6 +31,7 @@ public:
         _probe = 0;
     }
 
+#if fred
     VectorDataItem* GetDataItem()
     {
         // Walk through and find the first free item...
@@ -53,10 +54,15 @@ public:
 
         return 0;
     }
-
+#endif
     int GetSize()
     {
         return _size;
+    }
+
+    VectorDataItem* GetDataItems()
+    {
+        return _pDataItems;
     }
 };
 
@@ -68,11 +74,12 @@ class VectorDataItemProvider
     int _chunkCount;
     int _inUseCount;
 
+    VectorDataItem* _pFreeList;
+
 public:
     VectorDataItemProvider()
     {
-        _pDataItemChunk[0] = new VectorDataItemProviderChunk(Environment.VectorItemDataPoolCount);
-        _chunkCount = 1;
+        AddNewChunk();
         _inUseCount = 0;
     }
 
@@ -85,16 +92,36 @@ public:
         _chunkCount = 0;
     }
 
+    void CopyItemsToFreeList(VectorDataItem* pDataItem, int size)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            VectorDataItem* pFreeTop = _pFreeList;
+
+            pDataItem->_pNext = pFreeTop;
+            _pFreeList = pDataItem;
+
+            pDataItem++;
+        }
+    }
+
+    void AddNewChunk()
+    {
+        _pDataItemChunk[_chunkCount] = new VectorDataItemProviderChunk(Environment.VectorItemDataPoolCount);
+        CopyItemsToFreeList(_pDataItemChunk[_chunkCount]->GetDataItems(), _pDataItemChunk[_chunkCount]->GetSize());
+        _chunkCount++;
+    }
+
     VectorDataItem* GetDataItem()
     {
-        for (int chunk = 0; chunk < _chunkCount; chunk++)
+        if (_pFreeList != 0)
         {
-            VectorDataItem* pDataItem = _pDataItemChunk[chunk]->GetDataItem();
-            if (pDataItem)
-            {
-                _inUseCount++;
-                return pDataItem;
-            }
+            VectorDataItem *pDataItem = _pFreeList;
+            _pFreeList = pDataItem->_pNext;
+            pDataItem->_pNext = 0;
+            _inUseCount++;
+
+            return pDataItem;
         }
 
         // Allocate new chunk...
@@ -105,10 +132,9 @@ public:
             return 0;
         }
 
-        _pDataItemChunk[_chunkCount] = new VectorDataItemProviderChunk(Environment.VectorItemDataPoolCount);
-        _chunkCount++;
+        AddNewChunk();
 
-        return _pDataItemChunk[_chunkCount - 1]->GetDataItem();
+        return GetDataItem();
     }
 
     int GetInUseCount()
@@ -118,10 +144,10 @@ public:
 
     void ReleaseDataItem(VectorDataItem* pItem)
     {
+        pItem->_pNext = _pFreeList;
+        _pFreeList = pItem;
         _inUseCount--;
-        pItem->_pNext = DATAITEMUNUSED;
     }
-
 };
 
 class Vector

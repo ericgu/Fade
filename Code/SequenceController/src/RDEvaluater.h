@@ -507,7 +507,7 @@ class RDEvaluater
       ExpressionResult value;
       if (_pExpressionTokenSource->EqualTo("+") || _pExpressionTokenSource->EqualTo("-"))
       {
-        char op = _pExpressionTokenSource->FirstChar();
+          const char op = _pExpressionTokenSource->FirstChar();
 
         _pExpressionTokenSource->Advance();
         value = EvaluateUnary();

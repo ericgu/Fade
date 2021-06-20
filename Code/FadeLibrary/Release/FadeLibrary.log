@@ -1,9 +1,9 @@
 ﻿  FadeLibrary.cpp
      Creating library D:\data\Electronics\SequenceController\Code\WinFade\Release\FadeLibrary.lib and object D:\data\Electronics\SequenceController\Code\WinFade\Release\FadeLibrary.exp
   Generating code
-  111 of 381 functions (29.1%) were compiled, the rest were copied from previous compilation.
-    8 functions were new in current compilation
-    25 functions had inline decision re-evaluated but remain unchanged
+  113 of 385 functions (29.4%) were compiled, the rest were copied from previous compilation.
+    5 functions were new in current compilation
+    24 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   FadeLibrary.vcxproj -> D:\data\Electronics\SequenceController\Code\WinFade\Release\FadeLibrary.dll
   FadeLibrary.vcxproj -> D:\data\Electronics\SequenceController\Code\WinFade\Release\FadeLibrary.pdb (Full PDB)

@@ -68,7 +68,7 @@ class VectorTest
         Assert::AreEqual(6, dataItemProvider.GetInUseCount());
 
         VectorDataItem* pDataItem9 = dataItemProvider.GetDataItem();
-        Assert::AreEqual(pDataItem9, pDataItem5);
+        Assert::AreEqual(pDataItem9, pDataItem3);
         Assert::AreEqual(7, dataItemProvider.GetInUseCount());
         Environment.VectorItemDataPoolCount = temp;
     }
