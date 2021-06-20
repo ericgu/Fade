@@ -188,7 +188,8 @@ class BuiltInFunctions
                 }
                 else if (pArgument->GetValueCount() == 1)
                 {
-                    snprintf(outputString, sizeof(outputString), "%f", pArgument->GetValueFloat(0));
+                    snprintf(buffer, sizeof(outputString), "%f", pArgument->GetValueFloat(0));
+                    strcat(outputString, buffer);
                 }
                 else
                 {
@@ -331,6 +332,30 @@ class BuiltInFunctions
 		return false;
 	}
 
+    static bool HandleBuiltInConfigEnvironment(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+    {
+        if (strcmp(pFunctionName, "ConfigEnvironment") == 0)
+        {
+            Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
+
+            if (strcmp(pIdentifier->GetValueString(), "VectorItemDataPoolCount") == 0)
+            {
+                Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+                Environment.VectorItemDataPoolCount = pValue->GetValueInt();
+                return true;
+            }
+            else if (strcmp(pIdentifier->GetValueString(), "VariableStoreChunkSize") == 0)
+            {
+                Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+                Environment.VariableStoreChunkSize = pValue->GetValueInt();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
 	static void HSVtoRGB(float h, float s, float v, Variable *pResult)
 	{
 		float C = s * v;
@@ -382,7 +407,17 @@ class BuiltInFunctions
 			Variable *pS = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
 			Variable *pV = pExecutionContext->GetVariableWithoutErrorCheck("#A2");
 
-			HSVtoRGB(pH->GetValueFloat(0), pS->GetValueFloat(0), pV->GetValueFloat(0), &pExpressionResult->_variable);
+            float hue = pH->GetValueFloat(0);
+            if (hue < 0)
+            {
+                hue += 360;
+            }
+            else if (hue > 360)
+            {
+                hue -= 360;
+            }
+
+			HSVtoRGB(hue, pS->GetValueFloat(0), pV->GetValueFloat(0), &pExpressionResult->_variable);
 			return true;
 		}
 
@@ -442,10 +477,17 @@ public:
 			return true;
 		}
 
-		if (HandleBuiltInHsvToRGB(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
-		{
-			return true;
-		}
+        if (HandleBuiltInHsvToRGB(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+        {
+            return true;
+        }
+
+        if (HandleBuiltInConfigEnvironment(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+        {
+            return true;
+        }
+
+        
 
 		return false;
 	}

@@ -89,6 +89,7 @@ extern "C"
 #include "Settings.h"
 #include "Supervisor.h"
 
+
 #include "ButtonCreator.h"
 #include "LedDeviceCreator.h"
 
@@ -122,6 +123,9 @@ extern "C"
     ParseErrorCallback pParseErrorCallback);
 
   FADELIBRARY_API int PressButton(int buttonNumber);
+
+  FADELIBRARY_API void PrettyFormat(const char* pCommand, char* pOutput, int bufferSize);
+
 
 }
 

@@ -71,6 +71,8 @@ namespace WinFade
             this.c_buttonDelete = new System.Windows.Forms.Button();
             this.c_buttonUp = new System.Windows.Forms.Button();
             this.c_buttonDown = new System.Windows.Forms.Button();
+            this.label13 = new System.Windows.Forms.Label();
+            this.c_textBoxStripSpacing = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -189,6 +191,8 @@ namespace WinFade
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.c_textBoxStripSpacing);
+            this.groupBox2.Controls.Add(this.label13);
             this.groupBox2.Controls.Add(this.c_textBoxPwmColorCoding);
             this.groupBox2.Controls.Add(this.label12);
             this.groupBox2.Controls.Add(this.c_radioButtonPwm);
@@ -339,7 +343,7 @@ namespace WinFade
             // c_checkBoxReversed
             // 
             this.c_checkBoxReversed.AutoSize = true;
-            this.c_checkBoxReversed.Location = new System.Drawing.Point(350, 72);
+            this.c_checkBoxReversed.Location = new System.Drawing.Point(350, 75);
             this.c_checkBoxReversed.Name = "c_checkBoxReversed";
             this.c_checkBoxReversed.Size = new System.Drawing.Size(117, 29);
             this.c_checkBoxReversed.TabIndex = 19;
@@ -350,7 +354,7 @@ namespace WinFade
             // c_textBoxRingRadius
             // 
             this.c_textBoxRingRadius.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.c_textBoxRingRadius.Location = new System.Drawing.Point(221, 69);
+            this.c_textBoxRingRadius.Location = new System.Drawing.Point(221, 72);
             this.c_textBoxRingRadius.Name = "c_textBoxRingRadius";
             this.c_textBoxRingRadius.Size = new System.Drawing.Size(94, 30);
             this.c_textBoxRingRadius.TabIndex = 18;
@@ -360,7 +364,7 @@ namespace WinFade
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(112, 72);
+            this.label7.Location = new System.Drawing.Point(112, 75);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(78, 25);
             this.label7.TabIndex = 17;
@@ -486,6 +490,25 @@ namespace WinFade
             this.c_buttonDown.UseVisualStyleBackColor = true;
             this.c_buttonDown.Click += new System.EventHandler(this.c_buttonDown_Click);
             // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.Location = new System.Drawing.Point(112, 36);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(90, 25);
+            this.label13.TabIndex = 32;
+            this.label13.Text = "Spacing:";
+            // 
+            // c_textBoxStripSpacing
+            // 
+            this.c_textBoxStripSpacing.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_textBoxStripSpacing.Location = new System.Drawing.Point(221, 34);
+            this.c_textBoxStripSpacing.Name = "c_textBoxStripSpacing";
+            this.c_textBoxStripSpacing.Size = new System.Drawing.Size(94, 30);
+            this.c_textBoxStripSpacing.TabIndex = 33;
+            this.c_textBoxStripSpacing.TextChanged += new System.EventHandler(this.c_textBoxStripSpacing_TextChanged);
+            // 
             // EditLedSetup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -557,5 +580,7 @@ namespace WinFade
         internal TextBox c_textBoxPwmColorCoding;
         private Label label12;
         internal RadioButton c_radioButtonPwm;
+        internal TextBox c_textBoxStripSpacing;
+        private Label label13;
     }
 }

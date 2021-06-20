@@ -105,16 +105,26 @@ namespace WinFade
 
         public void Load(StreamReader reader)
         {
-            string readLine = reader.ReadLine();
-            readLine = readLine.Substring("ConfigurationCount=".Length);
-            int ledConfigurationCount = Int32.Parse(readLine);
-            _ledConfigurations.Clear();
-
-            for (int ledConfigurationNumber = 0; ledConfigurationNumber < ledConfigurationCount; ledConfigurationNumber++)
+            //try
             {
-                LedConfiguration ledConfiguration = LedConfiguration.Load(reader);
-                _ledConfigurations.Add(ledConfiguration);
-                reader.ReadLine();
+                string readLine = reader.ReadLine();
+                readLine = readLine.Substring("ConfigurationCount=".Length);
+                int ledConfigurationCount = Int32.Parse(readLine);
+                _ledConfigurations.Clear();
+
+                for (int ledConfigurationNumber = 0;
+                    ledConfigurationNumber < ledConfigurationCount;
+                    ledConfigurationNumber++)
+                {
+                    LedConfiguration ledConfiguration = LedConfiguration.Load(reader);
+                    _ledConfigurations.Add(ledConfiguration);
+                    reader.ReadLine();
+                }
+
+            }
+            //catch (Exception e)
+            {
+                //Console.WriteLine(e);
             }
         }
 

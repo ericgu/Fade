@@ -18,7 +18,8 @@ class CommandFormatterTest
 		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("endfunc", 0)));
 		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("endif", 0)));
 		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("elseif", 0)));
-		Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("else", 0)));
+        Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("else", 0)));
+        Assert::AreEqual(-1, CommandFormatter::GetIndentPre(&Command("endwhile", 0)));
 
 		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("for", 0)));
 		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("func", 0)));
@@ -29,8 +30,9 @@ class CommandFormatterTest
 		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("endfunc", 0)));
 		Assert::AreEqual(0, CommandFormatter::GetIndentPost(&Command("endif", 0)));
 		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("elseif", 0)));
-		Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("else", 0)));
-	}
+        Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("else", 0)));
+        Assert::AreEqual(1, CommandFormatter::GetIndentPost(&Command("while", 0)));
+    }
 
 	static void TestFormat()
 	{

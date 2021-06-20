@@ -126,8 +126,16 @@ namespace WinFade
         {
             if (c_listBoxLedGroups.SelectedIndex != -1)
             {
+                int newSelectedIndex = c_listBoxLedGroups.SelectedIndex;
                 _ledTestBoard.LedConfigurations.RemoveAt(c_listBoxLedGroups.SelectedIndex);
                 PopulateLedConfigurationList();
+
+                if (newSelectedIndex == _ledTestBoard.LedConfigurations.Count)
+                {
+                    newSelectedIndex--;
+                }
+
+                c_listBoxLedGroups.SelectedIndex = newSelectedIndex;
             }
         }
 
@@ -176,5 +184,9 @@ namespace WinFade
             ((LedConfigurationPwm)SelectedLedConfiguration).ValuesChanged(this);
         }
 
+        private void c_textBoxStripSpacing_TextChanged(object sender, EventArgs e)
+        {
+            ((LedConfigurationStrip)SelectedLedConfiguration).ValuesChanged(this);
+        }
     }
 }

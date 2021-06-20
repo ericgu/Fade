@@ -1,0 +1,7 @@
+﻿  stdafx.cpp
+  dllmain.cpp
+  FadeLibrary.cpp
+     Creating library D:\data\Electronics\SequenceController\Code\WinFade\ReleaseWithDebugInformation\FadeLibrary.lib and object D:\data\Electronics\SequenceController\Code\WinFade\ReleaseWithDebugInformation\FadeLibrary.exp
+  FadeLibrary.vcxproj -> D:\data\Electronics\SequenceController\Code\WinFade\ReleaseWithDebugInformation\FadeLibrary.dll
+  FadeLibrary.vcxproj -> D:\data\Electronics\SequenceController\Code\WinFade\ReleaseWithDebugInformation\FadeLibrary.pdb (Full PDB)
+          1 file(s) copied.

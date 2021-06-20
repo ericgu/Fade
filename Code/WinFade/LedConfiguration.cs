@@ -82,14 +82,22 @@ namespace WinFade
             writer.WriteLine();
             writer.WriteLine("// X, Y");
 
+            // cleanup. Truncate if the list is longer than LedCount, extend it if it is shorter...
+
+            while (_ledSpots.Count < LedCount)
+            {
+                _ledSpots.Add(new LedSpot(50, 50));
+            }
+
+            while (_ledSpots.Count > LedCount)
+            {
+                _ledSpots.RemoveAt(_ledSpots.Count - 1);
+            }
+
+
             foreach (LedSpot ledSpot in _ledSpots)
             {
                 writer.WriteLine("LedSpot={0},{1}", ledSpot.X, ledSpot.Y);
-            }
-
-            for (int extra = 0; extra < LedCount - _ledSpots.Count; extra++)
-            {
-                writer.WriteLine("LedSpot={0},{1}", 0, 0);
             }
         }
 

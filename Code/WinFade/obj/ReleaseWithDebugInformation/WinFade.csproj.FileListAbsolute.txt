@@ -1,0 +1,12 @@
+D:\data\Electronics\SequenceController\Code\WinFade\bin\ReleaseWithDebugInformation\WinFade.exe.config
+D:\data\Electronics\SequenceController\Code\WinFade\bin\ReleaseWithDebugInformation\WinFade.exe
+D:\data\Electronics\SequenceController\Code\WinFade\bin\ReleaseWithDebugInformation\WinFade.pdb
+D:\data\Electronics\SequenceController\Code\WinFade\obj\ReleaseWithDebugInformation\WinFade.csprojAssemblyReference.cache
+D:\data\Electronics\SequenceController\Code\WinFade\obj\ReleaseWithDebugInformation\WinFade.EditLedSetup.resources
+D:\data\Electronics\SequenceController\Code\WinFade\obj\ReleaseWithDebugInformation\WinFade.Form1.resources
+D:\data\Electronics\SequenceController\Code\WinFade\obj\ReleaseWithDebugInformation\WinFade.LedForm.resources
+D:\data\Electronics\SequenceController\Code\WinFade\obj\ReleaseWithDebugInformation\WinFade.Properties.Resources.resources
+D:\data\Electronics\SequenceController\Code\WinFade\obj\ReleaseWithDebugInformation\WinFade.csproj.GenerateResource.cache
+D:\data\Electronics\SequenceController\Code\WinFade\obj\ReleaseWithDebugInformation\WinFade.csproj.CoreCompileInputs.cache
+D:\data\Electronics\SequenceController\Code\WinFade\obj\ReleaseWithDebugInformation\WinFade.exe
+D:\data\Electronics\SequenceController\Code\WinFade\obj\ReleaseWithDebugInformation\WinFade.pdb

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -18,6 +19,8 @@ namespace WinFade
         private delegate void UpdateLedDelegate(int ledGroupNumber, int ledNumber, float red, float green, float blue);
 
         private delegate void ParseErrorDelegate(string message, int lineNumber);
+
+        private delegate void FatalErrorDelegate();
 
         private Thread _fadeThread;
         private int _outputLineCount;
@@ -61,6 +64,7 @@ namespace WinFade
 
             _fadeThread = null;
 
+            Icon = new Icon(@"..\..\Fade Icon 64x64.ico");
 
 
             //_ledDevices = new LedDevices();
@@ -83,7 +87,12 @@ namespace WinFade
 
             Closing += (sender, args) => { Stop(); };
 
+            System.AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+        }
 
+        private void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void LedFormOnButtonPressed(int buttonnumber)
@@ -134,8 +143,9 @@ namespace WinFade
         private void LedUpdated(int ledGroupNumber, int channel, int brightnessCount, float brightness1, float brightness2,
             float brightness3, float brightness4)
         {
-            var d = new UpdateLedDelegate(_ledForm.UpdateLedColor);
-            _ledForm.Invoke(d, new object[] {ledGroupNumber, channel, brightness1, brightness2, brightness3});
+            _ledForm.UpdateLedColor(ledGroupNumber, channel, brightness1, brightness2, brightness3);
+//            var d = new UpdateLedDelegate(_ledForm.UpdateLedColor);
+//            _ledForm.Invoke(d, new object[] {ledGroupNumber, channel, brightness1, brightness2, brightness3});
         }
 
         private void LedUpdateCycleDone()
@@ -210,11 +220,33 @@ namespace WinFade
             }
         }
 
+        private void FatalError()
+        {
+            NewTextAvailable("Fatal error in animation system.");
+
+            Stop();
+        }
+
+
+        [HandleProcessCorruptedStateExceptions]
         private void DoFade()
         {
-            FadeLibrary.Run(_project.ProgramText, NewTextAvailable, CreateNewLedDevice, LedUpdated, LedUpdateCycleDone,
-                ParseErrorEncountered);
-            //FadeLibrary.Run(_programText, null, null, null, null);
+            try
+            {
+                FadeLibrary.Run(_project.ProgramText, NewTextAvailable, CreateNewLedDevice, LedUpdated,
+                    LedUpdateCycleDone,
+                    ParseErrorEncountered);
+            }
+            catch (ThreadAbortException)
+            {
+                return;
+            }
+            catch (Exception)
+            {
+
+                var d = new FatalErrorDelegate(FatalError);
+                c_textBoxProgramText.Invoke(d);
+            }
         }
 
         private void RunProgram(object sender, EventArgs e)
@@ -251,7 +283,14 @@ namespace WinFade
             _ledForm.Show();
 
             _fadeThread = new Thread(DoFade);
-            _fadeThread.Start();
+            //_fadeThread.
+            try
+            {
+                _fadeThread.Start();
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private void Stop()
@@ -318,7 +357,7 @@ namespace WinFade
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.InitialDirectory = Project.BasePath;
             openFileDialog.DefaultExt = "fade";
-            openFileDialog.Filter = "fade files (*.fade)";
+            openFileDialog.Filter = "fade files (*.fade)|*.fade";
             openFileDialog.FilterIndex = 0;
             openFileDialog.CheckFileExists = true;
             openFileDialog.CheckPathExists = false;
@@ -505,38 +544,41 @@ namespace WinFade
                 case "A":
                     return "A(cycles) - animate the currently-defined fades for a given number of cycles";
 
-                case "CONFIGBUTTON":
-                    return "CONFIGBUTTON(<buttonNumber>, <buttonType>, <buttonPin>, <params>) - configure a button";
+                case "ConfigButton":
+                    return "ConfigButton(<buttonNumber>, <buttonType>, <buttonPin>, <params>) - configure a button";
 
-                case "CONFIGLED":
-                    return "CONFIGLED(<ledStringNumber>, <ledStringType>, <ledCount>, <params>) - configure an LED string";
+                case "ConfigLed":
+                    return "ConfigLed(<ledStringNumber>, <ledStringType>, <ledCount>, <params>) - configure an LED string";
 
                 case "D":
                     return "D(<cycleCount>, <ledIndex>, <targetBrightness>) - define a fade for a specific LED to a specific color over a number of cycles";
 
-                case "DI":
-                    return "DI(<cycleCount>, <ledIndex>, <targetBrightness>) - define and execute a fade for a specific LED to a specific color over a number of cycles";
+                case "Di":
+                    return "Di(<cycleCount>, <ledIndex>, <targetBrightness>) - define and execute a fade for a specific LED to a specific color over a number of cycles";
 
-                case "DEBUG":
-                    return "DEBUG (<debugFlag>, <value>) - sets a debug flag to a specific value";
+                case "Debug":
+                    return "Debug (<debugFlag>, <value>) - sets a debug flag to a specific value";
+
+                case "HsvToRgb":
+                    return "HsvToRgb(< hue >, < saturation >, < value >) - convert an HSV color value to RGB";
 
                 case "P":
                     return "P(<value>,...) - print one or more values to the serial system.";
 
-                case "PL":
-                    return "PL(<value>,...) - print one or more values followed by a newline to the serial system.";
+                case "Pl":
+                    return "Pl(<value>,...) - print one or more values followed by a newline to the serial system.";
 
-                case "RAND":
-                    return "float RAND(minimum, maximum) - return a random number between minimum and maximum";
+                case "Rand":
+                    return "float Rand(minimum, maximum) - return a random number between minimum and maximum";
 
-                case "READBUTTON":
-                    return "int READBUTTON(<buttonNumber>) - returns the current value of a button";
+                case "ReadButton":
+                    return "int ReadButton(<buttonNumber>) - returns the current value of a button";
 
                 case "S":
                     return "S(<cycleCount>, <firstLedTargetBrightness>, ..., <lastLedTargetBrightness>) - define a fade on multiple LEDs";
 
-                case "SI":
-                    return "SI(<cycleCount>, <firstLedTargetBrightness>, ..., <lastLedTargetBrightness>) - define and execute a fade on multiple LEDs";
+                case "Si":
+                    return "Si(<cycleCount>, <firstLedTargetBrightness>, ..., <lastLedTargetBrightness>) - define and execute a fade on multiple LEDs";
             }
 
             return null;
@@ -554,8 +596,40 @@ namespace WinFade
             c_timerProgramTextHover.Enabled = false;
         }
 
+        private string UpgradeLanguage(string programText)
+        {
+            return programText
+                .Replace("ENDFOR", "endfor")
+                .Replace("FOR", "for")
+                .Replace("ENDFUNC", "endfunc")
+                .Replace("FUNC", "func")
+                .Replace("ENDIF", "endif")
+                .Replace("ELSEIF", "elseif")
+                .Replace("ELSE", "else")
+                .Replace("IF", "if")
+                .Replace("BREAK", "break")
+                .Replace("RETURN", "return")
+                .Replace("RAND(", "Rand(")
+                .Replace("DEBUG(", "Debug(")
+                .Replace("DI(", "Di(")
+                .Replace("SI(", "Si(")
+                .Replace("PL(", "Pl(")
+                .Replace("ABORT(", "Abort(")
+                .Replace("CONFIGLED", "ConfigLed")
+                .Replace("CONFIGBUTTON", "ConfigButton")
+                .Replace("READBUTTON", "ReadButton");
+        }
+
         private void c_buttonReformat_Click(object sender, EventArgs e)
         {
+            StringBuilder prettyVersion = new StringBuilder(_project.ProgramText.Length + 256);
+
+            FadeLibrary.PrettyFormat(_project.ProgramText, prettyVersion, prettyVersion.Capacity);
+
+            _project.ProgramText = UpgradeLanguage(prettyVersion.ToString());
+            _project.ProgramText = _project.ProgramText.Replace("\n", "\r\n");
+            c_textBoxProgramText.Text = _project.ProgramText;
+
             // call reformat function, change reformat function to modify uppercase keywords and function to lower/pascal cased ones. 
 
             // Make language changes one keyword at a time first. 

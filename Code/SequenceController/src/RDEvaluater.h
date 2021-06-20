@@ -236,6 +236,8 @@ class RDEvaluater
     ExpressionResult EvaluateFunctionCall(const char* functionName)
     {
         PROLOGUE;
+
+        //Serial.println(functionName);
             
         _pExpressionTokenSource->Advance();
 
@@ -244,6 +246,7 @@ class RDEvaluater
         if (argumentParseSuccess)
         {
             _pExecutionContext->GetStack()->CreateFrame();
+            //_pExecutionContext->Variables()->Dump();
 
             ExpressionResult expressionResult = HandleFunctionCall(functionName);
 
@@ -998,6 +1001,57 @@ class RDEvaluater
         return false;
     }
 
+    bool HandleWhile()
+    {
+        PROLOGUE;
+
+        if (_pExpressionTokenSource->EqualTo("while"))
+        {
+            _pExpressionTokenSource->Advance();
+
+            int whileCondition = _pExpressionTokenSource->GetParseLocation();
+
+            while (true)
+            {
+                Variable condition = EvaluateTop()._variable;
+                bool executing = condition.GetValueInt() != 0;
+                _pExpressionTokenSource->AdvanceToNewLine();
+
+                while (!_pExpressionTokenSource->AtEnd())
+                {
+                    if (_pExpressionTokenSource->EqualTo("endwhile"))
+                    {
+                        if (!executing)
+                        {
+                            _pExpressionTokenSource->Advance();
+                            return true;
+                        }
+                        _pExpressionTokenSource->SetParseLocation(whileCondition);
+                        break;
+                    }
+                    else
+                    {
+                        if (executing)
+                        {
+                            EvaluateStatement();
+                        }
+                        else
+                        {
+                            _pExpressionTokenSource->AdvanceToNewLine();
+                        }
+                    }
+                }
+
+                if (_pExpressionTokenSource->AtEnd())
+                {
+                    ReportError("Missing endwhile", "");
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
     bool HandleFunctionDefinition()
     {
         PROLOGUE;
@@ -1086,6 +1140,10 @@ class RDEvaluater
         else if (_pExpressionTokenSource->EqualTo("for"))
         {
             HandleFor();
+        }
+        else if (_pExpressionTokenSource->EqualTo("while"))
+        {
+            HandleWhile();
         }
         else if (_pExpressionTokenSource->EqualTo("func"))
         {

@@ -162,9 +162,54 @@ class BuildInFunctionsTest
         Serial.SetOutput(true);
     }
 
+    static void TestConfigEnvironment()
+    {
+        ExecutionContext executionContext;
+        ParseErrors parseErrors;
+        MockExecutionFlow executionFlow;
+        ExpressionResult expressionResult;
+
+        ExpressionTokenSource expressionTokenSource("ConfigEnvironment(\"VectorItemDataPoolCount\", 33)");
+
+        executionContext.AddVariableAndSet("#A", &Variable(2));
+        executionContext.AddVariableAndSet("#A0", &Variable("VectorItemDataPoolCount"));
+        executionContext.AddVariableAndSet("#A1", &Variable(33));
+
+        int temp = Environment.VectorItemDataPoolCount;
+        BuiltInFunctions::HandleBuiltInFunctions("ConfigEnvironment", &executionContext, &parseErrors, &expressionTokenSource, &executionFlow, &expressionResult);
+
+        Assert::AreEqual(0, parseErrors.GetErrorCount());
+        Assert::AreEqual(33, Environment.VectorItemDataPoolCount);
+        Environment.VectorItemDataPoolCount = temp;
+    }
+
+    static void TestConfigEnvironment2()
+    {
+        ExecutionContext executionContext;
+        ParseErrors parseErrors;
+        MockExecutionFlow executionFlow;
+        ExpressionResult expressionResult;
+
+        ExpressionTokenSource expressionTokenSource("ConfigEnvironment(\"VariableStoreChunkSize\", 1833)");
+
+        executionContext.AddVariableAndSet("#A", &Variable(2));
+        executionContext.AddVariableAndSet("#A0", &Variable("VariableStoreChunkSize"));
+        executionContext.AddVariableAndSet("#A1", &Variable(1833));
+
+        int temp = Environment.VariableStoreChunkSize;
+        BuiltInFunctions::HandleBuiltInFunctions("ConfigEnvironment", &executionContext, &parseErrors, &expressionTokenSource, &executionFlow, &expressionResult);
+
+        Assert::AreEqual(0, parseErrors.GetErrorCount());
+        Assert::AreEqual(1833, Environment.VariableStoreChunkSize);
+        Environment.VariableStoreChunkSize = temp;
+    }
+
 public:
     static void Run()
     {
+        TestConfigEnvironment();
+        TestConfigEnvironment2();
+
         TestConfigLed();
         TestConfigLedFourPins();
         TestConfigTouchButton();

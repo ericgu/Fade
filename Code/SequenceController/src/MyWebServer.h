@@ -22,6 +22,11 @@ class MyWebServer
     pMyWebServerInstance->handleNodeNameInstance();
   }
 
+  static void handleButton()
+  {
+    pMyWebServerInstance->handleButtonInstance();
+  }
+
 public:
   MyWebServer(Supervisor *pSupervisor, IPAddress myIPAddress)
   {
@@ -35,6 +40,7 @@ public:
 
     _pWebServer->on("/", handleRoot);
     _pWebServer->on("/SetNodeName", handleNodeName);
+    _pWebServer->on("/Button", handleButton);
     _pWebServer->begin();
 
     pMyWebServerInstance = this;
@@ -50,6 +56,23 @@ public:
       Serial.print(_pWebServer->argName(i));
       Serial.print(" ");
       Serial.println(_pWebServer->arg(i));
+    }
+  }
+
+  void handleButtonInstance()
+  {
+    //DumpArgs();
+
+    String ButtonNumber;
+    ButtonNumber = _pWebServer->arg("ButtonNumber");
+    if (ButtonNumber.length() != 0)
+    {
+      int buttonNumber = atoi(ButtonNumber.c_str());
+
+      Serial.print("Button: ");
+      Serial.println(buttonNumber);
+      snprintf(_pPageBuffer, 16636, "<h1>%d</h1>", buttonNumber);
+      _pWebServer->send(200, "text/html", _pPageBuffer);
     }
   }
 

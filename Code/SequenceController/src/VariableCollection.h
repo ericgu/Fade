@@ -99,9 +99,11 @@ public:
     void Dump()
     {
         Serial.println("+++");
+        Variable* pVariable = _pVariables;
+
         for (int i = 0; i < VariableMaxCount; i++)
         {
-            int stackLevel = _pVariables[i].GetStackLevel();
+            int stackLevel = pVariable->GetStackLevel();
             if (stackLevel == -1)
             {
                 continue;
@@ -109,14 +111,27 @@ public:
 
             Serial.print(stackLevel);
             Serial.print("  ");
-            Serial.print(_pVariables[i].GetVariableName());
+            const char* pVariableName = pVariable->GetVariableName();
+            Serial.print(pVariableName);
             Serial.print(" = ");
-            for (int j = 0; j < _pVariables[i].GetValueCount(); j++)
+            const char* pValueString = pVariable->GetValueString();
+
+            if (*pValueString != '\0')
             {
-                Serial.print(_pVariables[i].GetValueFloat(i));
-                Serial.print(" ");
+                Serial.print(pValueString);
+            }
+            else
+            {
+                for (int j = 0; j < pVariable->GetValueCount(); j++)
+                {
+                    Serial.print(pVariable->GetValueFloat(j));
+
+                    Serial.print(" ");
+                }
             }
             Serial.println();
+
+            pVariable++;
         }
         Serial.println("+++");
     }

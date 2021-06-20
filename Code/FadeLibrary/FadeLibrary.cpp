@@ -65,6 +65,7 @@ FADELIBRARY_API int Run(const char* pProgram,
   Environment.ResetValues();
 
   ButtonCreator::ResetButtons();
+  Vector::RestartVectorDataProvider();
 
   _pSupervisor = new Supervisor();
   _pSupervisor->DisableLogInformation();
@@ -89,6 +90,12 @@ FADELIBRARY_API int PressButton(int buttonNumber)
 
     return 0;
 }
+
+FADELIBRARY_API void PrettyFormat(const char* pCommand, char* pOutput, int bufferSize)
+{
+    CommandFormatter::PrettyFormat(pCommand, pOutput, bufferSize);
+}
+
 
 
 FADELIBRARY_API int Abort(NewSerialTextAvailableCallback pCallback)

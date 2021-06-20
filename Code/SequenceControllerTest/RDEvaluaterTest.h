@@ -761,6 +761,43 @@ class RDEvaluaterTest
         Assert::AreEqual(3, result.GetValueInt());
     }
 
+    static void TestWhile()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("count = 0");
+        statementTester.Add("sum = 0");
+        statementTester.Add("while count < 10");
+        statementTester.Add("sum = sum + count");
+        statementTester.Add("count++");
+        statementTester.Add("endwhile");
+        statementTester.Add("sum");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual(45, result.GetValueInt());
+    }
+
+    static void TestWhileNoExecute()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("count = 0");
+        statementTester.Add("sum = 12");
+        statementTester.Add("while count > 10");
+        statementTester.Add("sum = 128");
+        statementTester.Add("endwhile");
+        statementTester.Add("sum");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(0, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual(12, result.GetValueInt());
+    }
+
+
+
     static void TestForDown()
     {
         StatementTester statementTester;
@@ -1527,6 +1564,8 @@ public:
         TestNestedIf();
         TestFor();
         TestForDown();
+        TestWhileNoExecute();
+        TestWhile();
         TestFunctionDefinition();
         TestFunctionDefinitionMissingClosingBrace();
 

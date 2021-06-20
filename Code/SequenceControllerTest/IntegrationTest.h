@@ -19,7 +19,6 @@ class IntegrationTest
     static void Test()
     {
       VariableStore::VariableStoreInstance.ResetCache();
-      Vector::RestartVectorDataProvider(4096);
       {
 
         CommandSourceSimulator commandSource;
@@ -63,7 +62,6 @@ class IntegrationTest
 	static void Test2()
 	{
     VariableStore::VariableStoreInstance.ResetCache();
-    Vector::RestartVectorDataProvider(4096);
     {
       CommandSourceSimulator commandSource;
       LedDeviceSimulator ledDevice(1000);
@@ -102,42 +100,42 @@ class IntegrationTest
     Vector::RestartVectorDataProvider();
 	}
 
-	static void Test3()
-	{
-    VariableStore::VariableStoreInstance.ResetCache();
-    Vector::RestartVectorDataProvider(20000);
+    static void Test3()
     {
-      CommandSourceSimulator commandSource;
-      LedDeviceSimulator ledDevice(10000);
+        VariableStore::VariableStoreInstance.ResetCache();
 
-      LedDeviceCreatorSimulator ledCreator(&ledDevice);
+        {
+            CommandSourceSimulator commandSource;
+            LedDeviceSimulator ledDevice(10000);
 
-      LedManager ledManager(&ledCreator);
-      ledManager.Configure(0, "", 16, 555, -1, -1, -1);
+            LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
-      ParseErrors parseErrors;
-      Timebase timebase(&commandSource, &ledManager, &parseErrors, 0, 0);
+            LedManager ledManager(&ledCreator);
+            ledManager.Configure(0, "", 16, 555, -1, -1, -1);
 
-      timebase.RunProgram("for A 0:7\nD(2,A,1.0)\nA(2)\nD(2,A,0.0)\nA(2)\nendfor");
+            ParseErrors parseErrors;
+            Timebase timebase(&commandSource, &ledManager, &parseErrors, 0, 0);
 
-      //timebase.RunProgram(1);
+            timebase.RunProgram("for A 0:7\nD(2,A,1.0)\nA(2)\nD(2,A,0.0)\nA(2)\nendfor");
 
-      // Validate that after channel one loop is done it stops changing and moves on to channel two. 
-      Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
-      Assert::AreEqual(1.0, ledDevice.GetUpdatedState(16).GetBrightness()->GetValueFloat(0));
-      Assert::AreEqual(0.5, ledDevice.GetUpdatedState(32).GetBrightness()->GetValueFloat(0));
-      Assert::AreEqual(0.0, ledDevice.GetUpdatedState(48).GetBrightness()->GetValueFloat(0));
-      Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
-      Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
-      Assert::AreEqual(0.0, ledDevice.GetUpdatedState(64).GetBrightness()->GetValueFloat(0));
-      Assert::AreEqual(0.5, ledDevice.GetUpdatedState(65).GetBrightness()->GetValueFloat(0));
-      Assert::AreEqual(0.0, ledDevice.GetUpdatedState(80).GetBrightness()->GetValueFloat(0));
-      Assert::AreEqual(1.0, ledDevice.GetUpdatedState(81).GetBrightness()->GetValueFloat(0));
+            //timebase.RunProgram(1);
+
+            // Validate that after channel one loop is done it stops changing and moves on to channel two. 
+            Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+            Assert::AreEqual(1.0, ledDevice.GetUpdatedState(16).GetBrightness()->GetValueFloat(0));
+            Assert::AreEqual(0.5, ledDevice.GetUpdatedState(32).GetBrightness()->GetValueFloat(0));
+            Assert::AreEqual(0.0, ledDevice.GetUpdatedState(48).GetBrightness()->GetValueFloat(0));
+            Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+            Assert::AreEqual(0.5, ledDevice.GetUpdatedState(0).GetBrightness()->GetValueFloat(0));
+            Assert::AreEqual(0.0, ledDevice.GetUpdatedState(64).GetBrightness()->GetValueFloat(0));
+            Assert::AreEqual(0.5, ledDevice.GetUpdatedState(65).GetBrightness()->GetValueFloat(0));
+            Assert::AreEqual(0.0, ledDevice.GetUpdatedState(80).GetBrightness()->GetValueFloat(0));
+            Assert::AreEqual(1.0, ledDevice.GetUpdatedState(81).GetBrightness()->GetValueFloat(0));
+        }
+        VariableStore::VariableStoreInstance.ResetCache();
+
+        Vector::RestartVectorDataProvider();
     }
-    VariableStore::VariableStoreInstance.ResetCache();
-
-    Vector::RestartVectorDataProvider();
-  }
 
 public:
 

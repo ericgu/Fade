@@ -9,3 +9,4 @@ D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.pdb
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.csprojAssemblyReference.cache
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.LedForm.resources
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.csproj.CoreCompileInputs.cache
+D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.EditLedSetup.resources

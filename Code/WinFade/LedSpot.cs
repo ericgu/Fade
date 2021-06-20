@@ -16,7 +16,7 @@ namespace WinFade
 
         public LedSpot(string line)
         {
-            string[] parts = line.Split(',');
+            string[] parts = line.Contains(",") ? line.Split(',') : line.Split('\t');
 
             X = float.Parse(parts[0]);
             Y = float.Parse(parts[1]);

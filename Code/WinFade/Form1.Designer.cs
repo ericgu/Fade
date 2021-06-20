@@ -70,6 +70,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.c_listBoxSerialOutput.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.c_listBoxSerialOutput.FormattingEnabled = true;
+            this.c_listBoxSerialOutput.HorizontalScrollbar = true;
             this.c_listBoxSerialOutput.ItemHeight = 25;
             this.c_listBoxSerialOutput.Location = new System.Drawing.Point(987, 170);
             this.c_listBoxSerialOutput.Name = "c_listBoxSerialOutput";
@@ -248,7 +249,7 @@
             this.c_buttonReformat.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.c_buttonReformat.Location = new System.Drawing.Point(1337, 107);
             this.c_buttonReformat.Name = "c_buttonReformat";
-            this.c_buttonReformat.Size = new System.Drawing.Size(99, 39);
+            this.c_buttonReformat.Size = new System.Drawing.Size(121, 39);
             this.c_buttonReformat.TabIndex = 16;
             this.c_buttonReformat.Text = "Reformat";
             this.c_buttonReformat.UseVisualStyleBackColor = true;

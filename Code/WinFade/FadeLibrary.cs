@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text;
 
 namespace WinFade
 {
@@ -33,5 +34,7 @@ namespace WinFade
           LedUpdateCycleDoneDelegate ledUpdateCycleDoneDelegate,
           ParseErrorDelegate parseErrorDelegate);
 
-  }
+      [DllImport("FadeLibrary.dll", CallingConvention = CallingConvention.Cdecl)]
+      public static extern void PrettyFormat(string program, [MarshalAs(UnmanagedType.LPStr)] StringBuilder formattedProgram, int bufferSize);
+    }
 }

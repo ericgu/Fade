@@ -2,10 +2,10 @@ class CommandFormatter
 {
 public:
 
-	static const int preStringCount = 5;
+	static const int preStringCount = 6;
 	static const char* preStrings[];
 
-	static const int postStringCount = 5;
+	static const int postStringCount = 6;
 	static const char* postStrings[];
 
 	static int GetIndentPre(Command* pCommand)
@@ -100,5 +100,5 @@ public:
 	}
 };
 
-const char* CommandFormatter::preStrings[] = { "endif", "endfor", "endfunc", "elseif", "else" };
-const char* CommandFormatter::postStrings[] = { "if", "for", "func", "elseif", "else" };
+const char* CommandFormatter::preStrings[] = { "endif", "endfor", "endfunc", "elseif", "else", "endwhile" };
+const char* CommandFormatter::postStrings[] = { "if", "for", "func", "elseif", "else", "while" };

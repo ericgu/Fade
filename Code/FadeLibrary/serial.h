@@ -72,16 +72,16 @@ public:
 		}
 	}
 
-	void print(float value)
-	{
-		if (_outputOn)
-		{
-      *_pBuffer = '\0';
+    void print(float value)
+    {
+        if (_outputOn)
+        {
+            *_pBuffer = '\0';
 
-      sprintf(_pBuffer, "%f", value);
-      puts(_pBuffer);
-		}
-	}
+            sprintf(_pBuffer, "%f", value);
+            puts(_pBuffer);
+        }
+    }
 
 	void println(float value)
 	{

@@ -28,10 +28,14 @@ class CommandTest
 	static void TestTooBig()
 	{
 		Serial.SetOutput(0);
-		Command command("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", 0);
+        char buffer[1025];
+        for (int i = 0; i < sizeof(buffer) - 1; i++)
+        {
+            buffer[i] = '0';
+        }
+		Command command(buffer, 0);
 		Assert::AreEqual("Command string too long", Serial.GetLastString());
 		Serial.SetOutput(1);
-
 	}
 
 public:
