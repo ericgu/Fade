@@ -31,7 +31,7 @@ class VariableDataTest
 
     Assert::AreEqual(1, variableData.GetReferenceCount());
 
-    variableData.DecrementReferenceCount();
+    variableData.DecrementReferenceCountInternal();
 
     Assert::AreEqual(0, variableData.GetReferenceCount());
   }

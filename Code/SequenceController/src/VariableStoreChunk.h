@@ -3,7 +3,7 @@
 class VariableStoreChunk
 {
     int _poolSize;
-    VariableData *_pPool;
+    VariableData* _pPool;
 
 public:
     VariableStoreChunk(int poolSize)
@@ -22,7 +22,7 @@ public:
         return _poolSize;
     }
 
-    VariableData *GetFreePoolEntry()
+    VariableData *GetFreePoolEntry2()
     {
         VariableData *pVariableData = _pPool;
 

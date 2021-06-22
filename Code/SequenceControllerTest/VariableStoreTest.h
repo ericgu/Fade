@@ -10,7 +10,7 @@ class VariableStoreTest
 
         Assert::AreEqual(1, VariableStore::VariableStoreInstance.GetInUseCount());
 
-        pVariableData->DecrementReferenceCount();
+        VariableStore::VariableStoreInstance.DecrementReferenceCount(pVariableData);
 
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
     }
@@ -36,7 +36,7 @@ class VariableStoreTest
 
         Assert::AreEqual(0, pFirst->GetReferenceCount());
 
-        pSecond->DecrementReferenceCount();
+        VariableStore::VariableStoreInstance.DecrementReferenceCount(pSecond);
 
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
     }
@@ -60,9 +60,9 @@ class VariableStoreTest
         Assert::AreEqual(15, pFirst->_valueCount);
         Assert::AreEqual(15, pSplit->_valueCount);
 
-        pFirst->DecrementReferenceCount();
-        pFirst->DecrementReferenceCount();
-        pSplit->DecrementReferenceCount();
+        VariableStore::VariableStoreInstance.DecrementReferenceCount(pFirst);
+        VariableStore::VariableStoreInstance.DecrementReferenceCount(pFirst);
+        VariableStore::VariableStoreInstance.DecrementReferenceCount(pSplit);
 
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
     }
@@ -86,7 +86,7 @@ class VariableStoreTest
                 Assert::AreEqual(i, variableData[i]->_valueCount);
                 while (variableData[i]->GetReferenceCount() > 0)
                 {
-                  variableData[i]->DecrementReferenceCount();
+                    VariableStore::VariableStoreInstance.DecrementReferenceCount(variableData[i]);
                 }
             }
         }

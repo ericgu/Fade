@@ -24,7 +24,8 @@ class VariableCollectionTest
 
     static void TestCollectionCleanup()
     {
-      int maxVariables = 100;
+        int maxVariables = 100;
+        VariableStore::VariableStoreInstance.ResetCache();
 
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
         {

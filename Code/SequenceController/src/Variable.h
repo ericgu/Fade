@@ -55,16 +55,16 @@ public:
         // delete stack levels, so we need to split it into a non-program variable.
         if (_pVariableData->_stackLevel != other._pVariableData->_stackLevel)
         {
-            _pVariableData->DecrementReferenceCount(); // no longer using the current variable...
+            VariableStore::VariableStoreInstance.DecrementReferenceCount(_pVariableData);
+            other._pVariableData->IncrementReferenceCount(); // SplitOffEntry will decrement this; we pre-increment so that it doesn't get cleaned up
             _pVariableData = VariableStore::VariableStoreInstance.SplitOffEntry(other._pVariableData);
-            other._pVariableData->IncrementReferenceCount(); // SplitOffEntry decremented this.
             _pVariableData->_stackLevel = 0;
             return *this;
         }
 
         if (_pVariableData->GetReferenceCount() != 0)
         {
-            _pVariableData->DecrementReferenceCount();
+            VariableStore::VariableStoreInstance.DecrementReferenceCount(_pVariableData);
         }
         _pVariableData = other._pVariableData;
         _pVariableData->IncrementReferenceCount();
@@ -76,7 +76,7 @@ public:
     {
         if (_pVariableData != 0)
         {
-            _pVariableData->DecrementReferenceCount();
+            VariableStore::VariableStoreInstance.DecrementReferenceCount(_pVariableData);
         }
     }
 

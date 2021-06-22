@@ -31,30 +31,6 @@ public:
         _probe = 0;
     }
 
-#if fred
-    VectorDataItem* GetDataItem()
-    {
-        // Walk through and find the first free item...
-
-
-        for (int i = 0; i < _size; i++)
-        {
-            VectorDataItem* pItem = _pDataItems + _probe;
-
-            if (pItem->_pNext == DATAITEMUNUSED)
-            {
-                //Serial.print("Probe: "); Serial.println(_probe);
-                pItem->_pNext = 0;
-
-                _probe = (_probe + 1) % _size;
-                return pItem;
-            }
-            _probe = (_probe + 1) % _size;
-        }
-
-        return 0;
-    }
-#endif
     int GetSize()
     {
         return _size;
@@ -79,6 +55,8 @@ class VectorDataItemProvider
 public:
     VectorDataItemProvider()
     {
+        _chunkCount = 0;
+        _pFreeList = 0;
         AddNewChunk();
         _inUseCount = 0;
     }

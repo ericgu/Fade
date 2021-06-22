@@ -10,12 +10,17 @@ class VariableStore
 
     VariableStoreChunk *_pChunks[MaxChunks];
 
+    VariableData* _pFreeList;
+    int _inUseCount;
+
 public:
     static VariableStore VariableStoreInstance;
 
     VariableStore()
     {
         _chunkCount = 0;
+        _pFreeList = 0;
+        _inUseCount = 0;
     }
 
     ~VariableStore()
@@ -32,6 +37,8 @@ public:
         }
 
         _chunkCount = 0;
+        _pFreeList = 0;
+        _inUseCount = 0;
     }
 
     void AddChunk()
@@ -44,6 +51,14 @@ public:
         VariableStoreChunk *pChunk = new VariableStoreChunk(Environment.VariableStoreChunkSize);
         _pChunks[_chunkCount] = pChunk;
         _chunkCount++;
+
+        VariableData* pVariableData = pChunk->GetDataByIndex(0);
+
+        for (int chunk = 0; chunk < pChunk->GetSize(); chunk++)
+        {
+            MoveToFreeList(pVariableData);
+            pVariableData++;
+        }
     }
 
     VariableData *GetFreePoolEntry()
@@ -62,8 +77,19 @@ public:
             Serial.println(variableCount);
         }
 
-        VariableData *pVariableData;
+        VariableData *pVariableData = _pFreeList;
 
+        if (pVariableData)
+        {
+            _pFreeList = pVariableData->_pNext;
+            _inUseCount++;
+            pVariableData->IncrementReferenceCount();
+            return pVariableData;
+        }
+
+
+
+#if fred
         //int lastSize;
         for (int chunk = 0; chunk < _chunkCount; chunk++)
         {
@@ -75,6 +101,7 @@ public:
 
             //lastSize = _pChunks[chunk]->GetSize();
         }
+#endif
 
         if (_chunkCount == MaxChunks)
         {
@@ -88,14 +115,7 @@ public:
 
     int GetInUseCount()
     {
-        int inUse = 0;
-
-        for (int chunk = 0; chunk < _chunkCount; chunk++)
-        {
-            inUse += _pChunks[chunk]->GetInUseCount();
-        }
-
-        return inUse;
+        return _inUseCount;
     }
 
     VariableData *SplitOffEntry(VariableData *pVariableData)
@@ -108,7 +128,7 @@ public:
 
         *pSplit = *pVariableData;
 
-        pVariableData->DecrementReferenceCount();
+        DecrementReferenceCount(pVariableData);
         //pSplit->IncrementReferenceCount();
 
         return pSplit;
@@ -119,16 +139,25 @@ public:
         pVariableData->IncrementReferenceCount();
     }
 
+    void MoveToFreeList(VariableData *pVariableData)
+    {
+        pVariableData->_pNext = _pFreeList;
+        _pFreeList = pVariableData;
+    }
+
+
     void DecrementReferenceCount(VariableData *pVariableData)
     {
-        pVariableData->DecrementReferenceCount();
+        pVariableData->DecrementReferenceCountInternal();
 
-        if (pVariableData->GetReferenceCount() == 0)
+        if (pVariableData->GetReferenceCount() <= 0)
         {
-            //int k = -12;
+            MoveToFreeList(pVariableData);
+            _inUseCount--;
         }
     }
 
+#if fred
     VariableData *GetDataByIndex(int index)
     {
         for (int chunk = 0; chunk < _chunkCount; chunk++)
@@ -143,6 +172,7 @@ public:
 
         return 0;
     }
+#endif
 };
 
 VariableStore VariableStore::VariableStoreInstance;

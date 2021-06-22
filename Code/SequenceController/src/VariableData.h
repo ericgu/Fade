@@ -8,9 +8,9 @@ class VariableData
     const char* _pStringValue;
 
     Vector _values;
-    //float _value[ValuesPerVariable];
-
 public:
+    VariableData* _pNext;
+
     VariableData()
     {
       _pVariableName = 0;
@@ -18,6 +18,7 @@ public:
       _valueCount = 0;
       _stackLevel = 0;
       _referenceCount = 0;
+      _pNext = 0;
     }
 
     int _valueCount;
@@ -81,14 +82,15 @@ public:
     _referenceCount++;
     }
 
-  void DecrementReferenceCount()
+  void DecrementReferenceCountInternal()
     {
     _referenceCount--;
 
-      if (_referenceCount == 0)
+      if (_referenceCount <= 0)
       {
         _values.Cleanup();
-        _valueCount = 0; 
+        _valueCount = 0;
+        _referenceCount = 0;
       }
     }
 

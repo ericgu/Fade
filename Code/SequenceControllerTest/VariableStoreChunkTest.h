@@ -4,6 +4,7 @@
 
 class VariableStoreChunkTest
 {
+#if fred
     static void TestCreate()
     {
         VariableStoreChunk variableStoreChunk(32);
@@ -76,14 +77,15 @@ class VariableStoreChunkTest
 
         Assert::AreEqual(0, variableStoreChunk.GetInUseCount());
     }
+#endif
 
 
 public:
     static void Run()
     {
-        TestCreate();
-        TestCreateAndReferenceCounting();
-        TestCapacity();
+//        TestCreate();
+  //      TestCreateAndReferenceCounting();
+    //    TestCapacity();
     }
 };
 
