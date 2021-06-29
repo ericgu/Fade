@@ -59,6 +59,11 @@ public:
 	{
 	}
 
+	void PressButton(int buttonNumber)
+	{
+		_executionFlow.PressButton(buttonNumber);
+	}
+
 	int GetLedCount()
 	{
 		return _pLedManager->GetLedCount();
@@ -98,9 +103,9 @@ public:
 			_timeServices.TaskDelay(1); // this allows other tasks to run and keeps the watchdog timer happy.
 			_executionCount++;
 			_pLedManager->Tick();
-      LedRenderCycleDone();
+			LedRenderCycleDone();
 
-      _currentCount--;
+			_currentCount--;
 			if (_timebaseCallback)
 			{
 				(*_timebaseCallback)();

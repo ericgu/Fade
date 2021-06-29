@@ -101,48 +101,32 @@ namespace WinFade
             }
         }
 
-        protected static string GetAfterName(StreamReader reader, string name)
-        {
-            string line = reader.ReadLine();
-            if (line.StartsWith(name))
-            {
-                return line.Substring(name.Length + 1);
-            }
-
-            return null;
-        }
-
-        internal static int GetNumberAfterName(StreamReader reader, string name)
-        {
-            return Int32.Parse(GetAfterName(reader, name));
-        }
-
-        internal virtual void LoadCustom(StreamReader reader)
+        internal virtual void LoadCustom(FileLineParser fileLineParser)
         {
 
         }
 
-        internal static LedConfiguration Load(StreamReader reader)
+        internal static LedConfiguration Load(FileLineParser fileLineParser)
         {
-            string groupType = GetAfterName(reader, "GroupType");
+            string groupType = fileLineParser.GetAfterName("GroupType");
             LedConfiguration newConfiguration = CreateLedConfigurationForType(groupType);
 
-            newConfiguration.GroupNumber = GetNumberAfterName(reader, "GroupNumber");
+            newConfiguration.GroupNumber = fileLineParser.GetNumberAfterName("GroupNumber");
             newConfiguration._ledSpots = new List<LedSpot>();
 
-            newConfiguration.LedSize = GetNumberAfterName(reader, "LedSize");
-            newConfiguration.XOffset = GetNumberAfterName(reader, "XOffset");
-            newConfiguration.YOffset = GetNumberAfterName(reader, "YOffset");
+            newConfiguration.LedSize = fileLineParser.GetNumberAfterName("LedSize");
+            newConfiguration.XOffset = fileLineParser.GetNumberAfterName("XOffset");
+            newConfiguration.YOffset = fileLineParser.GetNumberAfterName("YOffset");
 
-            newConfiguration.LoadCustom(reader);
+            newConfiguration.LoadCustom(fileLineParser);
 
-            newConfiguration.LedCount = GetNumberAfterName(reader, "LedSpotCount");
-            reader.ReadLine(); //  Blank line
-            reader.ReadLine(); //  X, Y
+            newConfiguration.LedCount = fileLineParser.GetNumberAfterName("LedSpotCount");
+            fileLineParser.ReadLine(); //  Blank line
+            fileLineParser.ReadLine(); //  X, Y
 
             for (int i = 0; i < newConfiguration.LedCount; i++)
             {
-                string line = GetAfterName(reader, "LedSpot");
+                string line = fileLineParser.GetAfterName("LedSpot");
 
                 if (line != null)
                 {
@@ -190,7 +174,10 @@ namespace WinFade
 
         internal virtual void PopulateAndEnableForGroupType(EditLedSetup editLedSetup)
         {
+        }
 
+        internal virtual void DisableForGroupType(EditLedSetup editLedSetup)
+        {
         }
 
         public virtual void UpdateLedColor(Graphics graphics, int ledNumber, float red, float green, float blue)
@@ -250,5 +237,6 @@ namespace WinFade
             newConfiguration.XOffset = XOffset;
             newConfiguration.YOffset = YOffset;
         }
+
     }
 }

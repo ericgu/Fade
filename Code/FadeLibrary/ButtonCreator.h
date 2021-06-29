@@ -14,9 +14,9 @@ public:
         return 0;
     }
 
-    void SetStatus(int status)
+    virtual void PressButton()
     {
-        _status = status;
+        _status = 1;
     }
 };
 
@@ -45,7 +45,7 @@ class ButtonCreator : public IButtonCreator
     {
         if (buttonNumber >= 0 && buttonNumber < _buttonCount)
         {
-            _pButtons[buttonNumber]->SetStatus(1);
+            _pButtons[buttonNumber]->PressButton();
         }
     }
 };

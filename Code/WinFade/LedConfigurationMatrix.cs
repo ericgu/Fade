@@ -9,12 +9,12 @@ namespace WinFade
         public int XSpacing { get; set; }
         public int YSpacing { get; set; }
 
-        internal override void LoadCustom(StreamReader reader)
+        internal override void LoadCustom(FileLineParser fileLineParser)
         {
-            XCount = GetNumberAfterName(reader, "XCount");
-            YCount = GetNumberAfterName(reader, "YCount");
-            XSpacing = GetNumberAfterName(reader, "XSpacing");
-            YSpacing = GetNumberAfterName(reader, "YSpacing");
+            XCount = fileLineParser.GetNumberAfterName("XCount");
+            YCount = fileLineParser.GetNumberAfterName("YCount");
+            XSpacing = fileLineParser.GetNumberAfterName("XSpacing");
+            YSpacing = fileLineParser.GetNumberAfterName("YSpacing");
         }
 
         internal override void SaveCustom(StreamWriter writer)
@@ -69,10 +69,23 @@ namespace WinFade
         {
             editLedSetup.c_radioButtonMatrix.Checked = true;
 
+            editLedSetup.c_textBoxMatrixXCount.Enabled = true;
+            editLedSetup.c_textBoxMatrixYCount.Enabled = true;
+            editLedSetup.c_textBoxMatrixXSpacing.Enabled = true;
+            editLedSetup.c_textBoxMatrixYSpacing.Enabled = true;
+
             editLedSetup.c_textBoxMatrixXCount.Text = XCount.ToString();
             editLedSetup.c_textBoxMatrixYCount.Text = YCount.ToString();
             editLedSetup.c_textBoxMatrixXSpacing.Text = XSpacing.ToString();
             editLedSetup.c_textBoxMatrixYSpacing.Text = YSpacing.ToString();
+        }
+
+        internal override void DisableForGroupType(EditLedSetup editLedSetup)
+        {
+            editLedSetup.c_textBoxMatrixXCount.Enabled = false;
+            editLedSetup.c_textBoxMatrixYCount.Enabled = false;
+            editLedSetup.c_textBoxMatrixXSpacing.Enabled = false;
+            editLedSetup.c_textBoxMatrixYSpacing.Enabled = false;
         }
     }
 }

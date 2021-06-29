@@ -93,6 +93,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="ProgramSettings.cs" />
     <Compile Include="Project.cs" />
+    <Compile Include="FileLineParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="EditLedSetup.resx">
       <DependentUpon>EditLedSetup.cs</DependentUpon>

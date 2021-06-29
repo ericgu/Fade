@@ -49,6 +49,11 @@ public:
     {
         return _returnValue;
     }
+
+    virtual void PressButton()
+    {
+        _returnValue = 1;
+    }
 };
 
 class MockButtonCreator : public IButtonCreator
@@ -59,7 +64,6 @@ public:
         return 0;
     }
 };
-
 
 class ExecutionFlowTest
 {

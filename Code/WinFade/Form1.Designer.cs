@@ -49,6 +49,17 @@
             this.c_labelWorking = new System.Windows.Forms.Label();
             this.c_timerProgramTextHover = new System.Windows.Forms.Timer(this.components);
             this.c_buttonReformat = new System.Windows.Forms.Button();
+            this.c_buttonRemote0 = new System.Windows.Forms.Button();
+            this.c_buttonRemote1 = new System.Windows.Forms.Button();
+            this.c_buttonRemote2 = new System.Windows.Forms.Button();
+            this.c_buttonRemote3 = new System.Windows.Forms.Button();
+            this.c_buttonRemote4 = new System.Windows.Forms.Button();
+            this.c_buttonRemote5 = new System.Windows.Forms.Button();
+            this.c_buttonRemote6 = new System.Windows.Forms.Button();
+            this.c_buttonRemote7 = new System.Windows.Forms.Button();
+            this.c_buttonRemote8 = new System.Windows.Forms.Button();
+            this.c_buttonRemote9 = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -255,11 +266,153 @@
             this.c_buttonReformat.UseVisualStyleBackColor = true;
             this.c_buttonReformat.Click += new System.EventHandler(this.c_buttonReformat_Click);
             // 
+            // c_buttonRemote0
+            // 
+            this.c_buttonRemote0.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.c_buttonRemote0.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_buttonRemote0.Location = new System.Drawing.Point(1404, 684);
+            this.c_buttonRemote0.Name = "c_buttonRemote0";
+            this.c_buttonRemote0.Size = new System.Drawing.Size(37, 39);
+            this.c_buttonRemote0.TabIndex = 17;
+            this.c_buttonRemote0.Text = "0";
+            this.c_buttonRemote0.UseVisualStyleBackColor = true;
+            this.c_buttonRemote0.Click += new System.EventHandler(this.c_buttonRemote0_Click);
+            // 
+            // c_buttonRemote1
+            // 
+            this.c_buttonRemote1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.c_buttonRemote1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_buttonRemote1.Location = new System.Drawing.Point(1447, 684);
+            this.c_buttonRemote1.Name = "c_buttonRemote1";
+            this.c_buttonRemote1.Size = new System.Drawing.Size(37, 39);
+            this.c_buttonRemote1.TabIndex = 17;
+            this.c_buttonRemote1.Text = "1";
+            this.c_buttonRemote1.UseVisualStyleBackColor = true;
+            this.c_buttonRemote1.Click += new System.EventHandler(this.c_buttonRemote0_Click);
+            // 
+            // c_buttonRemote2
+            // 
+            this.c_buttonRemote2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.c_buttonRemote2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_buttonRemote2.Location = new System.Drawing.Point(1490, 684);
+            this.c_buttonRemote2.Name = "c_buttonRemote2";
+            this.c_buttonRemote2.Size = new System.Drawing.Size(37, 39);
+            this.c_buttonRemote2.TabIndex = 17;
+            this.c_buttonRemote2.Text = "2";
+            this.c_buttonRemote2.UseVisualStyleBackColor = true;
+            this.c_buttonRemote2.Click += new System.EventHandler(this.c_buttonRemote0_Click);
+            // 
+            // c_buttonRemote3
+            // 
+            this.c_buttonRemote3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.c_buttonRemote3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_buttonRemote3.Location = new System.Drawing.Point(1533, 684);
+            this.c_buttonRemote3.Name = "c_buttonRemote3";
+            this.c_buttonRemote3.Size = new System.Drawing.Size(37, 39);
+            this.c_buttonRemote3.TabIndex = 17;
+            this.c_buttonRemote3.Text = "3";
+            this.c_buttonRemote3.UseVisualStyleBackColor = true;
+            this.c_buttonRemote3.Click += new System.EventHandler(this.c_buttonRemote0_Click);
+            // 
+            // c_buttonRemote4
+            // 
+            this.c_buttonRemote4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.c_buttonRemote4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_buttonRemote4.Location = new System.Drawing.Point(1576, 684);
+            this.c_buttonRemote4.Name = "c_buttonRemote4";
+            this.c_buttonRemote4.Size = new System.Drawing.Size(37, 39);
+            this.c_buttonRemote4.TabIndex = 17;
+            this.c_buttonRemote4.Text = "4";
+            this.c_buttonRemote4.UseVisualStyleBackColor = true;
+            this.c_buttonRemote4.Click += new System.EventHandler(this.c_buttonRemote0_Click);
+            // 
+            // c_buttonRemote5
+            // 
+            this.c_buttonRemote5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.c_buttonRemote5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_buttonRemote5.Location = new System.Drawing.Point(1619, 684);
+            this.c_buttonRemote5.Name = "c_buttonRemote5";
+            this.c_buttonRemote5.Size = new System.Drawing.Size(37, 39);
+            this.c_buttonRemote5.TabIndex = 17;
+            this.c_buttonRemote5.Text = "5";
+            this.c_buttonRemote5.UseVisualStyleBackColor = true;
+            this.c_buttonRemote5.Click += new System.EventHandler(this.c_buttonRemote0_Click);
+            // 
+            // c_buttonRemote6
+            // 
+            this.c_buttonRemote6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.c_buttonRemote6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_buttonRemote6.Location = new System.Drawing.Point(1662, 684);
+            this.c_buttonRemote6.Name = "c_buttonRemote6";
+            this.c_buttonRemote6.Size = new System.Drawing.Size(37, 39);
+            this.c_buttonRemote6.TabIndex = 17;
+            this.c_buttonRemote6.Text = "6";
+            this.c_buttonRemote6.UseVisualStyleBackColor = true;
+            this.c_buttonRemote6.Click += new System.EventHandler(this.c_buttonRemote0_Click);
+            // 
+            // c_buttonRemote7
+            // 
+            this.c_buttonRemote7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.c_buttonRemote7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_buttonRemote7.Location = new System.Drawing.Point(1705, 684);
+            this.c_buttonRemote7.Name = "c_buttonRemote7";
+            this.c_buttonRemote7.Size = new System.Drawing.Size(37, 39);
+            this.c_buttonRemote7.TabIndex = 17;
+            this.c_buttonRemote7.Text = "7";
+            this.c_buttonRemote7.UseVisualStyleBackColor = true;
+            this.c_buttonRemote7.Click += new System.EventHandler(this.c_buttonRemote0_Click);
+            // 
+            // c_buttonRemote8
+            // 
+            this.c_buttonRemote8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.c_buttonRemote8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_buttonRemote8.Location = new System.Drawing.Point(1748, 684);
+            this.c_buttonRemote8.Name = "c_buttonRemote8";
+            this.c_buttonRemote8.Size = new System.Drawing.Size(37, 39);
+            this.c_buttonRemote8.TabIndex = 17;
+            this.c_buttonRemote8.Text = "8";
+            this.c_buttonRemote8.UseVisualStyleBackColor = true;
+            this.c_buttonRemote8.Click += new System.EventHandler(this.c_buttonRemote0_Click);
+            // 
+            // c_buttonRemote9
+            // 
+            this.c_buttonRemote9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.c_buttonRemote9.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_buttonRemote9.Location = new System.Drawing.Point(1791, 684);
+            this.c_buttonRemote9.Name = "c_buttonRemote9";
+            this.c_buttonRemote9.Size = new System.Drawing.Size(37, 39);
+            this.c_buttonRemote9.TabIndex = 17;
+            this.c_buttonRemote9.Text = "9";
+            this.c_buttonRemote9.UseVisualStyleBackColor = true;
+            this.c_buttonRemote9.Click += new System.EventHandler(this.c_buttonRemote0_Click);
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(1300, 691);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(84, 25);
+            this.label1.TabIndex = 18;
+            this.label1.Text = "Buttons:";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1851, 739);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.c_buttonRemote0);
+            this.Controls.Add(this.c_buttonRemote1);
+            this.Controls.Add(this.c_buttonRemote2);
+            this.Controls.Add(this.c_buttonRemote3);
+            this.Controls.Add(this.c_buttonRemote4);
+            this.Controls.Add(this.c_buttonRemote5);
+            this.Controls.Add(this.c_buttonRemote6);
+            this.Controls.Add(this.c_buttonRemote7);
+            this.Controls.Add(this.c_buttonRemote8);
+            this.Controls.Add(this.c_buttonRemote9);
             this.Controls.Add(this.c_buttonReformat);
             this.Controls.Add(this.c_labelWorking);
             this.Controls.Add(this.c_textBoxIPAddress);
@@ -309,6 +462,17 @@
         private System.Windows.Forms.Label c_labelWorking;
         private System.Windows.Forms.Timer c_timerProgramTextHover;
         private System.Windows.Forms.Button c_buttonReformat;
+        private System.Windows.Forms.Button c_buttonRemote0;
+        private System.Windows.Forms.Button c_buttonRemote1;
+        private System.Windows.Forms.Button c_buttonRemote2;
+        private System.Windows.Forms.Button c_buttonRemote3;
+        private System.Windows.Forms.Button c_buttonRemote4;
+        private System.Windows.Forms.Button c_buttonRemote5;
+        private System.Windows.Forms.Button c_buttonRemote6;
+        private System.Windows.Forms.Button c_buttonRemote7;
+        private System.Windows.Forms.Button c_buttonRemote8;
+        private System.Windows.Forms.Button c_buttonRemote9;
+        private System.Windows.Forms.Label label1;
     }
 }
 

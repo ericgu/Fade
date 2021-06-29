@@ -12,7 +12,7 @@ class Supervisor
 
 	Settings *_pSettings;
 
-    bool _logInformation = true;
+	bool _logInformation = true;
 
 	volatile bool _shouldExecuteCode;
 	volatile bool _shouldExecuteCodeLoaded;
@@ -40,10 +40,10 @@ public:
 	const static int MaxProgramSize = 16636;
 	const static int MaxNodeNameSize = 128;
 
-    void DisableLogInformation()
-    {
-        _logInformation = false;
-    }
+	void DisableLogInformation()
+	{
+		_logInformation = false;
+	}
 
 	void Init(ILedManager *pLedManager, Settings *pSettings, TimebaseCallback timebaseCallback, IButtonCreator *pButtonCreator)
 	{
@@ -66,15 +66,15 @@ public:
 		_shouldExecuteCode = _pSettings->LoadShouldExecuteCode();
 		_shouldExecuteCodeLoaded = _shouldExecuteCode;
 
-        if (_logInformation)
-        {
-            Serial.println("Startup: ");
+		if (_logInformation)
+		{
+			Serial.println("Startup: ");
 
-            Serial.print("Program will execute: ");
-            Serial.println(_shouldExecuteCode);
-            Serial.println("Program:");
-            Serial.println(_pCurrentCommand);
-        }
+			Serial.print("Program will execute: ");
+			Serial.println(_shouldExecuteCode);
+			Serial.println("Program:");
+			Serial.println(_pCurrentCommand);
+		}
 		if (_shouldExecuteCode)
 		{
 			_commandSource.SetCommand(_pCurrentCommand);
@@ -96,11 +96,11 @@ public:
 
 		SafeString::StringCopy(_pCurrentCommand, pProgram, MaxProgramSize);
 
-        if (_logInformation)
-        {
-            Serial.print("Program Updated: ");
-            Serial.println((int)strlen(pProgram));
-        }
+		if (_logInformation)
+		{
+			Serial.print("Program Updated: ");
+			Serial.println((int)strlen(pProgram));
+		}
 
 		//_parseErrors.Clear();
 		//_commandSource.SetCommand(_pCurrentCommand);
@@ -118,12 +118,12 @@ public:
 		_shouldExecuteCode = true;
 		_executionCount = 0;
 
-        if (_logInformation)
-        {
-            Serial.println(_pCurrentCommand);
+		if (_logInformation)
+		{
+			Serial.println(_pCurrentCommand);
 
-            Serial.println("Starting execution");
-        }
+			Serial.println("Starting execution");
+		}
 	}
 
 	void UpdateNodeName(const char *pNodeName)
@@ -218,5 +218,10 @@ public:
 									 //Serial.println(VariableStore::VariableStoreInstance.GetInUseCount());
 									 //Serial.println(ESP.getFreeHeap());
 		}
+	}
+
+	void PressButton(int buttonNumber)
+	{
+		_pTimebase->PressButton(buttonNumber);
 	}
 };

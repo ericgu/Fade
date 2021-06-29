@@ -6,9 +6,12 @@ namespace WinFade
     public partial class EditLedSetup : Form
     {
         private readonly LedTestBoard _ledTestBoard;
+        private LedConfiguration _currentLedConfiguration;
 
         public EditLedSetup(LedTestBoard ledTestBoard)
         {
+            _currentLedConfiguration = null;
+
             _ledTestBoard = ledTestBoard;
 
             InitializeComponent();
@@ -50,6 +53,11 @@ namespace WinFade
 
         private void c_listBoxLedGroups_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_currentLedConfiguration != null)
+            {
+                _currentLedConfiguration.DisableForGroupType(this);
+            }
+
             LedConfiguration ledConfiguration = SelectedLedConfiguration;
 
             c_textBoxGroupNumber.Text = ledConfiguration.GroupNumber.ToString();
@@ -62,6 +70,7 @@ namespace WinFade
             c_textBoxRingRadius.Enabled = false;
 
             ledConfiguration.PopulateAndEnableForGroupType(this);
+            _currentLedConfiguration = ledConfiguration;
         }
 
         private void MainValuesChanged(object sender, EventArgs e)

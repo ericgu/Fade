@@ -18,11 +18,15 @@ namespace WinFade
 
         public LedForm(LedTestBoard ledTestBoard)
         {
+            _ledTestBoard = ledTestBoard;
             InitializeComponent();
+
+            ClientSize = new Size(ledTestBoard.XSize, ledTestBoard.YSize);
+            StartPosition = FormStartPosition.Manual;
+            Location = new Point(ledTestBoard.XLocation, ledTestBoard.YLocation);
 
             _bitmap = new Bitmap(Width, Height, PixelFormat.Format32bppPArgb);
             _graphics = Graphics.FromImage(_bitmap);
-            _ledTestBoard = ledTestBoard;
         }
 
         ~LedForm()
@@ -105,8 +109,16 @@ namespace WinFade
         {
             if (ButtonPressed != null && e.KeyChar >= '0' && e.KeyChar <= '9')
             {
-                ButtonPressed(e.KeyChar - '0' - 1);
+                ButtonPressed(e.KeyChar - '0');
             }
+        }
+
+        private void LedForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _ledTestBoard.XLocation = Location.X;
+            _ledTestBoard.YLocation = Location.Y;
+            _ledTestBoard.XSize = Width;
+            _ledTestBoard.YSize = Height;
         }
     }
 }

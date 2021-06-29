@@ -321,10 +321,10 @@ class BuiltInFunctions
 				Environment.DebugLogHeapFreeOnAllocation = pValue->GetValueInt();
 				return true;
 			}
-			else if (strcmp(pIdentifier->GetValueString(), "DebugButtonNumber") == 0)
+			else if (strcmp(pIdentifier->GetValueString(), "DebugLogTouchButtonValues") == 0)
 			{
 				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
-				Environment.DebugButtonNumber = pValue->GetValueInt();
+				Environment.DebugLogTouchButtonValues = pValue->GetValueInt();
 				return true;
 			}
 		}

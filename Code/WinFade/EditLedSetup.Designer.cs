@@ -45,6 +45,8 @@ namespace WinFade
             this.label5 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.c_textBoxStripSpacing = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
             this.c_textBoxPwmColorCoding = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.c_radioButtonPwm = new System.Windows.Forms.RadioButton();
@@ -71,8 +73,6 @@ namespace WinFade
             this.c_buttonDelete = new System.Windows.Forms.Button();
             this.c_buttonUp = new System.Windows.Forms.Button();
             this.c_buttonDown = new System.Windows.Forms.Button();
-            this.label13 = new System.Windows.Forms.Label();
-            this.c_textBoxStripSpacing = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -220,8 +220,29 @@ namespace WinFade
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Group Type";
             // 
+            // c_textBoxStripSpacing
+            // 
+            this.c_textBoxStripSpacing.Enabled = false;
+            this.c_textBoxStripSpacing.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_textBoxStripSpacing.Location = new System.Drawing.Point(221, 34);
+            this.c_textBoxStripSpacing.Name = "c_textBoxStripSpacing";
+            this.c_textBoxStripSpacing.Size = new System.Drawing.Size(94, 30);
+            this.c_textBoxStripSpacing.TabIndex = 33;
+            this.c_textBoxStripSpacing.TextChanged += new System.EventHandler(this.c_textBoxStripSpacing_TextChanged);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.Location = new System.Drawing.Point(112, 36);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(90, 25);
+            this.label13.TabIndex = 32;
+            this.label13.Text = "Spacing:";
+            // 
             // c_textBoxPwmColorCoding
             // 
+            this.c_textBoxPwmColorCoding.Enabled = false;
             this.c_textBoxPwmColorCoding.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.c_textBoxPwmColorCoding.Location = new System.Drawing.Point(251, 224);
             this.c_textBoxPwmColorCoding.Name = "c_textBoxPwmColorCoding";
@@ -254,6 +275,7 @@ namespace WinFade
             // 
             // c_textBoxMatrixYCount
             // 
+            this.c_textBoxMatrixYCount.Enabled = false;
             this.c_textBoxMatrixYCount.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.c_textBoxMatrixYCount.Location = new System.Drawing.Point(145, 183);
             this.c_textBoxMatrixYCount.Name = "c_textBoxMatrixYCount";
@@ -263,6 +285,7 @@ namespace WinFade
             // 
             // c_textBoxMatrixYSpacing
             // 
+            this.c_textBoxMatrixYSpacing.Enabled = false;
             this.c_textBoxMatrixYSpacing.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.c_textBoxMatrixYSpacing.Location = new System.Drawing.Point(238, 182);
             this.c_textBoxMatrixYSpacing.Name = "c_textBoxMatrixYSpacing";
@@ -272,6 +295,7 @@ namespace WinFade
             // 
             // c_textBoxMatrixXSpacing
             // 
+            this.c_textBoxMatrixXSpacing.Enabled = false;
             this.c_textBoxMatrixXSpacing.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.c_textBoxMatrixXSpacing.Location = new System.Drawing.Point(238, 145);
             this.c_textBoxMatrixXSpacing.Name = "c_textBoxMatrixXSpacing";
@@ -281,6 +305,7 @@ namespace WinFade
             // 
             // c_textBoxMatrixXCount
             // 
+            this.c_textBoxMatrixXCount.Enabled = false;
             this.c_textBoxMatrixXCount.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.c_textBoxMatrixXCount.Location = new System.Drawing.Point(145, 145);
             this.c_textBoxMatrixXCount.Name = "c_textBoxMatrixXCount";
@@ -343,6 +368,7 @@ namespace WinFade
             // c_checkBoxReversed
             // 
             this.c_checkBoxReversed.AutoSize = true;
+            this.c_checkBoxReversed.Enabled = false;
             this.c_checkBoxReversed.Location = new System.Drawing.Point(350, 75);
             this.c_checkBoxReversed.Name = "c_checkBoxReversed";
             this.c_checkBoxReversed.Size = new System.Drawing.Size(117, 29);
@@ -353,6 +379,7 @@ namespace WinFade
             // 
             // c_textBoxRingRadius
             // 
+            this.c_textBoxRingRadius.Enabled = false;
             this.c_textBoxRingRadius.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.c_textBoxRingRadius.Location = new System.Drawing.Point(221, 72);
             this.c_textBoxRingRadius.Name = "c_textBoxRingRadius";
@@ -385,6 +412,7 @@ namespace WinFade
             // 
             // c_buttonCustomPaste
             // 
+            this.c_buttonCustomPaste.Enabled = false;
             this.c_buttonCustomPaste.Location = new System.Drawing.Point(130, 259);
             this.c_buttonCustomPaste.Name = "c_buttonCustomPaste";
             this.c_buttonCustomPaste.Size = new System.Drawing.Size(105, 39);
@@ -490,25 +518,6 @@ namespace WinFade
             this.c_buttonDown.UseVisualStyleBackColor = true;
             this.c_buttonDown.Click += new System.EventHandler(this.c_buttonDown_Click);
             // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.Location = new System.Drawing.Point(112, 36);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(90, 25);
-            this.label13.TabIndex = 32;
-            this.label13.Text = "Spacing:";
-            // 
-            // c_textBoxStripSpacing
-            // 
-            this.c_textBoxStripSpacing.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.c_textBoxStripSpacing.Location = new System.Drawing.Point(221, 34);
-            this.c_textBoxStripSpacing.Name = "c_textBoxStripSpacing";
-            this.c_textBoxStripSpacing.Size = new System.Drawing.Size(94, 30);
-            this.c_textBoxStripSpacing.TabIndex = 33;
-            this.c_textBoxStripSpacing.TextChanged += new System.EventHandler(this.c_textBoxStripSpacing_TextChanged);
-            // 
             // EditLedSetup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -558,7 +567,7 @@ namespace WinFade
         internal RadioButton c_radioButtonStrip;
         private TextBox c_textBoxLedSize;
         private Label label6;
-        private Button c_buttonCustomPaste;
+        internal Button c_buttonCustomPaste;
         private Label label2;
         internal RadioButton c_radioButtonRing;
         internal TextBox c_textBoxRingRadius;

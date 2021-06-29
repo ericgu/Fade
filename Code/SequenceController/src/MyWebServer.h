@@ -71,6 +71,7 @@ public:
 
       Serial.print("Button: ");
       Serial.println(buttonNumber);
+      _pSupervisor->PressButton(buttonNumber);
       snprintf(_pPageBuffer, 16636, "<h1>%d</h1>", buttonNumber);
       _pWebServer->send(200, "text/html", _pPageBuffer);
     }

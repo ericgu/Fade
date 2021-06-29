@@ -114,9 +114,9 @@ a[2] = 3</p>
 </table>
 <p>&nbsp;</p>
 <h2>Statements</h2>
-<h3>FOR / ENDFOR</h3>
+<h3>for / endfor</h3>
 <p>Implements a loop.</p>
-<p>FOR &lt;variable&gt; &lt;first&gt;:&lt;last&gt;[:&lt;increment&gt;]</p>
+<p>for &lt;variable&gt; &lt;first&gt;:&lt;last&gt;[:&lt;increment&gt;]</p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
 		<td style="width: 332px">variable</td>
@@ -139,13 +139,24 @@ a[2] = 3</p>
 <p>The for loop will execute, starting with the first value and terminating when 
 the value exceeds the last value. The increment is 1 if not specified.</p>
 <p>Example:</p>
-<p class="auto-style1">&nbsp;FOR channel 32:1:-1<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DI(1,channel,{red, green, blue})<br />
+<p class="auto-style1">&nbsp;for channel 32:1:-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Di(1,channel,{red, green, blue})<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; D(10,channel,{0, 0, 0})<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A(3)<br />
-ENDFOR </p>
-<h3>IF / ELSEIF / ELSE ENDIF</h3>
-<p>IF &lt;condition&gt;</p>
+endfor </p>
+<h3>while / dowhile</h3>
+<p>Implements a while loop</p>
+<p>while &lt;condition&gt;</p>
+<table class="auto-style1" style="width: 70%">
+	<tr>
+		<td style="width: 332px">condition</td>
+		<td style="width: 1094px">The condition to evaluate. Zero (0) is false, 
+		any non-zero value is true.</td>
+	</tr>
+	</table>
+<p>The while loop will execute as long as the condition is true.</p>
+<h3>if / elseif / else / endif</h3>
+<p>if &lt;condition&gt;</p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
 		<td style="width: 332px">condition</td>
@@ -155,13 +166,13 @@ ENDFOR </p>
 </table>
 <p>&nbsp;Implements a condition statement. </p>
 <p>Example:</p>
-<p class="auto-style1">IF x == 1<br />
-&nbsp;&nbsp;&nbsp;&nbsp; PL("one")<br />
-ELSEIF x== 2<br />
-&nbsp;&nbsp;&nbsp;&nbsp; PL("two")<br />
-ELSE<br />
-&nbsp;&nbsp;&nbsp;&nbsp; PL("other")<br />
-ENDIF</p>
+<p class="auto-style1">if x == 1<br />
+&nbsp;&nbsp;&nbsp;&nbsp; Pl("one")<br />
+elseif x== 2<br />
+&nbsp;&nbsp;&nbsp;&nbsp; Pl("two")<br />
+else<br />
+&nbsp;&nbsp;&nbsp;&nbsp; Pl("other")<br />
+endif</p>
 <p>&nbsp;</p>
 <h3>Assignment</h3>
 <p>Assignment is technically an operator, but is listed here for completeness.
@@ -170,17 +181,17 @@ ENDIF</p>
 <p>Examples: </p>
 <p class="auto-style1">x = y * y</p>
 <p class="auto-style1">g[x] = 33</p>
-<h3>Break</h3>
-<p>Breaks out of a FOR loop and continues execution in the next statement after 
-the ENDFOR</p>
-<h3>Return</h3>
+<h3>break</h3>
+<p>Breaks out of a for loop and continues execution in the next statement after 
+the endfor</p>
+<h3>return</h3>
 <p>Returns a value from a function.</p>
 <p>Example:</p>
-<p class="auto-style1">RETURN result</p>
+<p class="auto-style1">return result</p>
 <h2>Functions</h2>
 <p>Functions may be defined and called:</p>
-<h3>Function Definition (FUNC/ENDFUNC)</h3>
-<p>FUNC &lt;name&gt;(&lt;parameterList&gt;)</p>
+<h3>Function Definition (func/endfunc)</h3>
+<p>func &lt;name&gt;(&lt;parameterList&gt;)</p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
 		<td style="width: 332px">name</td>
@@ -193,17 +204,17 @@ the ENDFOR</p>
 </table>
 <p>Declares a function.</p>
 <p>Example:</p>
-<p class="auto-style1">FUNC GetColor(colorNumber)<br />
+<p class="auto-style1">func GetColor(colorNumber)<br />
 <br />
-IF (colorNumber == 0)<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RETURN {1, 0, 0}<br />
-ELSEIF (colorNumber == 1)<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RETURN {1, 1, 0}<br />
-ELSEIF (colorNumber == 2)<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RETURN {0, 1, 0}<br />
-ENDIF<br />
+if (colorNumber == 0)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return {1, 0, 0}<br />
+elseif (colorNumber == 1)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return {1, 1, 0}<br />
+elseif (colorNumber == 2)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return {0, 1, 0}<br />
+endif<br />
 <br />
-ENDFUNC</p>
+endfunc</p>
 <h3>Function Invocation</h3>
 <p>Call a function.</p>
 <p>Example:</p>
@@ -226,9 +237,9 @@ brightness value until a new fade for that channel is defined and executed. If
 there are no defined animations, calling the A() function merely delay by the 
 specified cycle count.</p>
 <h4>&nbsp;</h4>
-<h4>CONFIGBUTTON</h4>
-<p>CONFIGBUTTON defines a button that can be used to control program flow.</p>
-<p>CONFIGBUTTON(&lt;buttonNumber&gt;, &lt;buttonType&gt;, &lt;buttonPin&gt;, &lt;param 1&gt;, &lt;param 2&gt;, 
+<h4>ConfigButton</h4>
+<p>ConfigButton defines a button that can be used to control program flow.</p>
+<p>ConfigButton (&lt;buttonNumber&gt;, &lt;buttonType&gt;, &lt;buttonPin&gt;, &lt;param 1&gt;, &lt;param 2&gt;, 
 &lt;param 3&gt; , &lt;param 4&gt;)</p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
@@ -258,16 +269,17 @@ specified cycle count.</p>
 			determine whether the contact is touched or not</td>
 		</tr>
 </table>
-<p>See READBUTTON() to read button values. For touch buttons, see 
-DEBUG("DebugButtonNumber") to determine an appropriate threshold value. </p>
+<p>See ReadButton() to read button values. For touch buttons, see 
+Debug("DebugButtonNumber") to determine an appropriate threshold value. </p>
+<p>The ESP-32 supports touch buttons on pins 0, 2, 4, 12, 13, 14, 15, 27, 32, 33</p>
 <p>Examples:</p>
-<p>CONFIGBUTTON(0, "TOUCH", 15, 20)</p>
+<p>ConfigButton (0, "TOUCH", 15, 20)</p>
 <p>Defines a touch button connected to pin 15 of the ESP32 and use 20 as the 
 touch threshold value. </p>
 <p>&nbsp;</p>
-<h4>CONFIGLED</h4>
-<p>CONFIGLED defines one or more LEDs that the system can animate.</p>
-<p>CONFIGLED(&lt;ledStringNumber&gt;, &lt;ledStringType&gt;, &lt;ledCount&gt;, &lt;param 1&gt;, &lt;param 
+<h4>ConfigLed</h4>
+<p>ConfigLed defines one or more LEDs that the system can animate.</p>
+<p>ConfigLed (&lt;ledStringNumber&gt;, &lt;ledStringType&gt;, &lt;ledCount&gt;, &lt;param 1&gt;, &lt;param 
 2&gt;, &lt;param 3&gt; , &lt;param 4&gt;)</p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
@@ -308,16 +320,16 @@ touch threshold value. </p>
 		</tr>
 </table>
 <p>Examples:</p>
-<p>CONFIGLED(0, "RGB", 8, 27)<br />
-CONFIGLED(1, "PWM", 3, 17, 16, 4)</p>
+<p>ConfigLed (0, "RGB", 8, 27)<br />
+ConfigLed (1, "PWM", 3, 17, 16, 4)</p>
 <p>Configures a string of 8 WS2812 leds connected to pin 27 as the first string, 
 followed by 3 individually controlled PWM leds on pins 17, 16, and 4. </p>
 <p>When animating, leds 0-7 will be the WS2812 leds and leds 8-10 will be the 
 PWM ones. </p>
-<h4>D and DI</h4>
-<p>D and DI define a fade for the animation system to perform.</p>
+<h4>D and Di</h4>
+<p>D and Di define a fade for the animation system to perform.</p>
 <p>D(&lt;cycleCount&gt;, &lt;ledIndex&gt;, &lt;targetBrightness&gt;)<br />
-DI(&lt;cycleCount&gt;, &lt;ledIndex&gt;, &lt;targetBrightness&gt;)</p>
+Di(&lt;cycleCount&gt;, &lt;ledIndex&gt;, &lt;targetBrightness&gt;)</p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
 		<td style="width: 332px">int cycleCount</td>
@@ -340,7 +352,7 @@ expressed in 10 millisecond units. </p>
 <p>The targetBrightnessparameter defines the target brightness, and the format 
 depends upon the type of underlying LED hardware. For PWM leds, it is a single 
 floating point value. For addressable LEDs, it is a series of values. </p>
-<p>The DI function is used to simplify code when only a single fade operation is 
+<p>The Di function is used to simplify code when only a single fade operation is 
 required by also performing the animation; it is equivalent to:</p>
 <p>D(&lt;cycleCount&gt;, &lt;ledIndex&gt;, &lt;targetBrightness&gt;)<br />
 A(&lt;cycleCount&gt;)</p>
@@ -352,9 +364,26 @@ D(30, 6, {0.0, 0.5, 0.0})<br />
 <br />
 Define two fades that will occur over the next 30 cycles; led #5 will fade to 
 red and led #6 will fade to 50% green.</p>
-<h4>DEBUG</h4>
-<p>DEBUG sets a debugging flag.</p>
-<p>DEBUG (&lt;debugFlag&gt;, &lt;value&gt;)</p>
+<h4>HsvToRgb</h4>
+<p>Converts a Hue-Saturation-Value color to an RGB Color</p>
+<p>HsvToRgb (&lt;hue&gt;, &lt;saturation&gt;, &lt;value&gt;)</p>
+<table class="auto-style1" style="width: 70%">
+	<tr>
+		<td style="width: 332px">float hue</td>
+		<td style="width: 1094px">The hue value from 0-359</td>
+	</tr>
+	<tr>
+		<td style="width: 332px">float saturation</td>
+		<td style="width: 1094px">The saturation from 0-1</td>
+	</tr>
+	<tr>
+		<td style="width: 332px">float value</td>
+		<td style="width: 1094px">The intensity value from 0-1</td>
+	</tr>
+</table>
+<h4>Debug</h4>
+<p>Debug sets a debugging flag.</p>
+<p>Debug (&lt;debugFlag&gt;, &lt;value&gt;)</p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
 		<td style="width: 332px">string debugFlag</td>
@@ -388,10 +417,10 @@ system behavior easier. The following debug flags are defined</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <h4>P<br />
-PL</h4>
-<p>Prints a diagnostic value to the serial subsystem&nbsp; </p>
+Pl</h4>
+<p>Prints one or more values to the serial subsystem&nbsp; </p>
 <p>P(&lt;value&gt;,...)<br />
-PL(&lt;value&gt;,...)<br />
+Pl(&lt;value&gt;,...)<br />
 </p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
@@ -399,11 +428,11 @@ PL(&lt;value&gt;,...)<br />
 		<td style="width: 1094px">A string, integer, or brightness value </td>
 	</tr>
 </table>
-<p>PL performs the print operation followed by a new line. </p>
-<h4>RAND</h4>
-<p>RAND generates a pseudo-random number between the minimum and maximum value, 
+<p>Pl performs the print operation followed by a new line. </p>
+<h4>Rand</h4>
+<p>Rand generates a pseudo-random number between the minimum and maximum value, 
 inclusive.</p>
-<p>RAND(&lt;minimumValue&gt;, &lt;maximumValue&gt;)</p>
+<p>Rand(&lt;minimumValue&gt;, &lt;maximumValue&gt;)</p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
 		<td style="width: 332px">int minimumValue</td>
@@ -414,9 +443,9 @@ inclusive.</p>
 		<td style="width: 1094px">The largest number to generate</td>
 	</tr>
 </table>
-<h4>READBUTTON</h4>
-<p>READBUTTON reads the current value of a button to determine if it is pressed.</p>
-<p>int READBUTTON(&lt;buttonNumber&gt;)</p>
+<h4>ReadButton</h4>
+<p>ReadButton reads the current value of a button to determine if it is pressed.</p>
+<p>int ReadButton (&lt;buttonNumber&gt;)</p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
 		<td style="width: 332px">int buttonNumber</td>
@@ -426,14 +455,14 @@ inclusive.</p>
 <p>This function returns 1 if the button is pressed and 0 if the button is not 
 pressed.</p>
 <p>Examples:</p>
-<p>IF READBUTTON(0) == 1<br />
+<p>if ReadButton (0) == 1<br />
 <br />
-ENDIF</p>
-<h4>S and SI</h4>
-<p>S and SI define a fade for the animation system to perform for multiple leds.
+endif</p>
+<h4>S and Si</h4>
+<p>S and Si define a fade for the animation system to perform for multiple leds.
 </p>
 <p>S(&lt;cycleCount&gt;, &lt;firstLedTargetBrightness&gt;, ..., &lt;lastLedTargetBrightness&gt;)<br />
-SI(&lt;cycleCount&gt;, &lt;firstLedTargetBrightness&gt;, ..., &lt;lastLedTargetBrightness&gt;)<br />
+Si(&lt;cycleCount&gt;, &lt;firstLedTargetBrightness&gt;, ..., &lt;lastLedTargetBrightness&gt;)<br />
 </p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
@@ -446,18 +475,18 @@ SI(&lt;cycleCount&gt;, &lt;firstLedTargetBrightness&gt;, ..., &lt;lastLedTargetB
 		<td style="width: 1094px">A list of target brightnesses for the leds</td>
 	</tr>
 </table>
-<p>The S and SI functions are used to define a fade that is performed on 
+<p>The S and Si functions are used to define a fade that is performed on 
 multiple LEDs using the same cycle count.</p>
 <p>The cycleCount parameter is used to control how fast the fade occurs, 
 expressed in 10 millisecond units. </p>
 <p>The target brightness list defines the target brightness for the leds, 
 starting with led #0 and continuing based on the number of values listed</p>
-<p>The SI function is used to simplify code when only a single fade operation is 
-required by also performing the animation. See DI for more information.</p>
+<p>The Si function is used to simplify code when only a single fade operation is 
+required by also performing the animation. See Di for more information.</p>
 <p>Examples:</p>
 <p>S(100, 1.0)</p>
 <p>Define a fade for led #0 to full brightness over one second.</p>
-<p>SI(200, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0} )<br />
+<p>Si(200, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0} )<br />
 <br />
 Define three fades that will occur over the next 200 cycles; led #0 will fade to 
 red, #1 to green, and #2 to blue. This is equivalent to:<br />

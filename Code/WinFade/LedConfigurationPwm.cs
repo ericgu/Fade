@@ -14,9 +14,9 @@ namespace WinFade
             _values = new float[4];
         }
 
-        internal override void LoadCustom(StreamReader reader)
+        internal override void LoadCustom(FileLineParser fileLineParser)
         {
-            ColorMapping = GetAfterName(reader, "ColorMapping");
+            ColorMapping = fileLineParser.GetAfterName("ColorMapping");
         }
 
         internal override void SaveCustom(StreamWriter writer)
@@ -45,7 +45,13 @@ namespace WinFade
         {
             editLedSetup.c_radioButtonPwm.Checked = true;
 
+            editLedSetup.c_textBoxPwmColorCoding.Enabled = true;
             editLedSetup.c_textBoxPwmColorCoding.Text = ColorMapping;
+        }
+
+        internal override void DisableForGroupType(EditLedSetup editLedSetup)
+        {
+            editLedSetup.c_textBoxPwmColorCoding.Enabled = false;
         }
 
         public override void UpdateLedColor(Graphics graphics, int ledNumber, float red, float green, float blue)

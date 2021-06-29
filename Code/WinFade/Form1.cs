@@ -38,7 +38,12 @@ namespace WinFade
         {
             InitializeComponent();
 
+            _programSettings = new ProgramSettings();
+
             _project = new Project();
+            _project.Filename = _programSettings.Filename;
+            _project.Load();
+
             _ledForm = new LedForm(_project.LedTestBoard);
             _ledForm.Closing += (sender, args) =>
             {
@@ -48,12 +53,6 @@ namespace WinFade
 
             _ledForm.ButtonPressed += LedFormOnButtonPressed;
 
-            _programSettings = new ProgramSettings();
-            //c_textBoxProgramText.Text = _programSettings.ProgramText;
-            //_project.ProgramText = _programSettings.ProgramText;
-
-            _project.Filename = _programSettings.Filename;
-            _project.Load();
             SetBanner();
             c_textBoxProgramText.Text = _project.ProgramText;
 
@@ -633,6 +632,27 @@ namespace WinFade
             // call reformat function, change reformat function to modify uppercase keywords and function to lower/pascal cased ones. 
 
             // Make language changes one keyword at a time first. 
+        }
+
+        private void c_buttonRemote0_Click(object sender, EventArgs e)
+        {
+            c_labelWorking.Text = "Working...";
+
+            string buttonUrl = "http://" + c_textBoxIPAddress.Text + "/Button?ButtonNumber=" + ((Button)sender).Text;
+            WebRequest req = WebRequest.Create(buttonUrl);
+ 
+            try
+            {
+                WebResponse res = req.GetResponse();
+                StreamReader sr = new StreamReader(res.GetResponseStream());
+                string returnvalue = sr.ReadToEnd();
+                c_labelWorking.Text = "Done";
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message);
+                c_labelWorking.Text = "Error";
+            }
         }
     }
 }

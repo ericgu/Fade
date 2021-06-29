@@ -32,11 +32,11 @@ namespace WinFade
             }
         }
 
-        internal override void LoadCustom(StreamReader reader)
+        internal override void LoadCustom(FileLineParser fileLineParser)
         {
-            RingRadius = GetNumberAfterName(reader, "RingRadius");
+            RingRadius = fileLineParser.GetNumberAfterName("RingRadius");
             bool result;
-            Boolean.TryParse(reader.ReadLine(), out result);
+            Boolean.TryParse(fileLineParser.ReadLine(), out result);
             Reversed = result;
         }
 
@@ -77,7 +77,14 @@ namespace WinFade
             editLedSetup.c_radioButtonRing.Checked = true;
             editLedSetup.c_textBoxRingRadius.Enabled = true;
             editLedSetup.c_textBoxRingRadius.Text = RingRadius.ToString();
+            editLedSetup.c_checkBoxReversed.Enabled = true;
             editLedSetup.c_checkBoxReversed.Checked = Reversed;
+        }
+
+        internal override void DisableForGroupType(EditLedSetup editLedSetup)
+        {
+            editLedSetup.c_textBoxRingRadius.Enabled = false;
+            editLedSetup.c_checkBoxReversed.Enabled = false;
         }
 
         public void RingValuesChanged(EditLedSetup editLedSetup)

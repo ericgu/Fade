@@ -19,6 +19,8 @@ class TouchButton : public IButton
         _touchTrue = 1;
     }
 
+    const int touchPinNumbers[10] = {4, 0, 2, 15, 13, 12, 14, 27, 33, 32}; // T0 through T9
+
 public:
     static void InterruptHandler0()
     {
@@ -37,6 +39,12 @@ public:
         touchAttachInterrupt(pin, InterruptHandler0, threshold);
     }
 
+    virtual void PressButton()
+    {
+        _touchTrue = 1;
+        _trueCount = 2;
+    }
+
     virtual bool GetButtonStatus()
     {
         // behavior
@@ -50,6 +58,16 @@ public:
         //Serial.print(_trueCount);
         //Serial.print(" ");
         //Serial.println(_falseCount);
+        if (Environment.DebugLogTouchButtonValues)
+        {
+            for (int button = 0; button < 10; button++)
+            {
+                int value = touchRead(touchPinNumbers[button]);
+                Serial.print(value);
+                Serial.print(" ");
+            }
+            Serial.println();
+        }
 
         if (_touchTrue)
         {

@@ -99,6 +99,14 @@ public:
         }
     }
 
+    void PressButton(int buttonNumber)
+    {
+        if (buttonNumber >= 0 && buttonNumber < _buttonCount)
+        {
+            _pButtons[buttonNumber]->PressButton();
+        }
+    }
+
     ExecutionContext *GetExecutionContext()
     {
         return _pExecutionContext;

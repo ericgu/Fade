@@ -40,9 +40,9 @@ namespace WinFade
             }
         }
 
-        internal override void LoadCustom(StreamReader reader)
+        internal override void LoadCustom(FileLineParser fileLineParser)
         {
-            Spacing = GetNumberAfterName(reader, "Spacing");
+            Spacing = fileLineParser.GetNumberAfterName("Spacing");
         }
 
         internal override void SaveCustom(StreamWriter writer)
@@ -54,6 +54,12 @@ namespace WinFade
         {
             editLedSetup.c_radioButtonStrip.Checked = true;
             editLedSetup.c_textBoxStripSpacing.Text = Spacing.ToString();
+            editLedSetup.c_textBoxStripSpacing.Enabled = true;
+        }
+
+        internal override void DisableForGroupType(EditLedSetup editLedSetup)
+        {
+            editLedSetup.c_textBoxStripSpacing.Enabled = false;
         }
 
         public void ValuesChanged(EditLedSetup editLedSetup)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Windows.Forms.VisualStyles;
 
 namespace WinFade
 {
@@ -46,7 +47,7 @@ namespace WinFade
                 LedTestBoard.Save(writer);
 
                 writer.WriteLine("Program Text");
-                writer.WriteLine(ProgramText);
+                writer.Write(ProgramText);
             }
         }
 
@@ -57,16 +58,14 @@ namespace WinFade
                 return;
             }
 
-            using (StreamReader reader = File.OpenText(Filename))
-            {
-                reader.ReadLine();                  // header
-                ProjectName = reader.ReadLine();
-                LedTestBoard.Load(reader);
+            FileLineParser fileLineParser = new FileLineParser(Filename);
 
-                reader.ReadLine();                  // Program Text
-                ProgramText = reader.ReadToEnd();
-            }
+            fileLineParser.ReadLine(); // header
+            ProjectName = fileLineParser.ReadLine();
+            LedTestBoard.Load(fileLineParser);
+
+            fileLineParser.ReadLine(); // Program Text
+            ProgramText = fileLineParser.ReadToEnd();
         }
-
     }
 }

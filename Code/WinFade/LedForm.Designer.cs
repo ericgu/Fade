@@ -38,7 +38,7 @@
             this.c_pictureBoxLeds.Dock = System.Windows.Forms.DockStyle.Fill;
             this.c_pictureBoxLeds.Location = new System.Drawing.Point(0, 0);
             this.c_pictureBoxLeds.Name = "c_pictureBoxLeds";
-            this.c_pictureBoxLeds.Size = new System.Drawing.Size(1408, 685);
+            this.c_pictureBoxLeds.Size = new System.Drawing.Size(722, 303);
             this.c_pictureBoxLeds.TabIndex = 0;
             this.c_pictureBoxLeds.TabStop = false;
             this.c_pictureBoxLeds.MouseDown += new System.Windows.Forms.MouseEventHandler(this.c_pictureBoxLeds_MouseDown);
@@ -49,11 +49,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1408, 685);
+            this.ClientSize = new System.Drawing.Size(722, 303);
             this.Controls.Add(this.c_pictureBoxLeds);
             this.Name = "LedForm";
             this.ShowInTaskbar = false;
             this.Text = "Fade Output";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.LedForm_FormClosing);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.LedForm_KeyPress);
             ((System.ComponentModel.ISupportInitialize)(this.c_pictureBoxLeds)).EndInit();
             this.ResumeLayout(false);

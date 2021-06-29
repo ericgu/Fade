@@ -10,9 +10,18 @@ namespace WinFade
     {
         private List<LedConfiguration> _ledConfigurations;
 
+        public int XLocation { get; set; }
+        public int YLocation { get; set; }
+        public int XSize { get; set; }
+        public int YSize { get; set; }
+
         public LedTestBoard()
         {
             _ledConfigurations = new List<LedConfiguration>();
+            XLocation = 100;
+            YLocation = 100;
+            XSize = 300;
+            YSize = 300;
         }
 
         public List<LedConfiguration> LedConfigurations
@@ -76,6 +85,10 @@ namespace WinFade
 
         public void Save(StreamWriter writer)
         {
+            writer.WriteLine("XLocation={0}", XLocation);
+            writer.WriteLine("YLocation={0}", YLocation);
+            writer.WriteLine("XSize={0}", XSize);
+            writer.WriteLine("YSize={0}", YSize);
             writer.WriteLine("ConfigurationCount={0}", _ledConfigurations.Count);
 
             foreach (LedConfiguration ledGroup in _ledConfigurations)
@@ -85,46 +98,23 @@ namespace WinFade
             }
         }
 
-
-        public void Load(string filename)
+        public void Load(FileLineParser fileLineParser)
         {
-            string fullFilename = FullFilename(filename);
+            XLocation = fileLineParser.GetNumberAfterName("XLocation", 100);
+            YLocation = fileLineParser.GetNumberAfterName("YLocation", 100);
+            XSize = fileLineParser.GetNumberAfterName("XSize", 300);
+            YSize = fileLineParser.GetNumberAfterName("YSize", 300);
 
-            if (!File.Exists(fullFilename))
-            {
-                return;
-            }
-
+            int ledConfigurationCount = fileLineParser.GetNumberAfterName("ConfigurationCount");
             _ledConfigurations.Clear();
 
-            using (StreamReader reader = File.OpenText(fullFilename))
+            for (int ledConfigurationNumber = 0;
+                ledConfigurationNumber < ledConfigurationCount;
+                ledConfigurationNumber++)
             {
-                Load(reader);
-            }
-        }
-
-        public void Load(StreamReader reader)
-        {
-            //try
-            {
-                string readLine = reader.ReadLine();
-                readLine = readLine.Substring("ConfigurationCount=".Length);
-                int ledConfigurationCount = Int32.Parse(readLine);
-                _ledConfigurations.Clear();
-
-                for (int ledConfigurationNumber = 0;
-                    ledConfigurationNumber < ledConfigurationCount;
-                    ledConfigurationNumber++)
-                {
-                    LedConfiguration ledConfiguration = LedConfiguration.Load(reader);
-                    _ledConfigurations.Add(ledConfiguration);
-                    reader.ReadLine();
-                }
-
-            }
-            //catch (Exception e)
-            {
-                //Console.WriteLine(e);
+                LedConfiguration ledConfiguration = LedConfiguration.Load(fileLineParser);
+                _ledConfigurations.Add(ledConfiguration);
+                fileLineParser.ReadLine();
             }
         }
 
