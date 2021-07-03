@@ -10,3 +10,4 @@ D:\data\Electronics\SequenceController\Code\WinFade\obj\Debug\WinFade.LedForm.re
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Debug\WinFade.csprojAssemblyReference.cache
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Debug\WinFade.csproj.CoreCompileInputs.cache
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Debug\WinFade.EditLedSetup.resources
+D:\data\Electronics\SequenceController\Code\WinFade\obj\Debug\WinFade.HoverPopupForm.resources

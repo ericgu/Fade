@@ -75,6 +75,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="FadeLibrary.cs" />
+    <Compile Include="HoverPopupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="HoverPopupForm.Designer.cs">
+      <DependentUpon>HoverPopupForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="LedConfigurationCustom.cs" />
     <Compile Include="LedConfigurationMatrix.cs" />
     <Compile Include="LedConfigurationPwm.cs" />
@@ -95,11 +101,15 @@
     <Compile Include="Project.cs" />
     <Compile Include="FileLineParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Remote.cs" />
     <EmbeddedResource Include="EditLedSetup.resx">
       <DependentUpon>EditLedSetup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HoverPopupForm.resx">
+      <DependentUpon>HoverPopupForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LedForm.resx">
       <DependentUpon>LedForm.cs</DependentUpon>

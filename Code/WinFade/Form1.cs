@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Timer = System.Threading.Timer;
 
 
 namespace WinFade
@@ -34,9 +31,16 @@ namespace WinFade
 
         private string _filename;
 
+        private Remote _remote;
+
+        private HoverPopupForm _hoverPopupForm;
+
         public Form1()
         {
             InitializeComponent();
+
+            _remote = new Remote();
+            _remote.NameFetched += RemoteOnNameFetched;
 
             _programSettings = new ProgramSettings();
 
@@ -57,14 +61,15 @@ namespace WinFade
             c_textBoxProgramText.Text = _project.ProgramText;
 
             c_textBoxIPAddress.Text = _programSettings.Esp32Address;
+            _remote.IPAddress = _programSettings.Esp32Address;
 
-            c_labelErrorTag.Visible = false;
             c_labelErrorText.Visible = false;
 
             _fadeThread = null;
 
-            Icon = new Icon(@"..\..\Fade Icon 64x64.ico");
+            _hoverPopupForm = new HoverPopupForm();
 
+            Icon = new Icon(@"..\..\Fade Icon 64x64.ico");
 
             //_ledDevices = new LedDevices();
 
@@ -88,6 +93,8 @@ namespace WinFade
 
             System.AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
         }
+
+
 
         private void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
@@ -211,9 +218,8 @@ namespace WinFade
                 Stop();
 
                 HighlightLine(lineNumber);
-                c_labelErrorTag.Visible = true;
                 c_labelErrorText.Visible = true;
-                c_labelErrorText.Text = message;
+                c_labelErrorText.Text = "Error:" + message;
 
                 ShowErrorOutline(true);
             }
@@ -270,7 +276,6 @@ namespace WinFade
 
             c_buttonRunStop.Text = "Stop";
 
-            c_labelErrorTag.Visible = false;
             c_labelErrorText.Visible = false;
 
             c_listBoxSerialOutput.Items.Clear();
@@ -343,7 +348,7 @@ namespace WinFade
 
         private void setupButton_Click(object sender, EventArgs e)
         {
-            if (_project.LedTestBoard.LedConfigurations.Count != 0)
+            //if (_project.LedTestBoard.LedConfigurations.Count != 0)
             {
                 EditLedSetup editLedSetup = new EditLedSetup(_project.LedTestBoard);
 
@@ -429,24 +434,10 @@ namespace WinFade
         {
             c_labelWorking.Text = "Working...";
 
-            WebRequest req = WebRequest.Create("http://" + c_textBoxIPAddress.Text);
-            string postData = "Program=" + _project.ProgramText;
-
-            byte[] send = Encoding.Default.GetBytes(postData);
-            req.Method = "POST";
-            req.ContentType = "application/x-www-form-urlencoded";
-            req.ContentLength = send.Length;
-
             try
             {
-                Stream sout = req.GetRequestStream();
-                sout.Write(send, 0, send.Length);
-                sout.Flush();
-                sout.Close();
+                _remote.Update(_project.ProgramText);
 
-                WebResponse res = req.GetResponse();
-                StreamReader sr = new StreamReader(res.GetResponseStream());
-                string returnvalue = sr.ReadToEnd();
                 c_labelWorking.Text = "Done";
             }
             catch (Exception exception)
@@ -460,22 +451,36 @@ namespace WinFade
         private void c_textBoxIPAddress_TextChanged(object sender, EventArgs e)
         {
             _programSettings.Esp32Address = c_textBoxIPAddress.Text;
+            _remote.IPAddress = c_textBoxIPAddress.Text;
+
+            _remote.GetName();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void RemoteOnNameFetchedHelper(string name)
         {
+            c_labelRemoteStatus.Text = name;
+        }
 
+        private void RemoteOnNameFetched(string name)
+        {
+            var d = new Remote.NameFetchedDelegate(RemoteOnNameFetchedHelper);
+            c_listBoxSerialOutput.Invoke(d, new object[] { name });
         }
 
         private Point _textBoxMouseLocation;
 
         private void c_textBoxProgramText_MouseMove(object sender, MouseEventArgs e)
         {
+            if (_textBoxMouseLocation != e.Location)
+            {
+                _hoverPopupForm.Hide();
+            }
+
             _textBoxMouseLocation = e.Location;
 
             c_timerProgramTextHover.Stop();
             c_timerProgramTextHover.Enabled = true;
-            c_timerProgramTextHover.Interval = 500;
+            c_timerProgramTextHover.Interval = 200;
             c_timerProgramTextHover.Start();
         }
 
@@ -485,6 +490,11 @@ namespace WinFade
             int index = c_textBoxProgramText.GetCharIndexFromPosition(_textBoxMouseLocation);
 
             int start = index;
+            if (start >= _project.ProgramText.Length)
+            {
+                return;
+            }
+
             char current = _project.ProgramText[start];
             while (IsIdentifier(current))
             {
@@ -498,7 +508,7 @@ namespace WinFade
 
             int end = index;
             current = _project.ProgramText[end];
-            while (IsIdentifier(current))
+            while (IsIdentifier(current) && end < _project.ProgramText.Length - 1)
             {
                 end++;
                 current = _project.ProgramText[end];
@@ -512,19 +522,21 @@ namespace WinFade
 
                 if (helpText != null)
                 {
-                    c_labelErrorText.Text = helpText;
-                    c_labelErrorText.Visible = true;
-                }
+                    _hoverPopupForm.c_labelText.Text = helpText;
+                    Point display = new Point(_textBoxMouseLocation.X, _textBoxMouseLocation.Y + 50);
+                    _hoverPopupForm.Location = PointToScreen(display);
+                    _hoverPopupForm.Show();
+               }
                 else
                 {
-                    c_labelErrorText.Text = String.Empty;
+                    _hoverPopupForm.Hide();
                 }
 
-                Debug.WriteLine(index.ToString() + " " + identifier);
+                //Debug.WriteLine(index.ToString() + " " + identifier);
             }
             catch (Exception)
             {
-                c_labelErrorText.Text = String.Empty;
+                _hoverPopupForm.Hide();
             }
         }
 
@@ -586,6 +598,7 @@ namespace WinFade
 
         private void c_textBoxProgramText_MouseLeave(object sender, EventArgs e)
         {
+            _hoverPopupForm.Hide();
             DisableMouseHoverTimer();
         }
 
@@ -638,14 +651,9 @@ namespace WinFade
         {
             c_labelWorking.Text = "Working...";
 
-            string buttonUrl = "http://" + c_textBoxIPAddress.Text + "/Button?ButtonNumber=" + ((Button)sender).Text;
-            WebRequest req = WebRequest.Create(buttonUrl);
- 
             try
             {
-                WebResponse res = req.GetResponse();
-                StreamReader sr = new StreamReader(res.GetResponseStream());
-                string returnvalue = sr.ReadToEnd();
+                _remote.PressButton(((Button) sender).Text);
                 c_labelWorking.Text = "Done";
             }
             catch (Exception exception)
@@ -653,6 +661,14 @@ namespace WinFade
                 MessageBox.Show(exception.Message);
                 c_labelWorking.Text = "Error";
             }
+        }
+
+        private void c_buttonNewFromRemote_Click(object sender, EventArgs e)
+        {
+            _project = new Project();
+            SetBanner();
+            _project.ProgramText = _remote.Program;
+            c_textBoxProgramText.Text = _project.ProgramText;
         }
     }
 }
