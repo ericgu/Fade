@@ -24,4 +24,4 @@ Infineon BSR202N
 33 milliOhm @ 2.5V drive
 3.8 amps
 
-PG-SC-59 package 
+PG-SC-59 package    
