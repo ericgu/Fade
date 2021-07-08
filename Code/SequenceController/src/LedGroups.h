@@ -24,6 +24,17 @@ public:
         }
     }
 
+    void FreeDevices()
+    {
+        for (int i = 0; i < _groupCount; i++)
+        {
+            Serial.println("cleanup led device");
+            _ledGroups[i]._pLedDevice->FreeDevices();
+        }
+
+        _groupCount = 0;
+    }
+
     int GetGroupCount()
     {
         return _groupCount;
@@ -88,12 +99,12 @@ public:
         return UpdateLed(ledState.GetChannel(), ledState.GetBrightness());
     }
 
-    bool UpdateLed(int channel, Variable* pBrightness)
+    bool UpdateLed(int channel, Variable *pBrightness)
     {
         //Serial.println("LedGroups::UpdateLed");
-    //Serial.println(ledState.GetBrightness()->GetValueFloat(0));
-    //Serial.println(ledState.GetChannel());
-    //Serial.println(ledState.GetCycleCount());
+        //Serial.println(ledState.GetBrightness()->GetValueFloat(0));
+        //Serial.println(ledState.GetChannel());
+        //Serial.println(ledState.GetCycleCount());
 
         // find the group that this belongs to...
         for (int i = 0; i < _groupCount; i++)
@@ -113,7 +124,7 @@ public:
     }
 
 #if fred
-    bool UpdateLed(LedState* pLedState)
+    bool UpdateLed(LedState *pLedState)
     {
         //Serial.println("LedGroups::UpdateLed");
         //Serial.println(ledState.GetBrightness()->GetValueFloat(0));

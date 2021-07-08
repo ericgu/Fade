@@ -49,6 +49,10 @@ public:
         Serial.println("LedPwm Free");
     }
 
+    virtual void FreeDevices()
+    {
+    }
+
     void UpdateLed(int channel, Variable *pBrightness)
     {
         int brightnessPwmValue = PwmMax * pBrightness->GetValueFloat(0);

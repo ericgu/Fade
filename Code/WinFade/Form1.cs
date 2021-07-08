@@ -13,15 +13,12 @@ namespace WinFade
     {
         private delegate void CreateLedDeviceDelegate(string text);
 
-        private delegate void UpdateLedDelegate(int ledGroupNumber, int ledNumber, float red, float green, float blue);
-
         private delegate void ParseErrorDelegate(string message, int lineNumber);
 
         private delegate void FatalErrorDelegate();
 
         private Thread _fadeThread;
         private int _outputLineCount;
-        //private string _programText;
 
         readonly ProgramSettings _programSettings;
 
@@ -31,9 +28,9 @@ namespace WinFade
 
         private string _filename;
 
-        private Remote _remote;
+        private readonly Remote _remote;
 
-        private HoverPopupForm _hoverPopupForm;
+        private readonly HoverPopupForm _hoverPopupForm;
 
         public Form1()
         {
@@ -91,7 +88,7 @@ namespace WinFade
 
             Closing += (sender, args) => { Stop(); };
 
-            System.AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
         }
 
 
@@ -101,9 +98,9 @@ namespace WinFade
             throw new NotImplementedException();
         }
 
-        private void LedFormOnButtonPressed(int buttonnumber)
+        private void LedFormOnButtonPressed(int buttonNumber)
         {
-            FadeLibrary.PressButton(buttonnumber);
+            FadeLibrary.PressButton(buttonNumber);
         }
 
         void SetBanner()
@@ -244,7 +241,6 @@ namespace WinFade
             }
             catch (ThreadAbortException)
             {
-                return;
             }
             catch (Exception)
             {
@@ -352,7 +348,7 @@ namespace WinFade
             {
                 EditLedSetup editLedSetup = new EditLedSetup(_project.LedTestBoard);
 
-                DialogResult result = editLedSetup.ShowDialog();
+                editLedSetup.ShowDialog();
             }
         }
         

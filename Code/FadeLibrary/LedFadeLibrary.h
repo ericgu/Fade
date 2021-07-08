@@ -49,4 +49,8 @@ public:
   void Show()
   {
   }
+
+  virtual void FreeDevices()
+  {
+  }
 };

@@ -7,6 +7,14 @@ public:
         {
             return new TouchButton(pin, parameter1);
         }
+        else if (strcmp(pButtonType, "ACTIVELOW") == 0)
+        {
+            return new Button(pin, parameter1);
+        }
+        else if (strcmp(pButtonType, "ACTIVEHIGH") == 0)
+        {
+            return new Button(pin, parameter1);
+        }
 
         return 0;
     }

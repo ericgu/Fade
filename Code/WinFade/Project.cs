@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Windows.Forms.VisualStyles;
 
 namespace WinFade
 {
@@ -31,11 +30,6 @@ namespace WinFade
 
                 return path;
             }
-        }
-
-        private string FullFilename(string filename)
-        {
-            return Path.Combine(BasePath, filename);
         }
 
         public void Save()

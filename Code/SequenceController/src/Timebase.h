@@ -29,6 +29,9 @@ public:
 
 	virtual ~Timebase()
 	{
+		Serial.println("timebase destroy");
+		Serial.flush();
+		delete _pLedManager;
 	}
 
 	void Abort()
@@ -155,6 +158,11 @@ public:
 		_executionFlow.ClearAbort();
 		_lastCycleStart = -1;
 		_longestCycleTime = -1;
+	}
+
+	void FreeDevices()
+	{
+		_pLedManager->FreeDevices();
 	}
 };
 

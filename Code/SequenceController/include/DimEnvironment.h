@@ -55,4 +55,5 @@ void ParseErrorFound(const char *pMessage, int lineNumber) {}
 #include "Timebase.h"
 
 #include "TouchButton.h"
+#include "Button.h"
 #include "ButtonCreator.h"

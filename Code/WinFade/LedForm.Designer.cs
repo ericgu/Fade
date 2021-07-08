@@ -44,6 +44,7 @@
             this.c_pictureBoxLeds.MouseDown += new System.Windows.Forms.MouseEventHandler(this.c_pictureBoxLeds_MouseDown);
             this.c_pictureBoxLeds.MouseMove += new System.Windows.Forms.MouseEventHandler(this.c_pictureBoxLeds_MouseMove);
             this.c_pictureBoxLeds.MouseUp += new System.Windows.Forms.MouseEventHandler(this.c_pictureBoxLeds_MouseUp);
+            this.c_pictureBoxLeds.Resize += new System.EventHandler(this.c_pictureBoxLeds_Resize);
             // 
             // LedForm
             // 

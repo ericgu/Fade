@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using System;
 
 namespace WinFade
 {
@@ -9,8 +8,8 @@ namespace WinFade
 
     public partial class LedForm : Form
     {
-        readonly Bitmap _bitmap;
-        readonly Graphics _graphics;
+        Bitmap _bitmap;
+        Graphics _graphics;
         private readonly LedTestBoard _ledTestBoard;
 
         private delegate void RenderDelegate();
@@ -100,10 +99,7 @@ namespace WinFade
 
         private void c_pictureBoxLeds_MouseUp(object sender, MouseEventArgs e)
         {
-            if (_dragLedConfiguration != null)
-            {
-                _dragLedConfiguration = null;
-            }
+            _dragLedConfiguration = null;
         }
 
         private void LedForm_KeyPress(object sender, KeyPressEventArgs e)
@@ -120,6 +116,12 @@ namespace WinFade
             _ledTestBoard.YLocation = Location.Y;
             _ledTestBoard.XSize = Width;
             _ledTestBoard.YSize = Height;
+        }
+
+        private void c_pictureBoxLeds_Resize(object sender, System.EventArgs e)
+        {
+            _bitmap = new Bitmap(Width, Height, PixelFormat.Format32bppPArgb);
+            _graphics = Graphics.FromImage(_bitmap);
         }
     }
 }

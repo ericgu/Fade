@@ -206,12 +206,16 @@ the endfor</p>
 <p>Example:</p>
 <p class="auto-style1">func GetColor(colorNumber)<br />
 <br />
+&nbsp;&nbsp;&nbsp;
 if (colorNumber == 0)<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return {1, 0, 0}<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return {1, 0, 0}<br />
+&nbsp;&nbsp;&nbsp;
 elseif (colorNumber == 1)<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return {1, 1, 0}<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return {1, 1, 0}<br />
+&nbsp;&nbsp;&nbsp;
 elseif (colorNumber == 2)<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return {0, 1, 0}<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return {0, 1, 0}<br />
+&nbsp;&nbsp;&nbsp;
 endif<br />
 <br />
 endfunc</p>
@@ -306,7 +310,7 @@ touch threshold value. </p>
 <table class="auto-style1" style="width: 90%">
 	<tbody class="auto-style2">
 		<tr>
-			<td style="width: 138px">"RGB"</td>
+			<td style="width: 138px">"WS2812" or "RGB"</td>
 			<td>A string of WS2812-compatible (aka "neopixel") addressable leds. 
 			The &lt;ledCount&gt; parameter defines the number of leds on the string, 
 			and &lt;param 1&gt; defines the physical pin the strip is connected to.</td>

@@ -2,6 +2,8 @@
 class ILedManager
 {
 public:
+	virtual ~ILedManager() {}
+
 	virtual void SetDelta(CommandResult *commandResult) = 0;
 
 	virtual void Tick() = 0;
@@ -10,6 +12,8 @@ public:
 	virtual void Configure(int ledGroupNumber, const char *pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4) = 0;
 
 	virtual int GetLedCount() = 0;
+
+	virtual void FreeDevices() = 0;
 };
 
 class LedManager : public ILedManager
@@ -52,6 +56,11 @@ public:
 	int GetLedCount()
 	{
 		return _ledGroups.GetLedTotal();
+	}
+
+	void FreeDevices()
+	{
+		_ledGroups.FreeDevices();
 	}
 
 	void ResetState()

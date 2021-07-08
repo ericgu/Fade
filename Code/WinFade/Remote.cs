@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -15,6 +14,7 @@ namespace WinFade
 
         public event NameFetchedDelegate NameFetched;
 
+        // ReSharper disable once InconsistentNaming
         public string IPAddress { get; set; }
         public string Program { get; set; }
 
@@ -25,13 +25,13 @@ namespace WinFade
 
             WebResponse res = req.GetResponse();
             StreamReader sr = new StreamReader(res.GetResponseStream());
-            string returnvalue = sr.ReadToEnd();
+            sr.ReadToEnd();
         }
 
         public void Update(string programText)
         {
             WebRequest req = WebRequest.Create("http://" + IPAddress);
-            string postData = "Program=" + programText;
+            string postData = "Program=" + WebUtility.UrlEncode(programText);
 
             byte[] send = Encoding.Default.GetBytes(postData);
             req.Method = "POST";

@@ -111,6 +111,9 @@ public:
 		_pSettings->SaveProgramText(pProgram);
 		_pSettings->SaveShouldExecuteCode(true); // was false
 
+		// delete the timebase. It holds onto led resource, and this will call the destructor
+		_pTimebase->FreeDevices();
+
 		EspFunctions::Restart();
 
 		// this code will not execute; it ran in the old version that did on-the-fly update.

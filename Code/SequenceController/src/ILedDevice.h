@@ -10,4 +10,6 @@ public:
     virtual ~ILedDevice()
     {
     }
+
+    virtual void FreeDevices() = 0;
 };

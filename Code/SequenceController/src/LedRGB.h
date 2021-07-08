@@ -29,8 +29,14 @@ public:
 
     ~LedRGB()
     {
-        Serial.println("LedRGB Free");
+    }
+
+    virtual void FreeDevices()
+    {
+        Serial.println("LedRGB Cleanup");
         delete _pStrip;
+        Serial.println("LedRGB Cleanup done");
+        Serial.flush();
     }
 
     void UpdateLed(int channel, Variable *pBrightness)
