@@ -29,9 +29,6 @@ public:
 
 	virtual ~Timebase()
 	{
-		Serial.println("timebase destroy");
-		Serial.flush();
-		delete _pLedManager;
 	}
 
 	void Abort()
@@ -91,8 +88,12 @@ public:
 			if (delta > _longestCycleTime)
 			{
 				_longestCycleTime = delta;
-				Serial.print("Delta: ");
-				Serial.println(_longestCycleTime);
+
+                if (Environment.DebugLogCycleDeltas)
+                {
+                    Serial.print("Delta: ");
+                    Serial.println(_longestCycleTime);
+                }
 			}
 		}
 

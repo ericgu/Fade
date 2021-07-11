@@ -38,6 +38,8 @@ public:
         UpdateLed(ledState);
     }
 
+    virtual void FreeDevice() {}
+
 
     void UpdateLed(LedState ledState)
     {
@@ -93,6 +95,37 @@ class LedGroupsTest
         Assert::AreEqual(10, ledGroups.GetGroup(1)->_ledCount);
 
         Assert::AreEqual(15, ledGroups.GetLedTotal());
+    }
+
+    static void TestAddFreeAdd()
+    {
+        LedGroups ledGroups;
+
+        Assert::AreEqual(0, ledGroups.GetGroupCount());
+        LedDeviceSimulator* pLed1 = new LedDeviceSimulator(10);
+        LedDeviceSimulator* pLed2 = new LedDeviceSimulator(10);
+        ledGroups.AddGroup(0, pLed1, 5);
+
+        Assert::AreEqual(1, ledGroups.GetGroupCount());
+
+        Assert::AreEqual(0, ledGroups.GetGroup(0)->_ledGroupNumber);
+        Assert::AreEqual(5, ledGroups.GetGroup(0)->_ledCount);
+
+        ledGroups.DeleteGroup(0);
+
+        Assert::AreEqual(0, ledGroups.GetGroup(0));
+
+
+        ledGroups.AddGroup(0, pLed2, 10);
+
+        Assert::AreEqual(1, ledGroups.GetGroupCount());
+        Assert::AreEqual(0, ledGroups.GetGroup(0)->_ledGroupNumber);
+        Assert::AreEqual(10, ledGroups.GetGroup(0)->_ledCount);
+
+        Assert::AreEqual(10, ledGroups.GetLedTotal());
+
+        ledGroups.DeleteGroup(0);
+        Assert::AreEqual(0, ledGroups.GetGroupCount());
     }
 
     static void TestUpdate()
@@ -158,6 +191,7 @@ public:
         TestUpdate();
         TestShow();
 
+        TestAddFreeAdd();
 
         return 0;
     }

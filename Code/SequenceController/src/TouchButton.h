@@ -27,6 +27,51 @@ public:
         _pInstances[0]->InterruptHandler();
     }
 
+    static void InterruptHandler1()
+    {
+        _pInstances[1]->InterruptHandler();
+    }
+
+    static void InterruptHandler2()
+    {
+        _pInstances[2]->InterruptHandler();
+    }
+
+    static void InterruptHandler3()
+    {
+        _pInstances[3]->InterruptHandler();
+    }
+
+    static void InterruptHandler4()
+    {
+        _pInstances[4]->InterruptHandler();
+    }
+
+    static void InterruptHandler5()
+    {
+        _pInstances[5]->InterruptHandler();
+    }
+
+    static void InterruptHandler6()
+    {
+        _pInstances[6]->InterruptHandler();
+    }
+
+    static void InterruptHandler7()
+    {
+        _pInstances[7]->InterruptHandler();
+    }
+
+    static void InterruptHandler8()
+    {
+        _pInstances[8]->InterruptHandler();
+    }
+
+    static void InterruptHandler9()
+    {
+        _pInstances[9]->InterruptHandler();
+    }
+
     TouchButton(int pin, int threshold)
     {
         _pin = pin;
@@ -35,8 +80,42 @@ public:
         _hitCount = 0;
 
         _pInstances[_instanceCount] = this;
+
+        switch (_instanceCount)
+        {
+        case 0:
+            touchAttachInterrupt(pin, InterruptHandler0, threshold);
+            break;
+        case 1:
+            touchAttachInterrupt(pin, InterruptHandler1, threshold);
+            break;
+        case 2:
+            touchAttachInterrupt(pin, InterruptHandler2, threshold);
+            break;
+        case 3:
+            touchAttachInterrupt(pin, InterruptHandler3, threshold);
+            break;
+        case 4:
+            touchAttachInterrupt(pin, InterruptHandler4, threshold);
+            break;
+        case 5:
+            touchAttachInterrupt(pin, InterruptHandler5, threshold);
+            break;
+        case 6:
+            touchAttachInterrupt(pin, InterruptHandler6, threshold);
+            break;
+        case 7:
+            touchAttachInterrupt(pin, InterruptHandler7, threshold);
+            break;
+        case 8:
+            touchAttachInterrupt(pin, InterruptHandler8, threshold);
+            break;
+        case 9:
+            touchAttachInterrupt(pin, InterruptHandler9, threshold);
+            break;
+        }
+
         _instanceCount++;
-        touchAttachInterrupt(pin, InterruptHandler0, threshold);
     }
 
     virtual void PressButton()

@@ -29,10 +29,26 @@ public:
         for (int i = 0; i < _groupCount; i++)
         {
             Serial.println("cleanup led device");
-            _ledGroups[i]._pLedDevice->FreeDevices();
+            _ledGroups[i]._pLedDevice->FreeDevice();
         }
 
         _groupCount = 0;
+    }
+
+    void DeleteGroup(int groupNumber)
+    {
+        if (groupNumber != _groupCount - 1)
+        {
+            return;
+        }
+
+        _groupCount--;
+        _ledGroups[_groupCount]._pLedDevice->FreeDevice();
+        _ledGroups[_groupCount]._ledCount = -1;
+        _ledGroups[_groupCount]._ledGroupNumber = -1;
+        _ledGroups[_groupCount]._pLedDevice = 0;
+
+        delete _ledGroups[_groupCount]._pLedDevice;
     }
 
     int GetGroupCount()

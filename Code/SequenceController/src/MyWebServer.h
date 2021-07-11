@@ -82,9 +82,13 @@ public:
     //DumpArgs();
 
     String Program;
+    Serial.println("handleRootInstance 1");
     Program = _pWebServer->arg("Program");
+    Serial.println("handleRootInstance 2");
     if (Program.length() != 0)
     {
+      Serial.println("handleRootInstance 3");
+
       snprintf(_pPageBuffer, 16636,
                "<meta http-equiv=\"refresh\" content=\"10;url=http://%d.%d.%d.%d/\">\
         <html><H1>Updating program</H1></html>",
@@ -98,6 +102,7 @@ public:
 
       _pSupervisor->UpdateProgram(Program.c_str()); // this resets the ESP...
     }
+    Serial.println("handleRootInstance 4");
 
     CommandFormatter::PrettyFormat(_pSupervisor->GetCurrentProgram(), _pProgramBuffer, 16636);
 

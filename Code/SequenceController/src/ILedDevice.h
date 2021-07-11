@@ -11,5 +11,5 @@ public:
     {
     }
 
-    virtual void FreeDevices() = 0;
+    virtual void FreeDevice() = 0;
 };

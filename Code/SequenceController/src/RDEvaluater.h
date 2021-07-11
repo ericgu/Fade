@@ -830,6 +830,14 @@ class RDEvaluater
         _pExpressionTokenSource->Advance();
         Variable condition = EvaluateTop()._variable;
 
+        // if there is no value here, the if is not valid.
+        // Probably "if (x = 5)"...
+        if (condition.IsNan())
+        {
+            ReportError("if statement did not specify a condition. Did you mean == instead of =?", "");
+            return;
+        }
+
         if (!condition.IsNan() && condition.GetValueInt() != 0)
         {
             conditionMatched = true;
@@ -1023,7 +1031,9 @@ class RDEvaluater
                     {
                         if (!executing)
                         {
-                            _pExpressionTokenSource->Advance();
+                            _pExecutionFlow->ClearBreak();
+
+                            _pExpressionTokenSource->AdvanceToNewLine();
                             return true;
                         }
                         _pExpressionTokenSource->SetParseLocation(whileCondition);
@@ -1034,6 +1044,10 @@ class RDEvaluater
                         if (executing)
                         {
                             EvaluateStatement();
+                            if (_pExecutionFlow->IsBreaking())
+                            {
+                                executing = false;
+                            }
                         }
                         else
                         {

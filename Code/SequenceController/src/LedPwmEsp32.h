@@ -49,7 +49,7 @@ public:
         Serial.println("LedPwm Free");
     }
 
-    virtual void FreeDevices()
+    virtual void FreeDevice()
     {
     }
 

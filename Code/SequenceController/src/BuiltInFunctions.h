@@ -327,7 +327,13 @@ class BuiltInFunctions
 				Environment.DebugLogTouchButtonValues = pValue->GetValueInt();
 				return true;
 			}
-		}
+            else if (strcmp(pIdentifier->GetValueString(), "DebugLogCycleDeltas") == 0)
+            {
+                Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+                Environment.DebugLogCycleDeltas = pValue->GetValueInt();
+                return true;
+            }
+        }
 
 		return false;
 	}

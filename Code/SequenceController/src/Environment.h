@@ -6,6 +6,7 @@ public:
   int DebugLogStatements;
   int DebugLogHeapFreeOnAllocation;
   int DebugLogTouchButtonValues;
+  int DebugLogCycleDeltas;
 
   EnvironmentClass()
   {
@@ -20,6 +21,7 @@ public:
     DebugLogStatements = 0;
     DebugLogHeapFreeOnAllocation = 0;
     DebugLogTouchButtonValues = 0;
+    DebugLogCycleDeltas = 0;
   }
 };
 

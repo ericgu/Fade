@@ -56,6 +56,8 @@ public:
         _ledPin3 = ledPin3;
         _ledPin4 = ledPin4;
     }
+
+    virtual void FreeDevices() {}
 };
 
 class TimebaseTest

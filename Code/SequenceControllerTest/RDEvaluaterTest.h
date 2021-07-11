@@ -745,6 +745,23 @@ class RDEvaluaterTest
         Assert::AreEqual(2, statementTester._parseErrors.GetError(0)->_lineNumber);
     }
 
+    static void TestIfWithAssignment()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("q = 3");
+        statementTester.Add("J = 2");
+        statementTester.Add("if (q = 1)");
+        statementTester.Add("J = 2");
+        statementTester.Add("endif");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("if statement did not specify a condition. Did you mean == instead of =?", statementTester._parseErrors.GetError(0)->_errorText);
+        Assert::AreEqual(2, statementTester._parseErrors.GetError(0)->_lineNumber);
+    }
+
 
     static void TestFor()
     {
@@ -1362,6 +1379,21 @@ class RDEvaluaterTest
         Assert::AreEqual(6, result.GetValueInt());
     }
 
+    static void TestBreakInWhileLoop()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("SavedValue = 4");
+        statementTester.Add("while (1)");
+        statementTester.Add("SavedValue++");
+        statementTester.Add("break");
+        statementTester.Add("endwhile");
+        statementTester.Add("SavedValue");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(5, result.GetValueInt());
+    }
 
     static void TestUndefinedVariableInOperation(const char* pExpression, const char* pExpectedError, int lineNumber = 0)
     {
@@ -1672,6 +1704,7 @@ public:
         TestFunctionCallOneParametersMissingClosingParen();
         TestFunctionCallTwoParametersEndsAfterComma();
         TestFunctionCallUndefinedVariable();
+        TestIfWithAssignment();
 
         TestAbort();
         TestAbortInForLoop();
@@ -1687,5 +1720,6 @@ public:
         TestLoopVariableAfterForLoop();
         TestBreakInForLoop();
         TestBreakInForLoopWithIf();
+        TestBreakInWhileLoop();
     }
 };

@@ -50,7 +50,7 @@ public:
   {
   }
 
-  virtual void FreeDevices()
+  virtual void FreeDevice()
   {
   }
 };
