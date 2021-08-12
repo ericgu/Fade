@@ -10,10 +10,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFade", "WinFade.csproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FadeLibrary", "..\FadeLibrary\FadeLibrary.vcxproj", "{FC884EBB-B242-49A1-93D8-A3E7E8AA05FF}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "WinFadeInstaller", "..\WinFadeInstaller\WinFadeInstaller.vdproj", "{421D6FC1-3F65-41C9-9EEF-D9CB24420872}"
+EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -60,12 +59,24 @@ Global
 		{FC884EBB-B242-49A1-93D8-A3E7E8AA05FF}.ReleaseWithDebugInformation|x64.Build.0 = ReleaseWithDebugInformation|x64
 		{FC884EBB-B242-49A1-93D8-A3E7E8AA05FF}.ReleaseWithDebugInformation|x86.ActiveCfg = ReleaseWithDebugInformation|Win32
 		{FC884EBB-B242-49A1-93D8-A3E7E8AA05FF}.ReleaseWithDebugInformation|x86.Build.0 = ReleaseWithDebugInformation|Win32
+		{421D6FC1-3F65-41C9-9EEF-D9CB24420872}.Debug|Any CPU.ActiveCfg = Debug
+		{421D6FC1-3F65-41C9-9EEF-D9CB24420872}.Debug|x64.ActiveCfg = Debug
+		{421D6FC1-3F65-41C9-9EEF-D9CB24420872}.Debug|x86.ActiveCfg = Debug
+		{421D6FC1-3F65-41C9-9EEF-D9CB24420872}.Release|Any CPU.ActiveCfg = Release
+		{421D6FC1-3F65-41C9-9EEF-D9CB24420872}.Release|x64.ActiveCfg = Release
+		{421D6FC1-3F65-41C9-9EEF-D9CB24420872}.Release|x86.ActiveCfg = Release
+		{421D6FC1-3F65-41C9-9EEF-D9CB24420872}.ReleaseWithDebugInformation|Any CPU.ActiveCfg = Release
+		{421D6FC1-3F65-41C9-9EEF-D9CB24420872}.ReleaseWithDebugInformation|x64.ActiveCfg = Release
+		{421D6FC1-3F65-41C9-9EEF-D9CB24420872}.ReleaseWithDebugInformation|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {63A3FB2F-1985-4C70-BCE5-1C57313FF615}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

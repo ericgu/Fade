@@ -176,10 +176,6 @@ namespace WinFade
         {
         }
 
-        internal virtual void DisableForGroupType(EditLedSetup editLedSetup)
-        {
-        }
-
         public virtual void UpdateLedColor(Graphics graphics, int ledNumber, float red, float green, float blue)
         {
             if (_ledSpots.Count == 0)

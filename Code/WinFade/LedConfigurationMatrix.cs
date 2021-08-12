@@ -80,7 +80,7 @@ namespace WinFade
             editLedSetup.c_textBoxMatrixYSpacing.Text = YSpacing.ToString();
         }
 
-        internal override void DisableForGroupType(EditLedSetup editLedSetup)
+        static internal void DisableForGroupType(EditLedSetup editLedSetup)
         {
             editLedSetup.c_textBoxMatrixXCount.Enabled = false;
             editLedSetup.c_textBoxMatrixYCount.Enabled = false;

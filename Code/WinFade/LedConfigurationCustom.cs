@@ -8,7 +8,7 @@
             editLedSetup.c_buttonCustomPaste.Enabled = true;
         }
 
-        internal override void DisableForGroupType(EditLedSetup editLedSetup)
+        static internal void DisableForGroupType(EditLedSetup editLedSetup)
         {
             editLedSetup.c_buttonCustomPaste.Enabled = false;
         }

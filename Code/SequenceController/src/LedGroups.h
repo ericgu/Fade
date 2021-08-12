@@ -128,6 +128,7 @@ public:
             if (channel < _ledGroups[i]._ledCount)
             {
                 _ledGroups[i]._pLedDevice->UpdateLed(channel, pBrightness);
+
                 return true;
             }
             else

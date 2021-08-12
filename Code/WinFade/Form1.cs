@@ -66,7 +66,8 @@ namespace WinFade
 
             _hoverPopupForm = new HoverPopupForm();
 
-            Icon = new Icon(@"..\..\Fade Icon 64x64.ico");
+            //Icon = new Icon(@"..\..\Fade Icon 64x64.ico");
+            Icon = new Icon(@"Fade Icon 64x64.ico");
 
             //_ledDevices = new LedDevices();
 
@@ -242,12 +243,14 @@ namespace WinFade
             catch (ThreadAbortException)
             {
             }
-            catch (Exception)
+#if fred
+            catch (Exception e)
             {
 
                 var d = new FatalErrorDelegate(FatalError);
                 c_textBoxProgramText.Invoke(d);
             }
+#endif
         }
 
         private void RunProgram(object sender, EventArgs e)
@@ -369,6 +372,7 @@ namespace WinFade
                 _programSettings.Filename = _filename;
                 _project.Filename = _filename;
                 _project.Load();
+                c_textBoxProgramText.Text = _project.ProgramText;
                 SetBanner();
             }
         }
@@ -576,7 +580,7 @@ namespace WinFade
                     return "Pl(<value>,...) - print one or more values followed by a newline to the serial system.";
 
                 case "Rand":
-                    return "float Rand(minimum, maximum) - return a random number between minimum and maximum";
+                    return "float Rand(minimum, maximum) - return a random number between minimum and maximum\r\nfloat Rand() - return a random number between 0.0 and 1.0";
 
                 case "ReadButton":
                     return "int ReadButton(<buttonNumber>) - returns the current value of a button";

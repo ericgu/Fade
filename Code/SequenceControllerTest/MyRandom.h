@@ -22,6 +22,11 @@ public:
 
 		return returnValue;
 	}
+
+    static float GetFloatValue()
+	{
+        return 0.5F;
+	}
 };
 
 int MyRandom::_value = 1;

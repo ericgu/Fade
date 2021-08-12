@@ -10,12 +10,18 @@ class LedDeviceCreator : public ILedDeviceCreator
 public:
     ILedDevice *Create(const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
     {
-        //Serial.print("Creating: "); Serial.flush();
-        //Serial.print(pLedType);  Serial.flush();
-        //Serial.print(" ");  Serial.flush();
-        //Serial.print(ledCount);  Serial.flush();
-        //Serial.print(" ");  Serial.flush();
-        //Serial.print(pin); Serial.flush();
+        Serial.print("Creating: ");
+        Serial.flush();
+        Serial.print(pLedType);
+        Serial.flush();
+        Serial.print(" ");
+        Serial.flush();
+        Serial.print(ledCount);
+        Serial.flush();
+        Serial.print(" ");
+        Serial.flush();
+        Serial.print(pin1);
+        Serial.flush();
 
         SafeString::StringCopy(_ledType, pLedType, sizeof(_ledType));
         _ledCount = ledCount;

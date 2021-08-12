@@ -115,7 +115,7 @@ public:
 		if (_targetCount == _targetAllocation)
 		{
 			_targetCountExceeded = true;
-			Serial.println("Target count exceeded");
+			Serial.println("LED index beyond configured length referenced.");
 			Serial.println(_targetCount);
 			Serial.println(_targetAllocation);
 			//*((int *)0) = 15; // force a crash

@@ -6,7 +6,10 @@ D:\data\Electronics\SequenceController\Code\WinFade\bin\Release\WinFade.exe
 D:\data\Electronics\SequenceController\Code\WinFade\bin\Release\WinFade.pdb
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.exe
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.pdb
-D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.csprojAssemblyReference.cache
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.LedForm.resources
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.csproj.CoreCompileInputs.cache
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.EditLedSetup.resources
+D:\data\Electronics\SequenceController\Code\WinFade\bin\Release\First.txt
+D:\data\Electronics\SequenceController\Code\WinFade\bin\Release\Fade Icon 64x64.ico
+D:\data\Electronics\SequenceController\Code\WinFade\bin\Release\Fade Icon.ico
+D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.HoverPopupForm.resources

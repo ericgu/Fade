@@ -56,7 +56,7 @@ namespace WinFade
             editLedSetup.c_textBoxStripSpacing.Enabled = true;
         }
 
-        internal override void DisableForGroupType(EditLedSetup editLedSetup)
+        static internal void DisableForGroupType(EditLedSetup editLedSetup)
         {
             editLedSetup.c_textBoxStripSpacing.Enabled = false;
         }

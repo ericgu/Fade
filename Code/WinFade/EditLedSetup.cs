@@ -6,12 +6,9 @@ namespace WinFade
     public partial class EditLedSetup : Form
     {
         private readonly LedTestBoard _ledTestBoard;
-        private LedConfiguration _currentLedConfiguration;
 
         public EditLedSetup(LedTestBoard ledTestBoard)
         {
-            _currentLedConfiguration = null;
-
             _ledTestBoard = ledTestBoard;
 
             InitializeComponent();
@@ -41,6 +38,15 @@ namespace WinFade
             }
         }
 
+        // update the text in the listbox. 
+        internal void UpdateLedConfigurationList()
+        {
+            for (int item = 0; item < _ledTestBoard.LedConfigurations.Count; item++)
+            {
+                c_listBoxLedGroups.Items[item] = _ledTestBoard.LedConfigurations[item].ToString();
+            }
+        }
+
         LedConfiguration SelectedLedConfiguration
         {
             get
@@ -51,26 +57,48 @@ namespace WinFade
             }
         }
 
-        private void c_listBoxLedGroups_SelectedIndexChanged(object sender, EventArgs e)
+        private void DisableForGroupTypes()
         {
-            if (_currentLedConfiguration != null)
+            if (!(SelectedLedConfiguration is LedConfigurationCustom))
             {
-                _currentLedConfiguration.DisableForGroupType(this);
+                LedConfigurationCustom.DisableForGroupType(this);
             }
 
-            LedConfiguration ledConfiguration = SelectedLedConfiguration;
+            if (!(SelectedLedConfiguration is LedConfigurationMatrix))
+            {
+                LedConfigurationMatrix.DisableForGroupType(this);
+            }
 
-            c_textBoxGroupNumber.Text = ledConfiguration.GroupNumber.ToString();
-            c_textBoxLedCount.Text = ledConfiguration.LedCount.ToString();
+            if (!(SelectedLedConfiguration is LedConfigurationPwm))
+            {
+                LedConfigurationPwm.DisableForGroupType(this);
+            }
 
-            c_textBoxX.Text = ledConfiguration.XOffset.ToString();
-            c_textBoxY.Text = ledConfiguration.YOffset.ToString();
-            c_textBoxLedSize.Text = ledConfiguration.LedSize.ToString();
+            if (!(SelectedLedConfiguration is LedConfigurationRing))
+            {
+                LedConfigurationRing.DisableForGroupType(this);
+            }
+
+            if (!(SelectedLedConfiguration is LedConfigurationStrip))
+            {
+                LedConfigurationStrip.DisableForGroupType(this);
+            }
+        }
+
+        private void c_listBoxLedGroups_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            DisableForGroupTypes();
+
+            c_textBoxGroupNumber.Text = SelectedLedConfiguration.GroupNumber.ToString();
+            c_textBoxLedCount.Text = SelectedLedConfiguration.LedCount.ToString();
+
+            c_textBoxX.Text = SelectedLedConfiguration.XOffset.ToString();
+            c_textBoxY.Text = SelectedLedConfiguration.YOffset.ToString();
+            c_textBoxLedSize.Text = SelectedLedConfiguration.LedSize.ToString();
 
             c_textBoxRingRadius.Enabled = false;
 
-            ledConfiguration.PopulateAndEnableForGroupType(this);
-            _currentLedConfiguration = ledConfiguration;
+            SelectedLedConfiguration.PopulateAndEnableForGroupType(this);
         }
 
         private void MainValuesChanged(object sender, EventArgs e)
@@ -81,7 +109,7 @@ namespace WinFade
             SelectedLedConfiguration.XOffset = GetValueFromTextBox(c_textBoxX);
             SelectedLedConfiguration.YOffset = GetValueFromTextBox(c_textBoxY);
 
-            PopulateLedConfigurationList();
+            UpdateLedConfigurationList();
         }
 
         public static int GetValueFromTextBox(TextBox textBox)
@@ -113,7 +141,7 @@ namespace WinFade
             string contents = Clipboard.GetText();
             _ledTestBoard.PasteCustomConfigurationText(c_listBoxLedGroups.SelectedIndex, contents);
 
-            PopulateLedConfigurationList();
+            UpdateLedConfigurationList();
         }
 
         private void c_radioButtonRing_Click(object sender, EventArgs e)

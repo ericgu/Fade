@@ -49,7 +49,7 @@ namespace WinFade
             editLedSetup.c_textBoxPwmColorCoding.Text = ColorMapping;
         }
 
-        internal override void DisableForGroupType(EditLedSetup editLedSetup)
+        static internal void DisableForGroupType(EditLedSetup editLedSetup)
         {
             editLedSetup.c_textBoxPwmColorCoding.Enabled = false;
         }

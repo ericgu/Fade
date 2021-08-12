@@ -81,7 +81,7 @@ namespace WinFade
             editLedSetup.c_checkBoxReversed.Checked = Reversed;
         }
 
-        internal override void DisableForGroupType(EditLedSetup editLedSetup)
+        static internal void DisableForGroupType(EditLedSetup editLedSetup)
         {
             editLedSetup.c_textBoxRingRadius.Enabled = false;
             editLedSetup.c_checkBoxReversed.Enabled = false;
@@ -93,7 +93,6 @@ namespace WinFade
             if (Int32.TryParse(editLedSetup.c_textBoxRingRadius.Text, out result))
             {
                 RingRadius = result;
-                editLedSetup.PopulateLedConfigurationList();
             }
 
             Reversed = editLedSetup.c_checkBoxReversed.Checked;

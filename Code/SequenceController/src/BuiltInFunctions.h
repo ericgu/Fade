@@ -5,17 +5,22 @@ class BuiltInFunctions
 		if (strcmp(pFunctionName, "Rand") == 0)
 		{
 			Variable *pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
-			if (pArgumentCount->GetValueInt() != 2)
+			if (pArgumentCount->GetValueInt() == 2)
 			{
-				pParseErrors->AddError("Rand requires two parameters", "", pExpressionTokenSource->GetLineNumber());
+				//Serial.println("    found random: ");
+				Variable *pMinValue = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
+				Variable *pMaxValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+
+				pExpressionResult->_variable.SetValue(0, (float)MyRandom::GetValue(pMinValue->GetValueInt(), pMaxValue->GetValueInt()));
+				return true;
+			}
+			else if (pArgumentCount->GetValueInt() == 0)
+			{
+				pExpressionResult->_variable.SetValue(0, (float)MyRandom::GetFloatValue());
 				return true;
 			}
 
-			//Serial.println("    found random: ");
-			Variable *pMinValue = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
-			Variable *pMaxValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
-
-			pExpressionResult->_variable.SetValue(0, (float)MyRandom::GetValue(pMinValue->GetValueInt(), pMaxValue->GetValueInt()));
+			pParseErrors->AddError("Rand requires zero or two parameters", "", pExpressionTokenSource->GetLineNumber());
 			return true;
 		}
 
@@ -162,40 +167,40 @@ class BuiltInFunctions
 
 			bool newLine = strcmp(pFunctionName, "Pl") == 0;
 
-            Variable *pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
+			Variable *pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 
-		    char buffer[16];
-            for (int argument = 0; argument < pArgumentCount->GetValueInt(); argument++)
-            {
-                snprintf(buffer, sizeof(buffer), "#A%d", argument);
+			char buffer[16];
+			for (int argument = 0; argument < pArgumentCount->GetValueInt(); argument++)
+			{
+				snprintf(buffer, sizeof(buffer), "#A%d", argument);
 
-                Variable *pArgument = pExecutionContext->GetVariableWithoutErrorCheck(buffer);
+				Variable *pArgument = pExecutionContext->GetVariableWithoutErrorCheck(buffer);
 
-                if (pArgument->GetValueCount() > 1)
-                {
-                    strcat(outputString, "{");
+				if (pArgument->GetValueCount() > 1)
+				{
+					strcat(outputString, "{");
 
-                    for (int i = 0; i < pArgument->GetValueCount(); i++)
-                    {
-                        if (i != 0)
-                        {
-                            strcat(outputString, ", ");
-                        }
-                        snprintf(buffer, sizeof(buffer), "%f", pArgument->GetValueFloat(i));
-                        strcat(outputString, buffer);
-                    }
-                    strcat(outputString, "}");
-                }
-                else if (pArgument->GetValueCount() == 1)
-                {
-                    snprintf(buffer, sizeof(outputString), "%f", pArgument->GetValueFloat(0));
-                    strcat(outputString, buffer);
-                }
-                else
-                {
-                    strcat(outputString, pArgument->GetValueString());
-                }
-            }
+					for (int i = 0; i < pArgument->GetValueCount(); i++)
+					{
+						if (i != 0)
+						{
+							strcat(outputString, ", ");
+						}
+						snprintf(buffer, sizeof(buffer), "%f", pArgument->GetValueFloat(i));
+						strcat(outputString, buffer);
+					}
+					strcat(outputString, "}");
+				}
+				else if (pArgument->GetValueCount() == 1)
+				{
+					snprintf(buffer, sizeof(outputString), "%f", pArgument->GetValueFloat(0));
+					strcat(outputString, buffer);
+				}
+				else
+				{
+					strcat(outputString, pArgument->GetValueString());
+				}
+			}
 
 			if (newLine)
 			{
@@ -327,45 +332,50 @@ class BuiltInFunctions
 				Environment.DebugLogTouchButtonValues = pValue->GetValueInt();
 				return true;
 			}
-            else if (strcmp(pIdentifier->GetValueString(), "DebugLogCycleDeltas") == 0)
-            {
-                Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
-                Environment.DebugLogCycleDeltas = pValue->GetValueInt();
-                return true;
-            }
-        }
+			else if (strcmp(pIdentifier->GetValueString(), "DebugLogCycleDeltas") == 0)
+			{
+				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+				Environment.DebugLogCycleDeltas = pValue->GetValueInt();
+				return true;
+			}
+			else if (strcmp(pIdentifier->GetValueString(), "DebugLogLedUpdates") == 0)
+			{
+				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+				Environment.DebugLogLedUpdates = pValue->GetValueInt();
+				return true;
+			}
+		}
 
 		return false;
 	}
 
-    static bool HandleBuiltInConfigEnvironment(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
-    {
-        if (strcmp(pFunctionName, "ConfigEnvironment") == 0)
-        {
-            Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
+	static bool HandleBuiltInConfigEnvironment(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	{
+		if (strcmp(pFunctionName, "ConfigEnvironment") == 0)
+		{
+			Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 
-            if (strcmp(pIdentifier->GetValueString(), "VectorItemDataPoolCount") == 0)
-            {
-                Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
-                Environment.VectorItemDataPoolCount = pValue->GetValueInt();
-                return true;
-            }
-            else if (strcmp(pIdentifier->GetValueString(), "VariableStoreChunkSize") == 0)
-            {
-                Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
-                Environment.VariableStoreChunkSize = pValue->GetValueInt();
-                return true;
-            }
-        }
+			if (strcmp(pIdentifier->GetValueString(), "VectorItemDataPoolCount") == 0)
+			{
+				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+				Environment.VectorItemDataPoolCount = pValue->GetValueInt();
+				return true;
+			}
+			else if (strcmp(pIdentifier->GetValueString(), "VariableStoreChunkSize") == 0)
+			{
+				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+				Environment.VariableStoreChunkSize = pValue->GetValueInt();
+				return true;
+			}
+		}
 
-        return false;
-    }
-
+		return false;
+	}
 
 	static void HSVtoRGB(float h, float s, float v, Variable *pResult)
 	{
 		float C = s * v;
-		float temp = (float) (fmod(h / 60, 2.0F) - 1.0F);
+		float temp = (float)(fmod(h / 60, 2.0F) - 1.0F);
 		float tempAbs = temp > 0 ? temp : -temp;
 
 		float X = C * (1 - tempAbs);
@@ -413,17 +423,69 @@ class BuiltInFunctions
 			Variable *pS = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
 			Variable *pV = pExecutionContext->GetVariableWithoutErrorCheck("#A2");
 
-            float hue = pH->GetValueFloat(0);
-            if (hue < 0)
-            {
-                hue += 360;
-            }
-            else if (hue > 360)
-            {
-                hue -= 360;
-            }
+			float hue = pH->GetValueFloat(0);
+			if (hue < 0)
+			{
+				hue += 360;
+			}
+			else if (hue > 360)
+			{
+				hue -= 360;
+			}
 
 			HSVtoRGB(hue, pS->GetValueFloat(0), pV->GetValueFloat(0), &pExpressionResult->_variable);
+			return true;
+		}
+
+		return false;
+	}
+
+	static bool HandleBuiltInMax(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	{
+		if (strcmp(pFunctionName, "Max") == 0)
+		{
+			Variable *pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
+
+			float max = pExecutionContext->GetVariableWithoutErrorCheck("#A0")->GetValueFloat(0);
+
+			char buffer[10];
+			for (int argument = 1; argument < pArgumentCount->GetValueInt(); argument++)
+			{
+				sprintf(buffer, "#A%d", argument);
+				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck(buffer);
+				if (pValue->GetValueFloat(0) > max)
+				{
+					max = pValue->GetValueFloat(0);
+				}
+			}
+
+			pExpressionResult->_variable.SetValue(0, max);
+			return true;
+		}
+
+		return false;
+	}
+
+	static bool HandleBuiltInMin(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	{
+		if (strcmp(pFunctionName, "Min") == 0)
+		{
+			Variable *pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
+
+			float min = pExecutionContext->GetVariableWithoutErrorCheck("#A0")->GetValueFloat(0);
+
+			char buffer[10];
+			for (int argument = 1; argument < pArgumentCount->GetValueInt(); argument++)
+			{
+				sprintf(buffer, "#A%d", argument);
+				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck(buffer);
+				if (pValue->GetValueFloat(0) < min)
+				{
+					min = pValue->GetValueFloat(0);
+				}
+			}
+
+			pExpressionResult->_variable.SetValue(0, min);
 			return true;
 		}
 
@@ -483,17 +545,25 @@ public:
 			return true;
 		}
 
-        if (HandleBuiltInHsvToRGB(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
-        {
-            return true;
-        }
+		if (HandleBuiltInHsvToRGB(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		{
+			return true;
+		}
 
-        if (HandleBuiltInConfigEnvironment(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
-        {
-            return true;
-        }
+		if (HandleBuiltInConfigEnvironment(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		{
+			return true;
+		}
 
-        
+		if (HandleBuiltInMax(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		{
+			return true;
+		}
+
+		if (HandleBuiltInMin(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		{
+			return true;
+		}
 
 		return false;
 	}

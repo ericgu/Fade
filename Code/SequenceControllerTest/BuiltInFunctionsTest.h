@@ -106,6 +106,111 @@ class BuildInFunctionsTest
       Assert::AreEqual(0.0, expressionResult._variable.GetValueFloat(2));
     }
 
+    static void TestMax1()
+    {
+        ExecutionContext executionContext;
+        ParseErrors parseErrors;
+        MockExecutionFlow executionFlow;
+        ExpressionResult expressionResult;
+
+        executionContext.AddVariableAndSet("#A", &Variable(3));
+        executionContext.AddVariableAndSet("#A0", &Variable(60));
+        executionContext.AddVariableAndSet("#A1", &Variable(1));
+        executionContext.AddVariableAndSet("#A2", &Variable(5));
+
+        BuiltInFunctions::HandleBuiltInFunctions("Max", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+
+        Assert::AreEqual(60.0, expressionResult._variable.GetValueFloat(0));
+    }
+
+
+    static void TestMax2()
+    {
+        ExecutionContext executionContext;
+        ParseErrors parseErrors;
+        MockExecutionFlow executionFlow;
+        ExpressionResult expressionResult;
+
+        executionContext.AddVariableAndSet("#A", &Variable(3));
+        executionContext.AddVariableAndSet("#A1", &Variable(1));
+        executionContext.AddVariableAndSet("#A0", &Variable(60));
+        executionContext.AddVariableAndSet("#A2", &Variable(5));
+
+        BuiltInFunctions::HandleBuiltInFunctions("Max", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+
+        Assert::AreEqual(60.0, expressionResult._variable.GetValueFloat(0));
+    }
+
+    static void TestMax3()
+    {
+        ExecutionContext executionContext;
+        ParseErrors parseErrors;
+        MockExecutionFlow executionFlow;
+        ExpressionResult expressionResult;
+
+        executionContext.AddVariableAndSet("#A", &Variable(3));
+        executionContext.AddVariableAndSet("#A1", &Variable(1));
+        executionContext.AddVariableAndSet("#A2", &Variable(5));
+        executionContext.AddVariableAndSet("#A0", &Variable(60));
+
+        BuiltInFunctions::HandleBuiltInFunctions("Max", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+
+        Assert::AreEqual(60.0, expressionResult._variable.GetValueFloat(0));
+    }
+
+
+    static void TestMin1()
+    {
+        ExecutionContext executionContext;
+        ParseErrors parseErrors;
+        MockExecutionFlow executionFlow;
+        ExpressionResult expressionResult;
+
+        executionContext.AddVariableAndSet("#A", &Variable(3));
+        executionContext.AddVariableAndSet("#A0", &Variable(60));
+        executionContext.AddVariableAndSet("#A1", &Variable(1));
+        executionContext.AddVariableAndSet("#A2", &Variable(5));
+
+        BuiltInFunctions::HandleBuiltInFunctions("Min", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+
+        Assert::AreEqual(1.0, expressionResult._variable.GetValueFloat(0));
+    }
+
+
+    static void TestMin2()
+    {
+        ExecutionContext executionContext;
+        ParseErrors parseErrors;
+        MockExecutionFlow executionFlow;
+        ExpressionResult expressionResult;
+
+        executionContext.AddVariableAndSet("#A", &Variable(3));
+        executionContext.AddVariableAndSet("#A1", &Variable(1));
+        executionContext.AddVariableAndSet("#A0", &Variable(60));
+        executionContext.AddVariableAndSet("#A2", &Variable(5));
+
+        BuiltInFunctions::HandleBuiltInFunctions("Min", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+
+        Assert::AreEqual(1.0, expressionResult._variable.GetValueFloat(0));
+    }
+
+    static void TestMin3()
+    {
+        ExecutionContext executionContext;
+        ParseErrors parseErrors;
+        MockExecutionFlow executionFlow;
+        ExpressionResult expressionResult;
+
+        executionContext.AddVariableAndSet("#A", &Variable(3));
+        executionContext.AddVariableAndSet("#A1", &Variable(1));
+        executionContext.AddVariableAndSet("#A2", &Variable(5));
+        executionContext.AddVariableAndSet("#A0", &Variable(60));
+
+        BuiltInFunctions::HandleBuiltInFunctions("Min", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+
+        Assert::AreEqual(1.0, expressionResult._variable.GetValueFloat(0));
+    }
+
     static void TestRandWrongArgumentCount()
     {
       ExecutionContext executionContext;
@@ -121,7 +226,7 @@ class BuildInFunctionsTest
       BuiltInFunctions::HandleBuiltInFunctions("Rand", &executionContext, &parseErrors, &expressionTokenSource, &executionFlow, &expressionResult);
 
       Assert::AreEqual(1, parseErrors.GetErrorCount());
-      Assert::AreEqual("Rand requires two parameters", parseErrors.GetError(0)->_errorText);
+      Assert::AreEqual("Rand requires zero or two parameters", parseErrors.GetError(0)->_errorText);
     }
 
     static void TestPrintString()
@@ -219,5 +324,12 @@ public:
 
         TestPrintString();
         TestPrintStringThreeParameters();
+
+        TestMax1();
+        TestMax2();
+        TestMax3();
+        TestMin1();
+        TestMin2();
+        TestMin3();
     }
 };

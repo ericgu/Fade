@@ -1,0 +1,314 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>Eagle Decorations - Fade Language Tutorial</title>
+  <style type="text/css">
+.auto-style1 {
+	font-family: "Courier New", Courier, monospace;
+}
+</style>
+
+</head>
+
+<body>
+
+<script src="NavTable.js"></script>    
+
+<h1>Fade Language Tutorial</h1>
+<p>Fade is a simple line-oriented language designed to make it easy to write 
+animations.</p>
+<h2>Breathe</h2>
+<p>The simplest program will cause a single LED to breathe - to dim to full 
+brightness and then dim back to off.</p>
+<blockquote><span class="auto-style1">ConfigLed(0, "RGB", 1, 15)</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">Di(25, 0, {1, 1, 1})</span><br class="auto-style1" />
+<span class="auto-style1">Di(25, 0, {0, 0, 0})</span></blockquote>
+<p>The ConfigLed() statement tells the system what LEDs are attached.</p>
+<p>This one says: "Configure group zero (the first group of LEDs) as an RGB 
+(WS2812) addressable LED strip with 1 LED connected to pin 15 on the ESP. "</p>
+<p>Then there are two simple Di function calls.</p>
+<p>The Fade system always knows the current color of all of the LEDs, so the 
+code that we write only needs to define three things:</p>
+<ol>
+	<li>Which LED to change</li>
+	<li>What the target color is for that LED</li>
+	<li>How long to take to change the LED.</li>
+</ol>
+<p>"25" is the cycle count for the operation. Fade runs on a 10 millisecond 
+clock, updating 100 times per second. 25 cycles is therefore 25/100 seconds, or 
+1/4 of a second. 250 milliseconds if you prefer that measurement.</p>
+<p>"0" is the LED that we want this operation to apply to .</p>
+<p>"{1, 1, 1}" is the target color. Variables in Fade can be single numbers or a 
+series of numbers - you can think of them either as "arrays" or "vectors". This 
+example shows the syntax that is used to create a three-number series from 
+individual numbers. Because we are using this in the Di(), these three numbers 
+specify the red, green, and blue color components. Color components run from 0 
+(all the way off) to 1 (all the way) on. So {0, 1, 0} would be full green, and 
+{0.5, 0.5, 0.0} would be a somewhat dimmed yellow. </p>
+<p>When this statement executes, you can think of it as doing something like 
+this:</p>
+<p>Set color to {0.04, 0.04, 0.04}<br />
+wait 10 milliseconds<br />
+Set color to {0.08, 0.08, 0.08}<br />
+wait 10 milliseconds<br />
+etc.</p>
+<p>During this command, the LED will fade from full back to full white. </p>
+<p>The second Di command does opposite dim, from full white down to full black.
+</p>
+<p>At this point, the end of the program is reached, and Fade will start over 
+again from the beginning. </p>
+<h2>Moving Breathe</h2>
+<blockquote>
+	<span class="auto-style1">ConfigLed(0, "RGB", 10, 15)</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">for led 0:9</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">&nbsp; Di(25, led, {1, 1, 1})</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; Di(25, led, {0, 0, 0}) </span>
+	<br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">endfor</span></blockquote>
+<p>This is a simple modification of the last program; it configurates a 10 LED 
+strip and then runs the same animation on the leds in sequence. This is an 
+introduction to "for" loops in Fade.</p>
+<h2>Bouncing Breathe</h2>
+<blockquote>
+	<span class="auto-style1">ConfigLed(0, "RGB", 10, 15)</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">led = 0</span><br class="auto-style1" />
+	<span class="auto-style1">increment = 1</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">while (1)</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; Di(25, led, {1, 1, 1})</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; Di(25, led, {0, 0, 0}) </span>
+	<br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">&nbsp; led = led + increment</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">&nbsp; if (led == 0 || led == 9)</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp;&nbsp;&nbsp; increment = -increment</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; endif</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">endwhile</span></blockquote>
+<p>This iteration modifies the code so that the LED will bounce back and forth.</p>
+<p>It uses an outer while loop. This while loop will run forever, but that's 
+okay in this case.</p>
+<p>The increment value is used to move the animation to the right or to the 
+left, and it flips in direction at each end.</p>
+<p>This code introduces the if and endif statements. </p>
+<h2>Overlapped Bounce</h2>
+<p>The example looks a little like the Larson Scanner:</p>
+<img src="https://thumbs.gfycat.com/SelfassuredGrizzledBrocketdeer-size_restricted.gif"></img>&nbsp;<p>
+&nbsp;</p>
+What 
+we are missing is the fading part of the animation. We can add that with a very small change to our code:<blockquote><span class="auto-style1">ConfigLed(0, "RGB", 10, 15)</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">led = 0</span><br class="auto-style1" />
+<span class="auto-style1">increment = 1</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">while (1)</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">&nbsp; D(50, led, {0, 0, 0}) </span>
+<br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">&nbsp; led = led + increment</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">&nbsp; if (led == 0 || led == 9)</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp;&nbsp;&nbsp; increment = -increment</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp; endif</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">&nbsp; D(10, led, {1, 1, 1})</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp; A(10)</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">endwhile</span></blockquote>
+<p>The previous examples all used the Di() function, which says "set a target 
+color and wait until the system gets to that target color". </p>
+<p>This version uses the D() function, which says "set a target color", and 
+leaves the animation to another statement.</p>
+<p>The first D() statement takes whatever the current led is and starts a fade 
+to black on it over 50 cycles, or half of a second. The second D() statement 
+sets up an overlapping fade for the next led to bright, but only over 10 
+seconds.</p>
+<p>And then the A() - animate - statement performs the animation for 10 cycles. 
+That's enough to turn the new led on, but it's not long enough for old led to 
+fade all the way to black - that will take 5 cycles through the loop. </p>
+<p>The brightness looks something like this:</p>
+
+
+<table cellpadding="3" cellspacing="3" class="auto-style3">
+	<tr>
+		<td class="auto-style4">Cycle Count</td>
+		<td class="auto-style4">Led 0</td>
+		<td class="auto-style4">Led 1</td>
+		<td class="auto-style4">Led 2</td>
+		<td class="auto-style4">Led 3</td>
+		<td class="auto-style4">Led 4</td>
+	</tr>
+	<tr>
+		<td class="auto-style2">0</td>
+		<td class="auto-style2">0</td>
+		<td class="auto-style2">0</td>
+		<td class="auto-style2">0</td>
+		<td class="auto-style2">0</td>
+		<td class="auto-style2">0</td>
+	</tr>
+	<tr>
+		<td class="auto-style2">10</td>
+		<td class="auto-style2">1</td>
+		<td class="auto-style2">0</td>
+		<td class="auto-style2">0</td>
+		<td class="auto-style2">0</td>
+		<td class="auto-style2">0</td>
+	</tr>
+	<tr>
+		<td class="auto-style2">20</td>
+		<td class="auto-style2">0.8</td>
+		<td class="auto-style2">1</td>
+		<td class="auto-style2">0</td>
+		<td class="auto-style2">0</td>
+		<td class="auto-style2">0</td>
+	</tr>
+	<tr>
+		<td class="auto-style2">30</td>
+		<td class="auto-style2">0.6</td>
+		<td class="auto-style2">0.8</td>
+		<td class="auto-style2">1</td>
+		<td class="auto-style2">0</td>
+		<td class="auto-style2">0</td>
+	</tr>
+	<tr>
+		<td class="auto-style2">40</td>
+		<td class="auto-style2">0.4</td>
+		<td class="auto-style2">0.6</td>
+		<td class="auto-style2">0.8</td>
+		<td class="auto-style2">1</td>
+		<td class="auto-style2">0</td>
+	</tr>
+</table>
+<p>This ability to overlap operations is at the heart of most animation effects.</p>
+<h2>Random Colors</h2>
+<p>It would be nice to show a color other than white. </p>
+<blockquote><span class="auto-style1">ConfigLed(0, "RGB", 10, 15)</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">func GetColor()</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp; red = Rand()</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp; green = Rand()</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp; blue = Rand()</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">&nbsp; max = Max(red, green, blue)</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp; factor = 1.0 / max</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">&nbsp; return {red * factor, green * factor, blue * 
+factor}</span><br class="auto-style1" />
+<span class="auto-style1">endfunc</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">ledCurrent = 1</span><br class="auto-style1" />
+<span class="auto-style1">increment = 1</span><br class="auto-style1" />
+<span class="auto-style1">color = GetColor()</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">while (1)</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp; D(50, ledCurrent, {0, 0, 0}) </span>
+<br class="auto-style1" />
+<span class="auto-style1">&nbsp; ledCurrent = ledCurrent + increment</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp; if (ledCurrent == 0 || ledCurrent == 10)</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp;&nbsp;&nbsp; increment = -increment</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp;&nbsp;&nbsp; color = GetColor()</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp; endif</span><br class="auto-style1" />
+<br class="auto-style1" />
+<span class="auto-style1">&nbsp; D(10, ledCurrent, color)</span><br class="auto-style1" />
+<span class="auto-style1">&nbsp; A(10)</span><br class="auto-style1" />
+<span class="auto-style1">endwhile </span></blockquote>
+<p>The GetColor() function calls the Rand() built-in function to get a random 
+number between 0.0 and 1.0. This works fine, but the colors tend to be a little 
+dim as they might be something like "{0.5, 0.3, 0.1}". The code figure out max 
+and factor scales those numbers up so that the biggest one is 1.0.</p>
+<p>The rest of the code is mainly unchanged. </p>
+<h2>A real-life project example</h2>
+
+<p>This is the code from a real-life project:</p>
+<blockquote>
+	<span class="auto-style1">ConfigLed(0, "RGB", 1, 27)</span><br class="auto-style1" />
+	<span class="auto-style1">ConfigLed(1, "PWM", 4, 17, 16, 4, 2)</span><br class="auto-style1" />
+	<span class="auto-style1">ConfigLed(2, "PWM", 1, 14)</span><br class="auto-style1" />
+	<span class="auto-style1">ConfigButton(0, "TOUCH", 15, 20)</span><br class="auto-style1" />
+	<span class="auto-style1">LampAutoShutoffTimeInSeconds = 10 * 100 // 10 
+	seconds</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">D_GasGenerator = 0</span><br class="auto-style1" />
+	<span class="auto-style1">D_Green = 4</span><br class="auto-style1" />
+	<span class="auto-style1">D_White = 3</span><br class="auto-style1" />
+	<span class="auto-style1">D_Fan = 5</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">if ReadButton(0) == 1</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">&nbsp; Pl("ON")</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; D(100, D_Fan, 0.95)</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">&nbsp; D(100, D_GasGenerator, {1, 1, 0.2})</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; A(100)</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">&nbsp; Di(5, D_Green, 0.8)</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; Di(5, D_Green, 0)</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; Di(100, D_White, 0.8)</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">&nbsp; for wait 0:LampAutoShutoffTimeInSeconds
+	</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp;&nbsp;&nbsp; if ReadButton(0) == 1</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp;&nbsp;&nbsp; endif</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp;&nbsp;&nbsp; A(1)</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; endfor</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">&nbsp; Pl("OFF") </span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">&nbsp; D(100, D_White, 0)</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; D(50, D_GasGenerator, {0, 0, 0})</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; D(1, D_Fan, 0)</span><br class="auto-style1" />
+	<span class="auto-style1">&nbsp; A(100)</span><br class="auto-style1" />
+	<span class="auto-style1">endif</span><br class="auto-style1" />
+	<br class="auto-style1" />
+	<span class="auto-style1">A(1)</span><br class="auto-style1" />
+</blockquote>
+<p>This example is quite a bit more complicated... </p>
+<p>It sets up three LED groups.</p>
+<ol>
+	<li>A single WS2812 LED on pin 27</li>
+	<li>A group of 4 PWM LEDs on pins 17, 16, 4, and 2</li>
+	<li>A simple PWM LED on pin 14</li>
+</ol>
+<p>The ESP-32 can drive up to 16 separate PWM outputs in hardware. In this case, 
+the group with 4 PWM outputs is connected to a custom 4-channel LED controller 
+that drives an RGBW LED. The single output PWM group is actually used to control 
+a cooling fan.</p>
+<p>After the LEDs are configured, a button is configured. The ESP-32 supports 10 
+touch inputs in hardware; the pin is simply wired to some sort of metallic 
+contact and detects when somebody touches that contact. In this example, the 
+touch input is pin 15, and 20 is the touch threshold; any touch value below 20 
+will trigger the button. Buttons can also be triggered externally through the 
+web interface.</p>
+<p>Until the button is pressed, the A(1) animate block executes and nothing 
+happens.</p>
+<p>When the button is pressed, the fan is turned on and the single WS2812 RGB 
+LED is turned on, then the green channel of the big LED is flashed, and the 
+white channel is ramped up. </p>
+<p>The code then enters a timing loop; if the user presses the touch button 
+again the loop exits, or it turns off on its own after a given number of seconds 
+(set to 10 seconds for the demo). </p>
+<p>At that point, the the channels are turned off, the loop is exited, and the 
+code waits for the next button press.</p>
+<p>In addition to touch buttons, the Fade system also supports physical 
+pushbuttons.</p>
+<p>This code use the PL() - or "print line" - functionality; when a P() or Pl() 
+statement is executed, it sends its output over the serial channel so it can be 
+displayed by a desktop computer or laptop that is connected to it. This is very 
+useful for debugging. </p>
+<p>Here is a video of this project in operation.</p>
+
+
+<iframe width="790" height="444" src="https://www.youtube.com/embed/0twiFoVSZZs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+</body>
+
+</html>

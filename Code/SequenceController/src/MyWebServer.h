@@ -113,13 +113,13 @@ public:
 
              "<html>\
   <head>\
-    <title>%s: EagleDecorations Sequence Controller</title>\
+    <title>%s: EagleDecorations Fade Controller</title>\
     <style>\
       body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
     </style>\
   </head>\
   <body>\
-    <h1><a href=\"SetNodeName\">%s</a>: EagleDecorations Sequence Controller</h1>\
+    <h1><a href=\"SetNodeName\">%s</a>: EagleDecorations Fade Controller</h1>\
     <p>%s (up for %d seconds)</p>\
     <table>\
     <tr>\

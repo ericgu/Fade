@@ -65,6 +65,7 @@ FADELIBRARY_API int Run(const char* pProgram,
   Environment.ResetValues();
 
   ButtonCreator::ResetButtons();
+  VariableStore::VariableStoreInstance.ResetCache();
   Vector::RestartVectorDataProvider();
 
   _pSupervisor = new Supervisor();

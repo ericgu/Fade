@@ -43,6 +43,26 @@ public:
               pBrightness->GetValueFloat(1),
               pBrightness->GetValueFloat(2),
               pBrightness->GetValueFloat(3));
+
+          if (Environment.DebugLogLedUpdates)
+          {
+              Serial.print("Led: ");
+
+              Serial.print(_ledGroupNumber);
+              Serial.print(", ");
+              Serial.print(channel);
+              Serial.print(", ");
+              Serial.print(pBrightness->GetValueCount());
+              Serial.print(", ");
+              Serial.print(pBrightness->GetValueFloat(0));
+              Serial.print(", ");
+              Serial.print(pBrightness->GetValueFloat(1));
+              Serial.print(", ");
+              Serial.print(pBrightness->GetValueFloat(2));
+              Serial.print(", ");
+              Serial.print(pBrightness->GetValueFloat(3));
+              Serial.println();
+          }
       }
   }
 

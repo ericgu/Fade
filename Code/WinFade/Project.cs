@@ -49,6 +49,11 @@ namespace WinFade
         {
             if (!File.Exists(Filename))
             {
+                if (File.Exists("First.txt"))
+                {
+                    ProgramText = File.ReadAllText("First.txt");
+                }
+
                 return;
             }
 

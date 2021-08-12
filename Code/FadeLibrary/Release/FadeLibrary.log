@@ -1,9 +1,9 @@
-﻿  FadeLibrary.cpp
+﻿  stdafx.cpp
+  dllmain.cpp
+  FadeLibrary.cpp
      Creating library D:\data\Electronics\SequenceController\Code\WinFade\Release\FadeLibrary.lib and object D:\data\Electronics\SequenceController\Code\WinFade\Release\FadeLibrary.exp
   Generating code
-  129 of 389 functions (33.2%) were compiled, the rest were copied from previous compilation.
-    6 functions were new in current compilation
-    6 functions had inline decision re-evaluated but remain unchanged
+  All 403 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
   FadeLibrary.vcxproj -> D:\data\Electronics\SequenceController\Code\WinFade\Release\FadeLibrary.dll
   FadeLibrary.vcxproj -> D:\data\Electronics\SequenceController\Code\WinFade\Release\FadeLibrary.pdb (Full PDB)

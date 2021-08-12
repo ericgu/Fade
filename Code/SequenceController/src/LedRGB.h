@@ -15,6 +15,9 @@ public:
         _pixelCount = pixelCount;
         _pixelPin = pixelPin;
         _pStrip = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(_pixelCount, _pixelPin);
+        Serial.println(">LedRGB constructor - strip created");
+        Serial.println((int)_pStrip);
+        Serial.flush();
         _pStrip->Begin();
         Serial.println("<LedRGB constructor");
         Serial.flush();
