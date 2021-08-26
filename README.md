@@ -1,4 +1,15 @@
-separate directory.
+# Fade - a ESP32 Animation System
+## Introduction
+
+See the introduction video [here](https://www.youtube.com/watch?v=-CXQz1x2k9o).
+
+## Getting Started
+
+### Install WinFade
+Run the [WinFade Installer](https://github.com/ericgu/Fade/tree/master/InstallFiles) to install WinFade on your windows computer. 
+
+### Download the Fade system to the ESP32. 
+1. Download the [ESP flashing tools from Espressif](https://www.espressif.com/en/support/download/other-tools) and extract them into a separate directory.
 2. Copy the [.bin](https://github.com/ericgu/Fade/tree/master/InstallFiles) file to your local machine.
 3. Run the flash_download_tool_[version].exe file
 4. Choose SPIDownload Tab
@@ -23,10 +34,6 @@ separate directory.
 
 [Tutorial](https://rawcdn.githack.com/ericgu/Fade/26681499a88c3c0935cea77f8de56b3fef22759a/docs/FadeLanguageTutorial.html)
 [Language Reference](https://rawcdn.githack.com/ericgu/Fade/26681499a88c3c0935cea77f8de56b3fef22759a/docs/FadeLanguageReference.html)
-
-
-
-
 
 
 
