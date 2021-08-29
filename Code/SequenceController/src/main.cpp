@@ -149,7 +149,10 @@ void setup()
     //wifiManager.resetSettings();
     //wifiManager.startConfigPortal();
 
-    wifiManager.autoConnect("SequenceController", "12345678");
+    char networkName[32];
+    sprintf(networkName, "FadeController_%d", esp_random() % 65536);
+
+    wifiManager.autoConnect(networkName, "12345678");
     //Serial.print("after autoconnect: ");
 
     Serial.begin(115200);

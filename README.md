@@ -3,32 +3,55 @@
 
 See the introduction video [here](https://www.youtube.com/watch?v=-CXQz1x2k9o).
 
-## Getting Started
+## Getting Started (Windows)
+
+### Copy the installation files to a local directory
+
+The installation files can be found [here](https://github.com/ericgu/Fade/tree/master/InstallFiles).
 
 ### Install WinFade
-Run the [WinFade Installer](https://github.com/ericgu/Fade/tree/master/InstallFiles) to install WinFade on your windows computer. 
+Run WinFadeInstaller.msi
 
-### Download the Fade system to the ESP32. 
-1. Download the [ESP flashing tools from Espressif](https://www.espressif.com/en/support/download/other-tools) and extract them into a separate directory.
-2. Copy the [.bin](https://github.com/ericgu/Fade/tree/master/InstallFiles) file to your local machine.
-3. Run the flash_download_tool_[version].exe file
-4. Choose SPIDownload Tab
-5. Add the downloaded firmware file to the first line.
-6. At the bottom, choose the COM port and the serial speed.
-7. Choose "Start"
+### Install python and esptool.py
 
-### Provision the ESP32 to connect to your local network. 
+These tools will be used to copy the Fade system onto the ESP32
 
-1, Start the ESP
-2. It will create a wireless network named "SequenceController" (old name) and password "12345678"
-3. Connect to it. 
-4. If your browser doesn't auto-navigate, go to http://192.168.4.1
-5. Choose the wireless network you want to connect to.
+[How to Install Esptool on Windows 10](https://cyberblogspot.com/how-to-install-esptool-on-windows-10/)
 
-### Connector the controller
+### Copy/Flash the software onto the ESP32
 
-1. Navigate to the controller IP address with your web browser. You may have to hit your router to figure that out, or you can connect a USB cable to the ESP and look to see what IP address it is using.
-2. That should show the Fade web-based authoring interface. 
+It's good to have experience copying programs to the ESP32 from the Arduino IDE or another IDE before you try this. 
+
+1. Connect the ESP to the computer with a USB cable (or whatever programmer you use).
+2. Determine what COM port you are connected to
+3. Edit FlashToEsp32.bat to specify the proper COM port
+4. Run FlashToEsp32.bat
+5. Put the ESP board into download board (press and hold the program button or press and hold it and then press and release the reset button)
+6. Watch the download progress. 
+
+### Verify the installation
+
+1. Connect to the COM port with a terminal program such as CoolTerm.
+2. Reset the ESP32
+3. You should see debug text that says "Configuring Access Point"
+
+### Connect the ESP to your wireless network
+
+1. Using a wireless device (laptop or phone), connect to a network with the SSID named "FadeController_<number", password "12345678"
+2. Your browser may hit the page directly; if not, navigate to [http://192.168.4.1](http://192.168.4.1)
+3. Choose the appropriate wireless network. 
+4. Reset the ESP
+
+### Connect to the Fade web page
+
+1. Determine the IP address of the ESP. You can get that either from your router or from the debug messages written when the ESP boots.
+2. Enter that IP address into your web browser.
+3. That should give you the web-based IDE for the ESP. 
+
+### Connect WinFade to the ESP
+
+1. Enter the IP address of the ESP into WinFade.
+2. Enjoy.
 
 ## Fade language details
 
