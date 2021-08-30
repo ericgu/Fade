@@ -30,7 +30,7 @@ public:
         _pin3 = pin3;
         _pin4 = pin4;
 
-        if (strcmp(pLedType, "RGB") == 0 || strcmp(pLedType, "WS2812"))
+        if (strcmp(pLedType, "RGB") == 0 || strcmp(pLedType, "WS2812") == 0)
         {
             Serial.println("Creating RGB device");
             return new LedRGB(ledCount, pin1);
