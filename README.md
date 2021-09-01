@@ -1,4 +1,7 @@
 # Fade - a ESP32 Animation System
+
+Fade is an ESP32-based animation system. It can drive WS2812/Neopixel addressable LEDs, PWM-based devices (LEDs or anything else that supports PWM), and hobby servo motors. 
+
 ## Introduction
 
 See the introduction video [here](https://www.youtube.com/watch?v=-CXQz1x2k9o).

@@ -40,6 +40,11 @@ public:
             Serial.println("Creating PWM device");
             return new LedPwmEsp32(ledCount, pin1, pin2, pin3, pin4);
         }
+        else if (strcmp(pLedType, "Servo") == 0)
+        {
+            Serial.println("Creating Servo device");
+            return new LedServoEsp32(ledCount, pin1, pin2, pin3, pin4);
+        }
 
         return 0;
     }

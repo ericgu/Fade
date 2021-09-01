@@ -7,5 +7,6 @@
         Ring = 3,
         Matrix = 4,
         Pwm = 5,
-    }
+        Servo = 6,
+  }
 }

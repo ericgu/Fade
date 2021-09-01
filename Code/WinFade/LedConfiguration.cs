@@ -139,37 +139,43 @@ namespace WinFade
 
         public static LedConfiguration CreateLedConfigurationForType(string groupType)
         {
-            LedConfiguration newConfiguration = null;
+          LedConfiguration newConfiguration = null;
 
-            switch (groupType)
-            {
-                case "Strip":
-                    newConfiguration = new LedConfigurationStrip();
-                    newConfiguration.GroupType = LedGroupType.Strip;
-                    break;
+          switch (groupType)
+          {
+            case "Strip":
+              newConfiguration = new LedConfigurationStrip();
+              newConfiguration.GroupType = LedGroupType.Strip;
+              break;
 
-                case "Ring":
-                    newConfiguration = new LedConfigurationRing();
-                    newConfiguration.GroupType = LedGroupType.Ring;
-                    break;
+            case "Ring":
+              newConfiguration = new LedConfigurationRing();
+              newConfiguration.GroupType = LedGroupType.Ring;
+              break;
 
-                case "Matrix":
-                    newConfiguration = new LedConfigurationMatrix();
-                    newConfiguration.GroupType = LedGroupType.Matrix;
-                    break;
+            case "Matrix":
+              newConfiguration = new LedConfigurationMatrix();
+              newConfiguration.GroupType = LedGroupType.Matrix;
+              break;
 
-                case "Custom":
-                    newConfiguration = new LedConfigurationCustom();
-                    newConfiguration.GroupType = LedGroupType.Custom;
-                    break;
+            case "Custom":
+              newConfiguration = new LedConfigurationCustom();
+              newConfiguration.GroupType = LedGroupType.Custom;
+              break;
 
-                case "Pwm":
-                    newConfiguration = new LedConfigurationPwm();
-                    newConfiguration.GroupType = LedGroupType.Pwm;
-                    break;
-            }
+            case "Pwm":
+              newConfiguration = new LedConfigurationPwm();
+              newConfiguration.GroupType = LedGroupType.Pwm;
+              break;
 
-            return newConfiguration;
+            case "Servo":
+              newConfiguration = new LedConfigurationServo();
+              newConfiguration.GroupType = LedGroupType.Servo;
+              break;
+
+          }
+
+          return newConfiguration;
         }
 
         internal virtual void PopulateAndEnableForGroupType(EditLedSetup editLedSetup)

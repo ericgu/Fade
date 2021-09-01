@@ -12,9 +12,9 @@ class LedPwmEsp32 : public ILedDevice
     int _pinNumbers[4];
     int _channelNumbers[4];
 
+public:
     static int _nextChannelToUse;
 
-public:
     LedPwmEsp32(int pinCount, int pin1, int pin2, int pin3, int pin4)
     {
         Serial.println(">LedPWM constructor");
@@ -35,7 +35,7 @@ public:
 
             if (_pinNumbers[i] != -1)
             {
-                ledcSetup(_channelNumbers[i], PwmFrequency + i, PwmBits);
+                ledcSetup(_channelNumbers[i], PwmFrequency, PwmBits);
                 ledcAttachPin(_pinNumbers[i], _channelNumbers[i]);
             }
         }

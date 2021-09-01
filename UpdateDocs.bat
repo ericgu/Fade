@@ -1,0 +1,1 @@
+copy d:\data\websites\EagleDecorations\fade*.html docs\

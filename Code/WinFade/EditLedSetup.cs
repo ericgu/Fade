@@ -26,6 +26,12 @@ namespace WinFade
         internal void PopulateLedConfigurationList()
         {
             int selectedIndex = c_listBoxLedGroups.SelectedIndex;
+
+            if (selectedIndex == -1 && _ledTestBoard.LedConfigurations.Count != 0)
+            {
+              selectedIndex = 0;
+            }
+
             c_listBoxLedGroups.Items.Clear();
             foreach (LedConfiguration ledGroup in _ledTestBoard.LedConfigurations)
             {
@@ -52,6 +58,10 @@ namespace WinFade
             get
             {
                 int selected = c_listBoxLedGroups.SelectedIndex;
+                if (selected == -1)
+                {
+                  return null;
+                }
 
                 return _ledTestBoard.LedConfigurations[selected];
             }
@@ -81,12 +91,22 @@ namespace WinFade
 
             if (!(SelectedLedConfiguration is LedConfigurationStrip))
             {
-                LedConfigurationStrip.DisableForGroupType(this);
+              LedConfigurationStrip.DisableForGroupType(this);
             }
-        }
+
+            if (!(SelectedLedConfiguration is LedConfigurationServo))
+            {
+              LedConfigurationServo.DisableForGroupType(this);
+            }
+    }
 
         private void c_listBoxLedGroups_SelectedIndexChanged(object sender, EventArgs e)
         {
+          if (SelectedLedConfiguration == null)
+          {
+            return;
+          }
+
             DisableForGroupTypes();
 
             c_textBoxGroupNumber.Text = SelectedLedConfiguration.GroupNumber.ToString();
@@ -159,7 +179,12 @@ namespace WinFade
             ChangeGroupType(LedGroupType.Pwm);
         }
 
-        private void c_buttonDeleteClick(object sender, EventArgs e)
+        private void c_radioButtonServo_Click(object sender, EventArgs e)
+        {
+          ChangeGroupType(LedGroupType.Servo);
+    }
+
+    private void c_buttonDeleteClick(object sender, EventArgs e)
         {
             if (c_listBoxLedGroups.SelectedIndex != -1)
             {
@@ -225,5 +250,27 @@ namespace WinFade
         {
             ((LedConfigurationStrip)SelectedLedConfiguration).ValuesChanged(this);
         }
+
+    private void label14_Click(object sender, EventArgs e)
+    {
+
     }
+
+    private void ServoAnglesChanged(object sender, EventArgs e)
+    {
+      ((LedConfigurationServo) SelectedLedConfiguration).ValuesChanged(this);
+    }
+
+    private void label16_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    private void label15_Click(object sender, EventArgs e)
+    {
+
+    }
+
+
+  }
 }

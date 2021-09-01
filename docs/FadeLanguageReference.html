@@ -340,14 +340,21 @@ touch threshold value. </p>
 			in a single statement, and the physical pins are defined using 
 			parameters 1-4.</td>
 		</tr>
+		<tr>
+			<td style="width: 138px">"Servo"</td>
+			<td>A servo motor controller with 1-2 mS pulses. This feature uses 
+			the ESP32's built-in LED control hardware. Specify 1 for the 
+			ledCount and the pin the servo is connected to.</td>
+		</tr>
 </table>
 <p>Examples:</p>
 <p>ConfigLed (0, "RGB", 8, 27)<br />
-ConfigLed (1, "PWM", 3, 17, 16, 4)</p>
+ConfigLed (1, "PWM", 3, 17, 16, 4)<br>ConfigLed (2, "Servo", 1, 31)</p>
 <p>Configures a string of 8 WS2812 leds connected to pin 27 as the first string, 
-followed by 3 individually controlled PWM leds on pins 17, 16, and 4. </p>
-<p>When animating, leds 0-7 will be the WS2812 leds and leds 8-10 will be the 
-PWM ones. </p>
+followed by 3 individually controlled PWM leds on pins 17, 16, and 4, followed 
+by a single servo attached to pin 31</p>
+<p>When animating, leds 0-7 will be the WS2812 leds, leds 8-10 will be the PWM 
+ones, and led 11 will be the servo.</p>
 <h4>D and Di</h4>
 <p>D and Di define a fade for the animation system to perform.</p>
 <p>D(&lt;cycleCount&gt;, &lt;ledIndex&gt;, &lt;targetBrightness&gt;)<br />

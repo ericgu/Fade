@@ -88,6 +88,7 @@
     <Compile Include="LedConfigurationMatrix.cs" />
     <Compile Include="LedConfigurationPwm.cs" />
     <Compile Include="LedConfigurationRing.cs" />
+    <Compile Include="LedConfigurationServo.cs" />
     <Compile Include="LedConfigurationStrip.cs" />
     <Compile Include="LedForm.cs">
       <SubType>Form</SubType>
