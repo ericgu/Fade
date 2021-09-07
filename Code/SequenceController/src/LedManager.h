@@ -87,26 +87,28 @@ public:
 		if (strcmp(pLedType, "FREE") == 0)
 		{
 			_ledGroups.DeleteGroup(ledGroupNumber);
-            return true;
+			return true;
 		}
 
 		// check whether group exists, skip if it doesn't...
 
 		if (_ledGroups.GetGroupCount() > ledGroupNumber)
 		{
-            return true;
+			return true;
 		}
 
-        if (!IsValidLedType(pLedType))
-        {
-            return false;
-        }
+		LedType ledType(pLedType);
 
-		ILedDevice *pLedDevice = _pLedDeviceCreator->Create(pLedType, ledCount, ledPin1, ledPin2, ledPin3, ledPin4);
-        if (!pLedDevice)
-        {
-            return false;
-        }
+		if (!ledType.IsValid())
+		{
+			return false;
+		}
+
+		ILedDevice *pLedDevice = _pLedDeviceCreator->Create(ledType, ledCount, ledPin1, ledPin2, ledPin3, ledPin4);
+		if (!pLedDevice)
+		{
+			return false;
+		}
 
 		if (_ledGroups.AddGroup(ledGroupNumber, pLedDevice, ledCount))
 		{
@@ -115,7 +117,7 @@ public:
 			ResetState();
 		}
 
-        return true;
+		return true;
 	}
 
 	void SetDelta(CommandResult *pCommandResult)
@@ -174,27 +176,5 @@ public:
 		_ledGroups.Show();
 		//Serial.println("A6");
 		//Serial.flush();
-	}
-
-    bool IsValidLedType(const char* pLedType)
-	{
-        if (strcmp(pLedType, "RGB") == 0 || strcmp(pLedType, "WS2812") == 0)
-        {
-            return true;
-        }
-        else if (strcmp(pLedType, "PWM") == 0)
-        {
-            return true;
-        }
-        else if (strcmp(pLedType, "Servo") == 0)
-        {
-            return true;
-        }
-        else if (strcmp(pLedType, "Test") == 0)
-        {
-            return true;
-        }
-
-        return false;
 	}
 };
