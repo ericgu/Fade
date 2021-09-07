@@ -50,9 +50,9 @@ public:
 		Profiler.StartBig("Other");
 	}
 
-	void Configure(int ledGroupNumber, const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
+	bool Configure(int ledGroupNumber, const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
 	{
-		_pLedManager->Configure(ledGroupNumber, pLedType, ledCount, pin1, pin2, pin3, pin4);
+		return _pLedManager->Configure(ledGroupNumber, pLedType, ledCount, pin1, pin2, pin3, pin4);
 	}
 
 	void ConfigureButton(int buttonNumber, const char *pButtonType, int pinNumber, int threshold)

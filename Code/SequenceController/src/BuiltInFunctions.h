@@ -1,6 +1,6 @@
 class BuiltInFunctions
 {
-	static bool HandleBuiltInRand(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInRand(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "Rand") == 0)
 		{
@@ -27,7 +27,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInDirect(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInDirect(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if ((strcmp(pFunctionName, "D") == 0 || strcmp(pFunctionName, "Di") == 0))
 		{
@@ -83,7 +83,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInSequential(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInSequential(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if ((strcmp(pFunctionName, "S") == 0 || strcmp(pFunctionName, "Si") == 0))
 		{
@@ -134,7 +134,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInAnimate(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInAnimate(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "A") == 0)
 		{
@@ -158,7 +158,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInPrint(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInPrint(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if ((strcmp(pFunctionName, "P") == 0 || strcmp(pFunctionName, "Pl") == 0))
 		{
@@ -214,7 +214,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInAbort(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInAbort(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "Abort") == 0)
 		{
@@ -241,7 +241,7 @@ class BuiltInFunctions
 		}
 	}
 
-	static bool HandleBuiltInConfigLed(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInConfigLed(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "ConfigLed") == 0)
 		{
@@ -253,7 +253,10 @@ class BuiltInFunctions
 			int pin3 = GetVariableOrNegativeOne(pExecutionContext, "#A5");
 			int pin4 = GetVariableOrNegativeOne(pExecutionContext, "#A6");
 
-			pExecutionFlow->ConfigureLeds(pLedGroupNumber->GetValueInt(), pLedType->GetValueString(), pLedCount->GetValueInt(), pin1, pin2, pin3, pin4);
+            if (!pExecutionFlow->ConfigureLeds(pLedGroupNumber->GetValueInt(), pLedType->GetValueString(), pLedCount->GetValueInt(), pin1, pin2, pin3, pin4))
+			{
+				pParseErrors->AddError("ConfigLed error", "", lineNumber);
+			}
 
 			return true;
 		}
@@ -261,7 +264,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInConfigButton(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInConfigButton(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "ConfigButton") == 0)
 		{
@@ -278,7 +281,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInReadButton(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInReadButton(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "ReadButton") == 0)
 		{
@@ -308,7 +311,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInDebug(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInDebug(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "Debug") == 0)
 		{
@@ -349,7 +352,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInConfigEnvironment(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInConfigEnvironment(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "ConfigEnvironment") == 0)
 		{
@@ -413,7 +416,7 @@ class BuiltInFunctions
 		pResult->SetValue(2, b + m);
 	}
 
-	static bool HandleBuiltInHsvToRGB(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInHsvToRGB(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "HsvToRgb") == 0)
 		{
@@ -440,7 +443,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInMax(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInMax(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "Max") == 0)
 		{
@@ -466,7 +469,7 @@ class BuiltInFunctions
 		return false;
 	}
 
-	static bool HandleBuiltInMin(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInMin(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "Min") == 0)
 		{
@@ -493,74 +496,74 @@ class BuiltInFunctions
 	}
 
 public:
-	static bool HandleBuiltInFunctions(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	static bool HandleBuiltInFunctions(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
-		if (HandleBuiltInRand(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInRand(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInDirect(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInDirect(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInSequential(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInSequential(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInAnimate(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInAnimate(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInPrint(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInPrint(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInAbort(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInAbort(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInConfigLed(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInConfigLed(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInConfigButton(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInConfigButton(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInReadButton(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInReadButton(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInDebug(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInDebug(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInHsvToRGB(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInHsvToRGB(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInConfigEnvironment(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInConfigEnvironment(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInMax(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInMax(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}
 
-		if (HandleBuiltInMin(pFunctionName, pExecutionContext, pParseErrors, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		if (HandleBuiltInMin(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}

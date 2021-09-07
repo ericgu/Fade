@@ -1,4 +1,5 @@
-﻿  stdafx.cpp
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppClean.targets(76,5): warning : The process cannot access the file 'd:\data\electronics\sequencecontroller\code\fadelibrary\release\vc140.pdb' because it is being used by another process.
+  stdafx.cpp
   dllmain.cpp
   FadeLibrary.cpp
      Creating library D:\data\Electronics\SequenceController\Code\WinFade\Release\FadeLibrary.lib and object D:\data\Electronics\SequenceController\Code\WinFade\Release\FadeLibrary.exp

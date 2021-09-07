@@ -9,7 +9,7 @@ public:
 	virtual void Tick() = 0;
 	virtual void ResetState() = 0;
 
-	virtual void Configure(int ledGroupNumber, const char *pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4) = 0;
+	virtual bool Configure(int ledGroupNumber, const char *pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4) = 0;
 
 	virtual int GetLedCount() = 0;
 
@@ -82,22 +82,31 @@ public:
 		}
 	}
 
-	void Configure(int ledGroupNumber, const char *pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4)
+	bool Configure(int ledGroupNumber, const char *pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4)
 	{
 		if (strcmp(pLedType, "FREE") == 0)
 		{
 			_ledGroups.DeleteGroup(ledGroupNumber);
-			return;
+            return true;
 		}
 
 		// check whether group exists, skip if it doesn't...
 
 		if (_ledGroups.GetGroupCount() > ledGroupNumber)
 		{
-			return;
+            return true;
 		}
 
+        if (!IsValidLedType(pLedType))
+        {
+            return false;
+        }
+
 		ILedDevice *pLedDevice = _pLedDeviceCreator->Create(pLedType, ledCount, ledPin1, ledPin2, ledPin3, ledPin4);
+        if (!pLedDevice)
+        {
+            return false;
+        }
 
 		if (_ledGroups.AddGroup(ledGroupNumber, pLedDevice, ledCount))
 		{
@@ -105,6 +114,8 @@ public:
 			Cleanup();
 			ResetState();
 		}
+
+        return true;
 	}
 
 	void SetDelta(CommandResult *pCommandResult)
@@ -163,5 +174,27 @@ public:
 		_ledGroups.Show();
 		//Serial.println("A6");
 		//Serial.flush();
+	}
+
+    bool IsValidLedType(const char* pLedType)
+	{
+        if (strcmp(pLedType, "RGB") == 0 || strcmp(pLedType, "WS2812") == 0)
+        {
+            return true;
+        }
+        else if (strcmp(pLedType, "PWM") == 0)
+        {
+            return true;
+        }
+        else if (strcmp(pLedType, "Servo") == 0)
+        {
+            return true;
+        }
+        else if (strcmp(pLedType, "Test") == 0)
+        {
+            return true;
+        }
+
+        return false;
 	}
 };

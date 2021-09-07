@@ -7,9 +7,12 @@
 
 #include <Preferences.h>
 #include <WiFi.h>
+#include <WiFiUdp.h>
 #include <DNSServer.h>
 #include <WebServer.h>
 #include <WiFiManager.h>
+
+#include "MyUdp.h"
 
 #include "DimEnvironment.h"
 
@@ -18,6 +21,8 @@
 #include <ArduinoNvs.h>
 #include <Settings.h>
 #include <Supervisor.h>
+
+//WiFiUDP wifiudp;
 
 #include "MyWebServer.h"
 
@@ -31,6 +36,7 @@ Supervisor *_pSupervisor;
 Settings *_pSettings;
 
 MyWebServer *pMyWebServer;
+MyUdp *pMyUdp;
 
 void Callback()
 {
@@ -58,6 +64,7 @@ void HandleWebClient(void *parameter)
     while (true)
     {
         pMyWebServer->HandleClient();
+        pMyUdp->HandleClient();
         delay(25);
     }
 }
@@ -141,7 +148,8 @@ void setup()
     //_pLedPwm = new LedPwmEsp32();
     //_pLedManager = new LedManager(_pLedPwm, 16);
 
-    _pLedDeviceCreator = new LedDeviceCreator();
+    pMyUdp = new MyUdp(4210);
+    _pLedDeviceCreator = new LedDeviceCreator(pMyUdp);
     //_pLedDevice = new LedRGB(33, 13);
 
     WiFiManager wifiManager;

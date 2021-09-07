@@ -36,6 +36,8 @@ void ParseErrorFound(const char *pMessage, int lineNumber) {}
 #include "LedPwmEsp32.h"
 #include "LedRGB.h"
 #include "LedServoEsp32.h"
+#include "UdpData.h"
+#include "LedUdpSender.h"
 #include "ILedDeviceCreator.h"
 #include "LedDeviceCreator.h"
 #include "LedGroups.h"

@@ -72,13 +72,18 @@ public:
         _pLedMessageHandler->ExecuteLedCommandMember(pCommandResult);
     }
 
-    void ConfigureLeds(int ledGroupNumber, const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
+    bool ConfigureLeds(int ledGroupNumber, const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
     {
-        _pLedMessageHandler->Configure(ledGroupNumber, pLedType, ledCount, pin1, pin2, pin3, pin4);
+        if (!_pLedMessageHandler->Configure(ledGroupNumber, pLedType, ledCount, pin1, pin2, pin3, pin4))
+        {
+            return false;
+        }
 
         // TODO: get the led count from the message handler...
         delete _pCommandResult;
         _pCommandResult = new CommandResult(_pLedMessageHandler->GetLedCount());
+
+        return true;
     }
 
     void ConfigureButton(int buttonNumber, const char *pButtonType, int pinNumber, int parameter1)

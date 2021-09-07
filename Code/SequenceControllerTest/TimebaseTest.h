@@ -46,7 +46,7 @@ public:
         return _ledCount;
     }
 
-	void Configure(int ledGroupNumber, const char* pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4)
+	bool Configure(int ledGroupNumber, const char* pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4)
 	{
         _ledGroupNumber = ledGroupNumber;
 		strcpy(_ledType, pLedType);
@@ -55,6 +55,8 @@ public:
         _ledPin2 = ledPin2;
         _ledPin3 = ledPin3;
         _ledPin4 = ledPin4;
+
+        return true;
     }
 
     virtual void FreeDevices() {}

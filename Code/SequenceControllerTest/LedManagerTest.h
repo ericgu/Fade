@@ -41,7 +41,7 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 1.0, 1));
@@ -60,7 +60,7 @@ class LedManagerTest
 
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 2, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 2, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 1.0, 1));
@@ -90,7 +90,7 @@ class LedManagerTest
 
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 20.0, 10));
@@ -112,7 +112,7 @@ class LedManagerTest
 
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 2, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 2, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 10.0, 5));
@@ -141,7 +141,7 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		Variable target;
@@ -163,7 +163,7 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		Variable target;
@@ -190,7 +190,7 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(1, 1.0, 1));
@@ -202,6 +202,21 @@ class LedManagerTest
 		Assert::AreEqual(1, ledDevice.GetUpdateCount());
 		AssertLedState(ledDevice.GetUpdatedState(0), 0, 0);
 	}
+
+    static void TestValidLedTypes()
+    {
+        LedDeviceSimulator ledDevice(100);
+        LedDeviceCreatorSimulator ledCreator(&ledDevice);
+        LedManager ledManager(&ledCreator);
+
+        Assert::AreEqual(1, ledManager.IsValidLedType("RGB"));
+        Assert::AreEqual(1, ledManager.IsValidLedType("WS2812"));
+        Assert::AreEqual(1, ledManager.IsValidLedType("PWM"));
+        Assert::AreEqual(1, ledManager.IsValidLedType("Servo"));
+        Assert::AreEqual(1, ledManager.IsValidLedType("Test"));
+
+        Assert::AreEqual(0, ledManager.IsValidLedType("Fred"));
+    }
 
 #if fred
     static void TestTwoGroups()
@@ -240,6 +255,8 @@ public:
 		TestMultiValue();
 		TestMultiValueTwoStep();
 		TestInvalidChannel();
+
+        TestValidLedTypes();
 
         //TestTwoGroups();
 

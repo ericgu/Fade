@@ -7,6 +7,7 @@ public:
     bool _aborting = false;
     bool _buttonState = false;
     bool _breaking = false;
+    bool _configLedsReturnValue = true;
 
     int _ledGroupNumber;
     const char* _pLedType;
@@ -66,7 +67,7 @@ public:
         _breaking = false;
     }
 
-    virtual void ConfigureLeds(int ledGroupNumber, const char* pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
+    virtual bool ConfigureLeds(int ledGroupNumber, const char* pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
     {
         _ledGroupNumber = ledGroupNumber;
         _pLedType = pLedType;
@@ -75,6 +76,8 @@ public:
         _pin2 = pin2;
         _pin3 = pin3;
         _pin4 = pin4;
+
+        return _configLedsReturnValue;
     }
 
     virtual void ConfigureButton(int buttonNumber, const char* pButtonType, int pinNumber, int parameter1)

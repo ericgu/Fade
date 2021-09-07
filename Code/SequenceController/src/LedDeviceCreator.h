@@ -6,8 +6,14 @@ class LedDeviceCreator : public ILedDeviceCreator
     int _pin2;
     int _pin3;
     int _pin4;
+    MyUdp *_pMyUdp;
 
 public:
+    LedDeviceCreator(MyUdp *pMyUdp)
+    {
+        _pMyUdp = pMyUdp;
+    }
+
     ILedDevice *Create(const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
     {
         Serial.print("Creating: ");
@@ -44,6 +50,11 @@ public:
         {
             Serial.println("Creating Servo device");
             return new LedServoEsp32(ledCount, pin1, pin2, pin3, pin4);
+        }
+        else if (strcmp(pLedType, "UDPSender") == 0)
+        {
+            Serial.println("Creating UDPSender device");
+            return new LedUdpSender(ledCount, pin1, pin2, pin3, pin4, _pMyUdp);
         }
 
         return 0;

@@ -26,7 +26,7 @@ class IntegrationTest
         LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
         LedManager ledManager(&ledCreator);
-        ledManager.Configure(0, "", 16, 555, -1, -1, -1);
+        ledManager.Configure(0, "Test", 16, 555, -1, -1, -1);
 
         commandSource.AddCommand("D(10,0,10.0)");
         commandSource.AddCommand("A(10)");
@@ -69,7 +69,7 @@ class IntegrationTest
       LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
       LedManager ledManager(&ledCreator);
-      ledManager.Configure(0, "", 16, 555, -1, -1, -1);
+      ledManager.Configure(0, "Test", 16, 555, -1, -1, -1);
 
       ParseErrors parseErrors;
       Timebase timebase(&commandSource, &ledManager, &parseErrors, 0, 0);
@@ -111,7 +111,7 @@ class IntegrationTest
             LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
             LedManager ledManager(&ledCreator);
-            ledManager.Configure(0, "", 16, 555, -1, -1, -1);
+            ledManager.Configure(0, "Test", 16, 555, -1, -1, -1);
 
             ParseErrors parseErrors;
             Timebase timebase(&commandSource, &ledManager, &parseErrors, 0, 0);

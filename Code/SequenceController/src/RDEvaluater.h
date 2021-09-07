@@ -222,7 +222,7 @@ class RDEvaluater
 
 
         }
-        else if (!BuiltInFunctions::HandleBuiltInFunctions(pFunctionName, _pExecutionContext, _pParseErrors, _pExpressionTokenSource, _pExecutionFlow, &expressionResult))
+        else if (!BuiltInFunctions::HandleBuiltInFunctions(pFunctionName, _pExecutionContext, _pParseErrors, _pExpressionTokenSource->GetLineNumber(), _pExpressionTokenSource, _pExecutionFlow, &expressionResult))
         {
             ReportError("Unrecognized function: ", pFunctionName);
 

@@ -14,7 +14,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A2", &Variable(3));
         executionContext.AddVariableAndSet("#A3", &Variable(4444));
 
-        BuiltInFunctions::HandleBuiltInFunctions("ConfigLed", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("ConfigLed", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
 
         Assert::AreEqual(3, executionFlow._ledGroupNumber);
         Assert::AreEqual("RGB", executionFlow._pLedType);
@@ -40,7 +40,9 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A5", &Variable(6666));
         executionContext.AddVariableAndSet("#A6", &Variable(7777));
 
-        BuiltInFunctions::HandleBuiltInFunctions("ConfigLed", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("ConfigLed", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
+
+        Assert::AreEqual(0, parseErrors.GetErrorCount());
 
         Assert::AreEqual(3, executionFlow._ledGroupNumber);
         Assert::AreEqual("RGB", executionFlow._pLedType);
@@ -49,6 +51,26 @@ class BuildInFunctionsTest
         Assert::AreEqual(5555, executionFlow._pin2);
         Assert::AreEqual(6666, executionFlow._pin3);
         Assert::AreEqual(7777, executionFlow._pin4);
+    }
+
+    static void TestConfigLedError()
+    {
+      ExecutionContext executionContext;
+      ParseErrors parseErrors;
+      MockExecutionFlow executionFlow;
+      ExpressionResult expressionResult;
+
+      executionFlow._configLedsReturnValue = false;
+
+      executionContext.AddVariableAndSet("#A0", &Variable(3));
+      executionContext.AddVariableAndSet("#A1", &Variable("Fred"));
+      executionContext.AddVariableAndSet("#A2", &Variable(3));
+      executionContext.AddVariableAndSet("#A3", &Variable(4444));
+
+      BuiltInFunctions::HandleBuiltInFunctions("ConfigLed", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
+
+      Assert::AreEqual(1, parseErrors.GetErrorCount());
+      Assert::AreEqual("ConfigLed error", parseErrors.GetError(0)->_errorText);
     }
 
     static void TestConfigTouchButton()
@@ -63,7 +85,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A2", &Variable(3));
         executionContext.AddVariableAndSet("#A3", &Variable(20));
 
-        BuiltInFunctions::HandleBuiltInFunctions("ConfigButton", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("ConfigButton", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
 
         Assert::AreEqual(3, executionFlow._buttonNumber);
         Assert::AreEqual("TOUCH", executionFlow._pButtonType);
@@ -81,7 +103,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A0", &Variable("LogStatements"));
         executionContext.AddVariableAndSet("#A1", &Variable(1));
 
-        BuiltInFunctions::HandleBuiltInFunctions("Debug", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("Debug", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
 
         Assert::AreEqual(1, Environment.DebugLogStatements);
     }
@@ -99,7 +121,7 @@ class BuildInFunctionsTest
       executionContext.AddVariableAndSet("#A1", &Variable(1));
       executionContext.AddVariableAndSet("#A2", &Variable(1));
 
-      BuiltInFunctions::HandleBuiltInFunctions("HsvToRgb", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+      BuiltInFunctions::HandleBuiltInFunctions("HsvToRgb", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
 
       Assert::AreEqual(1.0, expressionResult._variable.GetValueFloat(0));
       Assert::AreEqual(1.0, expressionResult._variable.GetValueFloat(1));
@@ -118,7 +140,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A1", &Variable(1));
         executionContext.AddVariableAndSet("#A2", &Variable(5));
 
-        BuiltInFunctions::HandleBuiltInFunctions("Max", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("Max", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
 
         Assert::AreEqual(60.0, expressionResult._variable.GetValueFloat(0));
     }
@@ -136,7 +158,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A0", &Variable(60));
         executionContext.AddVariableAndSet("#A2", &Variable(5));
 
-        BuiltInFunctions::HandleBuiltInFunctions("Max", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("Max", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
 
         Assert::AreEqual(60.0, expressionResult._variable.GetValueFloat(0));
     }
@@ -153,7 +175,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A2", &Variable(5));
         executionContext.AddVariableAndSet("#A0", &Variable(60));
 
-        BuiltInFunctions::HandleBuiltInFunctions("Max", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("Max", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
 
         Assert::AreEqual(60.0, expressionResult._variable.GetValueFloat(0));
     }
@@ -171,7 +193,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A1", &Variable(1));
         executionContext.AddVariableAndSet("#A2", &Variable(5));
 
-        BuiltInFunctions::HandleBuiltInFunctions("Min", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("Min", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
 
         Assert::AreEqual(1.0, expressionResult._variable.GetValueFloat(0));
     }
@@ -189,7 +211,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A0", &Variable(60));
         executionContext.AddVariableAndSet("#A2", &Variable(5));
 
-        BuiltInFunctions::HandleBuiltInFunctions("Min", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("Min", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
 
         Assert::AreEqual(1.0, expressionResult._variable.GetValueFloat(0));
     }
@@ -206,7 +228,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A2", &Variable(5));
         executionContext.AddVariableAndSet("#A0", &Variable(60));
 
-        BuiltInFunctions::HandleBuiltInFunctions("Min", &executionContext, &parseErrors, 0, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("Min", &executionContext, &parseErrors, 15, 0, &executionFlow, &expressionResult);
 
         Assert::AreEqual(1.0, expressionResult._variable.GetValueFloat(0));
     }
@@ -223,7 +245,7 @@ class BuildInFunctionsTest
       executionContext.AddVariableAndSet("#A", &Variable(1));
       executionContext.AddVariableAndSet("#A0", &Variable(1));
 
-      BuiltInFunctions::HandleBuiltInFunctions("Rand", &executionContext, &parseErrors, &expressionTokenSource, &executionFlow, &expressionResult);
+      BuiltInFunctions::HandleBuiltInFunctions("Rand", &executionContext, &parseErrors, 15, &expressionTokenSource, &executionFlow, &expressionResult);
 
       Assert::AreEqual(1, parseErrors.GetErrorCount());
       Assert::AreEqual("Rand requires zero or two parameters", parseErrors.GetError(0)->_errorText);
@@ -242,7 +264,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A0", &Variable("Hello"));
 
         Serial.SetOutput(false);
-        BuiltInFunctions::HandleBuiltInFunctions("P", &executionContext, &parseErrors, &expressionTokenSource, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("P", &executionContext, &parseErrors, 15, &expressionTokenSource, &executionFlow, &expressionResult);
         Assert::AreEqual("Hello", Serial.GetLastString());
         Serial.SetOutput(true);
     }
@@ -262,7 +284,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A2", &Variable("Everybody"));
 
         Serial.SetOutput(false);
-        BuiltInFunctions::HandleBuiltInFunctions("P", &executionContext, &parseErrors, &expressionTokenSource, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("P", &executionContext, &parseErrors, 15, &expressionTokenSource, &executionFlow, &expressionResult);
         Assert::AreEqual("HelloThereEverybody", Serial.GetLastString());
         Serial.SetOutput(true);
     }
@@ -281,7 +303,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A1", &Variable(33));
 
         int temp = Environment.VectorItemDataPoolCount;
-        BuiltInFunctions::HandleBuiltInFunctions("ConfigEnvironment", &executionContext, &parseErrors, &expressionTokenSource, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("ConfigEnvironment", &executionContext, &parseErrors, 15, &expressionTokenSource, &executionFlow, &expressionResult);
 
         Assert::AreEqual(0, parseErrors.GetErrorCount());
         Assert::AreEqual(33, Environment.VectorItemDataPoolCount);
@@ -302,7 +324,7 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A1", &Variable(1833));
 
         int temp = Environment.VariableStoreChunkSize;
-        BuiltInFunctions::HandleBuiltInFunctions("ConfigEnvironment", &executionContext, &parseErrors, &expressionTokenSource, &executionFlow, &expressionResult);
+        BuiltInFunctions::HandleBuiltInFunctions("ConfigEnvironment", &executionContext, &parseErrors, 15, &expressionTokenSource, &executionFlow, &expressionResult);
 
         Assert::AreEqual(0, parseErrors.GetErrorCount());
         Assert::AreEqual(1833, Environment.VariableStoreChunkSize);
@@ -317,6 +339,8 @@ public:
 
         TestConfigLed();
         TestConfigLedFourPins();
+        TestConfigLedError();
+
         TestConfigTouchButton();
         TestDebugLogStatements();
         TestHSVtoRGB();

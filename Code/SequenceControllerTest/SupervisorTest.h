@@ -11,7 +11,7 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
@@ -40,7 +40,7 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 16, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 16, 555, -1, -1, -1);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
@@ -69,7 +69,7 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 16, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 16, 555, -1, -1, -1);
 
 		Settings settings;
 		settings.SaveShouldExecuteCode(false);
@@ -93,7 +93,7 @@ class SupervisorTest
     LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
     LedManager ledManager(&ledCreator);
-    ledManager.Configure(0, "", 16, 555, -1, -1, -1);
+    ledManager.Configure(0, "Test", 16, 555, -1, -1, -1);
 
     Settings settings;
     settings.SaveShouldExecuteCode(true);
@@ -117,7 +117,7 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
@@ -149,7 +149,7 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
 
 		Settings settings;
 
@@ -175,7 +175,7 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
 
 		Settings settings;
 
@@ -199,7 +199,7 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
 
 		Settings settings;
 		settings.SaveProgramText("A(3)");
@@ -226,7 +226,7 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "", 1, 555, -1, -1, -1);
+		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
 
 		Settings settings;
 

@@ -12,3 +12,4 @@ D:\data\Electronics\SequenceController\Code\WinFade\bin\Release\First.txt
 D:\data\Electronics\SequenceController\Code\WinFade\bin\Release\Fade Icon 64x64.ico
 D:\data\Electronics\SequenceController\Code\WinFade\bin\Release\Fade Icon.ico
 D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.HoverPopupForm.resources
+D:\data\Electronics\SequenceController\Code\WinFade\obj\Release\WinFade.csprojResolveAssemblyReference.cache
