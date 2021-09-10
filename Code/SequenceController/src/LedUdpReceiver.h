@@ -15,15 +15,15 @@ class LedUdpReceiver : public ILedDevice
 public:
     static int _nextChannelToUse;
 
-    LedUdpReceiver(int pinCount, int pin1, int pin2, int pin3, int pin4, ILedManager *pLedManager)
+    LedUdpReceiver(int pinCount, int pins[16], ILedManager *pLedManager)
     {
         Serial.println(">LedUdpReceiver constructor");
 
         _pixelCount = pinCount;
-        _universe = pin1;
-        _port = pin2;
-        _startingChannelToCopy = pin3;
-        _channelsToCopy = pin4;
+        _universe = pins[0];
+        _port = pins[1];
+        _startingChannelToCopy = pins[2];
+        _channelsToCopy = pins[3];
 
         _pLedManager = pLedManager;
 

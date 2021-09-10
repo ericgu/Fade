@@ -9,21 +9,22 @@ class LedPwmEsp32 : public ILedDevice
     const int PwmMax = 256;
 
     int _pinCount;
-    int _pinNumbers[4];
-    int _channelNumbers[4];
+    int _pinNumbers[16];
+    int _channelNumbers[16];
 
 public:
     static int _nextChannelToUse;
 
-    LedPwmEsp32(int pinCount, int pin1, int pin2, int pin3, int pin4)
+    LedPwmEsp32(int pinCount, int pins[16])
     {
         Serial.println(">LedPWM constructor");
 
         _pinCount = pinCount;
-        _pinNumbers[0] = pin1;
-        _pinNumbers[1] = pin2;
-        _pinNumbers[2] = pin3;
-        _pinNumbers[3] = pin4;
+
+        for (int pin = 0; pin < _pinCount; pin++)
+        {
+            _pinNumbers[pin] = pins[pin];
+        }
 
         for (int i = 0; i < pinCount; i++)
         {
@@ -71,25 +72,6 @@ public:
         }
     }
 
-#if fred
-    void UpdateLed(LedState *pLedState)
-    {
-        int brightnessPwmValue = PwmMax * pLedState->GetBrightness()->GetValueFloat(0);
-
-        // Translate the global channel number to the group channel number...
-
-        ledcWrite(_channelNumbers[pLedState->GetChannel()], brightnessPwmValue);
-        if (pLedState->GetChannel() == 100)
-        {
-            Serial.print("PWM: ");
-            Serial.print(_channelNumbers[pLedState->GetChannel()]);
-            Serial.print(" ");
-            Serial.print(pLedState->GetBrightness()->GetValueFloat(0));
-            Serial.print(": ");
-            Serial.println(brightnessPwmValue);
-        }
-    }
-#endif
     void Show()
     {
     }

@@ -9,6 +9,7 @@ class BuildInFunctionsTest
         MockExecutionFlow executionFlow; 
         ExpressionResult expressionResult;
 
+        executionContext.AddVariableAndSet("#A", &Variable(4));
         executionContext.AddVariableAndSet("#A0", &Variable(3));
         executionContext.AddVariableAndSet("#A1", &Variable("RGB"));
         executionContext.AddVariableAndSet("#A2", &Variable(3));
@@ -19,10 +20,9 @@ class BuildInFunctionsTest
         Assert::AreEqual(3, executionFlow._ledGroupNumber);
         Assert::AreEqual("RGB", executionFlow._pLedType);
         Assert::AreEqual(3, executionFlow._ledCount);
-        Assert::AreEqual(4444, executionFlow._pin1);
-        Assert::AreEqual(-1, executionFlow._pin2);
-        Assert::AreEqual(-1, executionFlow._pin3);
-        Assert::AreEqual(-1, executionFlow._pin4);
+
+        Assert::AreEqual(4444, executionFlow._pins[0]);
+        Assert::AreEqual(1, executionFlow._pinCount);
     }
 
     static void TestConfigLedFourPins()
@@ -32,6 +32,7 @@ class BuildInFunctionsTest
         MockExecutionFlow executionFlow;
         ExpressionResult expressionResult;
 
+        executionContext.AddVariableAndSet("#A", &Variable(7));
         executionContext.AddVariableAndSet("#A0", &Variable(3));
         executionContext.AddVariableAndSet("#A1", &Variable("RGB"));
         executionContext.AddVariableAndSet("#A2", &Variable(3));
@@ -47,10 +48,13 @@ class BuildInFunctionsTest
         Assert::AreEqual(3, executionFlow._ledGroupNumber);
         Assert::AreEqual("RGB", executionFlow._pLedType);
         Assert::AreEqual(3, executionFlow._ledCount);
-        Assert::AreEqual(4444, executionFlow._pin1);
-        Assert::AreEqual(5555, executionFlow._pin2);
-        Assert::AreEqual(6666, executionFlow._pin3);
-        Assert::AreEqual(7777, executionFlow._pin4);
+
+        Assert::AreEqual(4444, executionFlow._pins[0]);
+        Assert::AreEqual(5555, executionFlow._pins[1]);
+        Assert::AreEqual(6666, executionFlow._pins[2]);
+        Assert::AreEqual(7777, executionFlow._pins[3]);
+        Assert::AreEqual(4, executionFlow._pinCount);
+
     }
 
     static void TestConfigLedError()
@@ -62,6 +66,7 @@ class BuildInFunctionsTest
 
       executionFlow._configLedsReturnValue = false;
 
+      executionContext.AddVariableAndSet("#A", &Variable(4));
       executionContext.AddVariableAndSet("#A0", &Variable(3));
       executionContext.AddVariableAndSet("#A1", &Variable("Fred"));
       executionContext.AddVariableAndSet("#A2", &Variable(3));

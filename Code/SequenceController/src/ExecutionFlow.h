@@ -72,9 +72,9 @@ public:
         _pLedMessageHandler->ExecuteLedCommandMember(pCommandResult);
     }
 
-    bool ConfigureLeds(int ledGroupNumber, const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
+    bool ConfigureLeds(int ledGroupNumber, const char *pLedType, int ledCount, int pinCount, int pins[16])
     {
-        if (!_pLedMessageHandler->Configure(ledGroupNumber, pLedType, ledCount, pin1, pin2, pin3, pin4))
+        if (!_pLedMessageHandler->Configure(ledGroupNumber, pLedType, ledCount, pinCount, pins))
         {
             return false;
         }

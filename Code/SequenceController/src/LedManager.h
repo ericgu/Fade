@@ -64,7 +64,7 @@ public:
 		}
 	}
 
-	bool Configure(int ledGroupNumber, const char *pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4)
+	bool Configure(int ledGroupNumber, const char *pLedType, int ledCount, int pinCount, int pins[16])
 	{
 		if (strcmp(pLedType, "FREE") == 0)
 		{
@@ -86,7 +86,7 @@ public:
 			return false;
 		}
 
-		ILedDevice *pLedDevice = _pLedDeviceCreator->Create(ledType, ledCount, ledPin1, ledPin2, ledPin3, ledPin4, this);
+		ILedDevice *pLedDevice = _pLedDeviceCreator->Create(ledType, ledCount, pinCount, pins, this);
 		if (!pLedDevice)
 		{
 			return false;

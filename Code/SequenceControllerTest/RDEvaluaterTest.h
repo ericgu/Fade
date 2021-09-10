@@ -12,10 +12,9 @@ public:
     int _ledGroupNumber;
     const char* _pLedType;
     int _ledCount;
-    int _pin1;
-    int _pin2;
-    int _pin3;
-    int _pin4;
+
+    int _pinCount;
+    int _pins[16];
 
     int _buttonNumber;
     const char* _pButtonType;
@@ -67,15 +66,17 @@ public:
         _breaking = false;
     }
 
-    virtual bool ConfigureLeds(int ledGroupNumber, const char* pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
+    virtual bool ConfigureLeds(int ledGroupNumber, const char* pLedType, int ledCount, int pinCount, int pins[16])
     {
         _ledGroupNumber = ledGroupNumber;
         _pLedType = pLedType;
         _ledCount = ledCount;
-        _pin1 = pin1;
-        _pin2 = pin2;
-        _pin3 = pin3;
-        _pin4 = pin4;
+
+        _pinCount = pinCount;
+        for (int i = 0; i < pinCount; i++)
+        {
+            _pins[i] = pins[i];
+        }
 
         return _configLedsReturnValue;
     }

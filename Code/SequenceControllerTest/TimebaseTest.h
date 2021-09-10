@@ -10,11 +10,10 @@ class LedManagerSimulator : public ILedManager
 public:
 	char _ledType[128];
 	int _ledCount;
-    int _ledPin1;
-    int _ledPin2;
-    int _ledPin3;
-    int _ledPin4;
     int _ledGroupNumber;
+
+    int _pinCount;
+    int _pins[16];
 
 	void SetDelta(CommandResult* pCommandResult)
 	{
@@ -46,22 +45,24 @@ public:
         return _ledCount;
     }
 
-	bool Configure(int ledGroupNumber, const char* pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4)
+	bool Configure(int ledGroupNumber, const char* pLedType, int ledCount, int pinCount, int pins[16])
 	{
         _ledGroupNumber = ledGroupNumber;
 		strcpy(_ledType, pLedType);
 		_ledCount = ledCount;
-        _ledPin1 = ledPin1;
-        _ledPin2 = ledPin2;
-        _ledPin3 = ledPin3;
-        _ledPin4 = ledPin4;
+
+        _pinCount = pinCount;
+        for (int i = 0; i < pinCount; i++)
+        {
+            _pins[i] = pins[i];
+        }
 
         return true;
     }
 
     virtual void FreeDevices() {}
 
-    virtual void UpdateLed(int channel, Variable *pBrightness) {}
+    virtual void SetLedState(int channel, Variable *pBrightness) {}
 };
 
 class TimebaseTest

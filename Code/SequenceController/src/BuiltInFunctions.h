@@ -245,15 +245,26 @@ class BuiltInFunctions
 	{
 		if (strcmp(pFunctionName, "ConfigLed") == 0)
 		{
+            Variable *parameterCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 			Variable *pLedGroupNumber = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 			Variable *pLedType = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
 			Variable *pLedCount = pExecutionContext->GetVariableWithoutErrorCheck("#A2");
-			int pin1 = GetVariableOrNegativeOne(pExecutionContext, "#A3");
-			int pin2 = GetVariableOrNegativeOne(pExecutionContext, "#A4");
-			int pin3 = GetVariableOrNegativeOne(pExecutionContext, "#A5");
-			int pin4 = GetVariableOrNegativeOne(pExecutionContext, "#A6");
 
-            if (!pExecutionFlow->ConfigureLeds(pLedGroupNumber->GetValueInt(), pLedType->GetValueString(), pLedCount->GetValueInt(), pin1, pin2, pin3, pin4))
+            int pins[16];
+            int pinCount;
+
+            pinCount = parameterCount->GetValueInt() - 3;       
+
+            char buffer[8];
+            for (int i = 0; i < pinCount; i++)
+            {
+                sprintf(buffer, "#A%d", i + 3);
+
+                pins[i] = GetVariableOrNegativeOne(pExecutionContext, buffer);
+            }
+
+
+            if (!pExecutionFlow->ConfigureLeds(pLedGroupNumber->GetValueInt(), pLedType->GetValueString(), pLedCount->GetValueInt(), pinCount, pins))
 			{
 				pParseErrors->AddError("ConfigLed error", "", lineNumber);
 			}

@@ -11,7 +11,10 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 1, 1, pins);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
@@ -40,7 +43,10 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 16, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 6, 1, pins);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
@@ -69,7 +75,10 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 16, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 16, 1, pins);
 
 		Settings settings;
 		settings.SaveShouldExecuteCode(false);
@@ -93,7 +102,10 @@ class SupervisorTest
     LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
     LedManager ledManager(&ledCreator);
-    ledManager.Configure(0, "Test", 16, 555, -1, -1, -1);
+    int pins[16];
+    pins[0] = 555;
+
+    ledManager.Configure(0, "Test", 16, 1, pins);
 
     Settings settings;
     settings.SaveShouldExecuteCode(true);
@@ -117,7 +129,10 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 1, 1, pins);
 
 		Settings settings;
 		settings.SaveProgramText("A(55)");
@@ -149,7 +164,10 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 1, 1, pins);
 
 		Settings settings;
 
@@ -175,8 +193,11 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
 
+        ledManager.Configure(0, "Test", 1, 1, pins);
+        
 		Settings settings;
 
 		Serial.SetOutput(false);
@@ -199,7 +220,10 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 1, 1, pins);
 
 		Settings settings;
 		settings.SaveProgramText("A(3)");
@@ -226,7 +250,10 @@ class SupervisorTest
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "", 1, 1, pins);
 
 		Settings settings;
 

@@ -12,7 +12,7 @@ public:
 		_pLedDevice = pLedDevice;
 	}
 
-	ILedDevice* Create(LedType ledType, int ledCount, int pin1, int pin2, int pin3, int pin4, ILedManager* pLedManager)
+	ILedDevice* Create(LedType ledType, int ledCount, int pinCount, int pins[16], ILedManager* pLedManager)
 	{
 		return _pLedDevice;
 	}
@@ -41,7 +41,10 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+		ledManager.Configure(0, "Test", 1, 1, pins);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 1.0, 1));
@@ -60,7 +63,10 @@ class LedManagerTest
 
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 2, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 2, 1, pins);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 1.0, 1));
@@ -90,7 +96,10 @@ class LedManagerTest
 
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 1, 1, pins);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 20.0, 10));
@@ -112,7 +121,10 @@ class LedManagerTest
 
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 2, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 2, 1, pins);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(0, 10.0, 5));
@@ -141,7 +153,10 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 1, 1, pins);
 
 		CommandResult commandResult(16);
 		Variable target;
@@ -163,7 +178,10 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 1, 1, pins);
 
 		CommandResult commandResult(16);
 		Variable target;
@@ -190,7 +208,10 @@ class LedManagerTest
 		LedDeviceSimulator ledDevice(100);
 		LedDeviceCreatorSimulator ledCreator(&ledDevice);
 		LedManager ledManager(&ledCreator);
-		ledManager.Configure(0, "Test", 1, 555, -1, -1, -1);
+        int pins[16];
+        pins[0] = 555;
+
+        ledManager.Configure(0, "Test", 1, 1, pins);
 
 		CommandResult commandResult(16);
 		commandResult.AddTarget(LedState(1, 1.0, 1));

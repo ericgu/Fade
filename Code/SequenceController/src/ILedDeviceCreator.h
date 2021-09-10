@@ -1,5 +1,5 @@
 class ILedDeviceCreator
 {
 public:
-    virtual ILedDevice *Create(LedType ledType, int ledCount, int pin1, int pin2, int pin3, int pin4, ILedManager *pLedManager) = 0;
+    virtual ILedDevice *Create(LedType ledType, int ledCount, int pinCount, int pins[16], ILedManager *pLedManager) = 0;
 };

@@ -17,7 +17,7 @@ extern "C"
 
   FADELIBRARY_API void NewSerialTextAvailable(const char* pText);
 
-  typedef void(*CreateNewLedDeviceCallback)(int groupNumber, const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4);
+  typedef void(*CreateNewLedDeviceCallback)(int groupNumber, const char *pLedType, int ledCount, int pinCount, int pins[16]);
   CreateNewLedDeviceCallback _pCreateNewLedDeviceCallback;
 
   typedef void(*LedUpdatedCallback)(int ledGroup, int channel, int brightnessCount, float brightness1, float brightness2, float brightness3, float brightness4);
@@ -30,7 +30,7 @@ extern "C"
   ParseErrorCallback _pParseErrorCallback;
 
   void NewSerialTextAvailable(const char* pText);
-  void NewLedDeviceCreated(int groupNumber, const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4);
+  void NewLedDeviceCreated(int groupNumber, const char *pLedType, int ledCount, int pinCount, int pins[16]);
   void LedRenderCycleDone();
   void ParseErrorFound(const char *pMessage, int lineNumber);
 

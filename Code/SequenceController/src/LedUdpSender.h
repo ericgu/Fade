@@ -14,14 +14,14 @@ class LedUdpSender : public ILedDevice
 public:
     static int _nextChannelToUse;
 
-    LedUdpSender(int pinCount, int pin1, int pin2, int pin3, int pin4)
+    LedUdpSender(int pinCount, int pins[16])
     {
         Serial.println(">LedUdpSender constructor");
 
         _pixelCount = pinCount;
-        _valuesPerPixel = pin1;
-        _universe = pin2;
-        _port = pin3;
+        _valuesPerPixel = pins[0];
+        _universe = pins[1];
+        _port = pins[2];
 
         _myUdp.Begin(_port);
 

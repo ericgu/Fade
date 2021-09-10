@@ -15,15 +15,16 @@ class LedServoEsp32 : public ILedDevice
     // static int _nextChannelToUse; // Shared with LedPwmEsp32 since they use the same hardware;
 
 public:
-    LedServoEsp32(int pinCount, int pin1, int pin2, int pin3, int pin4)
+    LedServoEsp32(int pinCount, int pins[16])
     {
         Serial.println(">LedServo constructor");
 
         _pinCount = pinCount;
-        _pinNumbers[0] = pin1;
-        _pinNumbers[1] = pin2;
-        _pinNumbers[2] = pin3;
-        _pinNumbers[3] = pin4;
+
+        for (int pin = 0; pin < _pinCount; pin++)
+        {
+            _pinNumbers[pin] = pins[pin];
+        }
 
         for (int i = 0; i < pinCount; i++)
         {

@@ -25,11 +25,11 @@ void NewSerialTextAvailable(const char* pText)
   }
 }
 
-void NewLedDeviceCreated(int groupNumber, const char *pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
+void NewLedDeviceCreated(int groupNumber, const char *pLedType, int ledCount, int pinCount, int pins[16])
 {
   if (_pCreateNewLedDeviceCallback)
   {
-    _pCreateNewLedDeviceCallback(groupNumber, pLedType, ledCount, pin1, pin2, pin3, pin4);
+    _pCreateNewLedDeviceCallback(groupNumber, pLedType, ledCount, pinCount, pins);
   }
 }
 

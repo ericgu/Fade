@@ -12,7 +12,7 @@ public:
     {
     }
 
-    ILedDevice *Create(LedType ledType, int ledCount, int pin1, int pin2, int pin3, int pin4, ILedManager *pLedManager)
+    ILedDevice *Create(LedType ledType, int ledCount, int pinCount, int pins[16], ILedManager *pLedManager)
     {
         Serial.print("Creating: ");
         Serial.flush();
@@ -24,15 +24,15 @@ public:
         Serial.flush();
         Serial.print(" ");
         Serial.flush();
-        Serial.print(pin1);
+        Serial.print(pins[0]);
         Serial.flush();
 
         _ledType = ledType;
         _ledCount = ledCount;
-        _pin1 = pin1;
-        _pin2 = pin2;
-        _pin3 = pin3;
-        _pin4 = pin4;
+        _pin1 = pins[0];
+        _pin2 = pins[1];
+        _pin3 = pins[2];
+        _pin4 = pins[3];
 
         Serial.print("Creating ");
         Serial.println(ledType.GetName());
@@ -40,22 +40,22 @@ public:
         switch (ledType.Get())
         {
         case LedType::WS2812:
-            return new LedRGB(ledCount, pin1);
+            return new LedRGB(ledCount, pins[0]);
 
         case LedType::PWM:
-            return new LedPwmEsp32(ledCount, pin1, pin2, pin3, pin4);
+            return new LedPwmEsp32(ledCount, pins);
 
         case LedType::Servo:
-            return new LedServoEsp32(ledCount, pin1, pin2, pin3, pin4);
+            return new LedServoEsp32(ledCount, pins);
 
         case LedType::Test:
             return 0;
 
         case LedType::UdpSender:
-            return new LedUdpSender(ledCount, pin1, pin2, pin3, pin4);
+            return new LedUdpSender(ledCount, pins);
 
         case LedType::UdpReceiver:
-            return new LedUdpReceiver(ledCount, pin1, pin2, pin3, pin4, pLedManager);
+            return new LedUdpReceiver(ledCount, pins, pLedManager);
         }
 
         return 0;

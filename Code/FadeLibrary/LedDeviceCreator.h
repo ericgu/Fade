@@ -15,12 +15,12 @@ public:
     }
 
 
-    ILedDevice *Create(LedType ledType, int ledCount, int pin1, int pin2, int pin3, int pin4, ILedManager *pLedManager)
+    ILedDevice *Create(LedType ledType, int ledCount, int pinCount, int pins[16], ILedManager *pLedManager)
     {
 
-      NewLedDeviceCreated(_nextGroupNumber, ledType.GetName(), ledCount, pin1, pin2, pin3, pin4);
+      NewLedDeviceCreated(_nextGroupNumber, ledType.GetName(), ledCount, pinCount, pins);
 
-      LedFadeLibrary* pLedDevice = new LedFadeLibrary(ledType, ledCount, pin1, pin2, pin3, pin4);
+      LedFadeLibrary* pLedDevice = new LedFadeLibrary(ledType, ledCount, pinCount, pins);
       pLedDevice->SetLedGroupNumber(_nextGroupNumber);
       _nextGroupNumber++;
 
