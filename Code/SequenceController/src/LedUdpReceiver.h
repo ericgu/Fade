@@ -1,4 +1,4 @@
-// Receives Udp commands from another device, sends them to this device.
+// Receives Udp commands from another device, sends the to all the devices on this ESP
 
 class LedUdpReceiver : public ILedDevice
 {

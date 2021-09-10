@@ -1,9 +1,6 @@
 
 class LedServoEsp32 : public ILedDevice
 {
-    //const int ledPins[16] = { 2,  4,  5, 18, 19, 21, 22, 23,   // main row
-    //                         14, 27, 26, 25, 33, 32, 12, 13};  // extension row
-
     const int PwmFrequency = 50;
     const int PwmBits = 14;
     const int PwmMax = 16384;
@@ -61,7 +58,7 @@ public:
         // Servo PWM runs at 50 Hz, or 20 mS per cycle.
         //
         // For servos, the pulse size ranges from 1 mS at one end to 2 mS at the other end.
-        // That corresponds to a pulse wide of 1/20 to 1/10th, or at 14 bits of resolution,
+        // That corresponds to a pulse width of 1/20 to 1/10th, or at 14 bits of resolution,
         // 16384 / 20 = 819 to 16384 / 10 = 1638.
         // That gives 819 steps, where each step is 0.44 degrees.
         //

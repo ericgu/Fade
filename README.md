@@ -61,5 +61,13 @@ It's good to have experience copying programs to the ESP32 from the Arduino IDE 
 [Tutorial](https://rawcdn.githack.com/ericgu/Fade/26681499a88c3c0935cea77f8de56b3fef22759a/docs/FadeLanguageTutorial.html)
 [Language Reference](https://rawcdn.githack.com/ericgu/Fade/26681499a88c3c0935cea77f8de56b3fef22759a/docs/FadeLanguageReference.html)
 
+# Release Notes
 
+9/10/2021
+
+Finished support for remoting. This allows one ESP to drive multiple ESPs. There is a new LED type ("UdpSender") that will take commands for a specific of channels (LEDs or servos) and send them out over the local network using UDP. The remote ESPs use the "UdpReceiver" type to take those commands and send them to the local hardware.
+
+This is for two primary scenarios: if you wanted to use more than 16 servos in a project, you can set up a remote ESP (or ESPs) and get a multiple of 16 servos. Also, it supports animations across multiple physical instances using a single set of driving code. 
+
+In addition, if you want to run code on a computer or laptop and use that to drive the remotes, that is also possible. I've implemented that as a feature in WinFade; you can write your code there and see how it will run on the live remote hardware without having to download the code there. Not sure how much utility there is in that, but it allowed me to easily test the UdpReceiver code that runs on the ESP. 
 

@@ -8,7 +8,6 @@ class LedUdpSender : public ILedDevice
     int _port;
 
     UdpData *_pDataBuffer;
-    //MyUdp *_pMyUdp;
 
     MyUdp _myUdp;
 

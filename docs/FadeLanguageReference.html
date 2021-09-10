@@ -18,6 +18,9 @@
 	  padding: 10px;
 	}
 }
+.auto-style2 {
+	font-family: "Courier New", Courier, monospace;
+}
 </style>
 
 
@@ -346,15 +349,58 @@ touch threshold value. </p>
 			the ESP32's built-in LED control hardware. Specify 1 for the 
 			ledCount and the pin the servo is connected to.</td>
 		</tr>
+		<tr>
+			<td style="width: 138px">"UdpSender"</td>
+			<td>Takes animation data and sends it over the network to a remote 
+			ESP. Specify the ledCount as normal. <br>param 1: The number of 
+			values per pixel to send<br>param 2: The universe number. This must 
+			match with the number of the receiver<br>param 3: The UDP port to 
+			send the data on</td>
+		</tr>
+		<tr>
+			<td style="width: 138px">"UdpReceiver"</td>
+			<td>Takes animation data from a UdpSender and uses it on this 
+			system. ledCount must be set to zero.<br>param 1: The universe 
+			number. Must match the sender<br>param 2: The UDP port to listen on.<br>
+			param 3: The starting channel to copy from the UDP data to this 
+			system<br>param 4: The number of channels to copy to this system. </td>
+		</tr>
 </table>
 <p>Examples:</p>
-<p>ConfigLed (0, "RGB", 8, 27)<br />
-ConfigLed (1, "PWM", 3, 17, 16, 4)<br>ConfigLed (2, "Servo", 1, 31)</p>
+<p><span class="auto-style2">ConfigLed (0, "RGB", 8, 27)</span><br class="auto-style2" />
+<span class="auto-style2">ConfigLed (1, "PWM", 3, 17, 16, 4)</span><br class="auto-style2">
+<span class="auto-style2">ConfigLed (2, "Servo", 1, 31)</span></p>
 <p>Configures a string of 8 WS2812 leds connected to pin 27 as the first string, 
 followed by 3 individually controlled PWM leds on pins 17, 16, and 4, followed 
 by a single servo attached to pin 31</p>
 <p>When animating, leds 0-7 will be the WS2812 leds, leds 8-10 will be the PWM 
 ones, and led 11 will be the servo.</p>
+<h5>Remoting</h5>
+<p>Remoting provides the ability to define a set of leds/channels that look like 
+they are implemented on the local ESP but are actually sent over the local 
+network to remote ESP(s). </p>
+<p>On the local ESP - the one that is running the animation - the UdpSender LED 
+type is configured just like the other types. The UDP port is specified and a 
+universe number is also specified so that multiple remoted scenarios could be 
+run on the same network and port. </p>
+<p class="auto-style2">ConfigLed(1, "UdpSender", 16, 155, 4021)</p>
+<p>This defines LED group 1 as 16 pixels/channels, transmitting on port 4021 and 
+using universe 155</p>
+<p>The UdpReceiver led type is used to pull the Udp data off the network and put 
+it into the local system. The port and universe are specified and must match the 
+UdpSender values. The receiver should be defined as the first group, and the led 
+count must be zero.</p>
+<p>&nbsp;<span class="auto-style2">ConfigLed(0, "UdpReceiver", 0, 15, 4211, 8, 
+8)</span><br class="auto-style2"><span class="auto-style2">ConfigLed(1, "Servo", 
+4, 4, 5, 6 ,7)</span><br class="auto-style2"><span class="auto-style2">
+ConfigLed(2, "Servo", 4, 8, 9, 10, 11)</span><br class="auto-style2">
+<br class="auto-style2"><span class="auto-style2">A(100000)</span></p>
+<p>The receiver is listening on port 4211 and universe 15. The first 8 specifies 
+that the first 8 channels in the data should be skipped and after that the next 
+8 should be copied into the system.</p>
+<p>The Servo configs after that specify two blocks of 4 servos, each connected 
+to a different pin. </p>
+<p>&nbsp;</p>
 <h4>D and Di</h4>
 <p>D and Di define a fade for the animation system to perform.</p>
 <p>D(&lt;cycleCount&gt;, &lt;ledIndex&gt;, &lt;targetBrightness&gt;)<br />
