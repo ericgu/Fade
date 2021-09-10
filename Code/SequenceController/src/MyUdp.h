@@ -5,22 +5,22 @@ class MyUdp
 
     WiFiUDP *_pWifiUdp;
 
-    char *_pProgramBuffer;
-    char *_pPageBuffer;
-
-    int _port;
+    volatile int _port;
     char _buffer[1024];
 
 public:
-    MyUdp(int port)
+    void Begin(int port)
     {
         _port = port;
 
+        Serial.print("UDP begin on port: ");
+        Serial.println(_port);
+        Serial.flush();
         _pWifiUdp = new WiFiUDP();
         _pWifiUdp->begin(_port);
     }
 
-    void HandleClient()
+    char *ReadData()
     {
         int packetSize = _pWifiUdp->parsePacket();
         if (packetSize)
@@ -32,22 +32,29 @@ public:
             if (len > 0)
             {
                 _buffer[len] = 0;
-                Serial.print("UDP received: ");
-                Serial.println(len);
-            }
-
-            if (packetSize == 20)
-            {
-                Send((uint8_t *)"Hello to you", 13);
+                //Serial.print("UDP received: ");
+                //Serial.println(len);
+                return _buffer;
             }
         }
+
+        return 0;
     }
 
-    void Send(const uint8_t *pBuffer, size_t bufferSize)
+    void Send(int port, const uint8_t *pBuffer, size_t bufferSize)
     {
-        _pWifiUdp->beginPacket("255.255.255.255", _port);
+        //Serial.print("UDP Send: ");
+        //Serial.println(bufferSize);
+        //Serial.print(" port: ");
+        //Serial.println(port);
+        //Serial.println((char *)_pWifiUdp);
+        //Serial.flush();
+        _pWifiUdp->beginPacket("255.255.255.255", port);
+        //Serial.print("UDP Send 2: ");
         _pWifiUdp->write(pBuffer, bufferSize);
+        //Serial.print("UDP Send 3: ");
         _pWifiUdp->endPacket();
+        //Serial.print("UDP Send 4: ");
     }
 };
 

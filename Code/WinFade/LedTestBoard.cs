@@ -15,6 +15,12 @@ namespace WinFade
         public int XSize { get; set; }
         public int YSize { get; set; }
 
+        public bool UdpEnabled { get; set; }
+
+        public int UdpPort { get; set; }
+
+        public int UdpUniverse { get; set; }
+
         public LedTestBoard()
         {
             _ledConfigurations = new List<LedConfiguration>();
@@ -89,6 +95,9 @@ namespace WinFade
             writer.WriteLine("YLocation={0}", YLocation);
             writer.WriteLine("XSize={0}", XSize);
             writer.WriteLine("YSize={0}", YSize);
+            writer.WriteLine("UdpEnabled={0}", UdpEnabled ? 1: 0);
+            writer.WriteLine("UdpPort={0}", UdpPort);
+            writer.WriteLine("UdpUniverse={0}", UdpUniverse);
             writer.WriteLine("ConfigurationCount={0}", _ledConfigurations.Count);
 
             foreach (LedConfiguration ledGroup in _ledConfigurations)
@@ -104,6 +113,11 @@ namespace WinFade
             YLocation = fileLineParser.GetNumberAfterName("YLocation", 100);
             XSize = fileLineParser.GetNumberAfterName("XSize", 300);
             YSize = fileLineParser.GetNumberAfterName("YSize", 300);
+
+            int temp = fileLineParser.GetNumberAfterName("UdpEnabled", 300);
+            UdpEnabled = temp == 1;
+            UdpPort = fileLineParser.GetNumberAfterName("UdpPort", 300);
+            UdpUniverse = fileLineParser.GetNumberAfterName("UdpUniverse", 300);
 
             int ledConfigurationCount = fileLineParser.GetNumberAfterName("ConfigurationCount");
             _ledConfigurations.Clear();

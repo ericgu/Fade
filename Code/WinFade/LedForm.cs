@@ -16,6 +16,8 @@ namespace WinFade
 
         public event ButtonPressedDelegate ButtonPressed;
 
+        private UdpSender _udpSender;
+
         public LedForm(LedTestBoard ledTestBoard)
         {
             _ledTestBoard = ledTestBoard;
@@ -27,6 +29,12 @@ namespace WinFade
 
             _bitmap = new Bitmap(Width, Height, PixelFormat.Format32bppPArgb);
             _graphics = Graphics.FromImage(_bitmap);
+
+            if (ledTestBoard.UdpEnabled)
+            {
+                _udpSender = new UdpSender();
+                _udpSender.Init(1, 3, (ushort) ledTestBoard.UdpPort, (ushort) ledTestBoard.UdpUniverse);
+            }
         }
 
         ~LedForm()
@@ -51,12 +59,22 @@ namespace WinFade
                 {
                     _graphics.FillRectangle(brush, 0, 0, c_pictureBoxLeds.Width, c_pictureBoxLeds.Height);
                 }
+
+                if (_ledTestBoard.UdpEnabled)
+                {
+                    _udpSender.LedUpdateCycleDone();
+                }
             }
         }
 
         public void UpdateLedColor(int ledGroupNumber, int ledNumber, float red, float green, float blue)
         {
             _ledTestBoard.UpdateLedColor(_graphics, ledGroupNumber, ledNumber, red, green, blue);
+
+            if (_ledTestBoard.UdpEnabled)
+            {
+                _udpSender.UpdateLed(ledGroupNumber, ledNumber, 3, red, green, blue, 0.0F);
+            }
         }
 
         private LedConfiguration _dragLedConfiguration;

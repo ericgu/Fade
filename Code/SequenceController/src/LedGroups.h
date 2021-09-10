@@ -127,6 +127,8 @@ public:
         {
             if (channel < _ledGroups[i]._ledCount)
             {
+                //Serial.print("G: ");
+                //Serial.print(i);
                 _ledGroups[i]._pLedDevice->UpdateLed(channel, pBrightness);
 
                 return true;

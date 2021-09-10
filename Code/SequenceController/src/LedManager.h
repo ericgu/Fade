@@ -1,21 +1,3 @@
-
-class ILedManager
-{
-public:
-	virtual ~ILedManager() {}
-
-	virtual void SetDelta(CommandResult *commandResult) = 0;
-
-	virtual void Tick() = 0;
-	virtual void ResetState() = 0;
-
-	virtual bool Configure(int ledGroupNumber, const char *pLedType, int ledCount, int ledPin1, int ledPin2, int ledPin3, int ledPin4) = 0;
-
-	virtual int GetLedCount() = 0;
-
-	virtual void FreeDevices() = 0;
-};
-
 class LedManager : public ILedManager
 {
 	ILedDeviceCreator *_pLedDeviceCreator;
@@ -104,7 +86,7 @@ public:
 			return false;
 		}
 
-		ILedDevice *pLedDevice = _pLedDeviceCreator->Create(ledType, ledCount, ledPin1, ledPin2, ledPin3, ledPin4);
+		ILedDevice *pLedDevice = _pLedDeviceCreator->Create(ledType, ledCount, ledPin1, ledPin2, ledPin3, ledPin4, this);
 		if (!pLedDevice)
 		{
 			return false;
@@ -119,6 +101,20 @@ public:
 
 		return true;
 	}
+
+    void SetLedState(int channel, Variable *pBrightness)
+	{
+		//Serial.print("SetLedState: ");
+		//Serial.print(channel);
+		//Serial.print(" ");
+		//Serial.print(pBrightness->GetValueFloat(0));
+
+		//Serial.print(" Actual Channel: ");
+		//Serial.println(_pStates[channel].GetChannel());
+
+		_pStates[channel] = LedState(channel, pBrightness, 0);
+	}
+
 
 	void SetDelta(CommandResult *pCommandResult)
 	{

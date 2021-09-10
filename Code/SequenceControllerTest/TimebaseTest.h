@@ -60,6 +60,8 @@ public:
     }
 
     virtual void FreeDevices() {}
+
+    virtual void UpdateLed(int channel, Variable *pBrightness) {}
 };
 
 class TimebaseTest

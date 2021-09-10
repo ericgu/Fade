@@ -11,6 +11,9 @@ struct UdpData
     static UdpData *AllocateBuffer(int channelCount, int valuesPerChannel, int universe)
     {
         int size = sizeof(UdpData) + channelCount * valuesPerChannel * sizeof(unsigned short);
+        //Serial.print("UdpData buffer size: ");
+        //Serial.println(size);
+        //Serial.flush();
 
         UdpData *pData = (UdpData *)new char[size];
         memset(pData, 0, size);
@@ -29,6 +32,18 @@ struct UdpData
     void SetValueForChannel(int channelNumber, int valueInChannel, unsigned short value)
     {
         unsigned short *pValue = _channelData + channelNumber * _valuesPerChannel + valueInChannel;
+        //Serial.print("Channel: ");
+        //Serial.print(channelNumber);
+        //Serial.print(" value in channel: ");
+        ///Serial.print(valueInChannel);
+        //Serial.print(" offset");
+        //Serial.println(pValue - _channelData);
+
         *pValue = value;
+    }
+
+    void IncrementSequenceNumber()
+    {
+        _sequenceNumber++;
     }
 };

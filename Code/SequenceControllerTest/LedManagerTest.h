@@ -12,7 +12,7 @@ public:
 		_pLedDevice = pLedDevice;
 	}
 
-	ILedDevice* Create(const char* pLedType, int ledCount, int pin1, int pin2, int pin3, int pin4)
+	ILedDevice* Create(LedType ledType, int ledCount, int pin1, int pin2, int pin3, int pin4, ILedManager* pLedManager)
 	{
 		return _pLedDevice;
 	}
@@ -203,21 +203,6 @@ class LedManagerTest
 		AssertLedState(ledDevice.GetUpdatedState(0), 0, 0);
 	}
 
-    static void TestValidLedTypes()
-    {
-        LedDeviceSimulator ledDevice(100);
-        LedDeviceCreatorSimulator ledCreator(&ledDevice);
-        LedManager ledManager(&ledCreator);
-
-        Assert::AreEqual(1, ledManager.IsValidLedType("RGB"));
-        Assert::AreEqual(1, ledManager.IsValidLedType("WS2812"));
-        Assert::AreEqual(1, ledManager.IsValidLedType("PWM"));
-        Assert::AreEqual(1, ledManager.IsValidLedType("Servo"));
-        Assert::AreEqual(1, ledManager.IsValidLedType("Test"));
-
-        Assert::AreEqual(0, ledManager.IsValidLedType("Fred"));
-    }
-
 #if fred
     static void TestTwoGroups()
     {
@@ -255,8 +240,6 @@ public:
 		TestMultiValue();
 		TestMultiValueTwoStep();
 		TestInvalidChannel();
-
-        TestValidLedTypes();
 
         //TestTwoGroups();
 

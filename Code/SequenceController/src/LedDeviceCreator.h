@@ -6,15 +6,13 @@ class LedDeviceCreator : public ILedDeviceCreator
     int _pin2;
     int _pin3;
     int _pin4;
-    MyUdp *_pMyUdp;
 
 public:
-    LedDeviceCreator(MyUdp *pMyUdp)
+    LedDeviceCreator()
     {
-        _pMyUdp = pMyUdp;
     }
 
-    ILedDevice *Create(LedType ledType, int ledCount, int pin1, int pin2, int pin3, int pin4)
+    ILedDevice *Create(LedType ledType, int ledCount, int pin1, int pin2, int pin3, int pin4, ILedManager *pLedManager)
     {
         Serial.print("Creating: ");
         Serial.flush();
@@ -54,7 +52,10 @@ public:
             return 0;
 
         case LedType::UdpSender:
-            return new LedUdpSender(ledCount, pin1, pin2, pin3, pin4, _pMyUdp);
+            return new LedUdpSender(ledCount, pin1, pin2, pin3, pin4);
+
+        case LedType::UdpReceiver:
+            return new LedUdpReceiver(ledCount, pin1, pin2, pin3, pin4, pLedManager);
         }
 
         return 0;

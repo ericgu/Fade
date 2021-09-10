@@ -36,7 +36,7 @@ Supervisor *_pSupervisor;
 Settings *_pSettings;
 
 MyWebServer *pMyWebServer;
-MyUdp *pMyUdp;
+//MyUdp *pMyUdp;
 
 void Callback()
 {
@@ -64,7 +64,7 @@ void HandleWebClient(void *parameter)
     while (true)
     {
         pMyWebServer->HandleClient();
-        pMyUdp->HandleClient();
+        //pMyUdp->HandleClient();
         delay(25);
     }
 }
@@ -148,8 +148,7 @@ void setup()
     //_pLedPwm = new LedPwmEsp32();
     //_pLedManager = new LedManager(_pLedPwm, 16);
 
-    pMyUdp = new MyUdp(4210);
-    _pLedDeviceCreator = new LedDeviceCreator(pMyUdp);
+    _pLedDeviceCreator = new LedDeviceCreator();
     //_pLedDevice = new LedRGB(33, 13);
 
     WiFiManager wifiManager;
@@ -162,8 +161,6 @@ void setup()
 
     wifiManager.autoConnect(networkName, "12345678");
     //Serial.print("after autoconnect: ");
-
-    Serial.begin(115200);
 
 #if fred
     //WiFi.begin();

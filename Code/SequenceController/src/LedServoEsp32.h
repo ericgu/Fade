@@ -74,14 +74,15 @@ public:
         // Translate the global channel number to the group channel number...
 
         ledcWrite(_channelNumbers[channel], servoPwmValue);
-        if (channel == 100)
+        //if (channel == 100)
         {
-            Serial.print("PWM: ");
-            Serial.print(_channelNumbers[channel]);
-            Serial.print(" ");
-            Serial.print(pBrightness->GetValueFloat(0));
-            Serial.print(": ");
-            Serial.println(servoPwmValue);
+            //Serial.print("Servo: ");
+            //Serial.print(_channelNumbers[channel]);
+            //Serial.print(" ");
+            //Serial.print(pBrightness->GetValueFloat(0));
+            //Serial.print(": ");
+            //Serial.print (servoPwmValue);
+            //Serial.print(" ");
         }
     }
 

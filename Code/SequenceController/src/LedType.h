@@ -9,6 +9,7 @@ public:
     static const int Servo = 3;
     static const int Test = 4;
     static const int UdpSender = 5;
+    static const int UdpReceiver = 6;
 
     int Get()
     {
@@ -39,6 +40,8 @@ public:
             return "Test";
         case LedType::UdpSender:
             return "UdpSender";
+        case LedType::UdpReceiver:
+            return "UdpReceiver";
         }
 
         return "";
@@ -65,6 +68,10 @@ public:
         else if (strcmp(pLedType, "UdpSender") == 0)
         {
             _ledType = UdpSender;
+        }
+        else if (strcmp(pLedType, "UdpReceiver") == 0)
+        {
+            _ledType = UdpReceiver;
         }
     }
 };

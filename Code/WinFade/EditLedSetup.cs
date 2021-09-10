@@ -21,6 +21,10 @@ namespace WinFade
             {
                 c_listBoxLedGroups.SelectedIndex = 0;
             }
+
+            c_checkBoxUdpEnable.Checked = ledTestBoard.UdpEnabled;
+            c_textBoxUdpPort.Text = ledTestBoard.UdpPort.ToString();
+            c_textBoxUdpUniverse.Text = ledTestBoard.UdpUniverse.ToString();
         }
 
         internal void PopulateLedConfigurationList()
@@ -29,7 +33,7 @@ namespace WinFade
 
             if (selectedIndex == -1 && _ledTestBoard.LedConfigurations.Count != 0)
             {
-              selectedIndex = 0;
+                selectedIndex = 0;
             }
 
             c_listBoxLedGroups.Items.Clear();
@@ -60,7 +64,7 @@ namespace WinFade
                 int selected = c_listBoxLedGroups.SelectedIndex;
                 if (selected == -1)
                 {
-                  return null;
+                    return null;
                 }
 
                 return _ledTestBoard.LedConfigurations[selected];
@@ -91,21 +95,21 @@ namespace WinFade
 
             if (!(SelectedLedConfiguration is LedConfigurationStrip))
             {
-              LedConfigurationStrip.DisableForGroupType(this);
+                LedConfigurationStrip.DisableForGroupType(this);
             }
 
             if (!(SelectedLedConfiguration is LedConfigurationServo))
             {
-              LedConfigurationServo.DisableForGroupType(this);
+                LedConfigurationServo.DisableForGroupType(this);
             }
-    }
+        }
 
         private void c_listBoxLedGroups_SelectedIndexChanged(object sender, EventArgs e)
         {
-          if (SelectedLedConfiguration == null)
-          {
-            return;
-          }
+            if (SelectedLedConfiguration == null)
+            {
+                return;
+            }
 
             DisableForGroupTypes();
 
@@ -181,10 +185,10 @@ namespace WinFade
 
         private void c_radioButtonServo_Click(object sender, EventArgs e)
         {
-          ChangeGroupType(LedGroupType.Servo);
-    }
+            ChangeGroupType(LedGroupType.Servo);
+        }
 
-    private void c_buttonDeleteClick(object sender, EventArgs e)
+        private void c_buttonDeleteClick(object sender, EventArgs e)
         {
             if (c_listBoxLedGroups.SelectedIndex != -1)
             {
@@ -233,44 +237,42 @@ namespace WinFade
 
         private void RingValuesChanged(object sender, EventArgs e)
         {
-            ((LedConfigurationRing)this.SelectedLedConfiguration).RingValuesChanged(this);
+            ((LedConfigurationRing) this.SelectedLedConfiguration).RingValuesChanged(this);
         }
 
         private void c_textBoxMatrixControl_Changed(object sender, EventArgs e)
         {
-            ((LedConfigurationMatrix)SelectedLedConfiguration).ValuesChanged(this);
+            ((LedConfigurationMatrix) SelectedLedConfiguration).ValuesChanged(this);
         }
 
         private void c_textBoxPwmColorCoding_Leave(object sender, EventArgs e)
         {
-            ((LedConfigurationPwm)SelectedLedConfiguration).ValuesChanged(this);
+            ((LedConfigurationPwm) SelectedLedConfiguration).ValuesChanged(this);
         }
 
         private void c_textBoxStripSpacing_TextChanged(object sender, EventArgs e)
         {
-            ((LedConfigurationStrip)SelectedLedConfiguration).ValuesChanged(this);
+            ((LedConfigurationStrip) SelectedLedConfiguration).ValuesChanged(this);
         }
 
-    private void label14_Click(object sender, EventArgs e)
-    {
+        private void ServoAnglesChanged(object sender, EventArgs e)
+        {
+            ((LedConfigurationServo) SelectedLedConfiguration).ValuesChanged(this);
+        }
 
+        private void c_buttonOK_Click(object sender, EventArgs e)
+        {
+             _ledTestBoard.UdpEnabled = c_checkBoxUdpEnable.Checked;
+             int temp;
+             if (Int32.TryParse(c_textBoxUdpPort.Text, out temp))
+             {
+                 _ledTestBoard.UdpPort = temp;
+             }
+
+             if (Int32.TryParse(c_textBoxUdpUniverse.Text, out temp))
+             {
+                 _ledTestBoard.UdpUniverse = temp;
+             }
+        }
     }
-
-    private void ServoAnglesChanged(object sender, EventArgs e)
-    {
-      ((LedConfigurationServo) SelectedLedConfiguration).ValuesChanged(this);
-    }
-
-    private void label16_Click(object sender, EventArgs e)
-    {
-
-    }
-
-    private void label15_Click(object sender, EventArgs e)
-    {
-
-    }
-
-
-  }
 }
