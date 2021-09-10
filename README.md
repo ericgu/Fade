@@ -61,6 +61,10 @@ It's good to have experience copying programs to the ESP32 from the Arduino IDE 
 [Tutorial](https://rawcdn.githack.com/ericgu/Fade/26681499a88c3c0935cea77f8de56b3fef22759a/docs/FadeLanguageTutorial.html)
 [Language Reference](https://rawcdn.githack.com/ericgu/Fade/26681499a88c3c0935cea77f8de56b3fef22759a/docs/FadeLanguageReference.html)
 
+# Sample code
+
+See the FadeExamples directory
+
 # Release Notes
 
 9/10/2021
