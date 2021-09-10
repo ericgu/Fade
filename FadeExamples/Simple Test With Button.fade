@@ -1,0 +1,72 @@
+WinFade Project
+
+XLocation=145
+YLocation=218
+XSize=1741
+YSize=179
+ConfigurationCount=1
+GroupType=Strip
+GroupNumber=0
+LedSize=30
+XOffset=0
+YOffset=0
+Spacing=50
+LedSpotCount=33
+
+// X, Y
+LedSpot=0,0
+LedSpot=50,0
+LedSpot=100,0
+LedSpot=150,0
+LedSpot=200,0
+LedSpot=250,0
+LedSpot=300,0
+LedSpot=350,0
+LedSpot=400,0
+LedSpot=450,0
+LedSpot=500,0
+LedSpot=550,0
+LedSpot=600,0
+LedSpot=650,0
+LedSpot=700,0
+LedSpot=750,0
+LedSpot=800,0
+LedSpot=850,0
+LedSpot=900,0
+LedSpot=950,0
+LedSpot=1000,0
+LedSpot=1050,0
+LedSpot=1100,0
+LedSpot=1150,0
+LedSpot=1200,0
+LedSpot=1250,0
+LedSpot=1300,0
+LedSpot=1350,0
+LedSpot=1400,0
+LedSpot=1450,0
+LedSpot=1500,0
+LedSpot=1550,0
+LedSpot=1600,0
+
+Program Text
+
+//ConfigLed(0, "RGB", 33, 13)   // ball
+ConfigLed(0, "RGB", 55, 15)   // snowflake
+//ConfigLed(0, "RGB", 30, 4)   // strip
+ConfigButton(0, "ACTIVELOW", 33, 0)
+led = 0
+loop = 1
+
+while (loop == 1)
+  D(3, led, {0, 0, 0})
+  led = (led + 1) % 33
+  D(3, led, {1, 0, 0})
+  A(3)
+  
+  while (ReadButton(0) == 1)
+    Di(100, 0, {1, 0, 0})
+    Di(100, 0, {0, 0, 0})
+  endwhile
+  
+  
+endwhile

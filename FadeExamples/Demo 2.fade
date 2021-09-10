@@ -1,0 +1,52 @@
+WinFade Project
+
+XLocation=100
+YLocation=100
+XSize=500
+YSize=117
+ConfigurationCount=1
+GroupType=Strip
+GroupNumber=0
+LedSize=30
+XOffset=0
+YOffset=0
+Spacing=40
+LedSpotCount=15
+
+// X, Y
+LedSpot=0,0
+LedSpot=40,0
+LedSpot=80,0
+LedSpot=120,0
+LedSpot=160,0
+LedSpot=200,0
+LedSpot=240,0
+LedSpot=280,0
+LedSpot=320,0
+LedSpot=360,0
+LedSpot=400,0
+LedSpot=440,0
+LedSpot=480,0
+LedSpot=520,0
+LedSpot=560,0
+
+Program Text
+ConfigLed(0, "RGB", 10, 15)
+
+led = 0
+increment = 1
+
+while (1)
+
+  D(50, led, {0, 0, 0})   
+  
+  led = led + increment
+  
+  if (led == 0 || led == 9)
+    increment = -increment
+  endif
+
+D(10, led, {1, 1, 1})
+A(10)
+
+endwhile

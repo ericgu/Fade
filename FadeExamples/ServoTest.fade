@@ -1,0 +1,46 @@
+WinFade Project
+
+XLocation=543
+YLocation=294
+XSize=416
+YSize=514
+UdpEnabled=0
+UdpPort=4211
+UdpUniverse=15
+ConfigurationCount=1
+GroupType=Servo
+GroupNumber=0
+LedSize=50
+XOffset=100
+YOffset=74
+MinAngle=-110
+MaxAngle=110
+LedSpotCount=1
+
+// X, Y
+LedSpot=0,0
+
+Program Text
+a = 0
+
+if (a == 1)
+  ConfigLed(0, "UdpReceiver", 0, 15, 4211, 0, 1)
+  ConfigLed(1, "Servo", 1, 4)
+  
+  A(1)
+  
+else
+  
+  ConfigLed(0, "Servo", 1, 4)
+  speed = 25
+  wait = 50
+  
+  Di(speed, 0, 1.0)
+  A(wait)
+  Di(speed, 0, 0.0)
+  A(wait)      
+
+//A(1000)                                                                                                                                          
+  
+endif
+    

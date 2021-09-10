@@ -1,0 +1,95 @@
+WinFade Project
+
+ConfigurationCount=3
+GroupType=Strip
+GroupNumber=0
+LedSize=50
+XOffset=100
+YOffset=100
+Spacing=50
+LedSpotCount=1
+
+// X, Y
+LedSpot=0,0
+
+GroupType=Pwm
+GroupNumber=1
+LedSize=100
+XOffset=301
+YOffset=109
+ColorMapping=RBWG
+LedSpotCount=4
+
+// X, Y
+LedSpot=0,0
+LedSpot=0,0
+LedSpot=0,0
+LedSpot=0,0
+
+GroupType=Pwm
+GroupNumber=2
+LedSize=30
+XOffset=108
+YOffset=261
+ColorMapping=W
+LedSpotCount=1
+
+// X, Y
+LedSpot=0,0
+
+Program Text
+ConfigLed(0, "RGB", 1, 27)
+ConfigLed(1, "PWM", 4, 17, 16, 4, 2)
+ConfigLed(2, "PWM", 1, 14)
+ConfigButton(0, "TOUCH", 15, 20)
+Debug("LogStatements", 0)
+LampAutoShutoffTimeInSeconds = 10 * 100 // 10 seconds
+
+D_GasGenerator = 0
+D_Green = 4
+D_White = 3
+D_Fan = 5
+
+Di(25, 0, 1)
+Di(25, 0, 0)
+
+
+if ReadButton(0) == 1
+  
+  Pl("ON")
+  D(100, D_Fan, 0.95)
+  
+  // ramp up gas generator RGB led
+  D(100, D_GasGenerator, {1, 1, 0.2})
+  A(100)
+  
+  D(5, D_Green, 0.8)
+  A(5)
+  
+  D(5, D_Green, 0)
+  A(5)
+  
+  D(100, D_White, 0.8)
+  A(100)
+  
+  for Wait 0:LampAutoShutoffTimeInSeconds 
+    if ReadButton(0) == 1
+      break
+    endif
+    A(1)
+  endfor
+  
+  Pl("OFF") 
+  
+  D(100, D_White, 0)
+  D(50, D_GasGenerator, {0, 0, 0})
+  D(1, D_Fan, 0)
+  A(100)
+endif
+
+
+A(1)
+//Pl("Hello, World")                       
+//Pl("Hello, World")                                               
+
+

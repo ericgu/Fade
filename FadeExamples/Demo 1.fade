@@ -1,0 +1,37 @@
+WinFade Project
+
+XLocation=100
+YLocation=100
+XSize=316
+YSize=339
+ConfigurationCount=1
+GroupType=Strip
+GroupNumber=0
+LedSize=30
+XOffset=0
+YOffset=0
+Spacing=40
+LedSpotCount=15
+
+// X, Y
+LedSpot=0,0
+LedSpot=40,0
+LedSpot=80,0
+LedSpot=120,0
+LedSpot=160,0
+LedSpot=200,0
+LedSpot=240,0
+LedSpot=280,0
+LedSpot=320,0
+LedSpot=360,0
+LedSpot=400,0
+LedSpot=440,0
+LedSpot=480,0
+LedSpot=520,0
+LedSpot=560,0
+
+Program Text
+ConfigLed(0, "RGB", 15, 15)
+
+Di(25, 5, {1, 1, 1})
+Di(25, 5, {0, 0, 0})   

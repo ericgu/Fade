@@ -1,0 +1,157 @@
+WinFade Project
+
+ConfigurationCount=4
+GroupType=Matrix
+GroupNumber=0
+LedSize=30
+XOffset=228
+YOffset=106
+XCount=3
+YCount=2
+XSpacing=30
+YSpacing=30
+LedSpotCount=30
+
+// X, Y
+LedSpot=200,200
+LedSpot=230,200
+LedSpot=260,200
+LedSpot=200,230
+LedSpot=230,230
+LedSpot=260,230
+LedSpot=200,200
+LedSpot=230,200
+LedSpot=260,200
+LedSpot=200,230
+LedSpot=230,230
+LedSpot=260,230
+LedSpot=200,200
+LedSpot=230,200
+LedSpot=260,200
+LedSpot=200,230
+LedSpot=230,230
+LedSpot=260,230
+LedSpot=200,200
+LedSpot=230,200
+LedSpot=260,200
+LedSpot=200,230
+LedSpot=230,230
+LedSpot=260,230
+LedSpot=218.4955,262.6755
+LedSpot=235.2062,237.7606
+LedSpot=251.9169,212.8458
+LedSpot=243.4105,279.3862
+LedSpot=260.1211,254.4713
+LedSpot=276.8319,229.5563
+
+GroupType=Custom
+GroupNumber=0
+LedSize=10
+XOffset=464
+YOffset=-29
+LedSpotCount=11
+
+// X, Y
+LedSpot=-13.12697,245.6708
+LedSpot=38.61959,260.5793
+LedSpot=86.37331,235.6874
+LedSpot=136.1234,230.6958
+LedSpot=185.8738,225.7042
+LedSpot=235.624,220.7124
+LedSpot=295.3575,315.2213
+LedSpot=335.1245,210.7291
+LedSpot=384.8748,205.7376
+LedSpot=434.6252,200.746
+LedSpot=489.3668,245.5044
+
+GroupType=Ring
+GroupNumber=1
+LedSize=30
+XOffset=0
+YOffset=0
+RingRadius=100
+Reversed=False
+LedSpotCount=7
+
+// X, Y
+LedSpot=300,200
+LedSpot=262.349,278.1832
+LedSpot=177.7479,297.4928
+LedSpot=109.9031,243.3884
+LedSpot=109.9031,156.6116
+LedSpot=177.7479,102.5072
+LedSpot=262.349,121.8168
+
+GroupType=Strip
+GroupNumber=2
+LedSize=30
+XOffset=0
+YOffset=0
+Spacing=50
+LedSpotCount=7
+
+// X, Y
+LedSpot=0,0
+LedSpot=50,0
+LedSpot=100,0
+LedSpot=150,0
+LedSpot=200,0
+LedSpot=250,0
+LedSpot=300,0
+
+Program Text
+//CONFIGLED(0, "PWM", 1, 2, 3, 4)
+CONFIGLED(0, "RGB", 11, 13)
+CONFIGLED(1, "RGB", 7, 14)
+//DEBUG("LogStatements", 1)
+
+RAND(1, 10)
+
+FUNC DoChunk(chunk, offset, angle)
+  //PL("DoChunk")
+  angle = angle + offset
+  rgb = HSVTORGB(angle % 360, 1, 1)
+  D(1, chunk, rgb)
+  
+ENDFUNC
+
+FUNC Main()
+  
+  //PL("hello")
+  FOR angle 0:359:5
+    //PL(angle)
+    FOR base 0:17
+      DoChunk(base, base * 20, angle)
+    ENDFOR
+    A(1)
+  ENDFOR     
+ENDFUNC
+
+FOR count 0:1
+  P(".")
+  Main()                                             
+ENDFOR
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

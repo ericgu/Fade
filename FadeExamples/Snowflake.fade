@@ -1,0 +1,95 @@
+WinFade Project
+
+XLocation=527
+YLocation=380
+XSize=412
+YSize=524
+ConfigurationCount=1
+GroupType=Custom
+GroupNumber=0
+LedSize=10
+XOffset=155
+YOffset=149
+LedSpotCount=55
+
+// X, Y
+LedSpot=0,20
+LedSpot=0,40
+LedSpot=0,60
+LedSpot=-16.64638,72.10339
+LedSpot=-33.33999,82.51936
+LedSpot=0,80
+LedSpot=0,100
+LedSpot=16.64638,72.10339
+LedSpot=33.33999,82.51936
+LedSpot=17.32051,10
+LedSpot=34.64102,20
+LedSpot=51.96152,30
+LedSpot=54.12017,50.46788
+LedSpot=54.79387,70.13296
+LedSpot=69.28204,40
+LedSpot=86.60254,50
+LedSpot=70.76655,21.63551
+LedSpot=88.13386,12.38641
+LedSpot=17.32051,-10
+LedSpot=34.64102,-20
+LedSpot=51.96152,-30
+LedSpot=70.76655,-21.63551
+LedSpot=88.13386,-12.38641
+LedSpot=69.28204,-40
+LedSpot=86.60254,-50
+LedSpot=54.12017,-50.46788
+LedSpot=54.79387,-70.13296
+LedSpot=0,0
+LedSpot=2.4503E-15,-20
+LedSpot=4.90059E-15,-40
+LedSpot=7.35089E-15,-60
+LedSpot=16.64638,-72.10339
+LedSpot=33.33999,-82.51936
+LedSpot=9.80119E-15,-80
+LedSpot=1.22515E-14,-100
+LedSpot=-16.64638,-72.10339
+LedSpot=-33.33999,-82.51936
+LedSpot=-17.32051,-10
+LedSpot=-34.64102,-20
+LedSpot=-51.96152,-30
+LedSpot=-54.12017,-50.46788
+LedSpot=-54.79387,-70.13296
+LedSpot=-69.28204,-40
+LedSpot=-86.60254,-50
+LedSpot=-70.76655,-21.63551
+LedSpot=-88.13386,-12.38641
+LedSpot=-17.32051,10
+LedSpot=-34.64102,20
+LedSpot=-51.96152,30
+LedSpot=-70.76655,21.63551
+LedSpot=-88.13386,12.38641
+LedSpot=-69.28204,40
+LedSpot=-86.60254,50
+LedSpot=-54.12017,50.46788
+LedSpot=-54.79387,70.13296
+
+Program Text
+ConfigLed(0, "RGB", 55, 4)
+//Debug("DebugLogLedUpdates", 1)
+
+ledAngles = {0,0,0,-13, -22,0,0,13,22,60,60,60,47,38,60,60,73,82,120,120,120,107,98,120,120,133,142,0,180,180,180,167,158,180,180,193,202,240,240,240,227,218,240,240,253,262,300,300,300,287,278,300,300,313,322}
+
+ledDistances = {20,40,60,74,89,80,100,74,89,20,40,60,74,89,80,100,74,89,20,40,60,74,89,80,100,74,89,0,20,40,60,74,89,80,100,74,89,20,40,60,74,89,80,100,74,89,20,40,60,74,89,80,100,74,89}
+
+while (1)
+  for angle 0:350:10
+    
+    for led 0:54
+      if (ledDistances[led] != 0)
+        
+        ledAngle = angle + ledAngles[led]
+        color = HsvToRgb(ledAngle, 1, 1)
+        D(10, led, color)
+      endif
+      
+    endfor
+    A(10)
+    
+  endfor
+endwhile

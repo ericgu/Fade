@@ -1,0 +1,73 @@
+WinFade Project
+
+ConfigurationCount=2
+GroupType=Strip
+GroupNumber=0
+LedSize=30
+XOffset=262
+YOffset=285
+Spacing=50
+LedSpotCount=11
+
+// X, Y
+LedSpot=124.6024,-260.7704
+LedSpot=126.142,-210.7943
+LedSpot=127.6816,-160.818
+LedSpot=129.2212,-110.8417
+LedSpot=130.7607,-60.86527
+LedSpot=132.3002,-10.88909
+LedSpot=133.8398,39.08717
+LedSpot=135.3795,89.06355
+LedSpot=136.919,139.0398
+LedSpot=138.4586,189.0162
+LedSpot=139.9982,238.9924
+
+GroupType=Strip
+GroupNumber=1
+LedSize=30
+XOffset=33
+YOffset=25
+Spacing=50
+LedSpotCount=7
+
+// X, Y
+LedSpot=0,0
+LedSpot=50,0
+LedSpot=100,0
+LedSpot=150,0
+LedSpot=200,0
+LedSpot=250,0
+LedSpot=300,0
+
+Program Text
+ConfigLed(0, "RGB", 11, 13)
+ConfigLed(1, "RGB", 7, 14)
+//Debug("LogStatements", 1)
+
+Rand(1, 10)
+
+func DoChunk(chunk, offset, angle)
+  //Pl("DoChunk")
+  angle = angle + offset
+  rgb = HsvToRgb(angle % 360, 1, 1)
+  D(1, chunk, rgb)
+  
+endfunc
+
+func Main()
+  
+  //Pl("hello")
+  for angle 0:359:5
+    //Pl(angle)
+    for base 0:17
+      DoChunk(base, base * 20, angle)
+    endfor
+    A(1)
+  endfor     
+endfunc
+
+for count 0:1
+  P(".")
+  Main()                                             
+endfor
+

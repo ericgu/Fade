@@ -1,0 +1,32 @@
+WinFade Project
+
+ConfigurationCount=1
+GroupType=Pwm
+GroupNumber=0
+LedSize=30
+XOffset=228
+YOffset=106
+ColorMapping=RGBW
+LedSpotCount=4
+
+// X, Y
+LedSpot=0,0
+LedSpot=0,0
+LedSpot=0,0
+LedSpot=0,0
+
+Program Text
+ConfigLed(0, "PWM", 4, 1, 2, 3, 4)
+
+Di(100, 0, 1)
+Di(100, 0, 0)
+
+Di(100, 1, 1)
+Di(100, 1, 0)
+
+Di(100, 2, 1)
+Di(100, 2, 0)
+
+Di(100, 3, 1)
+Di(100, 3, 0)
+
