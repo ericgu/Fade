@@ -1,3 +1,5 @@
+
+
 class ExpressionTokenSource
 {
 	ExpressionNode _node;
@@ -300,110 +302,112 @@ public:
 				return;
 			}
 
-			switch (c)
-			{
-			case '(':
-			case ')':
-			case '{':
-			case '}':
-			case ',':
-			case '*':
-			case '%':
-      case ':':
-      case '[':
-      case ']':
-        CopyToToken(c);
-				return;
+            switch (c)
+            {
+            case '(':
+            case ')':
+            case '{':
+            case '}':
+            case ',':
+            case '*':
+            case '%':
+            case ':':
+            case '[':
+            case ']':
+            case '?':
 
-			case '-':
-				CopyToToken(Match('-') ? "--" : "-");
-				return;
-			case '+':
-				CopyToToken(Match('+') ? "++" : "+");
-				return;
-			case '!':
-				CopyToToken(Match('=') ? "!=" : "!");
-				return;
-			case '=':
-				CopyToToken(Match('=') ? "==" : "=");
-				return;
-			case '>':
-				CopyToToken(Match('=') ? ">=" : ">");
-				return;
-			case '<':
-				CopyToToken(Match('=') ? "<=" : "<");
-				return;
+                CopyToToken(c);
+                return;
 
-			case '/':
-				if (Match('/'))
-				{
-					EatComment();
-				}
-				else
-				{
-					CopyToToken("/");
-				}
-				return;
+            case '-':
+                CopyToToken(Match('-') ? "--" : "-");
+                return;
+            case '+':
+                CopyToToken(Match('+') ? "++" : "+");
+                return;
+            case '!':
+                CopyToToken(Match('=') ? "!=" : "!");
+                return;
+            case '=':
+                CopyToToken(Match('=') ? "==" : "=");
+                return;
+            case '>':
+                CopyToToken(Match('=') ? ">=" : ">");
+                return;
+            case '<':
+                CopyToToken(Match('=') ? "<=" : "<");
+                return;
 
-			case '&':
-				if (Match('&'))
-				{
-					CopyToToken("&&");
-				}
-				return;
-			case '|':
-				if (Match('|'))
-				{
-					CopyToToken("||");
-				}
-				return;
+            case '/':
+                if (Match('/'))
+                {
+                    EatComment();
+                }
+                else
+                {
+                    CopyToToken("/");
+                }
+                return;
 
-			case '\t':
-				break;
+            case '&':
+                if (Match('&'))
+                {
+                    CopyToToken("&&");
+                }
+                return;
+            case '|':
+                if (Match('|'))
+                {
+                    CopyToToken("||");
+                }
+                return;
 
-			case '\n':
-				if (PeekChar() == '\r')
-				{
-					AdvanceChar();
-				}
-				*_value = '\n';
-				_value[1] = '\0';
-				return;
+            case '\t':
+                break;
 
-			case '\r':
-				if (PeekChar() == '\n')
-				{
-					AdvanceChar();
-				}
-				_value[0] = '\n';
-				_value[1] = '\0';
-				return;
+            case '\n':
+                if (PeekChar() == '\r')
+                {
+                    AdvanceChar();
+                }
+                *_value = '\n';
+                _value[1] = '\0';
+                return;
 
-			case ' ':
-				// Ignore
-				break;
+            case '\r':
+                if (PeekChar() == '\n')
+                {
+                    AdvanceChar();
+                }
+                _value[0] = '\n';
+                _value[1] = '\0';
+                return;
 
-			case '"':
-				CopyStringToToken();
-				return;
+            case ' ':
+                // Ignore
+                break;
 
-			default:
+            case '"':
+                CopyStringToToken();
+                return;
+
+            default:
                 if (IsAlpha(c))
                 {
                     CopyIdentifierToToken(c);
                     return;
                 }
                 else if (IsDigit(c))
-				{
-					CopyNumberToToken(c);
-					return;
-				}
+                {
+                    CopyNumberToToken(c);
+                    return;
+                }
 
-				char s[2];
-				s[0] = c;
-				s[1] = 0;
-				_pParseErrors->AddError("Unrecognized character: ", s, _lineNumber);
-			}
+                char s[2];
+                s[0] = c;
+                s[1] = 0;
+                _pParseErrors->AddError("Unrecognized character: ", s, _lineNumber);
+            }
 		}
 	}
 
@@ -442,3 +446,5 @@ public:
 };
 
 bool ExpressionTokenSource::LogTokens = false;
+
+

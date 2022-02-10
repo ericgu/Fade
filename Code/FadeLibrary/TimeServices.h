@@ -28,10 +28,18 @@ public:
     unsigned long current = GetTicks();
     unsigned long target = current + delay;
 
+        // TODO: Sometimes target is bigger than the value GetTicks() will every return -
+        // something more than FF000000 (value I saw was FF42bA5A) - because of the resolution of the counter.
+        // that can cause a hang here.
+        // Hack fix is to add a counter here after too long...
+
+    int loopCount = 0;
     while (GetTicks() < target)
     {
-      
+        loopCount++;
+
     }
+    int k = loopCount;
 	}
 
 	static void TaskDelay(int delay)

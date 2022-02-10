@@ -54,6 +54,9 @@
     <ClInclude Include="LedFadeLibrary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UdpLogger.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

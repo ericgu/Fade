@@ -85,9 +85,19 @@ namespace WinFade
             this.c_textBoxUdpPort = new System.Windows.Forms.TextBox();
             this.label17 = new System.Windows.Forms.Label();
             this.c_checkBoxUdpEnable = new System.Windows.Forms.CheckBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.c_labelAmpsAt5v = new System.Windows.Forms.Label();
+            this.c_labelAmpsAt12v = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.c_textBoxWattsPerLed = new System.Windows.Forms.TextBox();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.c_labelMaxBrightness = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // c_listBoxLedGroups
@@ -660,11 +670,109 @@ namespace WinFade
             this.c_checkBoxUdpEnable.Text = "Enable";
             this.c_checkBoxUdpEnable.UseVisualStyleBackColor = true;
             // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.c_labelMaxBrightness);
+            this.groupBox4.Controls.Add(this.label22);
+            this.groupBox4.Controls.Add(this.c_labelAmpsAt5v);
+            this.groupBox4.Controls.Add(this.c_labelAmpsAt12v);
+            this.groupBox4.Controls.Add(this.label21);
+            this.groupBox4.Controls.Add(this.label20);
+            this.groupBox4.Controls.Add(this.c_textBoxWattsPerLed);
+            this.groupBox4.Controls.Add(this.label19);
+            this.groupBox4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox4.Location = new System.Drawing.Point(29, 456);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(405, 281);
+            this.groupBox4.TabIndex = 23;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Power Use Profiling";
+            this.groupBox4.Enter += new System.EventHandler(this.groupBox4_Enter);
+            // 
+            // c_labelAmpsAt5v
+            // 
+            this.c_labelAmpsAt5v.AutoSize = true;
+            this.c_labelAmpsAt5v.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_labelAmpsAt5v.Location = new System.Drawing.Point(187, 121);
+            this.c_labelAmpsAt5v.Name = "c_labelAmpsAt5v";
+            this.c_labelAmpsAt5v.Size = new System.Drawing.Size(52, 25);
+            this.c_labelAmpsAt5v.TabIndex = 5;
+            this.c_labelAmpsAt5v.Text = "        ";
+            // 
+            // c_labelAmpsAt12v
+            // 
+            this.c_labelAmpsAt12v.AutoSize = true;
+            this.c_labelAmpsAt12v.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_labelAmpsAt12v.Location = new System.Drawing.Point(187, 153);
+            this.c_labelAmpsAt12v.Name = "c_labelAmpsAt12v";
+            this.c_labelAmpsAt12v.Size = new System.Drawing.Size(52, 25);
+            this.c_labelAmpsAt12v.TabIndex = 4;
+            this.c_labelAmpsAt12v.Text = "        ";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label21.Location = new System.Drawing.Point(28, 156);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(135, 25);
+            this.label21.TabIndex = 3;
+            this.label21.Text = "Amps @ 12V:";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label20.Location = new System.Drawing.Point(28, 123);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(124, 25);
+            this.label20.TabIndex = 2;
+            this.label20.Text = "Amps @ 5V:";
+            // 
+            // c_textBoxWattsPerLed
+            // 
+            this.c_textBoxWattsPerLed.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_textBoxWattsPerLed.Location = new System.Drawing.Point(179, 29);
+            this.c_textBoxWattsPerLed.Name = "c_textBoxWattsPerLed";
+            this.c_textBoxWattsPerLed.Size = new System.Drawing.Size(60, 30);
+            this.c_textBoxWattsPerLed.TabIndex = 1;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label19.Location = new System.Drawing.Point(28, 33);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(145, 25);
+            this.label19.TabIndex = 0;
+            this.label19.Text = "Watts per LED:";
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label22.Location = new System.Drawing.Point(28, 84);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(153, 25);
+            this.label22.TabIndex = 6;
+            this.label22.Text = "Max Brightness:";
+            // 
+            // c_labelMaxBrightness
+            // 
+            this.c_labelMaxBrightness.AutoSize = true;
+            this.c_labelMaxBrightness.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.c_labelMaxBrightness.Location = new System.Drawing.Point(187, 84);
+            this.c_labelMaxBrightness.Name = "c_labelMaxBrightness";
+            this.c_labelMaxBrightness.Size = new System.Drawing.Size(52, 25);
+            this.c_labelMaxBrightness.TabIndex = 7;
+            this.c_labelMaxBrightness.Text = "        ";
+            // 
             // EditLedSetup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1188, 782);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.c_buttonDown);
             this.Controls.Add(this.c_buttonUp);
@@ -689,6 +797,8 @@ namespace WinFade
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -748,5 +858,14 @@ namespace WinFade
         internal TextBox c_textBoxUdpPort;
         private Label label17;
         private CheckBox c_checkBoxUdpEnable;
+        private GroupBox groupBox4;
+        private Label c_labelAmpsAt5v;
+        private Label c_labelAmpsAt12v;
+        private Label label21;
+        private Label label20;
+        private TextBox c_textBoxWattsPerLed;
+        private Label label19;
+        private Label c_labelMaxBrightness;
+        private Label label22;
     }
 }

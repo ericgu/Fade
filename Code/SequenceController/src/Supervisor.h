@@ -72,8 +72,9 @@ public:
 
 			Serial.print("Program will execute: ");
 			Serial.println(_shouldExecuteCode);
-			Serial.println("Program:");
-			Serial.println(_pCurrentCommand);
+			Serial.print("Program: ");
+			Serial.println((int)strlen(_pCurrentCommand));
+			//Serial.println(_pCurrentCommand);
 		}
 		if (_shouldExecuteCode)
 		{
@@ -109,7 +110,9 @@ public:
 		// Save the new program, and tell the system to start executing on restart.
 		// If the reboot was because of an exception, program will not be started.
 		_pSettings->SaveProgramText(pProgram);
+		Serial.print(pProgram);
 		_pSettings->SaveShouldExecuteCode(true); // was false
+		//delay(500);
 
 		// delete the timebase. It holds onto led resource, and this will call the destructor
 		_pTimebase->FreeDevices();

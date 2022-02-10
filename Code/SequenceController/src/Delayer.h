@@ -1,16 +1,22 @@
 class Delayer
 {
-	unsigned long _ticks;
-	unsigned long _interval;
-	unsigned long _offset;
+	unsigned long _startTicks;
+	//unsigned long _interval;
+	//unsigned long _offset;
+	//unsigned long _target;
+	TimeServices *_pTimeServices;
 
 public:
-	Delayer()
+	Delayer(TimeServices *pTimeServices)
 	{
+		_pTimeServices = pTimeServices;
+		_startTicks = _pTimeServices->GetTicks();
 	}
 
-	void Snapshot(unsigned long currentTicks, unsigned long interval) 
+	void Snapshot2(unsigned long currentTicks, unsigned long interval)
 	{
+		return;
+#if fred
 		_ticks = currentTicks;
 		_interval = interval;
 
@@ -18,25 +24,28 @@ public:
 
 		if (_ticks + _interval < _ticks)
 		{
-			_offset = 0 - _ticks; 
+			_offset = 0 - _ticks;
 		}
 		else
 		{
 			_offset = 0;
 		}
+#endif
+		//_startTicks = currentTicks;
+		//_interval = interval;
 	}
 
-	bool CheckIfDone(unsigned long currentTicks)
+	void DelayFromLastDelay(unsigned long interval)
 	{
-		unsigned long currentTicksWithOffset = currentTicks + _offset;
-
-		unsigned long target = _ticks + _interval + _offset;
-		if (currentTicksWithOffset >= target)
+		while (1)
 		{
-			return true;
+			unsigned long ticks = _pTimeServices->GetTicks();
+			unsigned long value = ticks - _startTicks;
+			if (value >= interval)
+			{
+				_startTicks = ticks;
+				return;
+			}
 		}
-		
-		return false;
 	}
-
 };

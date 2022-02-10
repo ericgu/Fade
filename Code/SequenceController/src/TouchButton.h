@@ -16,6 +16,8 @@ class TouchButton : public IButton
     // member function...
     void InterruptHandler()
     {
+        Serial.print("Interrupt on pin: ");
+        Serial.println(_pin);
         _touchTrue = 1;
     }
 
@@ -81,6 +83,7 @@ public:
 
         _pInstances[_instanceCount] = this;
 
+#if fred
         switch (_instanceCount)
         {
         case 0:
@@ -114,6 +117,7 @@ public:
             touchAttachInterrupt(pin, InterruptHandler9, threshold);
             break;
         }
+#endif
 
         _instanceCount++;
     }
@@ -148,7 +152,13 @@ public:
             Serial.println();
         }
 
-        if (_touchTrue)
+        int value = touchRead(_pin);
+        //Serial.print("Touch value on pin: ");
+        //Serial.print(_pin);
+        //Serial.print(" ");
+        //Serial.println(value);
+
+        if (value < _threshold)
         {
             _touchTrue = false;
             _trueCount++;

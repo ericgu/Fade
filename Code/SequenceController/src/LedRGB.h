@@ -6,10 +6,12 @@ class LedRGB : public ILedDevice
     int _pixelCount;
     int _pixelPin;
     volatile bool _operating;
+    LedType _ledType;
 
 public:
-    LedRGB(int pixelCount, int pixelPin)
+    LedRGB(LedType ledType, int pixelCount, int pixelPin)
     {
+        _ledType = ledType;
         Serial.println(">LedRGB constructor");
         Serial.flush();
         _pixelCount = pixelCount;
@@ -55,6 +57,38 @@ public:
         Serial.flush();
     }
 
+    RgbColor GetRgbColor(Variable *pBrightness)
+    {
+        int r = pBrightness->GetValueFloat(0) * 255;
+        int g = pBrightness->GetValueFloat(1) * 255;
+        int b = pBrightness->GetValueFloat(2) * 255;
+
+        RgbColor color;
+
+        switch (_ledType.Get())
+        {
+        case LedType::WS2812RGB:
+            return RgbColor(r, g, b);
+
+        case LedType::WS2812RBG:
+            return RgbColor(r, b, g);
+
+        case LedType::WS2812GRB:
+            return RgbColor(g, r, b);
+
+        case LedType::WS2812GBR:
+            return RgbColor(g, b, r);
+
+        case LedType::WS2812BRG:
+            return RgbColor(b, r, g);
+
+        case LedType::WS2812BGR:
+            return RgbColor(b, g, r);
+        }
+
+        return RgbColor(r, g, b);
+    }
+
     void UpdateLed(int channel, Variable *pBrightness)
     {
         if (!_operating)
@@ -67,11 +101,7 @@ public:
 
         //Serial.println(temp);
 
-        RgbColor color(pBrightness->GetValueFloat(0) * 255,
-                       pBrightness->GetValueFloat(1) * 255,
-                       pBrightness->GetValueFloat(2) * 255);
-
-        _pStrip->SetPixelColor(channel, color);
+        _pStrip->SetPixelColor(channel, GetRgbColor(pBrightness));
     }
 #if fred
     void UpdateLed(LedState *pLedState)

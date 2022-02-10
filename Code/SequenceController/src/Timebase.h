@@ -115,12 +115,8 @@ public:
 				(*_timebaseCallback)();
 				//int mf = _timeServices.GetTicks();
 
-				while (!_pDelayer->CheckIfDone(_timeServices.GetTicks()))
-				{
-					_timeServices.DelayMicroseconds(50);
-				}
+                _pDelayer->DelayFromLastDelay(UpdateRateInMicroseconds);
 
-				_pDelayer->Snapshot(_timeServices.GetTicks(), UpdateRateInMicroseconds);
 				//int m = _timeServices.GetTicks();
 				//Serial.print("Micros: "); Serial.print(m - _lastMicros); Serial.print(" w "); Serial.println(m-mf);
 				//_lastMicros = m;
@@ -134,8 +130,7 @@ public:
 	{
 		if (_pDelayer == 0)
 		{
-			_pDelayer = new Delayer();
-			_pDelayer->Snapshot(_timeServices.GetTicks(), UpdateRateInMicroseconds);
+			_pDelayer = new Delayer(&_timeServices);
 		}
 
 		_executionFlow.RunProgram(pCommand);

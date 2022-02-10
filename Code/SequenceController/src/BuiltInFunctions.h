@@ -208,6 +208,11 @@ class BuiltInFunctions
 			}
 			Serial.print(outputString);
 
+			if (Environment.DebugPrintOverUdp)
+			{
+				UdpLogger.print(outputString);
+			}
+
 			return true;
 		}
 
@@ -245,26 +250,25 @@ class BuiltInFunctions
 	{
 		if (strcmp(pFunctionName, "ConfigLed") == 0)
 		{
-            Variable *parameterCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
+			Variable *parameterCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 			Variable *pLedGroupNumber = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 			Variable *pLedType = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
 			Variable *pLedCount = pExecutionContext->GetVariableWithoutErrorCheck("#A2");
 
-            int pins[16];
-            int pinCount;
+			int pins[18];
+			int pinCount;
 
-            pinCount = parameterCount->GetValueInt() - 3;       
+			pinCount = parameterCount->GetValueInt() - 3;
 
-            char buffer[8];
-            for (int i = 0; i < pinCount; i++)
-            {
-                sprintf(buffer, "#A%d", i + 3);
+			char buffer[8];
+			for (int i = 0; i < pinCount; i++)
+			{
+				sprintf(buffer, "#A%d", i + 3);
 
-                pins[i] = GetVariableOrNegativeOne(pExecutionContext, buffer);
-            }
+				pins[i] = GetVariableOrNegativeOne(pExecutionContext, buffer);
+			}
 
-
-            if (!pExecutionFlow->ConfigureLeds(pLedGroupNumber->GetValueInt(), pLedType->GetValueString(), pLedCount->GetValueInt(), pinCount, pins))
+			if (!pExecutionFlow->ConfigureLeds(pLedGroupNumber->GetValueInt(), pLedType->GetValueString(), pLedCount->GetValueInt(), pinCount, pins))
 			{
 				pParseErrors->AddError("ConfigLed error", "", lineNumber);
 			}
@@ -356,6 +360,13 @@ class BuiltInFunctions
 			{
 				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
 				Environment.DebugLogLedUpdates = pValue->GetValueInt();
+				return true;
+			}
+			else if (strcmp(pIdentifier->GetValueString(), "DebugPrintOverUdp") == 0)
+			{
+				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
+				Environment.DebugPrintOverUdp = pValue->GetValueInt();
+				UdpLogger.init(Environment.DebugPrintOverUdp);
 				return true;
 			}
 		}

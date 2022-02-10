@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
@@ -31,6 +32,8 @@ namespace WinFade
         private readonly Remote _remote;
 
         private readonly HoverPopupForm _hoverPopupForm;
+
+        private UdpLogReader _udpLogReader;
 
         public Form1()
         {
@@ -70,6 +73,8 @@ namespace WinFade
             Icon = new Icon(@"Fade Icon 64x64.ico");
 
             //_ledDevices = new LedDevices();
+
+            c_textBoxUdpPort.Text = _programSettings.UdpLogPortNumber.ToString();
 
             FormClosing += (sender, args) =>
             {
@@ -283,6 +288,7 @@ namespace WinFade
             //_project.ProgramText = _programText;
             ShowErrorOutline(false);
 
+            _ledForm.ClearPowerStats();
             _ledForm.Show();
 
             _fadeThread = new Thread(DoFade);
@@ -670,5 +676,59 @@ namespace WinFade
             _project.ProgramText = _remote.Program;
             c_textBoxProgramText.Text = _project.ProgramText;
         }
+
+        private void UdpMessageReceived(string message, IPAddress ipAddress)
+        {
+            if (!message.StartsWith("FadeUdpLog: "))
+            {
+                return;
+            }
+
+            if (c_checkBoxFilterToRemoteIP.Checked && !ipAddress.Equals(IPAddress.Parse(c_textBoxIPAddress.Text)))
+            {
+                return;
+            }
+
+            if (c_listBoxSerialOutput.InvokeRequired)
+            {
+                var d = new UdpLogReader.UdpMessageHandler(UdpMessageReceived);
+                c_listBoxSerialOutput.Invoke(d, new object[] { message, ipAddress});
+            }
+            else
+            {
+                AddOutputToListbox(message);
+            }
+        }
+
+        private void c_buttonUdpLog_Click(object sender, EventArgs e)
+        {
+            if (_udpLogReader != null)
+            {
+                c_buttonUdpLog.Text = "Start";
+                _udpLogReader.Abort();
+                _udpLogReader = null;
+            }
+            else
+            {
+                c_buttonUdpLog.Text = "Stop";
+                c_listBoxSerialOutput.Items.Clear();
+                _outputLineCount = 0;
+                c_labelOutputLineCount.Text = "";
+
+                _udpLogReader = new UdpLogReader();
+                _udpLogReader.Start(UdpMessageReceived, _programSettings.UdpLogPortNumber);
+            }
+        }
+
+        private void c_textBoxUdpPort_TextChanged(object sender, EventArgs e)
+        {
+            int portNumber;
+
+            if (Int32.TryParse(c_textBoxUdpPort.Text, out portNumber))
+            {
+                _programSettings.UdpLogPortNumber = portNumber;
+            }
+        }
+
     }
 }

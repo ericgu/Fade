@@ -304,8 +304,8 @@ touch threshold value. </p>
 <p>&nbsp;</p>
 <h4>ConfigLed</h4>
 <p>ConfigLed defines one or more LEDs that the system can animate.</p>
-<p>ConfigLed (&lt;ledStringNumber&gt;, &lt;ledStringType&gt;, &lt;ledCount&gt;, &lt;param 1&gt;, &lt;param 
-2&gt;, &lt;param 3&gt; , &lt;param 4&gt;)</p>
+<p>ConfigLed (&lt;ledStringNumber&gt;, &lt;ledStringType&gt;, &lt;ledCount&gt;, &lt;param 1&gt;, 
+... , &lt;param n&gt;)</p>
 <table class="auto-style1" style="width: 70%">
 	<tr>
 		<td style="width: 332px">int ledStringNumber</td>
@@ -335,6 +335,19 @@ touch threshold value. </p>
 			<td>A string of WS2812-compatible (aka "neopixel") addressable leds. 
 			The &lt;ledCount&gt; parameter defines the number of leds on the string, 
 			and &lt;param 1&gt; defines the physical pin the strip is connected to.</td>
+		</tr>
+		<tr>
+			<td style="width: 138px">"APA102"</td>
+			<td>A string of &lt;ledCount&gt; APA102 addressable leds. <br><br>The ESP 
+			supports two different sets of SPI hardware, known as VSPI and HSPI.<br>
+			<br>param 1: Choose VSPI (0) or HSPI (1).<br><br>There are 4 pins 
+			that are used by default for each set of hardware:<br><br><strong>
+			VSPI:</strong><br>SCLK = 18<br>MISO = 19<br>MOSI = 23<br>SS = 5<br>
+			<br><strong>HSPI:</strong><br>SCLK = 14<br>MISO = 12<br>MOSI = 13<br>
+			SS = 15<br><br>The 4 pins can be defined directly:<br><br>param 2: 
+			SCLK<br>param 3: MISO<br>param 4: MOSI<br>param 5: SS<br><br>SCLK is 
+			connected to the clock input on the LED strip, and MOSI is connected 
+			to the data input. MISO and SS are not connected.</td>
 		</tr>
 		<tr>
 			<td style="width: 138px">"PWM"</td>
@@ -439,23 +452,6 @@ D(30, 6, {0.0, 0.5, 0.0})<br />
 <br />
 Define two fades that will occur over the next 30 cycles; led #5 will fade to 
 red and led #6 will fade to 50% green.</p>
-<h4>HsvToRgb</h4>
-<p>Converts a Hue-Saturation-Value color to an RGB Color</p>
-<p>HsvToRgb (&lt;hue&gt;, &lt;saturation&gt;, &lt;value&gt;)</p>
-<table class="auto-style1" style="width: 70%">
-	<tr>
-		<td style="width: 332px">float hue</td>
-		<td style="width: 1094px">The hue value from 0-359</td>
-	</tr>
-	<tr>
-		<td style="width: 332px">float saturation</td>
-		<td style="width: 1094px">The saturation from 0-1</td>
-	</tr>
-	<tr>
-		<td style="width: 332px">float value</td>
-		<td style="width: 1094px">The intensity value from 0-1</td>
-	</tr>
-</table>
 <h4>Debug</h4>
 <p>Debug sets a debugging flag.</p>
 <p>Debug (&lt;debugFlag&gt;, &lt;value&gt;)</p>
@@ -484,10 +480,33 @@ system behavior easier. The following debug flags are defined</p>
 			performed.</td>
 		</tr>
 		<tr>
-			<td style="width: 273px">"DebugButtonNumber"</td>
+			<td style="width: 273px">"DebugTouchButtonValues"</td>
 			<td>Logs the current button touch value whenever the button value is 
 			read. Used to determine an appropriate threshold number</td>
 		</tr>
+		<tr>
+			<td style="width: 273px">"DebugPrintOverUdp"</td>
+			<td>Sends all print output over the network using UDP broadcast 
+			messages. Useful for remote debugging. WinFade can read and display 
+			these messages, or you could use a utility like wireshark</td>
+		</tr>
+</table>
+<h4>HsvToRgb</h4>
+<p>Converts a Hue-Saturation-Value color to an RGB Color</p>
+<p>HsvToRgb (&lt;hue&gt;, &lt;saturation&gt;, &lt;value&gt;)</p>
+<table class="auto-style1" style="width: 70%">
+	<tr>
+		<td style="width: 332px">float hue</td>
+		<td style="width: 1094px">The hue value from 0-359</td>
+	</tr>
+	<tr>
+		<td style="width: 332px">float saturation</td>
+		<td style="width: 1094px">The saturation from 0-1</td>
+	</tr>
+	<tr>
+		<td style="width: 332px">float value</td>
+		<td style="width: 1094px">The intensity value from 0-1</td>
+	</tr>
 </table>
 <p>&nbsp;</p>
 <h4>Min<br />

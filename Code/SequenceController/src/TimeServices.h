@@ -1,10 +1,10 @@
 class TimeServices
 {
 public:
-	static unsigned long GetTicks()
-	{
-		return micros();
-	}
+    static unsigned long GetTicks()
+    {
+        return micros();
+    }
 
     static void DelayMicroseconds(int delay)
     {

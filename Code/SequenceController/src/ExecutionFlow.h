@@ -1,6 +1,6 @@
 class ExecutionFlow : public IExecutionFlow
 {
-    static const int MaxButtons = 4;
+    static const int MaxButtons = 10;
 
     ICommandSource *_pCommandSource;
     ExecutionContext *_pExecutionContext;
@@ -72,7 +72,7 @@ public:
         _pLedMessageHandler->ExecuteLedCommandMember(pCommandResult);
     }
 
-    bool ConfigureLeds(int ledGroupNumber, const char *pLedType, int ledCount, int pinCount, int pins[16])
+    bool ConfigureLeds(int ledGroupNumber, const char *pLedType, int ledCount, int pinCount, int *pins)
     {
         if (!_pLedMessageHandler->Configure(ledGroupNumber, pLedType, ledCount, pinCount, pins))
         {

@@ -1,0 +1,486 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Connector:Conn_01x03_Male J1
+U 1 1 5D6D343D
+P 8050 1650
+F 0 "J1" H 8023 1673 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 8023 1582 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 8050 1650 50  0001 C CNN
+F 3 "~" H 8050 1650 50  0001 C CNN
+	1    8050 1650
+	0    -1   1    0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J11
+U 1 1 61660A24
+P 8050 2050
+F 0 "J11" H 8023 2073 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 8023 1982 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 8050 2050 50  0001 C CNN
+F 3 "~" H 8050 2050 50  0001 C CNN
+	1    8050 2050
+	0    -1   1    0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J12
+U 1 1 61661CA4
+P 8050 2450
+F 0 "J12" H 8023 2473 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 8023 2382 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 8050 2450 50  0001 C CNN
+F 3 "~" H 8050 2450 50  0001 C CNN
+	1    8050 2450
+	0    -1   1    0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J13
+U 1 1 6166323B
+P 8050 2850
+F 0 "J13" H 8023 2873 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 8023 2782 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 8050 2850 50  0001 C CNN
+F 3 "~" H 8050 2850 50  0001 C CNN
+	1    8050 2850
+	0    -1   1    0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J15
+U 1 1 61665E71
+P 8050 3650
+F 0 "J15" H 8023 3673 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 8023 3582 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 8050 3650 50  0001 C CNN
+F 3 "~" H 8050 3650 50  0001 C CNN
+	1    8050 3650
+	0    -1   1    0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J16
+U 1 1 61665E77
+P 8050 4050
+F 0 "J16" H 8023 4073 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 8023 3982 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 8050 4050 50  0001 C CNN
+F 3 "~" H 8050 4050 50  0001 C CNN
+	1    8050 4050
+	0    -1   1    0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J17
+U 1 1 61665E7D
+P 8050 4450
+F 0 "J17" H 8023 4473 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 8023 4382 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 8050 4450 50  0001 C CNN
+F 3 "~" H 8050 4450 50  0001 C CNN
+	1    8050 4450
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	7950 1850 6200 1850
+Wire Wire Line
+	6200 1850 6200 2550
+Wire Wire Line
+	7950 2250 6300 2250
+Wire Wire Line
+	6300 2250 6300 2650
+Wire Wire Line
+	5500 2550 6200 2550
+Wire Wire Line
+	5500 2950 6400 2950
+Wire Wire Line
+	5500 2650 6300 2650
+Wire Wire Line
+	7950 2650 6400 2650
+Wire Wire Line
+	6400 2650 6400 2950
+Wire Wire Line
+	5500 3050 7950 3050
+$Comp
+L Connector:Conn_01x03_Male J14
+U 1 1 61665E6B
+P 8050 3250
+F 0 "J14" H 8023 3273 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 8023 3182 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 8050 3250 50  0001 C CNN
+F 3 "~" H 8050 3250 50  0001 C CNN
+	1    8050 3250
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	6450 3450 7950 3450
+Wire Wire Line
+	7950 3850 6350 3850
+Wire Wire Line
+	7950 4250 6250 4250
+Wire Wire Line
+	5500 3150 6450 3150
+Wire Wire Line
+	6450 3150 6450 3450
+Wire Wire Line
+	5500 3250 6350 3250
+Wire Wire Line
+	6350 3250 6350 3850
+Wire Wire Line
+	5500 3350 6250 3350
+Wire Wire Line
+	6250 3350 6250 4250
+Wire Wire Line
+	5500 3450 6150 3450
+Wire Wire Line
+	6150 3450 6150 4650
+Wire Wire Line
+	6150 4650 7950 4650
+Wire Wire Line
+	8050 4250 8050 3850
+Wire Wire Line
+	8050 3450 8050 3850
+Connection ~ 8050 3850
+Wire Wire Line
+	8050 4250 8050 4650
+Connection ~ 8050 4250
+Connection ~ 8050 4650
+Wire Wire Line
+	8050 3050 8050 3450
+Connection ~ 8050 3450
+Wire Wire Line
+	8050 2650 8050 3050
+Connection ~ 8050 3050
+Wire Wire Line
+	8050 2250 8050 2650
+Connection ~ 8050 2650
+Wire Wire Line
+	8050 1850 8050 2250
+Connection ~ 8050 2250
+Wire Wire Line
+	8150 1850 8150 2250
+Wire Wire Line
+	8150 2650 8150 2250
+Connection ~ 8150 2250
+Wire Wire Line
+	8150 2650 8150 3050
+Connection ~ 8150 2650
+Connection ~ 8150 3050
+Wire Wire Line
+	8150 3050 8150 3450
+Connection ~ 8150 3450
+Wire Wire Line
+	8150 3450 8150 3850
+Wire Wire Line
+	8150 4250 8150 3850
+Connection ~ 8150 3850
+Wire Wire Line
+	8150 4650 8150 4250
+Connection ~ 8150 4250
+Wire Wire Line
+	8150 5050 8150 4650
+Connection ~ 8150 4650
+NoConn ~ 9000 4700
+$Comp
+L Connector:Conn_01x03_Male J9
+U 1 1 6168C450
+P 1450 4850
+F 0 "J9" H 1423 4873 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 1423 4782 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 1450 4850 50  0001 C CNN
+F 3 "~" H 1450 4850 50  0001 C CNN
+	1    1450 4850
+	0    1    -1   0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J8
+U 1 1 6168C456
+P 1450 4450
+F 0 "J8" H 1423 4473 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 1423 4382 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 1450 4450 50  0001 C CNN
+F 3 "~" H 1450 4450 50  0001 C CNN
+	1    1450 4450
+	0    1    -1   0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J7
+U 1 1 6168C45C
+P 1450 4050
+F 0 "J7" H 1423 4073 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 1423 3982 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 1450 4050 50  0001 C CNN
+F 3 "~" H 1450 4050 50  0001 C CNN
+	1    1450 4050
+	0    1    -1   0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J6
+U 1 1 6168C462
+P 1450 3650
+F 0 "J6" H 1423 3673 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 1423 3582 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 1450 3650 50  0001 C CNN
+F 3 "~" H 1450 3650 50  0001 C CNN
+	1    1450 3650
+	0    1    -1   0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J4
+U 1 1 6168C468
+P 1450 2850
+F 0 "J4" H 1423 2873 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 1423 2782 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 1450 2850 50  0001 C CNN
+F 3 "~" H 1450 2850 50  0001 C CNN
+	1    1450 2850
+	0    1    -1   0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J3
+U 1 1 6168C46E
+P 1450 2450
+F 0 "J3" H 1423 2473 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 1423 2382 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 1450 2450 50  0001 C CNN
+F 3 "~" H 1450 2450 50  0001 C CNN
+	1    1450 2450
+	0    1    -1   0   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J5
+U 1 1 6168C47E
+P 1450 3250
+F 0 "J5" H 1423 3273 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 1423 3182 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 1450 3250 50  0001 C CNN
+F 3 "~" H 1450 3250 50  0001 C CNN
+	1    1450 3250
+	0    1    -1   0   
+$EndComp
+Wire Wire Line
+	1450 2250 1450 2650
+Wire Wire Line
+	1450 3050 1450 2650
+Connection ~ 1450 2650
+Wire Wire Line
+	1450 2250 1450 1850
+Connection ~ 1450 2250
+Wire Wire Line
+	1450 3450 1450 3050
+Connection ~ 1450 3050
+Wire Wire Line
+	1450 3850 1450 3450
+Connection ~ 1450 3450
+Wire Wire Line
+	1450 4250 1450 3850
+Connection ~ 1450 3850
+Wire Wire Line
+	1450 4650 1450 4250
+Connection ~ 1450 4250
+Wire Wire Line
+	1350 4650 1350 4250
+Wire Wire Line
+	1350 3850 1350 4250
+Connection ~ 1350 4250
+Wire Wire Line
+	1350 3850 1350 3450
+Connection ~ 1350 3850
+Connection ~ 1350 3450
+Wire Wire Line
+	1350 3450 1350 3050
+Connection ~ 1350 3050
+Wire Wire Line
+	1350 3050 1350 2650
+Wire Wire Line
+	1350 2250 1350 2650
+Connection ~ 1350 2650
+Wire Wire Line
+	1350 1850 1350 2250
+Connection ~ 1350 2250
+$Comp
+L Connector:Conn_01x03_Male J2
+U 1 1 6168C474
+P 1450 2050
+F 0 "J2" H 1423 2073 50  0000 R CNN
+F 1 "Conn_01x03_Male" V 1423 1982 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 1450 2050 50  0001 C CNN
+F 3 "~" H 1450 2050 50  0001 C CNN
+	1    1450 2050
+	0    1    -1   0   
+$EndComp
+Wire Wire Line
+	3000 2850 3900 2850
+Wire Wire Line
+	3900 2950 2850 2950
+Wire Wire Line
+	2850 2950 2850 2250
+Wire Wire Line
+	2850 2250 1550 2250
+Wire Wire Line
+	3900 3050 2700 3050
+Wire Wire Line
+	2700 3050 2700 2650
+Wire Wire Line
+	2700 2650 1550 2650
+Wire Wire Line
+	3900 3150 2550 3150
+Wire Wire Line
+	2550 3150 2550 3050
+Wire Wire Line
+	2550 3050 1550 3050
+Wire Wire Line
+	3900 3250 2550 3250
+Wire Wire Line
+	2550 3250 2550 3450
+Wire Wire Line
+	2550 3450 1550 3450
+Wire Wire Line
+	3900 3350 2700 3350
+Wire Wire Line
+	2700 3350 2700 3850
+Wire Wire Line
+	2700 3850 1550 3850
+Wire Wire Line
+	3900 3450 2850 3450
+Wire Wire Line
+	2850 3450 2850 4250
+Wire Wire Line
+	2850 4250 1550 4250
+Wire Wire Line
+	3900 3550 3000 3550
+Wire Wire Line
+	3000 3550 3000 4650
+Wire Wire Line
+	3000 4650 1550 4650
+Wire Wire Line
+	3900 4950 1450 4950
+Connection ~ 1450 4650
+Wire Wire Line
+	1450 4650 1450 4950
+Connection ~ 1350 4650
+Wire Wire Line
+	1350 4650 1350 5050
+$Comp
+L Connector:Conn_01x06_Male J10
+U 1 1 616ACA9E
+P 4200 5650
+F 0 "J10" H 4173 5673 50  0000 R CNN
+F 1 "Conn_01x06_Male" H 4173 5582 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06_Pitch2.54mm" H 4200 5650 50  0001 C CNN
+F 3 "~" H 4200 5650 50  0001 C CNN
+	1    4200 5650
+	0    1    -1   0   
+$EndComp
+Wire Wire Line
+	3900 3750 3800 3750
+Wire Wire Line
+	3900 3650 3600 3650
+Wire Wire Line
+	5600 3850 5500 3850
+Wire Wire Line
+	1550 1850 3000 1850
+Wire Wire Line
+	3000 1850 3000 2850
+$Comp
+L Esp32~Devkit:ESP32Devkit30 U1
+U 1 1 5D3799CF
+P 4700 3250
+F 0 "U1" H 4700 4215 50  0000 C CNN
+F 1 "ESP32Devkit30" H 4700 4124 50  0000 C CNN
+F 2 "Sequence Controller:Esp32_30_Pin" H 4150 3700 50  0001 C CNN
+F 3 "" H 4150 3700 50  0001 C CNN
+	1    4700 3250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x06_Male J18
+U 1 1 61707FBF
+P 6100 5650
+F 0 "J18" H 6073 5673 50  0000 R CNN
+F 1 "Conn_01x06_Male" H 6073 5582 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06_Pitch2.54mm" H 6100 5650 50  0001 C CNN
+F 3 "~" H 6100 5650 50  0001 C CNN
+	1    6100 5650
+	0    1    -1   0   
+$EndComp
+Wire Wire Line
+	3900 4950 4400 4950
+Connection ~ 3900 4950
+Wire Wire Line
+	3900 3950 3900 4950
+Wire Wire Line
+	8050 4650 8050 4950
+Wire Wire Line
+	6300 4950 6300 5450
+Wire Wire Line
+	4400 4950 4400 5450
+Connection ~ 4400 4950
+Wire Wire Line
+	4300 4850 4300 5450
+Wire Wire Line
+	6200 4850 6200 5450
+Wire Wire Line
+	6100 5050 6100 5450
+Wire Wire Line
+	4200 5050 4200 5450
+Connection ~ 4200 5050
+Wire Wire Line
+	3800 3750 3800 5250
+Wire Wire Line
+	3800 5250 4000 5250
+Wire Wire Line
+	4000 5250 4000 5450
+Wire Wire Line
+	3600 3650 3600 5350
+Wire Wire Line
+	3600 5350 3900 5350
+Wire Wire Line
+	3900 5350 3900 5450
+Connection ~ 6100 5050
+Wire Wire Line
+	6100 5050 8150 5050
+Connection ~ 6300 4950
+Wire Wire Line
+	6300 4950 8050 4950
+Wire Wire Line
+	4400 4950 6300 4950
+Wire Wire Line
+	4200 5050 5600 5050
+NoConn ~ 6800 6200
+Wire Wire Line
+	4300 4850 5500 4850
+Wire Wire Line
+	6000 3550 5500 3550
+Wire Wire Line
+	5900 5450 5900 3650
+Wire Wire Line
+	5900 3650 5500 3650
+Wire Wire Line
+	5800 5450 5800 3750
+Wire Wire Line
+	5800 3750 5500 3750
+Wire Wire Line
+	6000 3550 6000 5450
+Wire Wire Line
+	5500 3950 5500 4850
+Connection ~ 5500 4850
+Wire Wire Line
+	5500 4850 6200 4850
+Connection ~ 5600 5050
+Wire Wire Line
+	5600 5050 6100 5050
+Wire Wire Line
+	5600 3850 5600 5050
+Wire Wire Line
+	1350 5050 4200 5050
+$EndSCHEMATC

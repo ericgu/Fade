@@ -30,17 +30,32 @@ namespace WinFade
             _bitmap = new Bitmap(Width, Height, PixelFormat.Format32bppPArgb);
             _graphics = Graphics.FromImage(_bitmap);
 
-            if (ledTestBoard.UdpEnabled)
-            {
-                _udpSender = new UdpSender();
-                _udpSender.Init(1, 3, (ushort) ledTestBoard.UdpPort, (ushort) ledTestBoard.UdpUniverse);
-            }
+            _udpSender = null;
         }
 
         ~LedForm()
         {
             _graphics.Dispose();
             _bitmap.Dispose();
+        }
+
+        UdpSender UdpSender
+        {
+            get
+            {
+                if (_udpSender == null)
+                {
+                    _udpSender = new UdpSender();
+                    _udpSender.Init(1, 3, (ushort)_ledTestBoard.UdpPort, (ushort)_ledTestBoard.UdpUniverse);
+                }
+
+                return _udpSender;
+            }
+        }
+
+        public void ClearPowerStats()
+        {
+            _ledTestBoard.ClearPowerStats();
         }
 
         public void Render()
@@ -52,6 +67,8 @@ namespace WinFade
             }
             else
             {
+                _ledTestBoard.LedUpdateDone();
+
                 c_pictureBoxLeds.Image = _bitmap;
                 c_pictureBoxLeds.Refresh();
 
@@ -62,7 +79,7 @@ namespace WinFade
 
                 if (_ledTestBoard.UdpEnabled)
                 {
-                    _udpSender.LedUpdateCycleDone();
+                    UdpSender.LedUpdateCycleDone();
                 }
             }
         }
@@ -73,7 +90,7 @@ namespace WinFade
 
             if (_ledTestBoard.UdpEnabled)
             {
-                _udpSender.UpdateLed(ledGroupNumber, ledNumber, 3, red, green, blue, 0.0F);
+                UdpSender.UpdateLed(ledGroupNumber, ledNumber, 3, red, green, blue, 0.0F);
             }
         }
 

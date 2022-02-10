@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "FadeLibrary.h"
+#include <time.h>
 
 
 
@@ -56,6 +57,9 @@ FADELIBRARY_API int Run(const char* pProgram,
                         LedRenderCycleDoneCallback pLedRenderCycleDoneCallback,
                         ParseErrorCallback pParseErrorCallback)
 {
+    time_t t;
+    srand((unsigned)time(&t));
+
   _pNewSerialTextAvailableCallback = pNewSerialTextAvailableCallback;
   _pCreateNewLedDeviceCallback = pCreateNewLedDeviceCallback;
   _pLedUpdatedCallback = pLedUpdatedCallback;

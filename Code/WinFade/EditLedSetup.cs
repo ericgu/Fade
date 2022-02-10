@@ -25,6 +25,26 @@ namespace WinFade
             c_checkBoxUdpEnable.Checked = ledTestBoard.UdpEnabled;
             c_textBoxUdpPort.Text = ledTestBoard.UdpPort.ToString();
             c_textBoxUdpUniverse.Text = ledTestBoard.UdpUniverse.ToString();
+
+            c_textBoxWattsPerLed.Text = ledTestBoard.WattsPerLed.ToString();
+
+            UpdatePowerStatistics();
+        }
+
+        internal void UpdatePowerStatistics()
+        {
+            c_labelMaxBrightness.Text = _ledTestBoard.MaximumBrightness.ToString();
+
+            float wattsPerChannel = _ledTestBoard.WattsPerLed / 3;
+
+            float maxWatts = _ledTestBoard.MaximumBrightness * wattsPerChannel;
+
+            float v5amps = maxWatts / 5;
+            float v12amps = maxWatts / 12;
+
+            c_labelAmpsAt12v.Text = v12amps.ToString("n1");
+            c_labelAmpsAt5v.Text = v5amps.ToString("n1");
+
         }
 
         internal void PopulateLedConfigurationList()
@@ -273,6 +293,15 @@ namespace WinFade
              {
                  _ledTestBoard.UdpUniverse = temp;
              }
+
+             c_textBoxWattsPerLed.Text = _ledTestBoard.WattsPerLed.ToString();
+             _ledTestBoard.WattsPerLed = Single.Parse(c_textBoxWattsPerLed.Text);
+             _ledTestBoard.MaximumBrightness = 0;
+        }
+
+        private void groupBox4_Enter(object sender, EventArgs e)
+        {
+
         }
     }
 }

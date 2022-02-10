@@ -82,12 +82,12 @@ public:
     //DumpArgs();
 
     String Program;
-    Serial.println("handleRootInstance 1");
     Program = _pWebServer->arg("Program");
-    Serial.println("handleRootInstance 2");
     if (Program.length() != 0)
     {
-      Serial.println("handleRootInstance 3");
+      Serial.print("Updated program: ");
+      Serial.println(Program.length());
+      Serial.println(Program.c_str());
 
       snprintf(_pPageBuffer, 16636,
                "<meta http-equiv=\"refresh\" content=\"10;url=http://%d.%d.%d.%d/\">\

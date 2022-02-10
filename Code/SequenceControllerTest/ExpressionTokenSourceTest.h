@@ -84,60 +84,64 @@ class ExpressionTokenSourceTest
     }
 
 
-	static void TestAll()
-	{
-    ParseErrors parseErrors;
-		ExpressionTokenSource expressionTokenSource("1+2-3*4/5==6!=7>=8>9<=10<11&&12||13!14%15,16=17++18--19{20}21[22]23", &parseErrors);
+    static void TestAll()
+    {
+        ParseErrors parseErrors;
+        ExpressionTokenSource expressionTokenSource("1+2-3*4/5==6!=7>=8>9<=10<11&&12||13!14%15,16=17++18--19{20}21[22]23?24:25", &parseErrors);
 
-		Assert(&expressionTokenSource, "1");
-		Assert(&expressionTokenSource, "+");
-		Assert(&expressionTokenSource, "2");
-		Assert(&expressionTokenSource, "-");
-		Assert(&expressionTokenSource, "3");
-		Assert(&expressionTokenSource, "*");
-		Assert(&expressionTokenSource, "4");
-		Assert(&expressionTokenSource, "/");
-		Assert(&expressionTokenSource, "5");
-		Assert(&expressionTokenSource, "==");
-		Assert(&expressionTokenSource, "6");
-		Assert(&expressionTokenSource, "!=");
-		Assert(&expressionTokenSource, "7");
-		Assert(&expressionTokenSource, ">=");
-		Assert(&expressionTokenSource, "8");
-		Assert(&expressionTokenSource, ">");
-		Assert(&expressionTokenSource, "9");
-		Assert(&expressionTokenSource, "<=");
-		Assert(&expressionTokenSource, "10");
-		Assert(&expressionTokenSource, "<");
-		Assert(&expressionTokenSource, "11");
-		Assert(&expressionTokenSource, "&&");
-		Assert(&expressionTokenSource, "12");
-		Assert(&expressionTokenSource, "||");
-		Assert(&expressionTokenSource, "13");
-		Assert(&expressionTokenSource, "!");
-		Assert(&expressionTokenSource, "14");
-		Assert(&expressionTokenSource, "%");
-		Assert(&expressionTokenSource, "15");
-		Assert(&expressionTokenSource, ",");
-		Assert(&expressionTokenSource, "16");
-		Assert(&expressionTokenSource, "=");
-		Assert(&expressionTokenSource, "17");
-		Assert(&expressionTokenSource, "++");
-		Assert(&expressionTokenSource, "18");
-		Assert(&expressionTokenSource, "--");
-		Assert(&expressionTokenSource, "19");
-		Assert(&expressionTokenSource, "{");
-		Assert(&expressionTokenSource, "20");
-    Assert(&expressionTokenSource, "}");
-    Assert(&expressionTokenSource, "21");
-    Assert(&expressionTokenSource, "[");
-    Assert(&expressionTokenSource, "22");
-    Assert(&expressionTokenSource, "]");
-    Assert(&expressionTokenSource, "23");
+        Assert(&expressionTokenSource, "1");
+        Assert(&expressionTokenSource, "+");
+        Assert(&expressionTokenSource, "2");
+        Assert(&expressionTokenSource, "-");
+        Assert(&expressionTokenSource, "3");
+        Assert(&expressionTokenSource, "*");
+        Assert(&expressionTokenSource, "4");
+        Assert(&expressionTokenSource, "/");
+        Assert(&expressionTokenSource, "5");
+        Assert(&expressionTokenSource, "==");
+        Assert(&expressionTokenSource, "6");
+        Assert(&expressionTokenSource, "!=");
+        Assert(&expressionTokenSource, "7");
+        Assert(&expressionTokenSource, ">=");
+        Assert(&expressionTokenSource, "8");
+        Assert(&expressionTokenSource, ">");
+        Assert(&expressionTokenSource, "9");
+        Assert(&expressionTokenSource, "<=");
+        Assert(&expressionTokenSource, "10");
+        Assert(&expressionTokenSource, "<");
+        Assert(&expressionTokenSource, "11");
+        Assert(&expressionTokenSource, "&&");
+        Assert(&expressionTokenSource, "12");
+        Assert(&expressionTokenSource, "||");
+        Assert(&expressionTokenSource, "13");
+        Assert(&expressionTokenSource, "!");
+        Assert(&expressionTokenSource, "14");
+        Assert(&expressionTokenSource, "%");
+        Assert(&expressionTokenSource, "15");
+        Assert(&expressionTokenSource, ",");
+        Assert(&expressionTokenSource, "16");
+        Assert(&expressionTokenSource, "=");
+        Assert(&expressionTokenSource, "17");
+        Assert(&expressionTokenSource, "++");
+        Assert(&expressionTokenSource, "18");
+        Assert(&expressionTokenSource, "--");
+        Assert(&expressionTokenSource, "19");
+        Assert(&expressionTokenSource, "{");
+        Assert(&expressionTokenSource, "20");
+        Assert(&expressionTokenSource, "}");
+        Assert(&expressionTokenSource, "21");
+        Assert(&expressionTokenSource, "[");
+        Assert(&expressionTokenSource, "22");
+        Assert(&expressionTokenSource, "]");
+        Assert(&expressionTokenSource, "23");
+        Assert(&expressionTokenSource, "?");
+        Assert(&expressionTokenSource, "24");
+        Assert(&expressionTokenSource, ":");
+        Assert(&expressionTokenSource, "25");
 
-    Assert::AreEqual(1, expressionTokenSource.AtEnd());
-    Assert::AreEqual(0, parseErrors.GetErrorCount());
-	}
+        Assert::AreEqual(1, expressionTokenSource.AtEnd());
+        Assert::AreEqual(0, parseErrors.GetErrorCount());
+    }
 
 	static void TestParens()
 	{

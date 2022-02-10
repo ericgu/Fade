@@ -412,6 +412,41 @@ class RDEvaluaterTest
         TestUndefinedVariableInOperation("3 || a", "Undefined variable: a");
     }
 
+    // Missing :, undefined variable in either spot.
+    static void TestConditionalTrue()
+    {
+        TestEvaluation("1 > 0 ? 15 : 13", 15.0F);
+    }
+
+    static void TestConditionalFalse()
+    {
+        TestEvaluation("0 > 1 ? 15 : 13", 13.0F);
+    }
+
+    static void TestConditionalTrueMissingColon()
+    {
+        ExecutionContext executionContext;
+        RDEvaluater rdEvaluater;
+        ParseErrors parseErrors;
+
+        Variable result = rdEvaluater.Evaluate("1 > 0 ? 15", &executionContext, &parseErrors);
+
+        Assert::AreEqual(1, parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing : in conditional", parseErrors.GetError(0)->_errorText);
+    }
+
+    static void TestConditionalFalseMissingColon()
+    {
+        ExecutionContext executionContext;
+        RDEvaluater rdEvaluater;
+        ParseErrors parseErrors;
+
+        Variable result = rdEvaluater.Evaluate("1 < 0 ? 15", &executionContext, &parseErrors);
+
+        Assert::AreEqual(1, parseErrors.GetErrorCount());
+        Assert::AreEqual("Missing : in conditional", parseErrors.GetError(0)->_errorText);
+    }
+
 
 	static void TestMultiplyAddWithParens()
 	{
@@ -1581,9 +1616,72 @@ class RDEvaluaterTest
       Assert::AreEqual(11, result.GetValueInt());
     }
 
+
+    static void TestUndefinedVariableInForLoopExits()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("loop = 0");
+        statementTester.Add("for Test 0:10");
+        statementTester.Add("x = y");
+        statementTester.Add("loop++");
+        statementTester.Add("endfor");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Undefined variable: y", statementTester._parseErrors.GetError(0)->_errorText);
+    }
+
+    static void TestUnexpectedTokenInForLoopExits()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("loop = 0");
+        statementTester.Add("for Test 0:10");
+        statementTester.Add("x = loop b");
+        statementTester.Add("loop++");
+        statementTester.Add("endfor");
+
+        Variable result = statementTester.Execute();
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Unexpected token remaining after parsing: b", statementTester._parseErrors.GetError(0)->_errorText);
+    }
+
+
+    static void TestUnexpectedTokenInWhileLoopExits()
+    {
+        StatementTester statementTester;
+
+        statementTester.Add("loop = 0");
+        statementTester.Add("while loop < 100");
+        statementTester.Add("  x = loop b");
+        statementTester.Add("  loop++");
+        statementTester.Add("endwhile");
+        statementTester.Add("loop");
+
+        Variable result = statementTester.Execute();
+        Variable* pLoopValue = statementTester._executionContext.GetVariableWithoutErrorCheck("loop");
+
+        Assert::AreEqual(0, pLoopValue->GetValueInt());
+
+        Assert::AreEqual(1, statementTester._parseErrors.GetErrorCount());
+        Assert::AreEqual("Unexpected token remaining after parsing: b", statementTester._parseErrors.GetError(0)->_errorText);
+    }
+
 public:
     static void Run()
     {
+        TestConditionalTrue();
+        TestConditionalFalse();
+        TestConditionalTrueMissingColon();
+        TestConditionalFalseMissingColon();
+
+        TestUnexpectedTokenInWhileLoopExits();
+        TestUnexpectedTokenInForLoopExits();
+        TestUndefinedVariableInForLoopExits();
+
         TestArrayComplex();
         TestArrayAssignment();
         TestArrayAssignment2();

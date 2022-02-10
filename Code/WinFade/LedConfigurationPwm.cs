@@ -61,13 +61,17 @@ namespace WinFade
                 Create();
             }
 
+                // red is the intensity - clear out red so the mapping works correctly. 
+            float intensity = red;
+            red = 0F;
+
             LedSpot ledSpot = _ledSpots[ledNumber];
 
             // store current values, then decode them into a single color to draw...
 
             if (ledNumber < 4)
             {
-                _values[ledNumber] = red; 
+                _values[ledNumber] = intensity; 
             }
 
             for (int colorMappingIndex = 0; colorMappingIndex < ColorMapping.Length; colorMappingIndex++)

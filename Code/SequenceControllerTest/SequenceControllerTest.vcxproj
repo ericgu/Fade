@@ -186,6 +186,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TimeServices.h" />
     <ClInclude Include="TimebaseTest.h" />
+    <ClInclude Include="UdpLogger.h" />
     <ClInclude Include="VariableCollectionTest.h" />
     <ClInclude Include="VariableDataTest.h" />
     <ClInclude Include="VariableStoreChunkTest.h" />

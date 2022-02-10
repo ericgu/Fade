@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="ArchitectureStyles.css" type="text/css">
+  <title>Eagle Decorations - Fade Animation System</title>
+  </head>
+<body>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="en-us" http-equiv="Content-Language" />
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Fade Animation System</title>
+</head>
+
+<script src="NavTable.js"></script>    
+
+
+<body title="Fade Animation System">
+
+<h1>Fade System Architecture</h1>
+<p>Fade is a complex system.</p>
+<p>It consists of an interpreter, a memory management system (complicated by a 
+requirement to do very limited dynamic allocation, as that makes embedded 
+systems cranky), and subsystem to drive the hardware to do useful things (dim 
+LEDs, drive servos, read buttons, etc.) In addition, there is an ESP32-specific 
+system that handles all web-based operations - the minimal web-based IDE, the 
+ESP32 startup, etc. </p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h2>Projects</h2>
+
+<p>Fade consists of three projects.</p>
+<p>The <strong>SequenceController</strong> project is the main projects; it 
+contains all of the implementation for the system as it runs on the ESP32. It 
+was authored using Visual Studio Code and Platform IO. All code with the 
+exception of main.cpp is written inline as part of .h files; this simplifies the 
+project (only one file per class) and enables the test architecture. </p>
+<p>The <strong>SequenceControllerTest</strong> project contains all of the test 
+code, most of which is unit test code. Though the include file path, it uses 
+what I call "include file replacement" to include test-specific classes instead 
+of the real ones that are used in the ESP32 version. For example, there is a 
+test version of the Serial class that is used instead of the hardware one to 
+capture serial outout from the system. The code is structured to make it easy to 
+test - wherever possible, a single class can be tested simply by passing data 
+and examing results rather than a mocking-based approach. In addition, the test 
+code uses a pattern known as "port-adapter-simulator" to replace the hardware 
+versions. </p>
+<p>Any changes to the main code must be accompanied with new or updated unit 
+tests. Changes to hardware-specific code may be possible without unit tests 
+depending on the change. </p>
+<p>The <strong>WinFade</strong> project contains the Windows-specific IDE. The 
+project compiles the main SequenceController code as a callable library, and 
+this library is used from the C# main code using the P/Invoke feature. </p>
+<p>&nbsp;</p>
+<h2>The Animation Loop</h2>
+<p>The entire system is structured around a 10 millsecond (100 hz) animation 
+loop; the user code runs until it hits an animation point - explictly with an 
+"A" command or implicitly as part of a "Di" or "Si" command - at which point the 
+system executes the number of cycles specified in the animation command, 
+blocking so that the overall execution runs at approximately 100 hz. There is no 
+guard against operations taking too long other than common sense. </p>
+<p>The system knows the current state of all outputs, and animation commands 
+specify what the target state should be and how long - how many cycles - it 
+should take to get there. All current devices use a floating point state from 
+0-1 with the number of values defined by the type of device; a servo would use a 
+single value from 0 to 1, and an RGB led would use an array "{a, b, c}" of three 
+values. </p>
+<h2>Output Devices</h2>
+<p>All output devices are configured using the LedConfig() command, though not 
+all devices are LEDs. </p>
+<p>The proper output device is created based upon its textual name 
+(LedDeviceCreator.h), and a list of the created devices is maintained. Each 
+device specifies a group number and the number of pixels (aka "output channels") 
+that it handles. The actual kind of output channel is not visible when writing 
+code; you can define 10 RGB pixels, a single PWM LED, and a set of 3 servos, and 
+they are then accessed using a single set of indices - the RGB pixels are 
+outputs 0-9, the PWM led is output 10, and the servos are outputs 11-13. </p>
+<p>In addition to physical devices, there are virtual devices...</p>
+<p>Sender devices - such as the LedUdpSender device - accept channel updates 
+like the physical output devices but instead of driving physical hardware, they 
+package the data up and send it to another microcontroller to running fade. This 
+overcomes hardware limitations on the number of PWM/servo channels.</p>
+<p>Receiver devices - such as the LedUdpReceiver device - accept the channel 
+update data from another system and feed it into the current set of output 
+devices as if it were local. </p>
+<p>WinFade can also send updates in UDP so that the receiver controller can be 
+tested. </p>
+<h2>The Interpreter</h2>
+<p>The language input is broken into tokens by ExpressionTokenSource. </p>
+<p>The Fade language is implemented using a hand-coded recursive-descent parser, 
+implemented in RDEvaluator.h. </p>
+<p>The file is ordered roughly based on precedence, with the high precedence 
+constructs at the top of the file and the lower precedence constructs at the 
+bottom of the file. </p>
+<p>Function calls parameters are implemented using specially-named variables in 
+the newly-created function scope; the number of arguments is passed using the 
+"#A" variable, and the arguments themselves are passed using "#A&lt;n&gt;", where &lt;n&gt; 
+is the argument number. These arguments are then validated against the declared 
+parameters in the function body and renamed appropriately using the function 
+parameter names. </p>
+<p>Built-in functions are implemented in builtinfunctions.h and can easily be 
+extended by following the existing pattern. Please write unit tests for them if 
+practical. </p>
+<p>&nbsp;</p>
+<p>built in functions</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+</body>
+
+</html>

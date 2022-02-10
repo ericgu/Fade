@@ -2,27 +2,46 @@
 
 class TimeServices
 {
-	static unsigned long _ticks;
+	unsigned long _ticks;
+    unsigned long _increment;
+    unsigned long _getTicksCount;
 
 public:
-	static unsigned long GetTicks()
+    TimeServices()
+    {
+        _ticks = 0;
+        _increment = 10000;
+    }
+
+	unsigned long GetTicks()
 	{
-		return _ticks;
+        unsigned long value = _ticks;
+
+        _ticks += _increment;
+        _getTicksCount++;
+
+		return value;
 	}
 
-	static void SetTicks(unsigned long ticks)
+	void SetTicks(unsigned long ticks, unsigned long increment)
 	{
 		_ticks = ticks;
+        _increment = increment;
+        _getTicksCount = 0;
 	}
 
-	static void DelayMicroseconds(int delay)
+    int GetGetTicksCount()
+	{
+        return _getTicksCount;
+	}
+
+	void DelayMicroseconds(int delay)
 	{
 		_ticks += delay;
 	}
 
-	static void TaskDelay(int delay)
+	void TaskDelay(int delay)
 	{
 	}
 };
 
-unsigned long TimeServices::_ticks;

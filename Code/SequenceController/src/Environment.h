@@ -8,6 +8,7 @@ public:
   int DebugLogTouchButtonValues;
   int DebugLogCycleDeltas;
   int DebugLogLedUpdates;
+  int DebugPrintOverUdp;
 
   EnvironmentClass()
   {
@@ -24,6 +25,7 @@ public:
     DebugLogTouchButtonValues = 0;
     DebugLogCycleDeltas = 0;
     DebugLogLedUpdates = 0;
+    DebugPrintOverUdp = 0;
   }
 };
 

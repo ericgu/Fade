@@ -21,6 +21,12 @@ namespace WinFade
 
         public int UdpUniverse { get; set; }
 
+        public float WattsPerLed { get; set; }
+
+        public float MaximumBrightness { get; set; }
+
+        public float BrightnessInFrame { get; set; }
+
         public LedTestBoard()
         {
             _ledConfigurations = new List<LedConfiguration>();
@@ -28,6 +34,9 @@ namespace WinFade
             YLocation = 100;
             XSize = 300;
             YSize = 300;
+            WattsPerLed = 0.25F;     // 50 mA @ 5V...
+            MaximumBrightness = 0.0F;
+            BrightnessInFrame = 0.0F;
         }
 
         public List<LedConfiguration> LedConfigurations
@@ -46,8 +55,16 @@ namespace WinFade
             }
         }
 
+        public void ClearPowerStats()
+        {
+            BrightnessInFrame = 0;
+            MaximumBrightness = 0;
+        }
+
         public void UpdateLedColor(Graphics graphics, int ledGroupNumber, int ledNumber, float red, float green, float blue)
         {
+            BrightnessInFrame += red + green + blue;
+
             foreach (LedConfiguration ledConfiguration in _ledConfigurations.Where(ledConfiguration =>
                 ledConfiguration.GroupNumber == ledGroupNumber))
             {
@@ -59,6 +76,15 @@ namespace WinFade
 
                 ledNumber -= ledConfiguration.LedCount;
             }
+        }
+
+        public void LedUpdateDone()
+        {
+            if (BrightnessInFrame > MaximumBrightness)
+            {
+                MaximumBrightness = BrightnessInFrame;
+            }
+            BrightnessInFrame = 0;
         }
 
         private static string BasePath
@@ -98,6 +124,7 @@ namespace WinFade
             writer.WriteLine("UdpEnabled={0}", UdpEnabled ? 1: 0);
             writer.WriteLine("UdpPort={0}", UdpPort);
             writer.WriteLine("UdpUniverse={0}", UdpUniverse);
+            writer.WriteLine("WattsPerLed={0}", WattsPerLed);
             writer.WriteLine("ConfigurationCount={0}", _ledConfigurations.Count);
 
             foreach (LedConfiguration ledGroup in _ledConfigurations)
@@ -118,6 +145,7 @@ namespace WinFade
             UdpEnabled = temp == 1;
             UdpPort = fileLineParser.GetNumberAfterName("UdpPort", 300);
             UdpUniverse = fileLineParser.GetNumberAfterName("UdpUniverse", 300);
+            WattsPerLed = fileLineParser.GetFloatAfterName("WattsPerLed", 0.25F);
 
             int ledConfigurationCount = fileLineParser.GetNumberAfterName("ConfigurationCount");
             _ledConfigurations.Clear();
@@ -176,5 +204,7 @@ namespace WinFade
 
             currentConfiguration.LedCount = currentConfiguration._ledSpots.Count;
         }
+
+
     }
 }

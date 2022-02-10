@@ -1,3 +1,4 @@
 ﻿  SequenceControllerTest.cpp
-  SequenceControllerTest.vcxproj -> D:\data\Electronics\SequenceController\Code\SequenceControllerTest\x64\Debug\SequenceControllerTest.exe
-  SequenceControllerTest.vcxproj -> D:\data\Electronics\SequenceController\Code\SequenceControllerTest\x64\Debug\SequenceControllerTest.pdb (Full PDB)
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\builtinfunctions.h(213): error C2065: 'UdpLogger': undeclared identifier
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\builtinfunctions.h(213): error C2228: left of '.print' must have class/struct/union
+  d:\data\electronics\sequencecontroller\code\sequencecontroller\src\builtinfunctions.h(213): note: type is 'unknown-type'

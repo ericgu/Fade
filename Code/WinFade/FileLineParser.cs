@@ -65,5 +65,16 @@ namespace WinFade
 
             return result;
         }
+
+        internal float GetFloatAfterName(string name, float defaultIfMissing)
+        {
+            string value = GetAfterName(name);
+            if (value != null)
+            {
+                return Single.Parse(value);
+            }
+
+            return defaultIfMissing;
+        }
     }
 }

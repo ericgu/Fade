@@ -9,24 +9,31 @@ class LedServoEsp32 : public ILedDevice
     const int ServoRange = 819;
 
     int _pinCount;
-    int _pinNumbers[4];
-    int _channelNumbers[4];
+    int _pinNumbers[16];
+    int _channelNumbers[16];
+    int _servoMin;
+    int _servoMax;
 
     // static int _nextChannelToUse; // Shared with LedPwmEsp32 since they use the same hardware;
 
 public:
-    LedServoEsp32(int pinCount, int pins[16])
+    LedServoEsp32(int pinCount, int *pins)
     {
         Serial.println(">LedServo constructor");
 
-        _pinCount = pinCount;
+        _servoMin = pins[0];
+        _servoMax = pins[1];
+
+        _pinCount = pinCount - 2;
+        Serial.print("Pins: ");
+        Serial.println(_pinCount);
 
         for (int pin = 0; pin < _pinCount; pin++)
         {
-            _pinNumbers[pin] = pins[pin];
+            _pinNumbers[pin] = pins[pin + 2];
         }
 
-        for (int i = 0; i < pinCount; i++)
+        for (int i = 0; i < _pinCount; i++)
         {
             _channelNumbers[i] = LedPwmEsp32::_nextChannelToUse + i;
             Serial.print("Assigning pin: ");
@@ -58,16 +65,13 @@ public:
     {
         // Servo PWM runs at 50 Hz, or 20 mS per cycle.
         //
-        // For servos, the pulse size ranges from 1 mS at one end to 2 mS at the other end.
-        // That corresponds to a pulse width of 1/20 to 1/10th, or at 14 bits of resolution,
-        // 16384 / 20 = 819 to 16384 / 10 = 1638.
-        // That gives 819 steps, where each step is 0.44 degrees.
-        //
-        // Just to make things more fun, the mapping is backwards = a longer pulse means counter-clockwise and a short pulse means clockwise.
+        // The first two parameters passed in are the min and max servo values.
+        // They are mapped backwards - the min servo value is the maximum clockwise rotation and the max is the maximum
+        // counter-clockwise rotation.
         //
         // We will map the brightness value into that range, inverting it to convert to clockwise = bigger.
 
-        int servoPwmValue = ServoMaxCount - pBrightness->GetValueFloat(0) * ServoRange;
+        int servoPwmValue = _servoMax - pBrightness->GetValueFloat(0) * (_servoMax - _servoMin);
 
         // Translate the global channel number to the group channel number...
 

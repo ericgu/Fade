@@ -51,5 +51,29 @@ namespace WinFade
         _key.SetValue("Esp32Address", value);
       }
     }
-  }
+
+    public int UdpLogPortNumber
+    {
+        get
+        {
+            object value;
+
+            if (_key != null)
+            {
+                value = _key.GetValue("UdpLogPortNumber");
+                if (value != null)
+                {
+                    return (int) value;
+                }
+            }
+
+            return 11111;
+        }
+        set
+        {
+            _key.SetValue("UdpLogPortNumber", value);
+        }
+    }
+
+    }
 }

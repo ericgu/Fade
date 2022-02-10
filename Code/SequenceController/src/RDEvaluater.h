@@ -733,11 +733,62 @@ class RDEvaluater
       RETURN(left);
     }
 
+    ExpressionResult EvaluateConditional()
+    {
+        PROLOGUE;
+
+        ExpressionResult left = EvaluateLogicalOr();
+
+        if (_pExpressionTokenSource->EqualTo("?"))
+        {
+            _pExpressionTokenSource->Advance();
+
+            if (left._variable.GetValueInt() != 0)
+            {
+                ExpressionResult trueValue = EvaluateLogicalOr();
+
+                if (_pExpressionTokenSource->EqualTo(":"))
+                {
+                    _pExpressionTokenSource->AdvanceToNewLine();
+                    RETURN(trueValue);
+                }
+                else
+                {
+                    ReportError("Missing : in conditional", "");
+                    return ExpressionResult::Empty();
+                }
+            }
+            else
+            {
+                    // skip evaluation of true value...
+                while (!_pExpressionTokenSource->EqualTo(":") && !_pExpressionTokenSource->AtEnd())
+                {
+                    _pExpressionTokenSource->Advance();
+                }
+                if (_pExpressionTokenSource->AtEnd())
+                {
+                    ReportError("Missing : in conditional", "");
+                    return ExpressionResult::Empty();
+                }
+
+                _pExpressionTokenSource->Advance();
+
+                ExpressionResult falseValue = EvaluateLogicalOr();
+
+                _pExpressionTokenSource->AdvanceToNewLine();
+                RETURN(falseValue);
+            }
+        }
+
+        RETURN(left);
+    }
+
+
     ExpressionResult EvaluateAssignment()
     {
       PROLOGUE;
 
-      ExpressionResult left = EvaluateLogicalOr();
+      ExpressionResult left = EvaluateConditional();
 
       if (_pExpressionTokenSource->EqualTo("="))
       {
@@ -1047,6 +1098,10 @@ class RDEvaluater
                             if (_pExecutionFlow->IsBreaking())
                             {
                                 executing = false;
+                            }
+                            else if (IsAborting("for", -2))
+                            {
+                                return false;
                             }
                         }
                         else

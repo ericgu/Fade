@@ -64,7 +64,7 @@ public:
 		}
 	}
 
-	bool Configure(int ledGroupNumber, const char *pLedType, int ledCount, int pinCount, int pins[16])
+	bool Configure(int ledGroupNumber, const char *pLedType, int ledCount, int pinCount, int *pins)
 	{
 		if (strcmp(pLedType, "FREE") == 0)
 		{
@@ -102,7 +102,7 @@ public:
 		return true;
 	}
 
-    void SetLedState(int channel, Variable *pBrightness)
+	void SetLedState(int channel, Variable *pBrightness)
 	{
 		//Serial.print("SetLedState: ");
 		//Serial.print(channel);
@@ -114,7 +114,6 @@ public:
 
 		_pStates[channel] = LedState(channel, pBrightness, 0);
 	}
-
 
 	void SetDelta(CommandResult *pCommandResult)
 	{

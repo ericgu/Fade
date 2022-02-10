@@ -1,4 +1,5 @@
 #define configUSE_TRACE_FACILITY 1
+#define DEBUG_ESP_HTTP_SERVER 1
 
 #include <Arduino.h>
 #include <arduinonvs.h>
@@ -14,9 +15,9 @@
 
 #include "MyUdp.h"
 
-#include "DimEnvironment.h"
-
 #include <UdpLogger.h>
+
+#include "DimEnvironment.h"
 
 #include <ArduinoNvs.h>
 #include <Settings.h>
@@ -157,8 +158,24 @@ void setup()
     //wifiManager.startConfigPortal();
 
     char networkName[32];
-    sprintf(networkName, "FadeController_%d", esp_random() % 65536);
 
+    _pSettings->LoadNetworkName(networkName, sizeof(networkName));
+    if (networkName[0] == 0)
+    {
+        sprintf(networkName, "FadeController_%x", esp_random());
+        _pSettings->SaveNetworkName(networkName);
+    }
+
+    //Serial.print("Connecting as: ");
+    //Serial.println(networkName);
+    //Serial.print("|");
+    //Serial.print(WiFi.SSID());
+    //Serial.println("|");
+    //Serial.print("|");
+    //Serial.print(WiFi.psk());
+    //Serial.println("|");
+
+    wifiManager.setTimeout(60);
     wifiManager.autoConnect(networkName, "12345678");
     //Serial.print("after autoconnect: ");
 
@@ -197,7 +214,7 @@ void setup()
         xTaskCreatePinnedToCore(
             RunDim, /* Task function. */
             "Dim",  /* String with name of task. */
-            50000,  /* Stack size in bytes. */
+            30000,  /* Stack size in bytes. */
             NULL,   /* Parameter passed as input of the task */
             5,      /* Priority of the task. */
             NULL,
