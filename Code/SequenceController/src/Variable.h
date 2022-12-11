@@ -2,16 +2,49 @@ class Variable
 {
     static const int MaxVariableNameLength = 64;
     static const int MaxStringVariableLength = 128;
+    static int SerialNumber;
+    static int TargetNumber;
 
     VariableData *_pVariableData;
+    //fsint _serialNumber;
 
 public:
+    void AddSerialNumber()
+    {
+        if (SerialNumber == TargetNumber)
+        {
+            int k = 12;
+        }
+        //_serialNumber = SerialNumber++;
+        return;
+        Serial.print("!!\t");
+        //Serial.print(_serialNumber);
+        Serial.println("\t>");
+    }
+
+    void RemoveSerialNumber()
+    {
+        return;
+        Serial.print("!!\t");
+        //Serial.print(_serialNumber);
+        Serial.println("\t<");
+    }
+
+    void SetClassification(const char* pClassification)
+    {
+        //_pVariableData->SetClassification(pClassification);
+    }
+
     Variable()
     {
         _pVariableData = VariableStore::VariableStoreInstance.GetFreePoolEntry();
+        //_pVariableData->SetVariableName("");
+        //_pVariableData->SetStringValue("");
         _pVariableData->SetVariableName("");
         _pVariableData->SetStringValue("");
         _pVariableData->_valueCount = 0;
+        SetClassification("C");
+        AddSerialNumber();
     }
 
     Variable(int value) : Variable()
@@ -19,6 +52,7 @@ public:
         _pVariableData->SetValue(0, (float)value);
         _pVariableData->_valueCount = 1;
         _pVariableData->_stackLevel = 0;
+        SetClassification("I");
     }
 
     Variable(float value) : Variable()
@@ -26,11 +60,13 @@ public:
         _pVariableData->SetValue(0, value);
         _pVariableData->_valueCount = 1;
         _pVariableData->_stackLevel = 0;
+        SetClassification("F");
     }
 
     Variable(const char *pString) : Variable()
     {
         SetValue(pString);
+        SetClassification("S");
     }
 
     Variable(const Variable &other)
@@ -46,7 +82,9 @@ public:
         }
 
         _pVariableData = other._pVariableData;
+        SetClassification("<");
         _pVariableData->IncrementReferenceCount();
+        AddSerialNumber();
     }
 
     Variable &operator=(const Variable &other)
@@ -62,18 +100,23 @@ public:
             return *this;
         }
 
+        RemoveSerialNumber();
+
         if (_pVariableData->GetReferenceCount() != 0)
         {
             VariableStore::VariableStoreInstance.DecrementReferenceCount(_pVariableData);
         }
         _pVariableData = other._pVariableData;
         _pVariableData->IncrementReferenceCount();
+        SetClassification("=");
+        AddSerialNumber();
 
         return *this;
     }
 
     ~Variable()
     {
+        RemoveSerialNumber();
         if (_pVariableData != 0)
         {
             VariableStore::VariableStoreInstance.DecrementReferenceCount(_pVariableData);
@@ -183,7 +226,7 @@ public:
     {
         SplitVariableOnModify();
 
-        if (strlen(pVariableName) >= MaxVariableNameLength)
+        if (pVariableName != NULL && strlen(pVariableName) >= MaxVariableNameLength)
         {
             Serial.println("Variable too long");
             return;
@@ -212,3 +255,6 @@ public:
         return _pVariableData;
     }
 };
+
+int Variable::SerialNumber = 1;
+int Variable::TargetNumber = -1;

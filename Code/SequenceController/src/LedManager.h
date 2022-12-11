@@ -132,6 +132,7 @@ public:
 
 					delta.SetValue(i, itemDelta);
 				}
+                delta.SetClassification("*");
 
 				_pDeltas[ledState.GetChannel()] = LedState(ledState.GetChannel(), &delta, ledState.GetCycleCount());
 			}
@@ -150,7 +151,7 @@ public:
 			{
 				//Serial.println("A1");
 				//Serial.flush();
-				_pStates[i].Update(_pDeltas[i]);
+				_pStates[i].Update(&_pDeltas[i]);
 				//Serial.println("A2");
 				//Serial.flush();
 				_pDeltas[i].DecrementCycleCount();

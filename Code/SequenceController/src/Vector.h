@@ -1,27 +1,27 @@
 #include <math.h>
 
-#define DATAITEMUNUSED ((VectorDataItem*) 0xFFFFFFFFFFFFFFFF)
+#define DATAITEMUNUSED ((VectorDataItem *)0xFFFFFFFFFFFFFFFF)
 
 class VectorDataItem
 {
 public:
-  VectorDataItem()
-  {
-    _data = 0;
-    _pNext = DATAITEMUNUSED;
-  }
+    VectorDataItem()
+    {
+        _data = 0;
+        _pNext = DATAITEMUNUSED;
+    }
 
-  float           _data;
-  VectorDataItem* _pNext;
+    float _data;
+    VectorDataItem *_pNext;
 };
 
 class VectorDataItemProviderChunk
 {
     int _size;
-    int _probe;  // first spot to look for free items. Is set to 1 after the location where
-                      // the previous free item was found.
+    int _probe; // first spot to look for free items. Is set to 1 after the location where
+                // the previous free item was found.
 
-    VectorDataItem* _pDataItems;
+    VectorDataItem *_pDataItems;
 
 public:
     VectorDataItemProviderChunk(int size)
@@ -36,7 +36,7 @@ public:
         return _size;
     }
 
-    VectorDataItem* GetDataItems()
+    VectorDataItem *GetDataItems()
     {
         return _pDataItems;
     }
@@ -46,19 +46,19 @@ class VectorDataItemProvider
 {
     const int MaxChunks = 16;
 
-    VectorDataItemProviderChunk* _pDataItemChunk[16];
+    VectorDataItemProviderChunk *_pDataItemChunk[16];
     int _chunkCount;
     int _inUseCount;
 
-    VectorDataItem* _pFreeList;
+    VectorDataItem *_pFreeList;
 
 public:
     VectorDataItemProvider()
     {
         _chunkCount = 0;
         _pFreeList = 0;
-        AddNewChunk();
         _inUseCount = 0;
+        AddNewChunk();
     }
 
     ~VectorDataItemProvider()
@@ -70,11 +70,11 @@ public:
         _chunkCount = 0;
     }
 
-    void CopyItemsToFreeList(VectorDataItem* pDataItem, int size)
+    void CopyItemsToFreeList(VectorDataItem *pDataItem, int size)
     {
         for (int i = 0; i < size; i++)
         {
-            VectorDataItem* pFreeTop = _pFreeList;
+            VectorDataItem *pFreeTop = _pFreeList;
 
             pDataItem->_pNext = pFreeTop;
             _pFreeList = pDataItem;
@@ -85,12 +85,49 @@ public:
 
     void AddNewChunk()
     {
-        _pDataItemChunk[_chunkCount] = new VectorDataItemProviderChunk(Environment.VectorItemDataPoolCount);
+      bool logging = false;
+
+        if (logging)
+        {
+            Serial.print("In Use Count: ");
+            Serial.flush();
+            Serial.print(GetInUseCount());
+            Serial.print(" ");
+            //Serial.println(EspFunctions::GetHeapCapsFreeSize());
+            //Serial.println(EspFunctions::GetHeapCapsLargestFreeBlock());
+            Serial.flush();
+        }
+
+
+        VectorDataItemProviderChunk *pNewChunk = new VectorDataItemProviderChunk(Environment.VectorItemChunkSize);
+
+        if (logging)
+        {
+            Serial.println("Chunk allocated");
+            Serial.flush();
+        }
+
+        _pDataItemChunk[_chunkCount] = pNewChunk;
+
+        if (logging)
+        {
+            Serial.print("ChunkCount: ");
+            Serial.println(_chunkCount);
+            Serial.flush();
+        }
+
         CopyItemsToFreeList(_pDataItemChunk[_chunkCount]->GetDataItems(), _pDataItemChunk[_chunkCount]->GetSize());
+
+        if (logging)
+        {
+            Serial.println("Copied to free list");
+            Serial.flush();
+        }
+
         _chunkCount++;
     }
 
-    VectorDataItem* GetDataItem()
+    VectorDataItem *GetDataItem()
     {
         if (_pFreeList != 0)
         {
@@ -98,6 +135,10 @@ public:
             _pFreeList = pDataItem->_pNext;
             pDataItem->_pNext = 0;
             _inUseCount++;
+
+            //Serial.print("!!\t");
+            //Serial.print((int)pDataItem);
+            //Serial.println("\t>");
 
             return pDataItem;
         }
@@ -120,25 +161,35 @@ public:
         return _inUseCount;
     }
 
-    void ReleaseDataItem(VectorDataItem* pItem)
+    void ReleaseDataItem(VectorDataItem *pItem)
     {
         pItem->_pNext = _pFreeList;
         _pFreeList = pItem;
         _inUseCount--;
+
+        //Serial.print("!!\t");
+        //Serial.print((int)pItem);
+        //Serial.println("\t<");
+
     }
 };
 
 class Vector
 {
 public:
-    static VectorDataItemProvider* _pVectorDataItemProvider;
+    static VectorDataItemProvider *_pVectorDataItemProvider;
     static int _pVectorDataItemProviderSize;
 
-    VectorDataItem* _pFirstItem;
+    VectorDataItem *_pFirstItem;
     int _itemCount;
 
-    VectorDataItem* _pLastMatch;
+    VectorDataItem *_pLastMatch;
     int _lastMatchIndex;
+
+    static int GetDataItemProviderInUseCount()
+    {
+        return _pVectorDataItemProvider->GetInUseCount();
+    }
 
     static void RestartVectorDataProvider()
     {
@@ -172,11 +223,11 @@ public:
             return;
         }
 
-        VectorDataItem* pItem = _pFirstItem;
+        VectorDataItem *pItem = _pFirstItem;
 
         while (pItem->_pNext != 0)
         {
-            VectorDataItem* pNext = pItem->_pNext;
+            VectorDataItem *pNext = pItem->_pNext;
 
             _pVectorDataItemProvider->ReleaseDataItem(pItem);
 
@@ -190,9 +241,9 @@ public:
         _lastMatchIndex = 0;
     }
 
-    VectorDataItem* GetItemByIndex(int index)
+    VectorDataItem *GetItemByIndex(int index)
     {
-        VectorDataItem* pItem;
+        VectorDataItem *pItem;
         int i;
 
         if (_pFirstItem == 0)
@@ -240,15 +291,14 @@ public:
         return pItem;
     }
 
-
     bool SetItem(int index, float value)
     {
-        VectorDataItem* pItem = GetItemByIndex(index);
+        VectorDataItem *pItem = GetItemByIndex(index);
 
         if (pItem == 0)
         {
-            Serial.print("VectorItemAddFail: Environment.VectorItemDataPoolCount exceeded - currently ");
-            Serial.println(Environment.VectorItemDataPoolCount);
+            Serial.print("VectorItemAddFail: Environment.VectorItemChunkSize: ");
+            Serial.println(Environment.VectorItemChunkSize);
             return false;
         }
 
@@ -258,7 +308,7 @@ public:
 
     float GetItem(int index) const
     {
-        VectorDataItem* pItem = ((Vector*)this)->GetItemByIndex(index);  // stupid const correctness. 
+        VectorDataItem *pItem = ((Vector *)this)->GetItemByIndex(index); // stupid const correctness.
 
         return pItem->_data;
     }
@@ -269,5 +319,5 @@ public:
     }
 };
 
-VectorDataItemProvider* Vector::_pVectorDataItemProvider = 0;
+VectorDataItemProvider *Vector::_pVectorDataItemProvider = 0;
 int Vector::_pVectorDataItemProviderSize = -1;

@@ -10,6 +10,7 @@ class VariableData
     Vector _values;
 public:
     VariableData* _pNext;
+    //char _classification[16];
 
     VariableData()
     {
@@ -19,11 +20,27 @@ public:
       _stackLevel = 0;
       _referenceCount = 0;
       _pNext = 0;
+      //_classification[0] = 0;
     }
 
     int _valueCount;
     int _stackLevel;
     int _referenceCount;
+
+#if classifications
+    void SetClassification(char* pClassification)
+    {
+        if (_classification[1] == '*' && pClassification[0] == '<')
+        {
+            int k = 13;
+        }
+
+        if (strlen(_classification) < sizeof(_classification) - 1)
+        {
+            strcat(_classification, pClassification);
+        }
+    }
+#endif
 
     void SetValue(int index, float value)
     {
@@ -91,6 +108,7 @@ public:
         _values.Cleanup();
         _valueCount = 0;
         _referenceCount = 0;
+        //_classification[0] = 0;
       }
     }
 

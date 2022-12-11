@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text;
@@ -19,7 +20,9 @@ namespace WinFade
         private delegate void FatalErrorDelegate();
 
         private Thread _fadeThread;
+        private string _outputTextLine;
         private int _outputLineCount;
+        StreamWriter _outputStreamWriter;
 
         readonly ProgramSettings _programSettings;
 
@@ -38,6 +41,11 @@ namespace WinFade
         public Form1()
         {
             InitializeComponent();
+
+            _outputTextLine = String.Empty;
+            _outputLineCount = 0;
+            _outputStreamWriter = File.CreateText("MessageLog.txt");
+
 
             _remote = new Remote();
             _remote.NameFetched += RemoteOnNameFetched;
@@ -97,8 +105,6 @@ namespace WinFade
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
         }
 
-
-
         private void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             throw new NotImplementedException();
@@ -116,22 +122,31 @@ namespace WinFade
 
         private void NewTextAvailable(string text)
         {
+            if (text.StartsWith("**STOP**"))
+            {
+                int K = 12;
+            }
+
             var d = new CreateLedDeviceDelegate(AddOutputToListbox);
             c_listBoxSerialOutput.Invoke(d, new object[] {text});
         }
 
         private void AddOutputToListbox(string text)
         {
-            if (c_listBoxSerialOutput.Items.Count == 0)
-            {
-                c_listBoxSerialOutput.Items.Add("");
-            }
+            _outputTextLine += text;
 
-            c_listBoxSerialOutput.Items[c_listBoxSerialOutput.Items.Count - 1] += text;
-
-            if (text.EndsWith("\n"))
+            if (_outputTextLine.EndsWith("\n"))
             {
-                c_listBoxSerialOutput.Items.Add("");
+                if (_outputTextLine.StartsWith("!!"))
+                {
+                    _outputStreamWriter.Write(_outputTextLine);
+                    _outputTextLine = "";
+                    return;
+                }
+
+                c_listBoxSerialOutput.Items.Add(_outputTextLine);
+                _outputTextLine = "";
+
                 _outputLineCount++;
                 c_labelOutputLineCount.Text = _outputLineCount.ToString();
             }
@@ -146,8 +161,6 @@ namespace WinFade
             //int k = 12;
 
         }
-
-
 
         private void LedUpdated(int ledGroupNumber, int channel, int brightnessCount, float brightness1, float brightness2,
             float brightness3, float brightness4)
@@ -496,7 +509,7 @@ namespace WinFade
             int index = c_textBoxProgramText.GetCharIndexFromPosition(_textBoxMouseLocation);
 
             int start = index;
-            if (start >= _project.ProgramText.Length)
+            if (_project.ProgramText == null || start >= _project.ProgramText.Length)
             {
                 return;
             }

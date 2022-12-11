@@ -112,7 +112,7 @@ class IntegrationTest
 
         {
             CommandSourceSimulator commandSource;
-            LedDeviceSimulator ledDevice(10000);
+            LedDeviceSimulator ledDevice(1000);
 
             LedDeviceCreatorSimulator ledCreator(&ledDevice);
 

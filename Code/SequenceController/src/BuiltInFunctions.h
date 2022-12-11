@@ -7,7 +7,7 @@ class BuiltInFunctions
 			Variable *pArgumentCount = pExecutionContext->GetVariableWithoutErrorCheck("#A");
 			if (pArgumentCount->GetValueInt() == 2)
 			{
-				//Serial.println("    found random: ");
+				// Serial.println("    found random: ");
 				Variable *pMinValue = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 				Variable *pMaxValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
 
@@ -315,8 +315,8 @@ class BuiltInFunctions
 			else
 			{
 				bool buttonState = pExecutionFlow->GetButtonState(buttonNumber);
-				//Serial.print("ReadButton: ");
-				//Serial.println(buttonState);
+				// Serial.print("ReadButton: ");
+				// Serial.println(buttonState);
 
 				pExpressionResult->_variable.SetValue(0, (float)buttonState);
 			}
@@ -374,16 +374,52 @@ class BuiltInFunctions
 		return false;
 	}
 
+	static bool HandleBuiltInLogValue(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
+	{
+        if (strcmp(pFunctionName, "LogValue") == 0)
+        {
+            Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
+
+            char buffer[64];
+            if (strcmp(pIdentifier->GetValueString(), "VectorDataItemProviderInUseCount") == 0)
+            {
+                int inUseCount = Vector::GetDataItemProviderInUseCount();
+
+                snprintf(buffer, sizeof(buffer), "%s: %d\n", pIdentifier->GetValueString(), inUseCount);
+            }
+            else if (strcmp(pIdentifier->GetValueString(), "VariableStoreInUseCount") == 0)
+            {
+                int inUseCount = VariableStore::VariableStoreInstance.GetInUseCount();
+
+                snprintf(buffer, sizeof(buffer), "%s: %d\n", pIdentifier->GetValueString(), inUseCount);
+            }
+            else
+            {
+                return false;
+            }
+
+            Serial.print(buffer);
+
+            if (Environment.DebugPrintOverUdp)
+            {
+                UdpLogger.print(buffer);
+            }
+            return true;
+        }
+
+		return false;
+	}
+
 	static bool HandleBuiltInConfigEnvironment(const char *pFunctionName, IExecutionContext *pExecutionContext, ParseErrors *pParseErrors, int lineNumber, ExpressionTokenSource *pExpressionTokenSource, IExecutionFlow *pExecutionFlow, ExpressionResult *pExpressionResult)
 	{
 		if (strcmp(pFunctionName, "ConfigEnvironment") == 0)
 		{
 			Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 
-			if (strcmp(pIdentifier->GetValueString(), "VectorItemDataPoolCount") == 0)
+			if (strcmp(pIdentifier->GetValueString(), "VectorItemChunkSize") == 0)
 			{
 				Variable *pValue = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
-				Environment.VectorItemDataPoolCount = pValue->GetValueInt();
+				Environment.VectorItemChunkSize = pValue->GetValueInt();
 				return true;
 			}
 			else if (strcmp(pIdentifier->GetValueString(), "VariableStoreChunkSize") == 0)
@@ -442,7 +478,7 @@ class BuiltInFunctions
 	{
 		if (strcmp(pFunctionName, "HsvToRgb") == 0)
 		{
-			//Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
+			// Variable *pIdentifier = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 
 			Variable *pH = pExecutionContext->GetVariableWithoutErrorCheck("#A0");
 			Variable *pS = pExecutionContext->GetVariableWithoutErrorCheck("#A1");
@@ -586,6 +622,11 @@ public:
 		}
 
 		if (HandleBuiltInMin(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
+		{
+			return true;
+		}
+
+		if (HandleBuiltInLogValue(pFunctionName, pExecutionContext, pParseErrors, lineNumber, pExpressionTokenSource, pExecutionFlow, pExpressionResult))
 		{
 			return true;
 		}

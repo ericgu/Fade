@@ -64,6 +64,17 @@ public:
 		}
 	}
 
+  static void IsNull(const char* actual)
+  {
+    _assertCount++;
+
+    if (actual != NULL)
+    {
+      sprintf_s(_buffer, "Expected NULL got %s", actual);
+      Failed(_buffer);
+    }
+  }
+
 	static void AreEqual(float expected, float actual)
 	{
 		_assertCount++;

@@ -1,7 +1,7 @@
 class EnvironmentClass
 {
 public:
-  int VectorItemDataPoolCount;
+  int VectorItemChunkSize;
   int VariableStoreChunkSize;
   int DebugLogStatements;
   int DebugLogHeapFreeOnAllocation;
@@ -17,7 +17,7 @@ public:
 
   void ResetValues()
   {
-    VectorItemDataPoolCount = 2048; // Total number of vector items that can exist at any one time.
+    VectorItemChunkSize = 512;      // The size of each vector item chunk. 
     VariableStoreChunkSize = 64;    // Size of variable store chunks
 
     DebugLogStatements = 0;

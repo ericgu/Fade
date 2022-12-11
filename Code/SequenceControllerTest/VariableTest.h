@@ -135,6 +135,27 @@ class VariableTest
         Assert::AreEqual(0, pVariableData->GetReferenceCount());
     }
 
+    static void TestDestructorCleansUpVectorUsage()
+    {
+        Vector::RestartVectorDataProvider();
+        {
+            Vector v; // force creation of data provider...
+        }
+
+        VariableData* pVariableData;
+
+        Assert::AreEqual(0, Vector::_pVectorDataItemProvider->GetInUseCount());
+        {
+            Variable variable(15);
+            pVariableData = variable.TestOnlyGetVariableData();
+            Assert::AreEqual(1, pVariableData->GetReferenceCount());
+
+            Assert::AreEqual(1, Vector::_pVectorDataItemProvider->GetInUseCount());
+        }
+        Assert::AreEqual(0, Vector::_pVectorDataItemProvider->GetInUseCount());
+    }
+
+
     static void TestCopyUsesSameVariableData()
     {
         Variable variable(15);
@@ -340,6 +361,44 @@ class VariableTest
         Assert::AreEqual(1, variable.IsNan());
     }
 
+    static void TestStoreFreeList()
+    {
+        VariableStore::VariableStoreInstance.TrackInUseList(true);
+
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
+        Assert::AreEqual(128, VariableStore::VariableStoreInstance.GetFreeListCount());
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseListCount());
+        {
+            Variable variable(15);
+            Assert::AreEqual(1, VariableStore::VariableStoreInstance.GetInUseCount());
+            Assert::AreEqual(127, VariableStore::VariableStoreInstance.GetFreeListCount());
+            Assert::AreEqual(1, VariableStore::VariableStoreInstance.GetInUseListCount());
+
+            {
+                Variable* pVariable2 = new Variable(10);
+                Variable* pVariable3 = new Variable(20);
+                Variable* pVariable4 = new Variable(30);
+                Variable* pVariable5 = new Variable(40);
+                Assert::AreEqual(5, VariableStore::VariableStoreInstance.GetInUseCount());
+                Assert::AreEqual(123, VariableStore::VariableStoreInstance.GetFreeListCount());
+                Assert::AreEqual(5, VariableStore::VariableStoreInstance.GetInUseListCount());
+
+                delete pVariable4;
+                delete pVariable3;
+                delete pVariable2;
+                delete pVariable5;
+            }
+            Assert::AreEqual(1, VariableStore::VariableStoreInstance.GetInUseCount());
+            Assert::AreEqual(127, VariableStore::VariableStoreInstance.GetFreeListCount());
+            Assert::AreEqual(1, VariableStore::VariableStoreInstance.GetInUseListCount());
+        }
+
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
+        Assert::AreEqual(128, VariableStore::VariableStoreInstance.GetFreeListCount());
+        Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseListCount());
+
+        VariableStore::VariableStoreInstance.TrackInUseList(false);
+    }
 
 public:
     static void Run()
@@ -380,5 +439,9 @@ public:
         TestAssignmentOperator();
         TestCopyConstructorSplitsDataIfSourceStackLevelIsNotZero();
         TestAssignmentOperatorSplitsIfSourceIsAProgramVariable();
+
+        TestDestructorCleansUpVectorUsage();
+
+        TestStoreFreeList();
     }
 };

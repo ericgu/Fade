@@ -8,6 +8,16 @@ public:
     return 0;
   }
 
+  static int GetHeapCapsFreeSize()
+  {
+    return 0;
+  }
+
+  static int GetHeapCapsLargestFreeBlock()
+  {
+    return 0;
+  }
+
   static void Restart()
   {
     Serial.println("Restart called!");

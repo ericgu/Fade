@@ -62,7 +62,21 @@ public:
 
     bool Matches(Variable *pVariable, const char *pVariableName, int stackLevel)
     {
-        return pVariable->GetStackLevel() == stackLevel && strcmp(pVariable->GetVariableName(), pVariableName) == 0;
+
+      //return pVariable->GetStackLevel() == stackLevel && strcmp(pVariable->GetVariableName(), pVariableName) == 0;
+      if (pVariable->GetStackLevel() != stackLevel)
+      {
+        return false;
+      }
+
+      const char* pStoredVariableName = pVariable->GetVariableName();
+
+      if (pStoredVariableName == NULL || pVariableName == NULL)
+      {
+        return false;
+      }
+
+      return strcmp(pVariable->GetVariableName(), pVariableName) == 0;
     }
 
     Variable *Add(const char *pVariableName, int stackLevel)

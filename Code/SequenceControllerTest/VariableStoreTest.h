@@ -94,7 +94,6 @@ class VariableStoreTest
         Assert::AreEqual(0, VariableStore::VariableStoreInstance.GetInUseCount());
     }
 
-
 public:
     static void Run()
     {

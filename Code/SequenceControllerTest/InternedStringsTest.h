@@ -28,16 +28,30 @@ class InternedStringsTest
     Assert::AreEqual((void*) pString1, (void*) pString2);
   }
 
-  static void TestFullChunkReturnsZero()
+  static void TestTwoStringsWork()
   {
-    StringChunk stringChunk(1);
+    StringChunk stringChunk(20);
 
-    const char* pString1 = stringChunk.LookupOrAdd("Testy");
+    Assert::AreEqual(stringChunk.LookupOrAdd("testa"), stringChunk.LookupOrAdd("testa"));
+    Assert::AreEqual(stringChunk.LookupOrAdd("testb"), stringChunk.LookupOrAdd("testb"));
 
-    const char* pString2 = stringChunk.LookupOrAdd("Other");
-
-    Assert::AreEqual(0, (void*)pString2);
   }
+
+  static void TestFullChunk()
+  {
+    StringChunk stringChunk(10);
+
+    const char* pString1 = stringChunk.LookupOrAdd("12345");
+
+    const char* pString2 = stringChunk.LookupOrAdd("123");    
+    Assert::AreEqual(0, (void*)pString2);
+
+    const char* pString3 = stringChunk.LookupOrAdd("12");
+    Assert::AreEqual("12", pString3);
+  }
+
+
+
 
   static void TestMultipleInternsWorkTogether()
   {
@@ -67,8 +81,10 @@ public:
   {
     TestAddNewString();
     TestAddExistingStringReturnsSameInstance();
-    TestFullChunkReturnsZero();
+    TestTwoStringsWork();
+    TestFullChunk();
 
+    
     TestMultipleInternsWorkTogether();
   }
 

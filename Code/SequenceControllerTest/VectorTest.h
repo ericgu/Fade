@@ -24,8 +24,8 @@ class VectorTest
 
     static void TestProviderCanReallocateAReleasedItem()
     {
-        int temp = Environment.VectorItemDataPoolCount;
-        Environment.VectorItemDataPoolCount = 2;
+        int temp = Environment.VectorItemChunkSize;
+        Environment.VectorItemChunkSize = 2;
         VectorDataItemProvider dataItemProvider;
 
         VectorDataItem* pDataItem1 = dataItemProvider.GetDataItem();
@@ -40,13 +40,13 @@ class VectorTest
         Assert::AreEqual(pDataItem1, pDataItem3);
         Assert::AreEqual(2, dataItemProvider.GetInUseCount());
 
-        Environment.VectorItemDataPoolCount = temp;
+        Environment.VectorItemChunkSize = temp;
     }
 
     static void TestProviderCanReallocateTwoReleasedItems()
     {
-        int temp = Environment.VectorItemDataPoolCount;
-        Environment.VectorItemDataPoolCount = 7;
+        int temp = Environment.VectorItemChunkSize;
+        Environment.VectorItemChunkSize = 7;
         VectorDataItemProvider dataItemProvider;
 
         VectorDataItem* pDataItem1 = dataItemProvider.GetDataItem();
@@ -70,7 +70,7 @@ class VectorTest
         VectorDataItem* pDataItem9 = dataItemProvider.GetDataItem();
         Assert::AreEqual(pDataItem9, pDataItem3);
         Assert::AreEqual(7, dataItemProvider.GetInUseCount());
-        Environment.VectorItemDataPoolCount = temp;
+        Environment.VectorItemChunkSize = temp;
     }
 
 

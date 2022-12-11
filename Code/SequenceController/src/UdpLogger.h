@@ -21,9 +21,8 @@ public:
         Serial.print("UDP Logging: ");
         Serial.println(pString);
         _udp.beginPacket("255.255.255.255", _port);
-        _udp.write((uint8_t *)"FadeUdpLog: ", 12);
         _udp.write((uint8_t *)pString, strlen(pString));
-        _udp.endPacket();
+        Serial.println(_udp.endPacket());
     }
 };
 

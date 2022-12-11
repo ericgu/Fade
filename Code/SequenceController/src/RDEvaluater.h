@@ -273,8 +273,7 @@ class RDEvaluater
 
       if (_pExpressionTokenSource->IsNumber())
       {
-        ExpressionResult expressionResult;
-        expressionResult._variable = Variable::ParseFloat(_pExpressionTokenSource->GetCurrentToken());
+        ExpressionResult expressionResult(Variable::ParseFloat(_pExpressionTokenSource->GetCurrentToken()));
         _pExpressionTokenSource->Advance();
         RETURN(expressionResult);
       }
@@ -404,8 +403,7 @@ class RDEvaluater
         return expressionResult;
       }
 
-      ExpressionResult expressionResult = EvaluateExpression();
-      RETURN(expressionResult);
+      RETURN(EvaluateExpression());
     }
 
     ExpressionResult EvaluateParentheses()
@@ -426,8 +424,7 @@ class RDEvaluater
         }
         _pExpressionTokenSource->Advance(); // eat closing paren...
 
-        ExpressionResult expressionResult;
-        expressionResult._variable = value;
+        ExpressionResult expressionResult(value);
         return expressionResult;
       }
       RETURN(EvaluateString());
@@ -435,7 +432,7 @@ class RDEvaluater
 
     void RemoveUndefinedSentinel(const char* pVariableName)
     {
-        if (strlen(pVariableName) != 0)
+        if (pVariableName != NULL && strlen(pVariableName) != 0)
         {
             SafeString::StringCopy(_temporaryBuffer, "$", sizeof(_temporaryBuffer));
             SafeString::StringCat(_temporaryBuffer, pVariableName, sizeof(_temporaryBuffer));
@@ -491,9 +488,7 @@ class RDEvaluater
         }
         _pExpressionTokenSource->Advance(); // eat closing brace...
 
-        ExpressionResult expressionResult;
-        expressionResult._variable = first._variable;
-        return expressionResult;
+        return ExpressionResult(first._variable);
       }
 
       RETURN(EvaluateParentheses());
@@ -504,13 +499,12 @@ class RDEvaluater
     {
       PROLOGUE;
 
-      ExpressionResult value;
       if (_pExpressionTokenSource->EqualTo("+") || _pExpressionTokenSource->EqualTo("-"))
       {
           const char op = _pExpressionTokenSource->FirstChar();
 
         _pExpressionTokenSource->Advance();
-        value = EvaluateUnary();
+        ExpressionResult value = EvaluateUnary();
         if (!(ValidateHasValue(&value)))
         {
           return ExpressionResult::Empty();
@@ -524,13 +518,12 @@ class RDEvaluater
         case '+':
           break;
         }
-
+        RETURN(value);
       }
       else
       {
-        value = EvaluateMultiValueNumber();
+        RETURN(EvaluateMultiValueNumber());
       }
-      RETURN(value);
     }
 
     ExpressionResult EvaluateMultiplicative()
@@ -844,9 +837,7 @@ class RDEvaluater
         RETURN(ExpressionResult::Empty());
       }
 
-      ExpressionResult expressionResult = EvaluateEmpty();
-
-      RETURN(expressionResult);
+      RETURN(EvaluateEmpty());
     }
 
     void HandleIf(bool active)

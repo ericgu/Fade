@@ -11,7 +11,9 @@ class VariableStore
     VariableStoreChunk *_pChunks[MaxChunks];
 
     VariableData* _pFreeList;
+    VariableData* _pInUseList;
     int _inUseCount;
+    bool _trackInUseList;
 
 public:
     static VariableStore VariableStoreInstance;
@@ -21,11 +23,17 @@ public:
         _chunkCount = 0;
         _pFreeList = 0;
         _inUseCount = 0;
+        _trackInUseList = false;
     }
 
     ~VariableStore()
     {
         ResetCache();
+    }
+
+    void TrackInUseList(bool enable)
+    {
+        _trackInUseList = enable;
     }
 
     void ResetCache()
@@ -61,12 +69,14 @@ public:
         }
     }
 
+
+
     VariableData *GetFreePoolEntry()
     {
         if (Environment.DebugLogHeapFreeOnAllocation)
         {
-            Serial.print("VariableStore::GetFreePoolEntry:: HeapSize ");
-            Serial.print(EspFunctions::GetFreeHeap());
+            //Serial.print("VariableStore::GetFreePoolEntry:: HeapSize ");
+            //Serial.print(EspFunctions::GetFreeHeap());
 
             int variableCount = 0;
             for (int chunk = 0; chunk < _chunkCount; chunk++)
@@ -84,6 +94,17 @@ public:
             _pFreeList = pVariableData->_pNext;
             _inUseCount++;
             pVariableData->IncrementReferenceCount();
+
+            if (_trackInUseList)
+            {
+                pVariableData->_pNext = _pInUseList;
+                _pInUseList = pVariableData;
+            }
+            else
+            {
+                pVariableData->_pNext = 0;
+            }
+
             return pVariableData;
         }
 
@@ -117,6 +138,52 @@ public:
     {
         return _inUseCount;
     }
+
+    void MyOutputDebugString(const char* pString)
+    {
+#if classification
+        const size_t cSize = strlen(pString) + 1;
+        wchar_t* wc = new wchar_t[cSize];
+        mbstowcs(wc, pString, cSize);
+        OutputDebugString(wc);
+        delete wc;
+#endif
+    }
+
+
+    int GetFreeListCount()
+    {
+        VariableData* pData = _pFreeList;
+
+        int count = 0;
+        while (pData != 0)
+        {
+            //MyOutputDebugString(pData->_classification);
+            pData = pData->_pNext;
+            count++;
+        }
+
+
+        return count;
+    }
+
+
+    int GetInUseListCount()
+    {
+        VariableData* pData = _pInUseList;
+
+        int count = 0;
+        while (pData != 0)
+        {
+            //MyOutputDebugString(pData->_classification);
+            //MyOutputDebugString(" ");
+            pData = pData->_pNext;
+            count++;
+        }
+
+        return count;
+    }
+
 
     VariableData *SplitOffEntry(VariableData *pVariableData)
     {
@@ -152,6 +219,29 @@ public:
 
         if (pVariableData->GetReferenceCount() <= 0)
         {
+            if (_trackInUseList)
+            {
+                if (pVariableData == _pInUseList)    // First item on the in-use list...
+                {
+                    _pInUseList = pVariableData->_pNext;
+                }
+                else
+                {
+                    VariableData* pNode = _pInUseList;
+
+                    while (pNode->_pNext != 0)
+                    {
+                        if (pNode->_pNext == pVariableData)
+                        {
+                            pNode->_pNext = pNode->_pNext->_pNext;
+                            break;
+                        }
+                        pNode = pNode->_pNext;
+                    }
+                }
+
+            }
+
             MoveToFreeList(pVariableData);
             _inUseCount--;
         }

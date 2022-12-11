@@ -144,7 +144,7 @@
       </AdditionalUsingDirectories>
       <AdditionalIncludeDirectories>..\SequenceController\include\;..\SequenceController\src\</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

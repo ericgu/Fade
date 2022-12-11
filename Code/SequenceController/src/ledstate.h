@@ -52,12 +52,12 @@ public:
 		return _cycleCount;
 	}
 
-	void Update(LedState deltaState)
+	void Update(LedState* pDeltaState)
 	{
-		if (deltaState._channel == _channel)
+		if (pDeltaState->_channel == _channel)
 		{
-			Variable *pDeltaBrightness = deltaState.GetBrightness();
-			for (int i = 0; i < deltaState.GetBrightness()->GetValueCount(); i++)
+			Variable *pDeltaBrightness = pDeltaState->GetBrightness();
+			for (int i = 0; i < pDeltaState->GetBrightness()->GetValueCount(); i++)
 			{
 				_brightness.SetValue(i, _brightness.GetValueFloat(i) + pDeltaBrightness->GetValueFloat(i));
 			}

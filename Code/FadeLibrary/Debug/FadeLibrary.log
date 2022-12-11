@@ -1,4 +1,5 @@
 ﻿  FadeLibrary.cpp
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\internedstrings.h(44): warning C4018: '>': signed/unsigned mismatch
   FadeLibrary.vcxproj -> D:\data\Electronics\SequenceController\Code\WinFade\Debug\FadeLibrary.dll
   FadeLibrary.vcxproj -> D:\data\Electronics\SequenceController\Code\WinFade\Debug\FadeLibrary.pdb (Full PDB)
           1 file(s) copied.

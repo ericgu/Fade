@@ -307,12 +307,12 @@ class BuildInFunctionsTest
         executionContext.AddVariableAndSet("#A0", &Variable("VectorItemDataPoolCount"));
         executionContext.AddVariableAndSet("#A1", &Variable(33));
 
-        int temp = Environment.VectorItemDataPoolCount;
+        int temp = Environment.VectorItemChunkSize;
         BuiltInFunctions::HandleBuiltInFunctions("ConfigEnvironment", &executionContext, &parseErrors, 15, &expressionTokenSource, &executionFlow, &expressionResult);
 
         Assert::AreEqual(0, parseErrors.GetErrorCount());
-        Assert::AreEqual(33, Environment.VectorItemDataPoolCount);
-        Environment.VectorItemDataPoolCount = temp;
+        Assert::AreEqual(512, Environment.VectorItemChunkSize);
+        Environment.VectorItemChunkSize = temp;
     }
 
     static void TestConfigEnvironment2()

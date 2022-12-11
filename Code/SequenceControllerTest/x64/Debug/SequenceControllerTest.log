@@ -1,4 +1,4 @@
 ﻿  SequenceControllerTest.cpp
-d:\data\electronics\sequencecontroller\code\sequencecontroller\src\builtinfunctions.h(213): error C2065: 'UdpLogger': undeclared identifier
-d:\data\electronics\sequencecontroller\code\sequencecontroller\src\builtinfunctions.h(213): error C2228: left of '.print' must have class/struct/union
-  d:\data\electronics\sequencecontroller\code\sequencecontroller\src\builtinfunctions.h(213): note: type is 'unknown-type'
+d:\data\electronics\sequencecontroller\code\sequencecontroller\src\internedstrings.h(42): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+  SequenceControllerTest.vcxproj -> D:\data\Electronics\SequenceController\Code\SequenceControllerTest\x64\Debug\SequenceControllerTest.exe
+  SequenceControllerTest.vcxproj -> D:\data\Electronics\SequenceController\Code\SequenceControllerTest\x64\Debug\SequenceControllerTest.pdb (Full PDB)
